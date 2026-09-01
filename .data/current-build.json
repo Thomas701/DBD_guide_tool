@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-01T22:30:17.572Z",
+  "updatedAt": "2026-09-01T23:04:23.371Z",
   "build": {
     "id": null,
-    "name": "le piégeur — Build",
-    "killerId": "trapper",
+    "name": "",
+    "killerId": null,
     "perkIds": []
   },
   "scenario": {
@@ -13,26 +13,5 @@
     },
     "perkStates": {}
   },
-  "assistantContext": {
-    "killer": {
-      "name": "le piégeur",
-      "speed": 4.6,
-      "terrorRadius": 32,
-      "size": "big",
-      "tier": "D",
-      "difficulty": "easy"
-    },
-    "perks": [],
-    "currentState": {
-      "activeConditions": {
-        "not_in_chase": true
-      },
-      "perkStates": {}
-    },
-    "calculatedData": {
-      "affectedStats": [],
-      "qualitativeEffects": [],
-      "unresolvedEffects": []
-    }
-  }
+  "assistantContext": null
 }

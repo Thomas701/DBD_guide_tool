@@ -1,18 +1,12 @@
 @echo off
+setlocal
 cd /d "%~dp0"
-where node >nul 2>nul || (
-  echo Node.js est requis pour lancer Build Analyzer.
-  pause
-  exit /b 1
-)
-if not exist "node_modules\vite\bin\vite.js" (
-  echo Installation initiale des dependances...
-  call npm install || goto :error
-)
-node scripts\start-app.mjs
-exit /b %errorlevel%
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\bootstrap.ps1" %*
+if errorlevel 1 goto :error
+exit /b 0
 
 :error
-echo Impossible de preparer Build Analyzer.
+echo.
+echo Impossible d'installer ou de lancer Build Analyzer.
 pause
 exit /b 1

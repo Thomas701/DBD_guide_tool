@@ -4,7 +4,7 @@ Le dépôt couvre actuellement les phases 1 à 9 du cahier des charges : audit, 
 
 ## Commandes
 
-Prérequis : Node.js 20 ou supérieur.
+Prérequis pour les commandes manuelles : Node.js 20 ou supérieur.
 
 ```sh
 npm install
@@ -22,7 +22,9 @@ npm run check
 
 ### Lancement en double-clic
 
-Sous Windows, double-cliquez sur **`Lancer Build Analyzer.bat`**. Le lanceur installe les dépendances si nécessaire, démarre Vite et le proxy local dans une seule fenêtre, puis ouvre `http://127.0.0.1:5173`. Laissez cette fenêtre ouverte pendant l’utilisation.
+Sous Windows, double-cliquez sur **`Lancer Build Analyzer.bat`**. Le lanceur installe automatiquement Node.js LTS avec `winget` s’il est absent ou trop ancien, puis les dépendances du projet et Chromium si nécessaire. Il démarre ensuite Vite et le proxy local dans une seule fenêtre, puis ouvre `http://127.0.0.1:5173`. Laissez cette fenêtre ouverte pendant l’utilisation.
+
+`winget` est fourni par **App Installer** sur Windows 10/11. Si le poste ne le possède pas, le lanceur indique comment l’ajouter depuis le Microsoft Store.
 
 La session courante est conservée dans le stockage local du navigateur : brouillon, tueur, perks, conditions, onglet, disposition des panneaux et historique du chat sont restaurés à la réouverture.
 
