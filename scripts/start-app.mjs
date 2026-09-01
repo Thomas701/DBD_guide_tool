@@ -24,7 +24,9 @@ try {
 }
 
 function start(args) {
-  return spawn(npm, args, { cwd: root, stdio: "inherit", windowsHide: false });
+  const command = process.platform === "win32" ? process.env.ComSpec ?? "cmd.exe" : npm;
+  const commandArgs = process.platform === "win32" ? ["/d", "/s", "/c", npm, ...args] : args;
+  return spawn(command, commandArgs, { cwd: root, stdio: "inherit", windowsHide: false });
 }
 
 async function waitFor(url, timeout) {

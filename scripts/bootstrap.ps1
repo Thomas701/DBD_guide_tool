@@ -63,6 +63,11 @@ if ($LASTEXITCODE -ne 0) {
   if ($LASTEXITCODE -ne 0) { throw "L'installation de Chromium a echoue (code $LASTEXITCODE)." }
 }
 
-Write-Host "Build Analyzer est pret." -ForegroundColor Green
-if (-not $PrepareOnly) { & $node "scripts\start-app.mjs" }
+if ($PrepareOnly) {
+  Write-Host "Preparation terminee." -ForegroundColor Green
+  exit 0
+}
+
+Write-Host "Preparation terminee. Demarrage de Build Analyzer..." -ForegroundColor Green
+& $node "scripts\start-app.mjs"
 exit $LASTEXITCODE
