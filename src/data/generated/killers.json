@@ -1,0 +1,716 @@
+[
+  {
+    "id": "trapper",
+    "name": {
+      "fr": "le piégeur",
+      "en": "The Trapper"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/trapper.png",
+    "speed": 4.6,
+    "terrorRadius": 32,
+    "size": "big",
+    "tier": "D",
+    "difficulty": "easy",
+    "provenance": {
+      "file": "source.txt",
+      "line": 285
+    }
+  },
+  {
+    "id": "wraith",
+    "name": {
+      "fr": "le spectre",
+      "en": "The Wraith"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/wraith.png",
+    "speed": 4.6,
+    "terrorRadius": 32,
+    "size": "big",
+    "tier": "C+",
+    "difficulty": "easy",
+    "provenance": {
+      "file": "source.txt",
+      "line": 286
+    }
+  },
+  {
+    "id": "hillbilly",
+    "name": {
+      "fr": "le montagnard",
+      "en": "The Hillbilly"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/hillbilly.png",
+    "speed": 4.6,
+    "terrorRadius": 40,
+    "size": "big",
+    "tier": "A+",
+    "difficulty": "normal",
+    "provenance": {
+      "file": "source.txt",
+      "line": 287
+    }
+  },
+  {
+    "id": "nurse",
+    "name": {
+      "fr": "l'infirmière",
+      "en": "The Nurse"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/nurse.png",
+    "speed": 3.8,
+    "terrorRadius": 32,
+    "size": "normal",
+    "tier": "S+",
+    "difficulty": "nightmare",
+    "provenance": {
+      "file": "source.txt",
+      "line": 288
+    }
+  },
+  {
+    "id": "hag",
+    "name": {
+      "fr": "la harpie",
+      "en": "The Hag"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/hag.png",
+    "speed": 4.4,
+    "terrorRadius": 24,
+    "size": "normal",
+    "tier": "C+",
+    "difficulty": "nightmare",
+    "provenance": {
+      "file": "source.txt",
+      "line": 289
+    }
+  },
+  {
+    "id": "doctor",
+    "name": {
+      "fr": "le docteur",
+      "en": "The Doctor"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/doctor.png",
+    "speed": 4.6,
+    "terrorRadius": 32,
+    "size": "big",
+    "tier": "D",
+    "difficulty": "difficult",
+    "provenance": {
+      "file": "source.txt",
+      "line": 290
+    }
+  },
+  {
+    "id": "huntress",
+    "name": {
+      "fr": "la chasseuse",
+      "en": "The Huntress"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/huntress.png",
+    "speed": 4.4,
+    "terrorRadius": 20,
+    "size": "big",
+    "tier": "C-",
+    "difficulty": "normal",
+    "provenance": {
+      "file": "source.txt",
+      "line": 291
+    }
+  },
+  {
+    "id": "nightmare",
+    "name": {
+      "fr": "le cauchemar",
+      "en": "The Nightmare"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/nightmare.png",
+    "speed": 4.6,
+    "terrorRadius": 32,
+    "size": "normal",
+    "tier": "C+",
+    "difficulty": "normal",
+    "provenance": {
+      "file": "source.txt",
+      "line": 292
+    }
+  },
+  {
+    "id": "clown",
+    "name": {
+      "fr": "le clown",
+      "en": "The Clown"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/clown.png",
+    "speed": 4.6,
+    "terrorRadius": 32,
+    "size": "big",
+    "tier": "B-",
+    "difficulty": "normal",
+    "provenance": {
+      "file": "source.txt",
+      "line": 293
+    }
+  },
+  {
+    "id": "spirit",
+    "name": {
+      "fr": "l'esprit",
+      "en": "The Spirit"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/spirit.png",
+    "speed": 4.4,
+    "terrorRadius": 24,
+    "size": "normal",
+    "tier": "A-",
+    "difficulty": "difficult",
+    "provenance": {
+      "file": "source.txt",
+      "line": 294
+    }
+  },
+  {
+    "id": "legion",
+    "name": {
+      "fr": "la légion",
+      "en": "The Legion"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/legion.png",
+    "speed": 4.6,
+    "terrorRadius": 32,
+    "size": "normal",
+    "tier": "C-",
+    "difficulty": "easy",
+    "provenance": {
+      "file": "source.txt",
+      "line": 295
+    }
+  },
+  {
+    "id": "plague",
+    "name": {
+      "fr": "l'épidémie",
+      "en": "The Plague"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/plague.png",
+    "speed": 4.6,
+    "terrorRadius": 32,
+    "size": "big",
+    "tier": "B+",
+    "difficulty": "difficult",
+    "provenance": {
+      "file": "source.txt",
+      "line": 296
+    }
+  },
+  {
+    "id": "ghost-face",
+    "name": {
+      "fr": "ghost face",
+      "en": "The Ghost Face"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/ghostface.png",
+    "speed": 4.6,
+    "terrorRadius": 24,
+    "size": "normal",
+    "tier": "D",
+    "difficulty": "difficult",
+    "provenance": {
+      "file": "source.txt",
+      "line": 297
+    }
+  },
+  {
+    "id": "oni",
+    "name": {
+      "fr": "l'oni",
+      "en": "The Oni"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/oni.png",
+    "speed": 4.6,
+    "terrorRadius": 32,
+    "size": "big",
+    "tier": "B+",
+    "difficulty": "nightmare",
+    "provenance": {
+      "file": "source.txt",
+      "line": 298
+    }
+  },
+  {
+    "id": "deathslinger",
+    "name": {
+      "fr": "le lance-mort",
+      "en": "The Deathslinger"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/deathslinger.png",
+    "speed": 4.4,
+    "terrorRadius": 32,
+    "size": "big",
+    "tier": "C+",
+    "difficulty": "difficult",
+    "provenance": {
+      "file": "source.txt",
+      "line": 299
+    }
+  },
+  {
+    "id": "blight",
+    "name": {
+      "fr": "le fléau",
+      "en": "The Blight"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/blight.png",
+    "speed": 4.4,
+    "terrorRadius": 40,
+    "size": "normal",
+    "tier": "S-",
+    "difficulty": "nightmare",
+    "provenance": {
+      "file": "source.txt",
+      "line": 300
+    }
+  },
+  {
+    "id": "dredge",
+    "name": {
+      "fr": "le dragage",
+      "en": "The Dredge"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/dredge.png",
+    "speed": 4.6,
+    "terrorRadius": 32,
+    "size": "big",
+    "tier": "C-",
+    "difficulty": "difficult",
+    "provenance": {
+      "file": "source.txt",
+      "line": 301
+    }
+  },
+  {
+    "id": "knight",
+    "name": {
+      "fr": "le chevalier",
+      "en": "The Knight"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/knight.png",
+    "speed": 4.6,
+    "terrorRadius": 32,
+    "size": "normal",
+    "tier": "B-",
+    "difficulty": "normal",
+    "provenance": {
+      "file": "source.txt",
+      "line": 302
+    }
+  },
+  {
+    "id": "animatronic",
+    "name": {
+      "fr": "l'animatronique",
+      "en": "The Animatronic"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/animatronic.png",
+    "speed": 4.4,
+    "terrorRadius": 24,
+    "size": "normal",
+    "tier": "C+",
+    "difficulty": "difficult",
+    "provenance": {
+      "file": "source.txt",
+      "line": 303
+    }
+  },
+  {
+    "id": "first",
+    "name": {
+      "fr": "le premier",
+      "en": "The First"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/first.png",
+    "speed": 4.4,
+    "terrorRadius": 32,
+    "size": "normal",
+    "tier": "A-",
+    "difficulty": "normal",
+    "provenance": {
+      "file": "source.txt",
+      "line": 304
+    }
+  },
+  {
+    "id": "judgment",
+    "name": {
+      "fr": "le jugement",
+      "en": "The Judgment"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/judgment.png",
+    "speed": 4.4,
+    "terrorRadius": 32,
+    "size": "big",
+    "tier": "B-",
+    "difficulty": "nightmare",
+    "provenance": {
+      "file": "source.txt",
+      "line": 305
+    }
+  },
+  {
+    "id": "slasher",
+    "name": {
+      "fr": "le slasher",
+      "en": "The Slasher"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/jason.png",
+    "speed": 4.4,
+    "terrorRadius": 32,
+    "size": "normal",
+    "tier": "B-",
+    "difficulty": "normal",
+    "provenance": {
+      "file": "source.txt",
+      "line": 306
+    }
+  },
+  {
+    "id": "krasue",
+    "name": {
+      "fr": "le krasue",
+      "en": "The Krasue"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/krasue.png",
+    "speed": 4.6,
+    "terrorRadius": 32,
+    "size": "normal",
+    "tier": "B+",
+    "difficulty": "normal",
+    "provenance": {
+      "file": "source.txt",
+      "line": 307
+    }
+  },
+  {
+    "id": "ghoul",
+    "name": {
+      "fr": "la goule",
+      "en": "The Ghoul"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/ghoul.png",
+    "speed": 4.6,
+    "terrorRadius": 40,
+    "size": "normal",
+    "tier": "A-",
+    "difficulty": "normal",
+    "provenance": {
+      "file": "source.txt",
+      "line": 308
+    }
+  },
+  {
+    "id": "houndmaster",
+    "name": {
+      "fr": "la maîtresse des molosses",
+      "en": "The Houndmaster"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/houndmaster.png",
+    "speed": 4.6,
+    "terrorRadius": 32,
+    "size": "normal",
+    "tier": "B+",
+    "difficulty": "normal",
+    "provenance": {
+      "file": "source.txt",
+      "line": 309
+    }
+  },
+  {
+    "id": "dark-lord",
+    "name": {
+      "fr": "le seigneur des ténèbres",
+      "en": "The Dark Lord"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/darklord.png",
+    "speed": 4.6,
+    "terrorRadius": 32,
+    "size": "big",
+    "tier": "A+",
+    "difficulty": "difficult",
+    "provenance": {
+      "file": "source.txt",
+      "line": 310
+    }
+  },
+  {
+    "id": "lich",
+    "name": {
+      "fr": "la liche",
+      "en": "The Lich"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/lich.png",
+    "speed": 4.6,
+    "terrorRadius": 32,
+    "size": "normal",
+    "tier": "B-",
+    "difficulty": "normal",
+    "provenance": {
+      "file": "source.txt",
+      "line": 311
+    }
+  },
+  {
+    "id": "unknown",
+    "name": {
+      "fr": "l'inconnu",
+      "en": "The Unknown"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/unknown.png",
+    "speed": 4.6,
+    "terrorRadius": 32,
+    "size": "normal",
+    "tier": "C+",
+    "difficulty": "normal",
+    "provenance": {
+      "file": "source.txt",
+      "line": 312
+    }
+  },
+  {
+    "id": "good-guy",
+    "name": {
+      "fr": "le brave gars",
+      "en": "The Good Guy"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/goodguy.png",
+    "speed": 4.4,
+    "terrorRadius": 32,
+    "size": "small",
+    "tier": "C-",
+    "difficulty": "normal",
+    "provenance": {
+      "file": "source.txt",
+      "line": 313
+    }
+  },
+  {
+    "id": "xenomorph",
+    "name": {
+      "fr": "le xénomorphe",
+      "en": "The Xenomorph"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/xenomorph.png",
+    "speed": 4.6,
+    "terrorRadius": 32,
+    "size": "normal",
+    "tier": "C-",
+    "difficulty": "normal",
+    "provenance": {
+      "file": "source.txt",
+      "line": 314
+    }
+  },
+  {
+    "id": "singularity",
+    "name": {
+      "fr": "la singularité",
+      "en": "The Singularity"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/singularity.png",
+    "speed": 4.6,
+    "terrorRadius": 32,
+    "size": "normal",
+    "tier": "A-",
+    "difficulty": "difficult",
+    "provenance": {
+      "file": "source.txt",
+      "line": 315
+    }
+  },
+  {
+    "id": "skull-merchant",
+    "name": {
+      "fr": "la marchande de crânes",
+      "en": "The Skull Merchant"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/skullmerchant.png",
+    "speed": 4.6,
+    "terrorRadius": 24,
+    "size": "normal",
+    "tier": "D",
+    "difficulty": "difficult",
+    "provenance": {
+      "file": "source.txt",
+      "line": 316
+    }
+  },
+  {
+    "id": "mastermind",
+    "name": {
+      "fr": "le mastermind",
+      "en": "The Mastermind"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/mastermind.png",
+    "speed": 4.6,
+    "terrorRadius": 40,
+    "size": "normal",
+    "tier": "B-",
+    "difficulty": "normal",
+    "provenance": {
+      "file": "source.txt",
+      "line": 317
+    }
+  },
+  {
+    "id": "onryo",
+    "name": {
+      "fr": "l'onryo",
+      "en": "The Onryō"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/onryo.png",
+    "speed": 4.6,
+    "terrorRadius": 24,
+    "size": "small",
+    "tier": "C-",
+    "difficulty": "normal",
+    "provenance": {
+      "file": "source.txt",
+      "line": 318
+    }
+  },
+  {
+    "id": "artist",
+    "name": {
+      "fr": "l'artiste",
+      "en": "The Artist"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/artist.png",
+    "speed": 4.6,
+    "terrorRadius": 32,
+    "size": "normal",
+    "tier": "B-",
+    "difficulty": "difficult",
+    "provenance": {
+      "file": "source.txt",
+      "line": 319
+    }
+  },
+  {
+    "id": "nemesis",
+    "name": {
+      "fr": "le nemesis",
+      "en": "The Nemesis"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/nemesis.png",
+    "speed": 4.6,
+    "terrorRadius": 32,
+    "size": "big",
+    "tier": "C+",
+    "difficulty": "difficult",
+    "provenance": {
+      "file": "source.txt",
+      "line": 320
+    }
+  },
+  {
+    "id": "trickster",
+    "name": {
+      "fr": "le farceur",
+      "en": "The Trickster"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/trickster.png",
+    "speed": 4.4,
+    "terrorRadius": 24,
+    "size": "normal",
+    "tier": "C-",
+    "difficulty": "normal",
+    "provenance": {
+      "file": "source.txt",
+      "line": 321
+    }
+  },
+  {
+    "id": "twins",
+    "name": {
+      "fr": "les jumeaux",
+      "en": "The Twins"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/twins.png",
+    "speed": 4.6,
+    "terrorRadius": 32,
+    "size": "big",
+    "tier": "B+",
+    "difficulty": "nightmare",
+    "provenance": {
+      "file": "source.txt",
+      "line": 322
+    }
+  },
+  {
+    "id": "executioner",
+    "name": {
+      "fr": "le bourreau",
+      "en": "The Executioner"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/executioner.png",
+    "speed": 4.6,
+    "terrorRadius": 32,
+    "size": "big",
+    "tier": "B+",
+    "difficulty": "nightmare",
+    "provenance": {
+      "file": "source.txt",
+      "line": 323
+    }
+  },
+  {
+    "id": "demogorgon",
+    "name": {
+      "fr": "le démogorgon",
+      "en": "The Demogorgon"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/demogorgon.png",
+    "speed": 4.6,
+    "terrorRadius": 32,
+    "size": "big",
+    "tier": "C-",
+    "difficulty": "difficult",
+    "provenance": {
+      "file": "source.txt",
+      "line": 324
+    }
+  },
+  {
+    "id": "pig",
+    "name": {
+      "fr": "le cochon",
+      "en": "The Pig"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/pig.png",
+    "speed": 4.6,
+    "terrorRadius": 24,
+    "size": "normal",
+    "tier": "C-",
+    "difficulty": "difficult",
+    "provenance": {
+      "file": "source.txt",
+      "line": 325
+    }
+  },
+  {
+    "id": "cannibal",
+    "name": {
+      "fr": "le cannibale",
+      "en": "The Cannibal"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/cannibal.png",
+    "speed": 4.6,
+    "terrorRadius": 32,
+    "size": "big",
+    "tier": "C-",
+    "difficulty": "normal",
+    "provenance": {
+      "file": "source.txt",
+      "line": 326
+    }
+  }
+]

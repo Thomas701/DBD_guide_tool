@@ -1,0 +1,803 @@
+# Pouvoirs natifs de tous les Tueurs de Dead by Daylight
+
+## 1. Le Piégeur — The Trapper
+
+**Spécialité : poser des pièges à ours.**
+
+Le Piégeur peut ramasser et installer des pièges à ours à différents endroits de la carte, notamment près des palettes, fenêtres, générateurs ou passages fréquentés.
+
+Lorsqu'un Survivant marche dessus, il est immobilisé et doit tenter de se libérer. Le Piégeur peut alors venir directement le récupérer. Les Survivants peuvent toutefois repérer et désarmer les pièges.
+
+Sa particularité est donc de **modifier physiquement les zones dangereuses de la carte et de préparer des embuscades à l'avance**.
+
+---
+
+## 2. Le Spectre — The Wraith
+
+**Spécialité : devenir quasiment invisible.**
+
+Grâce à sa Cloche des lamentations, le Spectre peut se dissimuler. Lorsqu'il est invisible, il ne possède plus de rayon de terreur et se déplace rapidement, ce qui lui permet d'approcher discrètement les Survivants.
+
+Il ne peut cependant pas attaquer directement sous cette forme : il doit d'abord redevenir visible.
+
+Après sa réapparition, il bénéficie momentanément d'une forte accélération lui permettant de fondre sur sa cible.
+
+Sa particularité est donc **la furtivité et les attaques surprises**.
+
+---
+
+## 3. Le Montagnard — The Hillbilly
+
+**Spécialité : charger à très grande vitesse avec une tronçonneuse.**
+
+Le Montagnard peut charger sa tronçonneuse puis partir dans une course extrêmement rapide.
+
+S'il percute un Survivant avec sa tronçonneuse, il peut le mettre directement à terre, même s'il était en parfaite santé.
+
+La tronçonneuse peut également servir à détruire rapidement certaines palettes et certains obstacles.
+
+Contrairement au Cannibale, son pouvoir est particulièrement adapté aux **longues charges et aux déplacements rapides sur la carte**.
+
+---
+
+## 4. L'Infirmière — The Nurse
+
+**Spécialité : se téléporter à travers les obstacles.**
+
+L'Infirmière possède des téléportations appelées « Blink ».
+
+Elle peut charger son pouvoir puis se projeter instantanément devant elle, en traversant pratiquement tout : murs, palettes, fenêtres, étages et autres obstacles.
+
+Elle peut également enchaîner plusieurs téléportations avant d'attaquer.
+
+Après leur utilisation, elle subit cependant une courte fatigue.
+
+Sa particularité est considérable : **elle peut ignorer une grande partie des règles classiques des poursuites et des loops**.
+
+---
+
+## 5. La Forme — The Shape / Michael Myers
+
+**Spécialité : observer les Survivants pour devenir progressivement plus dangereux.**
+
+Michael Myers peut traquer les Survivants en les observant à distance.
+
+Cette observation fait progresser son niveau de **Mal intérieur**.
+
+Au premier niveau, Myers est extrêmement discret mais relativement limité.
+
+Au deuxième niveau, il retrouve des capacités de poursuite plus normales.
+
+Au troisième niveau, il devient temporairement extrêmement dangereux : les Survivants sont vulnérables et peuvent être terrassés en une seule attaque de base.
+
+Sa particularité est donc de **transformer le temps passé à observer ses victimes en puissance offensive**.
+
+---
+
+## 6. La Harpie — The Hag
+
+**Spécialité : poser des pièges permettant de se téléporter.**
+
+La Harpie peut dessiner des pièges au sol.
+
+Lorsqu'un Survivant passe suffisamment près d'un piège, une apparition de la Harpie surgit brutalement.
+
+La véritable Harpie peut alors se téléporter instantanément jusqu'au piège déclenché si elle est suffisamment proche.
+
+Elle peut ainsi construire tout un réseau de pièges autour des générateurs, crochets ou zones importantes.
+
+Sa particularité est donc **le contrôle territorial associé à la téléportation**.
+
+---
+
+## 7. Le Docteur — The Doctor
+
+**Spécialité : rendre les Survivants progressivement fous avec l'électricité.**
+
+Le Docteur peut électrocuter les Survivants afin d'augmenter leur niveau de Folie.
+
+Ses électrochocs peuvent également empêcher momentanément un Survivant de faire tomber une palette ou de franchir un obstacle, ce qui les rend particulièrement utiles pendant une poursuite.
+
+Il possède également une importante décharge électrique permettant de toucher et de faire hurler les Survivants situés dans son rayon de terreur.
+
+Plus leur Folie augmente, plus ils subissent de perturbations et d'hallucinations. Au niveau maximal, certaines actions deviennent impossibles jusqu'à ce qu'ils reprennent leurs esprits.
+
+Le Docteur est donc spécialisé dans **la détection, la perturbation et l'anti-loop**.
+
+---
+
+## 8. La Chasseuse — The Huntress
+
+**Spécialité : lancer des hachettes.**
+
+La Chasseuse possède plusieurs hachettes qu'elle peut lancer à distance.
+
+Elle peut charger son lancer pour améliorer sa précision et toucher un Survivant sans avoir besoin de s'approcher suffisamment pour effectuer une attaque classique.
+
+Elle peut également lancer au-dessus ou à travers certaines structures.
+
+Ses hachettes étant limitées, elle doit régulièrement les recharger dans les casiers.
+
+Sa particularité est donc d'être **un véritable Tueur à distance**.
+
+---
+
+## 9. Le Cannibale — The Cannibal / Leatherface
+
+**Spécialité : attaquer plusieurs fois avec sa tronçonneuse.**
+
+Leatherface peut déclencher une longue attaque tournoyante avec sa tronçonneuse.
+
+Pendant cette attaque, il avance rapidement et peut frapper plusieurs Survivants successivement.
+
+Un Survivant touché peut être directement terrassé.
+
+Contrairement au Montagnard, qui utilise principalement sa tronçonneuse pour effectuer de longues charges, Leatherface excelle dans **les zones rapprochées et les attaques de groupe**.
+
+S'il percute certains obstacles pendant son attaque, il risque toutefois d'entrer dans une crise de colère et de perdre momentanément le contrôle.
+
+---
+
+## 10. Le Cauchemar — The Nightmare / Freddy Krueger
+
+**Spécialité : faire entrer les Survivants dans le Monde onirique.**
+
+Les Survivants s'endorment progressivement ou immédiatement après certaines interactions avec Freddy.
+
+Une fois endormis, ils sont soumis aux pouvoirs oniriques de Freddy.
+
+Celui-ci peut installer des pièges ralentissant les Survivants et créer des palettes oniriques trompeuses.
+
+Il possède également une importante capacité de mobilité : **se téléporter directement vers certains générateurs**.
+
+Les Survivants peuvent chercher des réveils afin de quitter temporairement le Monde onirique.
+
+Freddy combine donc **téléportation, pièges et altération de la perception des Survivants**.
+
+---
+
+## 11. Le Cochon — The Pig / Amanda Young
+
+**Spécialité : poser des pièges à ours inversés sur la tête des Survivants.**
+
+Lorsqu'un Survivant est au sol, Amanda peut installer sur sa tête un **Piège à ours inversé**.
+
+Après son activation, le Survivant doit trouver la bonne boîte de Jigsaw et retirer son piège avant l'expiration du compte à rebours sous peine de mourir.
+
+Elle peut également s'accroupir, supprimant son rayon de terreur et sa tache rouge.
+
+Depuis cette position, elle peut effectuer une attaque d'embuscade rapide.
+
+Sa particularité est donc double : **furtivité et menace mortelle imposant un objectif secondaire aux Survivants**.
+
+---
+
+## 12. Le Clown — The Clown
+
+**Spécialité : lancer des bouteilles produisant différents gaz.**
+
+Le Clown peut lancer des bouteilles qui libèrent des nuages.
+
+Son gaz offensif ralentit et désoriente les Survivants qui le traversent, ce qui permet au Clown de réduire rapidement la distance pendant une poursuite.
+
+Il dispose également d'un second type de bouteille produisant, après activation, un gaz permettant d'obtenir une accélération.
+
+Le Clown utilise donc ses bouteilles pour **manipuler directement les vitesses de déplacement et rendre certains loops beaucoup plus difficiles**.
+
+---
+
+## 13. L'Esprit — The Spirit
+
+**Spécialité : se déplacer sous forme spirituelle.**
+
+L'Esprit peut utiliser la Hantise de Yamaoka.
+
+Son corps reste momentanément visible à son point de départ tandis que sa véritable forme se déplace rapidement et devient invisible aux Survivants.
+
+Pendant ce déplacement, l'Esprit ne voit pas directement les Survivants. Elle doit les localiser grâce à leurs bruits, leurs traces et leur interaction avec l'environnement.
+
+Elle peut ensuite réapparaître brutalement près d'eux.
+
+Sa spécialité repose donc sur **la vitesse, l'invisibilité et les jeux psychologiques pendant les poursuites**.
+
+---
+
+## 14. La Légion — The Legion
+
+**Spécialité : courir extrêmement rapidement et enchaîner les Survivants.**
+
+La Légion peut déclencher la Frénésie animale.
+
+Elle court alors beaucoup plus rapidement, peut franchir rapidement les palettes et fenêtres et poignarder les Survivants.
+
+Les victimes subissent notamment Blessure profonde et doivent se suturer.
+
+Toucher un Survivant avec la Frénésie révèle également les autres cibles pertinentes à proximité, ce qui permet d'enchaîner les attaques.
+
+Une chaîne suffisamment importante peut devenir extrêmement dangereuse.
+
+La particularité de la Légion est donc de **blesser très rapidement plusieurs Survivants et de maintenir toute l'équipe sous pression**.
+
+---
+
+## 15. L'Épidémie — The Plague
+
+**Spécialité : infecter les Survivants et les éléments de la carte.**
+
+L'Épidémie peut vomir sa Purge sur les Survivants, les générateurs, palettes, fenêtres et autres éléments interactifs.
+
+Un Survivant infecté devient progressivement malade jusqu'à atteindre un état où il ne peut plus se soigner normalement.
+
+Les Survivants peuvent se purifier dans des Bassins de dévotion.
+
+Mais lorsqu'ils le font, ils offrent indirectement à l'Épidémie un pouvoir supérieur : elle peut récupérer la corruption du bassin et transformer temporairement son vomi en **projectile capable de blesser directement**.
+
+Son pouvoir oblige donc les Survivants à choisir entre **rester malades ou renforcer leur adversaire**.
+
+---
+
+## 16. Ghost Face
+
+**Spécialité : observer secrètement les Survivants avant de les exécuter rapidement.**
+
+Ghost Face peut activer son Voile nocturne pour devenir Indétectable.
+
+Il peut alors se cacher et observer les Survivants.
+
+En remplissant complètement la jauge de traque d'une cible, celle-ci devient **Marquée** et peut être terrassée en une seule attaque.
+
+Les Survivants peuvent cependant regarder directement Ghost Face suffisamment longtemps pour le révéler et désactiver temporairement sa furtivité.
+
+Sa spécialité est donc **l'espionnage, la furtivité et la préparation d'attaques létales**.
+
+---
+
+## 17. Le Démogorgon
+
+**Spécialité : créer des portails et bondir sur ses victimes.**
+
+Le Démogorgon peut placer plusieurs portails sur la carte puis voyager rapidement de l'un à l'autre en passant par le Monde à l'envers.
+
+Il dispose également de **Déchiqueter**, une puissante attaque bondissante qui lui permet de couvrir rapidement une distance.
+
+Cette attaque peut également détruire certaines palettes ou certains murs destructibles.
+
+Les Survivants peuvent tenter de neutraliser ses portails.
+
+Il combine donc **mobilité globale grâce aux portails et puissance de poursuite grâce à son bond**.
+
+---
+
+## 18. L'Oni
+
+**Spécialité : absorber le sang des Survivants pour entrer dans une rage extrêmement puissante.**
+
+Les Survivants blessés laissent derrière eux des Orbes de sang.
+
+L'Oni peut les absorber afin de charger son pouvoir.
+
+Une fois sa jauge remplie, il déclenche sa **Furie sanguine**.
+
+Il peut alors effectuer une Course démoniaque à très grande vitesse et utiliser une Frappe démoniaque capable de terrasser immédiatement un Survivant.
+
+Sa particularité est donc d'être relativement classique au début, puis de devenir momentanément **une véritable machine à tuer lorsque suffisamment de sang a été récolté**.
+
+---
+
+## 19. Le Lance-mort — The Deathslinger
+
+**Spécialité : tirer sur les Survivants avec un fusil-harpon.**
+
+Le Lance-mort possède l'Expiateur, un fusil capable de lancer un harpon relié à une chaîne.
+
+Lorsqu'il touche un Survivant, il peut le ramener progressivement vers lui.
+
+S'il réussit à l'attirer suffisamment près, il peut le frapper.
+
+Le Survivant peut essayer d'utiliser les obstacles pour casser la chaîne.
+
+Le Lance-mort transforme donc certaines poursuites en véritable **duel de tir et de positionnement à moyenne distance**.
+
+---
+
+## 20. Le Bourreau — Pyramid Head
+
+**Spécialité : tourmenter les Survivants et les envoyer dans des cages plutôt que sur des crochets.**
+
+Pyramid Head peut laisser derrière lui une traînée de tourment.
+
+Un Survivant traversant cette zone devient **Tourmenté**.
+
+Il possède également une attaque projetée au sol capable de traverser certains obstacles et de toucher un Survivant à distance.
+
+Lorsqu'un Survivant Tourmenté est terrassé, Pyramid Head peut l'envoyer directement dans une **Cage d'expiation**, sans devoir le transporter jusqu'à un crochet.
+
+Dans certaines conditions, un Survivant Tourmenté proche de son élimination définitive peut également subir directement le Jugement final.
+
+Sa particularité est donc de **modifier le fonctionnement traditionnel des crochets tout en disposant d'une attaque à travers les obstacles**.
+
+---
+
+## 21. Le Fléau — The Blight
+
+**Spécialité : rebondir contre les surfaces à très grande vitesse.**
+
+Le Fléau possède plusieurs charges de Ruée.
+
+Sa première Ruée lui permet de courir extrêmement rapidement jusqu'à heurter une surface.
+
+Après cette collision, il peut repartir dans une autre direction.
+
+Il peut ainsi enchaîner plusieurs rebonds puis déclencher une attaque pendant une Ruée mortelle.
+
+Un joueur expérimenté peut utiliser les murs et éléments du décor pour effectuer des trajectoires extrêmement rapides et difficiles à anticiper.
+
+Sa spécialité est donc **une mobilité explosive reposant sur les rebonds et la maîtrise de la géométrie des cartes**.
+
+---
+
+## 22. Les Jumeaux — The Twins
+
+**Spécialité : contrôler deux personnages différents.**
+
+Charlotte peut libérer son frère Victor et le joueur prend alors directement son contrôle.
+
+Pendant ce temps, Charlotte reste immobile.
+
+Victor est beaucoup plus petit et extrêmement rapide. Il peut effectuer un puissant bond sur les Survivants.
+
+Lorsqu'il bondit sur un Survivant sain, il peut s'accrocher à lui et le gêner jusqu'à ce qu'il soit retiré.
+
+Le joueur peut ensuite reprendre le contrôle de Charlotte.
+
+Leur particularité est unique : **le Tueur peut physiquement répartir sa présence entre deux personnages différents sur la carte**.
+
+---
+
+## 23. Le Farceur — The Trickster
+
+**Spécialité : lancer une pluie de couteaux.**
+
+Le Farceur transporte de nombreux couteaux qu'il peut lancer très rapidement.
+
+Contrairement à la Chasseuse, un couteau unique ne suffit généralement pas à retirer immédiatement un état de santé.
+
+Les impacts successifs remplissent une jauge de lacération jusqu'à blesser la victime.
+
+Après avoir réussi suffisamment de lancers, il peut également déclencher **Événement principal**, lui permettant de lancer une quantité très importante de couteaux en très peu de temps.
+
+Sa spécialité est donc **le harcèlement continu à distance plutôt qu'un unique projectile puissant**.
+
+---
+
+## 24. Le Nemesis
+
+**Spécialité : infecter avec le Virus-T et combattre aux côtés de zombies.**
+
+Nemesis peut attaquer avec son tentacule.
+
+Les premières attaques contaminent les Survivants avec le Virus-T, puis les suivantes peuvent les blesser.
+
+À mesure que son niveau de mutation progresse, son tentacule devient plus puissant et peut notamment détruire plus facilement certains obstacles.
+
+Les Survivants disposent de vaccins limités pour supprimer leur contamination.
+
+Mais surtout, **des zombies contrôlés par l'intelligence artificielle apparaissent sur la carte**. Ils se déplacent indépendamment, détectent les Survivants et peuvent les infecter ou les blesser.
+
+Nemesis est donc le Tueur dont le pouvoir ajoute **de véritables ennemis autonomes supplémentaires sur la carte**.
+
+---
+
+## 25. Le Cénobite — Pinhead
+
+**Spécialité : invoquer des chaînes et imposer aux Survivants la résolution de la Configuration des lamentations.**
+
+Pinhead peut créer manuellement un portail puis lancer une chaîne spectrale.
+
+Un Survivant touché est attaché par des chaînes et ralenti jusqu'à ce qu'il réussisse à s'en débarrasser.
+
+Mais la mécanique la plus particulière est la **Configuration des lamentations**, une boîte apparaissant sur la carte.
+
+Si les Survivants l'ignorent trop longtemps, une Chasse à la chaîne commence et des chaînes apparaissent automatiquement pour les harceler.
+
+Un Survivant peut résoudre la boîte pour empêcher cela, mais Pinhead peut alors intervenir.
+
+Son pouvoir impose ainsi **un objectif secondaire permanent à toute l'équipe adverse**.
+
+---
+
+## 26. L'Artiste — The Artist
+
+**Spécialité : envoyer des corbeaux à travers toute la carte.**
+
+L'Artiste peut placer plusieurs Corbeaux funestes devant elle puis les envoyer en ligne droite.
+
+Ils continuent leur trajectoire sur une très grande distance et peuvent traverser de nombreux obstacles.
+
+Un premier contact peut faire apparaître une nuée de corbeaux autour du Survivant et révéler sa position.
+
+Un nouvel impact correctement réalisé permet ensuite de le blesser.
+
+Elle peut donc utiliser ses corbeaux aussi bien pour **attaquer que pour vérifier à distance la présence de Survivants**.
+
+---
+
+## 27. L'Onryō — Sadako
+
+**Spécialité : sortir des télévisions et condamner progressivement les Survivants à mort.**
+
+Sadako peut être Dématérialisée, ce qui la rend extrêmement difficile à percevoir et lui permet d'approcher discrètement.
+
+Elle peut se téléporter à travers les nombreuses télévisions présentes sur la carte.
+
+Ces téléportations participent à l'accumulation de **Condamnation** chez les Survivants.
+
+Un Survivant atteignant le niveau maximal de Condamnation devient extrêmement vulnérable : s'il est terrassé, Sadako peut le tuer directement.
+
+Les Survivants doivent manipuler les télévisions et les cassettes afin de limiter cette condamnation.
+
+Elle combine donc **furtivité, téléportation globale et une condition spéciale permettant d'exécuter prématurément une victime**.
+
+---
+
+## 28. Le Dragage — The Dredge
+
+**Spécialité : se téléporter entre les casiers et plonger toute la carte dans l'obscurité.**
+
+Le Dragage peut se téléporter vers les casiers répartis sur la carte.
+
+Les Survivants peuvent barricader les casiers afin de ralentir son apparition.
+
+Lorsqu'il prépare son pouvoir, il laisse également un **Vestige** derrière lui et peut décider de revenir brutalement à cette position, ce qui est particulièrement efficace pendant les loops.
+
+Ses actions remplissent progressivement la jauge de **Tombée de la nuit**.
+
+Une fois activée, la carte devient extrêmement sombre pour les Survivants tandis que le Dragage devient plus difficile à détecter et peut utiliser plus efficacement ses téléportations.
+
+Sa particularité est donc **la combinaison téléportation + obscurité globale**.
+
+---
+
+## 29. Le Mastermind — Albert Wesker
+
+**Spécialité : effectuer de puissantes ruées et infecter les Survivants avec Uroboros.**
+
+Wesker possède plusieurs charges lui permettant d'effectuer des bonds extrêmement rapides.
+
+S'il attrape un Survivant pendant une ruée, il peut le projeter ou l'écraser contre un obstacle.
+
+Il peut également utiliser sa ruée pour franchir rapidement certaines palettes ou fenêtres.
+
+Les attaques de son pouvoir infectent progressivement les Survivants avec **Uroboros**.
+
+Une infection importante pénalise fortement la victime, qui doit utiliser un spray de premiers secours disponible dans des caisses spéciales.
+
+Wesker combine donc **mobilité, projection physique des Survivants et infection progressive**.
+
+---
+
+## 30. Le Chevalier — The Knight
+
+**Spécialité : invoquer trois gardes contrôlés par l'IA.**
+
+Le Chevalier est accompagné de trois membres de sa Guardia Compagnia :
+
+le Carnifex, l'Assassin et le Geôlier.
+
+Il peut tracer une route de patrouille et envoyer un garde la suivre.
+
+Les gardes peuvent également recevoir certains ordres, comme endommager un générateur ou détruire un obstacle.
+
+Lorsqu'un garde détecte un Survivant, il peut commencer indépendamment une poursuite.
+
+Le Chevalier peut alors attaquer simultanément depuis une autre direction.
+
+Sa particularité est donc de **créer temporairement un deuxième poursuivant sur la carte grâce à une IA alliée**.
+
+---
+
+## 31. La Marchande de Crânes — The Skull Merchant
+
+**Spécialité : construire un réseau de surveillance avec des drones.**
+
+La Marchande de Crânes peut déployer plusieurs drones.
+
+Ceux-ci surveillent une zone et détectent progressivement les Survivants.
+
+Un Survivant suffisamment analysé peut être localisé et devenir particulièrement vulnérable.
+
+La Marchande de Crânes bénéficie également de discrétion lorsqu'elle évolue dans certaines zones couvertes par ses drones.
+
+Les Survivants peuvent tenter de pirater les drones, mais cette interaction peut elle-même entraîner l'installation d'un dispositif permettant de suivre leur position.
+
+Sa particularité est donc **la surveillance technologique et le contrôle de secteurs entiers de la carte**.
+
+---
+
+## 32. La Singularité — The Singularity
+
+**Spécialité : installer des caméras biologiques puis se téléporter directement sur les Survivants.**
+
+La Singularité peut tirer des **Biocosses** et les fixer sur les surfaces.
+
+Elle peut ensuite regarder à travers ces Biocosses comme s'il s'agissait de caméras de surveillance.
+
+Un Survivant observé suffisamment longtemps peut recevoir l'effet **Flux de glisse**.
+
+La Singularité peut alors se téléporter directement derrière lui.
+
+Après une téléportation, elle entre en **Mode Surcadence**, devenant temporairement extrêmement efficace pour franchir ou détruire les obstacles.
+
+Les Survivants disposent d'IEM permettant de désactiver temporairement les Biocosses et de retirer le Flux de glisse.
+
+Sa spécialité est donc **un réseau de caméras couplé à une téléportation directement ciblée sur les Survivants**.
+
+---
+
+## 33. Le Xénomorphe — The Xenomorph
+
+**Spécialité : utiliser un réseau de tunnels et attaquer avec sa queue.**
+
+Le Xénomorphe peut entrer dans un réseau souterrain reliant différentes stations de contrôle réparties sur la carte.
+
+Il peut ainsi traverser très rapidement de longues distances et surgir près des Survivants.
+
+Il possède également un **Mode rampant** lui permettant d'utiliser sa queue comme une attaque à distance courte/moyenne, particulièrement efficace au-dessus de certaines palettes et obstacles.
+
+Pour se défendre, les Survivants peuvent installer des **Tourelles lance-flammes** récupérées dans les stations.
+
+Celles-ci avertissent de l'approche du Xénomorphe et peuvent le forcer à quitter son Mode rampant.
+
+Sa particularité est donc **mobilité souterraine + attaque de queue + contre-mesures installables par les Survivants**.
+
+---
+
+## 34. Le Good Guy — Chucky
+
+**Spécialité : petite taille, caméra à la troisième personne et attaques furtives.**
+
+Chucky est particulièrement différent des autres Tueurs puisqu'il est très petit et se joue avec une **caméra à la troisième personne**.
+
+Il peut activer son Mode Cache-cache afin de devenir Indétectable et générer de faux bruits de pas destinés à désorienter les Survivants.
+
+Il peut alors utiliser **Tranche et découpe**, une charge rapide permettant de fondre brutalement sur une victime.
+
+Il peut également profiter de sa petite taille et de son pouvoir pour passer rapidement sous certaines palettes ou franchir certains obstacles.
+
+Sa spécialité repose donc sur **la furtivité, les attaques explosives et une perspective de jeu unique à la troisième personne**.
+
+---
+
+## 35. L'Inconnu — The Unknown
+
+**Spécialité : tirer un projectile explosif et se téléporter vers ses propres hallucinations.**
+
+L'Inconnu peut lancer le **VIX**, un projectile qui rebondit avant de créer une zone d'explosion.
+
+Une victime touchée par l'explosion devient Affaiblie.
+
+Si elle est déjà Affaiblie et reçoit une nouvelle explosion, elle perd un état de santé.
+
+Les Survivants peuvent supprimer leur Affaiblissement en regardant directement l'Inconnu suffisamment longtemps.
+
+Parallèlement, l'Inconnu laisse régulièrement derrière lui des **Hallucinations**.
+
+Il peut ensuite se téléporter instantanément vers ces hallucinations.
+
+Les Survivants peuvent tenter de les faire disparaître, mais une mauvaise tentative peut révéler leur position.
+
+L'Inconnu combine donc **projectile à rebond, mécanique d'affaiblissement et réseau de téléportation créé progressivement pendant la partie**.
+
+---
+
+## 36. La Liche — Vecna
+
+**Spécialité : disposer de plusieurs sorts différents.**
+
+Contrairement à la plupart des Tueurs possédant une capacité principale, Vecna dispose d'un véritable **arsenal magique composé de quatre sorts**.
+
+**Vol** lui permet de se déplacer rapidement et de franchir certains obstacles.
+
+**Vol des Damnés** invoque plusieurs créatures spectrales projetées vers les Survivants.
+
+**Main du mage** lui permet de manipuler certaines palettes à distance, notamment pour empêcher un Survivant de les utiliser normalement.
+
+**Sphère de dissipation** crée une zone magique capable de détecter et perturber les Survivants.
+
+Chaque sort possède son propre temps de recharge.
+
+Des coffres magiques apparaissent également dans l'Épreuve et permettent aux Survivants d'obtenir des objets spécifiquement destinés à contrer certains sorts de Vecna.
+
+Sa particularité est donc **la polyvalence : mobilité, attaque, détection et contrôle d'obstacles réunis dans un même pouvoir**.
+
+---
+
+## 37. Dracula — The Dark Lord
+
+**Spécialité : se transformer en trois formes différentes.**
+
+Dracula peut librement alterner entre plusieurs formes.
+
+### Forme vampirique
+
+Il possède son apparence classique et peut envoyer une **Colonne de flammes** devant lui. Cette attaque peut notamment traverser certaines palettes et fenêtres.
+
+### Forme de loup
+
+Il devient un loup rapide spécialisé dans la chasse. Il repère plus facilement les traces des Survivants et peut effectuer une puissante attaque bondissante.
+
+### Forme de chauve-souris
+
+Cette forme est principalement destinée aux déplacements. Dracula devient très mobile, furtif et peut notamment se téléporter vers certains points de saut.
+
+Sa grande particularité est donc de pouvoir **changer complètement de style de jeu en pleine poursuite : attaque, pistage ou mobilité**.
+
+---
+
+## 38. La Maîtresse des molosses — The Houndmaster
+
+**Spécialité : commander directement son chien Snug.**
+
+Elle peut donner plusieurs types d'ordres à son chien.
+
+Avec **Chasse**, Snug fonce dans une direction et peut être redirigé.
+
+S'il attrape un Survivant, le chien le saisit et cherche à le ramener vers sa maîtresse.
+
+Avec **Cherche**, le chien suit une trajectoire destinée à repérer les Survivants. Son flair peut révéler les victimes situées à proximité de sa route.
+
+La Maîtresse des molosses peut également profiter du chemin emprunté par Snug pour se déplacer plus rapidement.
+
+Sa particularité est donc d'utiliser **un compagnon contrôlé à distance capable aussi bien de pister que d'attraper physiquement les Survivants**.
+
+---
+
+## 39. La Goule — Ken Kaneki
+
+**Spécialité : utiliser son Kagune comme grappin pour se propulser à travers la carte.**
+
+Kaneki peut lancer ses tentacules de Kagune contre les surfaces et s'en servir pour se projeter brutalement vers l'avant.
+
+Il peut enchaîner plusieurs **Sauts du Kagune**, lui donnant une mobilité extrêmement importante.
+
+Un second saut correctement dirigé peut également devenir une attaque contre un Survivant.
+
+La victime reçoit alors notamment une **Marque du Kagune**.
+
+Kaneki entre ensuite en **Mode Enragé**.
+
+Dans cet état, il peut enchaîner encore davantage de Sauts du Kagune et franchir les obstacles avec une vitesse exceptionnelle.
+
+Le Mode Enragé reste notamment alimenté tant que des Survivants conservent leur Marque.
+
+Sa particularité est donc une **mobilité acrobatique extrêmement agressive dont la puissance augmente après avoir marqué une victime**.
+
+---
+
+## 40. L'Animatronique — Springtrap
+
+**Spécialité : lancer sa hache et utiliser un réseau de portes de sécurité inspiré de Five Nights at Freddy's.**
+
+Springtrap peut lancer un puissant projectile.
+
+S'il se plante dans un Survivant, celui-ci devient particulièrement vulnérable et doit retirer le projectile avant de pouvoir retrouver certaines capacités normales.
+
+Springtrap peut ensuite rappeler son arme.
+
+Mais son pouvoir possède surtout une seconde mécanique majeure : plusieurs **Portes de sécurité** apparaissent sur toute la carte.
+
+Springtrap peut entrer par une porte et ressortir par une autre, lui permettant de traverser rapidement la carte.
+
+Les Survivants peuvent également utiliser ces portes pour entrer dans un **Bureau de sécurité**.
+
+Depuis ce bureau, ils peuvent consulter des caméras et gérer certaines portes, mais toutes leurs actions utilisent une batterie commune limitée.
+
+Si Springtrap rencontre un Survivant à l'intérieur du bureau, il peut directement le capturer.
+
+Sa particularité est donc extrêmement inhabituelle : **attaque à distance + réseau de téléportation + véritable système de caméras et bureau de sécurité partagé avec les Survivants**.
+
+---
+
+## 41. Le Krasue
+
+**Spécialité : détacher sa propre tête et alterner entre deux formes.**
+
+Le Krasue possède une **Forme corporelle** et une **Forme de tête**.
+
+Dans sa forme corporelle, elle peut régurgiter un projectile contenant une Glande-sangsue.
+
+Les Survivants touchés développent progressivement l'état **Parasité**.
+
+La contamination peut évoluer jusqu'à rendre la victime particulièrement vulnérable et incapable de se soigner normalement.
+
+Le Krasue peut ensuite littéralement abandonner son corps.
+
+Sous sa Forme de tête, elle devient une tête flottante accompagnée de ses entrailles et bénéficie d'une mobilité supérieure.
+
+Elle peut utiliser son **Fouet intestinal** pour attaquer les Survivants, particulièrement ceux déjà parasités.
+
+Elle possède également des capacités permettant à sa forme flottante de traverser rapidement certaines distances.
+
+Sa particularité repose donc sur **l'alternance entre une forme infectieuse à distance et une forme monstrueuse rapide spécialisée dans l'attaque**.
+
+---
+
+## 42. Le Premier — Henry Creel / Vecna
+
+**Spécialité : utiliser les pouvoirs du Monde à l'envers et maudire progressivement les Survivants.**
+
+Henry Creel peut effectuer une **Attaque de plantes grimpantes** en ciblant une zone au sol.
+
+Les Survivants touchés accumulent des charges liées à son pouvoir.
+
+Il peut également entrer directement dans **le Monde à l'envers**.
+
+Dans cet état, il devient extrêmement rapide, difficile à détecter et peut traverser de nombreux obstacles.
+
+Il peut ensuite émerger avec une attaque de zone appelée **Undergate**, menaçant tous les Survivants proches de son point de sortie.
+
+Les attaques spéciales remplissent progressivement la mécanique **Worldbreaker**.
+
+Une fois suffisamment affectées, les victimes deviennent véritablement vulnérables aux attaques surnaturelles de Henry, qui peuvent alors leur infliger directement des blessures.
+
+Des **Horloges de parquet** apparaissent également et permettent aux Survivants d'agir sur cette malédiction.
+
+Une victime suffisamment condamnée et remplissant certaines conditions peut même être directement exécutée par Henry.
+
+Le Premier combine donc **attaque de zone, déplacement extrêmement rapide dans une dimension parallèle, malédiction progressive et possibilité d'exécution spéciale**.
+
+---
+
+## 43. Le Mort-vivant — Jason Voorhees
+
+**Spécialité : disparaître, se déplacer surnaturellement et utiliser l'environnement comme arsenal.**
+
+Jason peut entrer dans **Mal omniprésent**.
+
+Il devient alors Invisible et Indétectable.
+
+Il ne voit plus normalement les Survivants ni leurs marques d'éraflures, mais peut toujours exploiter leurs empreintes de pas pour les traquer.
+
+Jason peut également récupérer différents projectiles dans les tas de débris ou utiliser certains éléments disponibles dans l'Épreuve.
+
+Il peut lancer ces objets sur les Survivants.
+
+Certaines attaques peuvent même **empaler une victime et la projeter contre une surface**, reproduisant le caractère brutal et improvisé de Jason.
+
+Son pouvoir possède également **Sursaut de peur**.
+
+Depuis son état surnaturel, Jason peut cibler une palette, une fenêtre ou un mur destructible puis se déplacer quasiment instantanément vers cet emplacement, en le franchissant ou en le détruisant.
+
+Les Survivants proches peuvent alors être révélés.
+
+Sa particularité est donc d'incarner parfaitement Jason : **il disparaît, réapparaît brutalement là où on ne l'attend pas et transforme les éléments de la carte en armes**.
+
+---
+
+## 44. Le Jugement — The Judgment
+
+**Spécialité : condamner les Survivants pour hérésie et les bannir dans une dimension secondaire appelée l'Exil.**
+
+Le Jugement peut canaliser une **Lumière divine**, une colonne d'énergie qu'il dirige avant de la libérer.
+
+Une victime touchée est blessée et devient **Hérétique**.
+
+L'Hérésie ne concerne pas uniquement les poursuites.
+
+Lorsqu'un Hérétique répare un générateur, il reçoit des tests d'habileté spécifiques. Rater la zone la plus exigeante peut entraîner une perte de progression.
+
+Mais sa mécanique la plus originale concerne les Survivants Hérétisés mis à terre.
+
+Au lieu de suivre nécessairement le système classique des crochets, le Jugement peut les **bannir dans l'Exil**, un véritable sous-royaume du Tueur.
+
+Le Survivant exilé doit y survivre et éviter les **Graines du Châtiment**.
+
+Pendant qu'une victime se trouve dans l'Exil, le Jugement gagne **Zèle**, ce qui renforce sa Lumière divine.
+
+Des **Autels du Jugement** apparaissent également dans l'Épreuve.
+
+Les Survivants peuvent s'y repentir pour retirer leur Hérésie ou intervenir afin de libérer un allié enfermé dans l'Exil.
+
+Enfin, un Hérétique terrassé ayant déjà atteint deux états de crochet peut être directement exécuté.
+
+Le Jugement est donc particulièrement unique puisqu'il ajoute **une seconde dimension jouable à l'Épreuve**, tout en combinant attaque à distance, malédiction, pression sur les générateurs et exécution spéciale.

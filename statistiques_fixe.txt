@@ -1,0 +1,459 @@
+
+
+# 1. Déplacement des survivants
+
+| Statistique                                    |    Valeur de base |
+| ---------------------------------------------- | ----------------: |
+| Course                                         |      **4,00 m/s** |
+| Marche                                         |      **2,26 m/s** |
+| Accroupi                                       |      **1,13 m/s** |
+| Rampement au sol, initial                      |      **0,70 m/s** |
+| Rampement au sol, vitesse finale               |      **1,05 m/s** |
+| Sprint après avoir été touché                  |      **6,60 m/s** |
+| Durée du sprint après coup                     |         **1,8 s** |
+| Accélération survivant                         |       **10 m/s²** |
+| Vitesse survivant utilisée comme référence DBD | **4 m/s = 100 %** |
+
+C'est pour cela qu'un tueur à **4,4 m/s = 110 %** et un tueur à **4,6 m/s = 115 %** dans le vocabulaire du jeu. ([Dead by Daylight Wiki][1])
+
+### Chutes
+
+| Statistique                   |                Valeur |
+| ----------------------------- | --------------------: |
+| Chute ≤ 1,25 m                | pas de ralentissement |
+| Durée minimale de « stagger » |             **0,5 s** |
+| Durée maximale                |               **2 s** |
+| Hauteur donnant le maximum    |             **≥ 5 m** |
+
+Entre 1,25 m et 5 m, la durée augmente progressivement. ([Dead by Daylight Wiki][2])
+
+---
+
+# 2. Déplacement des tueurs
+
+Il n'existe pas une seule vitesse de tueur : la statistique doit être enregistrée **par tueur**.
+
+| Statistique                                        |       Valeur |
+| -------------------------------------------------- | -----------: |
+| Vitesse la plus courante                           |  **4,6 m/s** |
+| Deuxième vitesse courante                          |  **4,4 m/s** |
+| Vitesse en transportant un survivant               | **3,68 m/s** |
+| Portée approximative d'une fente standard complète |    **≈ 6 m** |
+| Cooldown coup réussi                               |    **2,7 s** |
+| Cooldown coup raté                                 |    **1,5 s** |
+| Cooldown coup contre un obstacle                   |    **1,5 s** |
+
+La vitesse de transport de **3,68 m/s est indépendante de la vitesse normale du tueur**, comme on l'avait vu. Les attaques spéciales peuvent avoir leurs propres valeurs. ([Dead by Daylight Wiki][3])
+
+### Bloodlust
+
+| Niveau        | Temps de poursuite |        Bonus |
+| ------------- | -----------------: | -----------: |
+| Bloodlust I   |           **15 s** | **+0,2 m/s** |
+| Bloodlust II  |           **25 s** | **+0,4 m/s** |
+| Bloodlust III |           **35 s** | **+0,6 m/s** |
+
+Par exemple, un tueur à 4,6 m/s atteint 4,8 → 5,0 → 5,2 m/s. ([Dead by Daylight Wiki][4])
+
+---
+
+# 3. Générateurs
+
+C'est probablement l'ensemble de valeurs le plus important pour interpréter les perks.
+
+| Statistique                                        |     Valeur de base |
+| -------------------------------------------------- | -----------------: |
+| Générateurs présents dans une partie normale       |              **7** |
+| Générateurs nécessaires                            |              **5** |
+| Charges nécessaires                                |     **90 charges** |
+| Vitesse de réparation d'un survivant               |     **1 charge/s** |
+| Temps à 1 survivant                                |           **90 s** |
+| Temps à 2 survivants                               |      **≈ 52,94 s** |
+| Temps à 3 survivants                               |      **≈ 42,86 s** |
+| Temps à 4 survivants                               |      **≈ 40,91 s** |
+| Pénalité d'efficacité par survivant supplémentaire |          **-15 %** |
+| Temps pour le tueur de frapper le générateur       |          **1,8 s** |
+| Régression immédiate après kick                    |           **-5 %** |
+| Régression passive                                 | **-0,25 charge/s** |
+| Limite d'événements de régression                  |              **8** |
+
+À deux, chaque survivant répare donc à 85 % ; à trois, chacun à 70 % ; à quatre, chacun à 55 %. ([Dead by Daylight Wiki][5])
+
+### Tests d'habileté sur générateur
+
+| Statistique                     |                  Valeur |
+| ------------------------------- | ----------------------: |
+| Vérification de déclenchement   |            **1 fois/s** |
+| Probabilité sans boîte à outils |               **8 %/s** |
+| Probabilité avec boîte à outils |              **40 %/s** |
+| Zone Excellent                  |       **3 % du cadran** |
+| Zone Bon                        |                **13 %** |
+| Durée du test                   |               **1,1 s** |
+| Excellent                       | **+1 % de progression** |
+| Échec                           |               **-10 %** |
+| Blocage après échec             |                 **3 s** |
+
+([Dead by Daylight Wiki][6])
+
+C'est donc bien la référence derrière **Présence perturbante** : `8 % + 10 points = 18 %/s` sur un générateur normal.
+
+---
+
+# 4. Soins et états de santé
+
+| Statistique                          |    Valeur de base |
+| ------------------------------------ | ----------------: |
+| 1 état de santé                      |    **16 charges** |
+| Vitesse de soin normale              |    **1 charge/s** |
+| Soigner un survivant blessé          |          **16 s** |
+| Auto-soin avec Med-Kit               |        **≈ 24 s** |
+| Récupération au sol jusqu'à 95 %     |        **30,4 s** |
+| Temps maximal avant de mourir au sol | **240 s / 4 min** |
+| Auto-Mending                         |          **10 s** |
+| Mending par un autre survivant       |           **6 s** |
+| Deep Wound avant mise au sol         |   **20 s actifs** |
+
+Le chronomètre de Deep Wound est interrompu lorsque le survivant **court ou se soigne via Mending**. ([Dead by Daylight Wiki][7])
+
+### Tests d'habileté de soin
+
+| Type                      | Chance / seconde | Excellent |  Bon | Excellent donne |
+| ------------------------- | ---------------: | --------: | ---: | --------------: |
+| Soin d'un autre survivant |         **15 %** |       3 % | 15 % |        **+3 %** |
+| Auto-soin Med-Kit         |       **12,5 %** |       3 % | 15 % |        **+3 %** |
+| Auto-soin via perk        |       **10,5 %** |       3 % | 15 % |        **+3 %** |
+
+Un échec classique entraîne **-10 % de progression et 3 secondes de cooldown**. ([Dead by Daylight Wiki][6])
+
+---
+
+# 5. Effets de statut avec une valeur numérique de référence
+
+Certains effets sont très importants parce que beaucoup de perks se basent dessus.
+
+| Effet                                       |                      Valeur intrinsèque |
+| ------------------------------------------- | --------------------------------------: |
+| **Mangled / Mutilé**                        |               vitesse de soin **-20 %** |
+| Conséquence de Mangled sur le temps         |                soin **+25 % plus long** |
+| **Haemorrhage / Hémorragie**                | régression du soin incomplet **-7 %/s** |
+| **Hindered / Entravé** sans valeur précisée |                     **-3 % de vitesse** |
+| Deep Wound                                  |                                **20 s** |
+| Protection après décrochage                 |                                **10 s** |
+| Hâte après décrochage                       |                               **+10 %** |
+| Endurance après décrochage                  |                                **10 s** |
+| Elusive après décrochage                    |                                **10 s** |
+
+([Dead by Daylight Wiki][8])
+
+---
+
+# 6. Crochets et transport
+
+| Statistique                                         |                     Valeur de base |
+| --------------------------------------------------- | ---------------------------------: |
+| Vitesse du tueur avec survivant                     |                       **3,68 m/s** |
+| Temps pour se libérer en gigotant                   |                           **16 s** |
+| Jauge de wiggle                                     |                     **16 charges** |
+| Progression wiggle                                  |                     **1 charge/s** |
+| Lâcher volontairement le survivant                  | **+25 % de wiggle instantanément** |
+| Accrocher un survivant                              |                          **1,5 s** |
+| Décrocher un autre survivant                        |                            **1 s** |
+| Tentative d'auto-décrochage                         |                          **1,5 s** |
+| Chance d'auto-décrochage lorsqu'elle est disponible |                            **4 %** |
+| Durée d'une phase de crochet                        |                           **70 s** |
+| Deux phases complètes                               |                          **140 s** |
+| Saboter un crochet                                  |                            **3 s** |
+| Charges de boîte consommées                         |                              **6** |
+| Crochet saboté réparé après                         |                           **30 s** |
+| Crochet cassé après sacrifice réparé après          |                           **60 s** |
+| Fenêtre pour un « Safe Unhook »                     |                           **15 s** |
+
+Attention : depuis le système **Going-Next Prevention**, le 4 % d'auto-décrochage n'est plus systématiquement disponible dans toutes les situations ; le jeu limite volontairement certains suicides précoces au crochet. ([Dead by Daylight Wiki][9])
+
+---
+
+# 7. Palettes, fenêtres et murs
+
+### Survivant
+
+| Interaction          |     Temps |
+| -------------------- | --------: |
+| Fast Vault fenêtre   | **0,5 s** |
+| Medium Vault fenêtre | **0,9 s** |
+| Slow Vault fenêtre   | **1,5 s** |
+| Fast Vault palette   | **1,1 s** |
+| Slow Vault palette   | **2,0 s** |
+
+Pour obtenir un Fast Vault de fenêtre, il faut notamment arriver en courant suffisamment droit avec environ **2,5 m d'élan**. ([Dead by Daylight Wiki][10])
+
+### Tueur
+
+| Interaction                |      Temps |
+| -------------------------- | ---------: |
+| Franchir une fenêtre       |  **1,7 s** |
+| Détruire une palette       | **2,34 s** |
+| Détruire un mur cassable   | **2,34 s** |
+| Étourdissement par palette |  **2,0 s** |
+
+([Dead by Daylight Wiki][10])
+
+---
+
+# 8. Totems
+
+| Interaction                 |    Temps |
+| --------------------------- | -------: |
+| Purifier Totem passif       | **14 s** |
+| Purifier Totem ensorcelé    | **14 s** |
+| Bénir Totem passif          | **14 s** |
+| Bénir Totem ensorcelé       | **28 s** |
+| Tueur : éteindre un Boon    |  **1 s** |
+| Nombre de Totems par partie |    **5** |
+
+Une purification interrompue **perd toute sa progression**. ([Dead by Daylight Wiki][11])
+
+---
+
+# 9. Lampes de poche / aveuglement
+
+| Statistique                    |        Valeur de base |
+| ------------------------------ | --------------------: |
+| Portée du faisceau             |              **10 m** |
+| Temps nécessaire pour aveugler |               **1 s** |
+| Durée d'aveuglement            |               **2 s** |
+| Angle du faisceau              |               **20°** |
+| Lampe standard                 |   **8 s / 8 charges** |
+| Lampe de sport                 |         **8 charges** |
+| Lampe utilitaire               | **12 s / 12 charges** |
+
+([Dead by Daylight Wiki][12])
+
+---
+
+# 10. Coffres et objets
+
+| Statistique                  |   Valeur |
+| ---------------------------- | -------: |
+| Ouvrir un coffre             |  **8 s** |
+| Charges nécessaires          |    **8** |
+| Coffres présents par défaut  |    **3** |
+| Portée sonore de l'ouverture | **20 m** |
+| Ramasser un objet au sol     |  **1 s** |
+| Poser un objet               |  **1 s** |
+
+La progression d'un coffre est conservée si l'ouverture est interrompue. ([Dead by Daylight Wiki][13])
+
+---
+
+# 11. Med-Kits
+
+Tous les Med-Kits actuels ont **24 charges**. Un état de santé demande 16 charges.
+
+| Med-Kit                         | Bonus soin d'un allié | Temps pour 1 état |
+| ------------------------------- | --------------------: | ----------------: |
+| Sans Med-Kit                    |                     — |          **16 s** |
+| Camping Aid Kit                 |                 +35 % |      **≈11,85 s** |
+| First Aid Kit                   |                 +40 % |      **≈11,43 s** |
+| Emergency Med-Kit               |                 +45 % |      **≈11,03 s** |
+| Ranger Med-Kit                  |                 +50 % |      **≈10,67 s** |
+| Auto-soin avec n'importe lequel |      -33,33 % vitesse |         **≈24 s** |
+
+([Dead by Daylight Wiki][7])
+
+---
+
+# 12. Boîtes à outils
+
+Pour une base de données complète, garde aussi ces valeurs :
+
+| Boîte          |                             Charges | Réparation |   Sabotage |
+| -------------- | ----------------------------------: | ---------: | ---------: |
+| Worn-Out Tools |                                  16 |  **+50 %** |       base |
+| Toolbox        |                                  20 |  **+50 %** |  **+15 %** |
+| Commodious     |                                  32 |  **+50 %** |  **+50 %** |
+| Mechanic's     |                                  16 |  **+75 %** |  **+25 %** |
+| Engineer's     |                                  16 | **+100 %** |  **+10 %** |
+| Alex's         | 18 actuellement dans sa description |  **+10 %** | **+100 %** |
+
+Il existe une incohérence dans une ancienne table de calcul du wiki concernant les charges d'Alex's Toolbox ; la **description actuelle de l'objet indique 18 charges**, donc c'est cette valeur que je stockerais. ([Dead by Daylight Wiki][14])
+
+---
+
+# 13. Portes de sortie et trappe
+
+| Statistique                   |                    Valeur |
+| ----------------------------- | ------------------------: |
+| Survivant : ouvrir une porte  |                  **20 s** |
+| Tueur : ouvrir une porte      |                **0,75 s** |
+| Ouvrir la trappe avec une clé |                 **2,5 s** |
+| Endgame Collapse normal       |         **120 s / 2 min** |
+| Endgame Collapse au ralenti   | jusqu'à **240 s / 4 min** |
+
+Le chrono de l'Endgame Collapse tourne à demi-vitesse lorsqu'au moins un survivant est au sol, accroché ou dans une Cage of Atonement. ([Dead by Daylight Wiki][15])
+
+---
+
+# 14. Traces utilisées pour traquer les survivants
+
+| Élément                                  | Valeur de base |
+| ---------------------------------------- | -------------: |
+| Marques de griffures                     |       **10 s** |
+| Temps pour atteindre luminosité maximale |        **1 s** |
+| Pleine luminosité                        |        **8 s** |
+| Disparition progressive                  |        **1 s** |
+| Corbeau effrayé : retour                 |       **15 s** |
+
+([Dead by Daylight Wiki][16])
+
+### ⚠️ Flaques de sang
+
+Je corrige ici une information que je t'ai donnée précédemment : **je ne te conseille pas de mettre `10 s` en dur comme durée de base vérifiée des flaques de sang**.
+
+La page actuelle du wiki officiel documente bien les flaques et les modificateurs — par exemple **Limier/Bloodhound : +2 / +3 / +4 secondes** — mais **n'affiche actuellement pas la durée de vie de base**. ([Dead by Daylight Wiki][17])
+
+Pour ton application, je mettrais donc pour l'instant :
+
+`blood_pool_lifetime: null / unverified`
+
+plutôt que d'inventer une donnée.
+
+---
+
+# 15. Fouille des casiers
+
+| Action du tueur         |       Temps |
+| ----------------------- | ----------: |
+| Fouiller un casier vide | **2,333 s** |
+
+Certains pouvoirs modifient évidemment complètement cette interaction. ([Dead by Daylight Wiki][18])
+
+---
+
+# 16. Comment interpréter les « +X % » des perks
+
+C'est **très important pour ton application**, car tous les pourcentages ne veulent pas dire la même chose.
+
+### A. Vitesse d'action
+
+Si une action prend normalement `T` secondes et qu'on augmente sa **vitesse** de +X %, on ne retire pas simplement X % au temps.
+
+La formule simple pour un modificateur isolé est :
+
+**nouveau temps = temps de base / (1 + bonus)**
+
+Exemple : soin de 16 s avec **+50 % de vitesse** :
+
+`16 / 1,5 = 10,67 s`
+
+et **pas 8 secondes**.
+
+C'est exactement pourquoi un Ranger Med-Kit à +50 % soigne en ≈10,67 s. ([Dead by Daylight Wiki][7])
+
+### B. Durée
+
+Si une perk dit :
+
+**« dure 50 % plus longtemps »**
+
+alors :
+
+`durée finale = durée initiale × 1,5`
+
+Exemple : 10 s → **15 s**.
+
+### C. Probabilité
+
+Lorsqu'un effet comme **Présence perturbante** ajoute **+10 % de probabilité de test d'habileté**, il s'agit de **points de pourcentage** dans ce contexte :
+
+**8 % → 18 %**, et non 8,8 %. ([Dead by Daylight Wiki][6])
+
+### D. Sons / Stridor
+
+Pour les sons, il n'existe pas de valeur universelle utile du style « 53 dB ».
+
+Dans ta base, le plus propre est :
+
+```text
+default_grunt_volume = 1.0   // 100 %
+stridor_bonus = 0.50         // +50 %
+result = 1.50                // 150 %
+```
+
+Donc **Stridor +50 % = 150 % du volume relatif normal**.
+
+### E. Vitesse de déplacement
+
+Pour un personnage ayant une vitesse de 4,6 m/s :
+
+`+5 % Haste → 4,6 × 1,05 = 4,83 m/s`
+
+Le **100 % affiché par DBD** correspond historiquement aux **4,0 m/s du survivant**, mais un modificateur de Hâte est appliqué à la vitesse concernée. ([Dead by Daylight Wiki][19])
+
+---
+
+# 17. Les stats qu'il ne faut PAS mettre en global
+
+Pour ton projet, je séparerais absolument ces données, car elles varient selon le tueur :
+
+| Statistique                    | Où la stocker   |
+| ------------------------------ | --------------- |
+| Vitesse normale du tueur       | `killer`        |
+| Rayon de terreur               | `killer`        |
+| Taille : petit / moyen / grand | `killer`        |
+| Pouvoir                        | `killer_power`  |
+| Vitesse avec pouvoir           | `killer_power`  |
+| Cooldowns de pouvoir           | `killer_power`  |
+| Portées de pouvoir             | `killer_power`  |
+| Durées d'effets du pouvoir     | `killer_power`  |
+| Temps de recharge              | `killer_power`  |
+| Add-ons                        | `killer_addons` |
+
+En revanche, **3,68 m/s en transport, 1,8 s pour kick un générateur, 2,34 s pour une palette, 1,7 s pour une fenêtre, 2,7 s de récupération après coup, etc.** peuvent parfaitement être rangés dans une table globale de mécanique.
+
+### Structure que je te conseillerais
+
+```text
+global_mechanics
+    survivor_run_speed = 4.0
+    survivor_walk_speed = 2.26
+    survivor_crouch_speed = 1.13
+
+    generator_charges = 90
+    generator_solo_time = 90
+    generator_damage_time = 1.8
+    generator_damage_penalty = 0.05
+    generator_regression_rate = 0.25
+
+    heal_charges = 16
+    altruistic_heal_time = 16
+    dying_recovery_time = 30.4
+    dying_bleedout_time = 240
+    self_mend_time = 10
+    altruistic_mend_time = 6
+
+    pallet_break_time = 2.34
+    pallet_stun_time = 2.0
+    wall_break_time = 2.34
+    killer_window_vault_time = 1.7
+
+    hook_time = 1.5
+    unhook_time = 1.0
+    sabotage_time = 3.0
+    sabotaged_hook_respawn = 30
+    carry_speed = 3.68
+    wiggle_time = 16
+
+    totem_cleanse_time = 14
+    dull_totem_bless_time = 14
+    hex_totem_bless_time = 28
+    boon_snuff_time = 1
+
+    exit_gate_time = 20
+    hatch_key_open_time = 2.5
+
+    scratch_mark_lifetime = 10
+    flashlight_blind_time = 1
+    flashlight_blind_duration = 2
+```
+
+

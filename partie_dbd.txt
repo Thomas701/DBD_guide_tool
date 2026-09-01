@@ -1,0 +1,452 @@
+# Déroulement d’une partie de Dead by Daylight
+
+Une partie de **Dead by Daylight** oppose cinq joueurs : **un Tueur** et **quatre Survivants**. Les deux camps disposent d’objectifs totalement différents.
+
+Le Tueur doit traquer, capturer et sacrifier les Survivants avant qu’ils ne puissent s’échapper, tandis que les Survivants doivent coopérer afin de réparer suffisamment de générateurs pour alimenter les portes de sortie et quitter la zone.
+
+Une partie peut être divisée en plusieurs grandes phases.
+
+## 1. Début de la partie
+
+Au lancement de la partie, les quatre Survivants apparaissent à différents endroits de la carte tandis que le Tueur apparaît généralement dans une autre zone.
+
+Chaque joueur dispose de son équipement, de ses compétences et éventuellement d’objets ou d’offrandes sélectionnés avant le début de la partie.
+
+Les Survivants commencent immédiatement à chercher des générateurs à réparer.
+
+Le Tueur, de son côté, commence à parcourir la carte afin de localiser les Survivants. Il peut rechercher plusieurs types d’indices :
+
+* les générateurs en cours de réparation ;
+* les bruits provoqués par certaines actions ;
+* les traces de pas laissées pendant la course ;
+* les corbeaux dérangés ;
+* les Survivants aperçus directement ;
+* les informations révélées par certaines compétences ou capacités du Tueur.
+
+Cette première phase consiste donc principalement pour le Tueur à trouver sa première cible, tandis que les Survivants tentent de commencer les réparations le plus rapidement possible.
+
+---
+
+## 2. Réparation des générateurs
+
+Plusieurs générateurs sont répartis sur la carte.
+
+L’objectif principal des Survivants est d’en réparer suffisamment pour alimenter les deux portes de sortie.
+
+Pour réparer un générateur, un ou plusieurs Survivants peuvent interagir avec celui-ci.
+
+Plusieurs Survivants travaillant ensemble permettent généralement de terminer un générateur plus rapidement, mais cela présente également un risque : plusieurs joueurs sont alors regroupés au même endroit et peuvent être découverts simultanément par le Tueur.
+
+Pendant la réparation, des **tests d’habileté**, ou Skill Checks, peuvent apparaître.
+
+Le joueur doit appuyer au bon moment pour réussir le test.
+
+Un test réussi permet de poursuivre normalement la réparation, tandis qu’un test raté peut provoquer une explosion du générateur, interrompre temporairement la réparation et avertir le Tueur de la position des Survivants.
+
+Certaines compétences peuvent également modifier le fonctionnement des générateurs en :
+
+* accélérant les réparations ;
+* ralentissant leur progression ;
+* bloquant temporairement un générateur ;
+* faisant régresser sa progression ;
+* révélant les Survivants travaillant dessus ;
+* déclenchant différents effets lorsqu’un certain pourcentage de progression est atteint.
+
+Le Tueur peut également endommager certains générateurs afin de faire régresser leur progression.
+
+La gestion des générateurs représente donc une grande partie de la stratégie générale d’une partie.
+
+---
+
+## 3. Détection d’un Survivant
+
+Lorsqu’un Tueur trouve un Survivant, une poursuite peut commencer.
+
+Le Survivant cherche alors à gagner autant de temps que possible afin de permettre aux trois autres joueurs de continuer leurs objectifs.
+
+Une poursuite commence généralement lorsqu’un Tueur voit un Survivant et commence à le poursuivre.
+
+Le Survivant peut utiliser l’environnement pour essayer de créer de la distance.
+
+Il peut notamment utiliser :
+
+* les fenêtres ;
+* les palettes ;
+* les bâtiments ;
+* les murs ;
+* différents obstacles ;
+* certaines structures particulières de la carte.
+
+Ces zones sont souvent utilisées pour effectuer ce que les joueurs appellent des **loops**.
+
+Le principe consiste à tourner autour d’un obstacle tout en essayant d’anticiper les déplacements du Tueur.
+
+Le Survivant cherche à prolonger la poursuite tandis que le Tueur tente de réduire progressivement la distance.
+
+---
+
+## 4. Le rayon de terreur
+
+La plupart des Tueurs possèdent un **rayon de terreur**.
+
+Lorsqu’un Survivant entre dans ce rayon, il commence généralement à entendre les battements de son cœur ainsi qu’une musique indiquant que le Tueur se trouve à proximité.
+
+Plus le Tueur se rapproche, plus les battements deviennent rapides et intenses.
+
+Cela permet aux Survivants d’évaluer approximativement la proximité du danger.
+
+Certaines compétences ou certains pouvoirs peuvent cependant modifier ce fonctionnement.
+
+Par exemple, un Tueur peut parfois :
+
+* réduire son rayon de terreur ;
+* augmenter son rayon de terreur ;
+* devenir temporairement indétectable ;
+* supprimer complètement son rayon de terreur.
+
+Les Survivants doivent donc rester attentifs à leur environnement et ne peuvent pas toujours se fier uniquement aux battements de leur cœur.
+
+---
+
+## 5. La poursuite
+
+Pendant une poursuite, le Tueur cherche généralement à effectuer une première attaque sur le Survivant.
+
+Un Survivant en bonne santé passe alors dans l’état **blessé**.
+
+Lorsqu’il est blessé, il peut laisser derrière lui différentes indications permettant au Tueur de continuer à le suivre, notamment du sang et des sons de douleur.
+
+Après avoir été blessé, le Survivant bénéficie généralement d’un court gain de vitesse lui permettant d’essayer de créer de la distance.
+
+Le Tueur doit alors continuer la poursuite afin de réussir une seconde attaque.
+
+Si cette attaque réussit, le Survivant tombe au sol dans l’état **mourant**.
+
+---
+
+## 6. Abandonner une poursuite
+
+Le Tueur n’est pas obligé de poursuivre un Survivant jusqu’à ce qu’il tombe au sol.
+
+Il peut décider d’abandonner une poursuite s’il estime que celle-ci prend trop de temps.
+
+Cette décision peut être importante.
+
+Pendant qu’un Tueur poursuit un seul Survivant, les trois autres joueurs peuvent continuer à :
+
+* réparer des générateurs ;
+* soigner leurs coéquipiers ;
+* chercher des objets ;
+* préparer différents objectifs.
+
+Une poursuite trop longue peut donc être très désavantageuse pour le Tueur.
+
+Celui-ci doit constamment choisir entre continuer à poursuivre sa cible ou abandonner la chasse afin de défendre les générateurs.
+
+---
+
+## 7. Utilisation des palettes et des fenêtres
+
+Les palettes constituent l’un des principaux outils de défense des Survivants.
+
+Un Survivant peut faire tomber une palette entre lui et le Tueur afin de créer un obstacle.
+
+Si la palette tombe directement sur le Tueur, celui-ci peut être étourdi pendant un court instant.
+
+Le Survivant peut profiter de ce moment pour prendre de la distance.
+
+Cependant, une palette utilisée est généralement une ressource limitée.
+
+Une fois détruite par le Tueur, elle ne peut plus servir pendant le reste de la partie.
+
+Les Survivants doivent donc éviter de gaspiller les palettes trop rapidement.
+
+Les fenêtres permettent également de créer de la distance.
+
+Les Survivants peuvent franchir certaines fenêtres rapidement tandis que le Tueur doit généralement les franchir plus lentement.
+
+Certaines fenêtres peuvent toutefois être temporairement bloquées après plusieurs utilisations successives pendant une poursuite.
+
+---
+
+## 8. Mise au sol d’un Survivant
+
+Lorsque le Tueur réussit à toucher un Survivant déjà blessé, celui-ci tombe dans l’état mourant.
+
+Le Survivant se retrouve alors au sol.
+
+Il peut généralement ramper lentement et commencer à récupérer une partie de sa santé, mais il ne peut normalement pas se relever entièrement sans l’aide d’un autre Survivant ou d’un effet particulier.
+
+Le Tueur dispose alors de plusieurs possibilités.
+
+Il peut immédiatement récupérer le Survivant pour l’emmener jusqu’à un crochet.
+
+Il peut également laisser temporairement le Survivant au sol pour poursuivre un autre joueur.
+
+Cette stratégie est parfois utilisée pour mettre plusieurs Survivants sous pression simultanément.
+
+---
+
+## 9. Transport d’un Survivant
+
+Le Tueur peut récupérer un Survivant au sol et le transporter sur son épaule.
+
+Son objectif est alors de rejoindre un crochet.
+
+Pendant le transport, le Survivant peut tenter de se débattre.
+
+Si le Tueur met trop de temps à atteindre un crochet, le Survivant peut éventuellement réussir à se libérer.
+
+Les autres Survivants peuvent également essayer d’intervenir.
+
+Selon leur équipement et leurs compétences, ils peuvent tenter de :
+
+* bloquer physiquement le passage ;
+* aveugler le Tueur ;
+* étourdir le Tueur ;
+* saboter un crochet ;
+* utiliser certaines compétences spécifiques.
+
+Une intervention réussie peut parfois permettre au Survivant transporté de tomber de l’épaule du Tueur et de s’enfuir.
+
+---
+
+## 10. Accrochage d’un Survivant
+
+Lorsque le Tueur atteint un crochet, il peut y suspendre le Survivant.
+
+Un Survivant peut généralement passer par plusieurs phases de crochet avant d’être définitivement éliminé.
+
+Lors de la première phase, ses coéquipiers disposent d’un certain temps pour venir le sauver.
+
+Si personne ne vient suffisamment rapidement, le Survivant peut entrer dans une seconde phase.
+
+Pendant cette phase, il doit continuer à lutter pour rester en vie jusqu’à ce qu’un autre Survivant vienne le décrocher.
+
+Lorsqu’un Survivant ayant déjà atteint les phases précédentes est accroché une nouvelle fois, il peut être sacrifié et éliminé de la partie.
+
+La gestion des sauvetages est donc extrêmement importante.
+
+---
+
+## 11. Décrocher un Survivant
+
+Un autre Survivant peut s’approcher du crochet et libérer son coéquipier.
+
+Le Survivant décroché peut cependant être blessé ou vulnérable.
+
+Le Tueur peut choisir de revenir immédiatement vers le crochet afin d’essayer de retrouver les deux Survivants.
+
+Les Survivants doivent donc souvent organiser le sauvetage correctement.
+
+Un joueur peut attirer le Tueur ailleurs pendant qu’un autre effectue le sauvetage.
+
+Certaines compétences apportent également des protections ou des bonus après un décrochage.
+
+---
+
+## 12. Soins entre Survivants
+
+Lorsqu’un Survivant est blessé, un autre Survivant peut généralement le soigner afin de le faire revenir dans l’état sain.
+
+Le soin prend un certain temps.
+
+Pendant cette période, les deux Survivants sont relativement vulnérables puisqu’ils ne progressent pas sur les générateurs.
+
+Les Survivants doivent donc choisir le bon moment pour se soigner.
+
+Un soin peut être effectué :
+
+* par un autre Survivant ;
+* avec une trousse de soins ;
+* grâce à certaines compétences ;
+* grâce à certains effets particuliers.
+
+Selon la situation, rester blessé peut parfois être volontaire afin de continuer à réparer les générateurs plutôt que de perdre du temps à se soigner.
+
+---
+
+## 13. Utilisation des objets
+
+Les Survivants peuvent apporter ou trouver différents objets pendant une partie.
+
+Parmi les objets les plus courants figurent notamment :
+
+**Les trousses de soins**, permettant de faciliter ou d’accélérer les soins.
+
+**Les boîtes à outils**, utilisées principalement pour accélérer certaines réparations ou effectuer des actions liées aux crochets.
+
+**Les lampes de poche**, permettant notamment d’aveugler temporairement le Tueur.
+
+**Les cartes**, utilisées pour obtenir certaines informations sur l’environnement.
+
+**Les clés**, pouvant disposer de différents effets selon leur configuration.
+
+Ces objets peuvent également recevoir des accessoires modifiant leurs performances.
+
+---
+
+## 14. Aveugler le Tueur
+
+Certains objets ou effets permettent aux Survivants d’aveugler temporairement le Tueur.
+
+La lampe de poche constitue l’exemple le plus connu.
+
+Le Survivant doit généralement viser correctement le visage du Tueur pendant quelques instants.
+
+Une fois aveuglé, le Tueur perd temporairement une grande partie de sa vision.
+
+Cette mécanique peut être particulièrement importante lorsque le Tueur transporte un Survivant.
+
+Un aveuglement effectué au bon moment peut provoquer la libération du joueur transporté.
+
+---
+
+## 15. Pouvoir du Tueur
+
+Chaque Tueur possède un pouvoir spécifique qui modifie fortement sa façon de jouer.
+
+Certains Tueurs peuvent se déplacer extrêmement rapidement.
+
+D’autres peuvent devenir invisibles, poser des pièges, lancer des projectiles, se téléporter ou utiliser différentes capacités surnaturelles.
+
+Le pouvoir du Tueur influence directement le déroulement des poursuites.
+
+Les Survivants doivent donc adapter leur comportement en fonction du Tueur rencontré.
+
+Une stratégie efficace contre un Tueur peut être complètement différente contre un autre.
+
+---
+
+## 16. Les compétences
+
+Chaque joueur peut équiper plusieurs compétences, appelées **Perks**.
+
+Ces compétences peuvent modifier de nombreux éléments d’une partie.
+
+Pour les Survivants, elles peuvent notamment :
+
+* faciliter les réparations ;
+* améliorer les soins ;
+* révéler certaines informations ;
+* améliorer les déplacements ;
+* aider pendant les poursuites ;
+* renforcer les sauvetages ;
+* permettre de récupérer dans certaines situations.
+
+Pour les Tueurs, elles peuvent notamment :
+
+* ralentir les générateurs ;
+* détecter les Survivants ;
+* renforcer les poursuites ;
+* modifier le rayon de terreur ;
+* punir certaines actions ;
+* contrôler différentes zones de la carte.
+
+La combinaison de plusieurs compétences forme ce que les joueurs appellent généralement un **build**.
+
+---
+
+## 17. Gestion du temps et pression
+
+L’un des éléments fondamentaux d’une partie de Dead by Daylight est la gestion du temps.
+
+Chaque action possède un coût.
+
+Lorsqu’un Survivant est poursuivi, il ne répare pas.
+
+Lorsqu’un Survivant soigne quelqu’un, deux joueurs peuvent temporairement ne pas réparer.
+
+Lorsqu’un Survivant va effectuer un sauvetage, il doit quitter son générateur.
+
+Le Tueur cherche donc à forcer les Survivants à effectuer le plus possible d’actions secondaires.
+
+Plus les Survivants doivent :
+
+* se soigner ;
+* sauver leurs coéquipiers ;
+* quitter leurs générateurs ;
+* courir ;
+* chercher leurs partenaires ;
+
+moins ils peuvent progresser vers leur objectif principal.
+
+---
+
+## 18. Fin des réparations
+
+Lorsque les Survivants terminent le nombre nécessaire de générateurs, les portes de sortie peuvent être alimentées.
+
+Deux portes sont généralement présentes sur la carte.
+
+Les Survivants doivent atteindre l’une d’elles et maintenir une interaction afin de l’ouvrir.
+
+Cette opération prend plusieurs secondes.
+
+Pendant ce temps, le Tueur sait que les Survivants vont chercher à rejoindre les sorties.
+
+La partie entre alors dans sa phase finale.
+
+---
+
+## 19. Phase de fin de partie
+
+Lorsque les conditions de fin de partie sont déclenchées, une pression supplémentaire apparaît.
+
+Les Survivants disposent d’un temps limité pour quitter la zone.
+
+Ils doivent décider s’ils souhaitent immédiatement s’échapper ou tenter de sauver un dernier coéquipier.
+
+Le Tueur peut utiliser cette période pour essayer d’obtenir une dernière élimination.
+
+Cette phase produit souvent des situations très risquées.
+
+Un Survivant déjà proche d'une sortie peut choisir de revenir dans la carte pour essayer de sauver quelqu’un accroché.
+
+Cette décision peut transformer une fuite facile en plusieurs éliminations si le sauvetage échoue.
+
+---
+
+## 20. Évasion d’un Survivant
+
+Un Survivant est considéré comme ayant réussi à s’échapper lorsqu’il quitte la partie par une sortie disponible.
+
+Il peut généralement partir par une porte ouverte ou, dans certaines situations particulières, utiliser une autre méthode d’évasion.
+
+Une fois sorti de la zone, le Survivant est définitivement hors d’atteinte du Tueur.
+
+---
+
+## 21. Élimination d’un Survivant
+
+Le Tueur peut éliminer un Survivant de plusieurs façons selon la situation.
+
+La méthode principale consiste à l’accrocher suffisamment de fois pour qu’il soit finalement sacrifié.
+
+Certaines capacités, compétences ou mécaniques particulières peuvent également permettre au Tueur d’éliminer directement un Survivant sous certaines conditions.
+
+Lorsqu’un Survivant est éliminé, il ne peut plus participer au reste de la partie.
+
+---
+
+## 22. Le dernier Survivant
+
+Lorsque plusieurs Survivants ont été éliminés et qu’il ne reste plus qu’un seul joueur, la partie peut changer complètement.
+
+Le dernier Survivant doit alors choisir entre continuer son objectif initial ou rechercher une possibilité alternative de s’échapper.
+
+Le Tueur essaie simultanément de localiser cette dernière cible avant qu’elle puisse quitter la carte.
+
+Cette situation transforme souvent la fin de partie en confrontation directe entre le dernier Survivant et le Tueur.
+
+---
+
+# Résumé d’une partie
+
+Une partie classique suit donc approximativement la boucle suivante :
+
+**Les Survivants réparent les générateurs → le Tueur recherche un Survivant → une poursuite commence → le Survivant est blessé puis éventuellement mis au sol → le Tueur transporte le Survivant → le Survivant est accroché → ses coéquipiers doivent décider s’ils continuent les générateurs ou viennent le sauver → le Survivant est décroché et éventuellement soigné → les poursuites et réparations continuent → suffisamment de générateurs sont terminés → les portes de sortie sont alimentées → les Survivants tentent de s’échapper pendant que le Tueur cherche à obtenir ses dernières éliminations.**
+
+La particularité de Dead by Daylight est que cette boucle est constamment modifiée par les pouvoirs des Tueurs, les compétences des joueurs, les objets, les différentes cartes et les décisions prises pendant la partie.
+
+Une partie est donc essentiellement un équilibre permanent entre **poursuite, gestion du temps, information, pression sur les générateurs, sauvetages et survie**.

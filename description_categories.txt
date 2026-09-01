@@ -1,0 +1,1800 @@
+L'appel d'une infirmière	L'appel d'une infirmière	Libère le potentiel de votre capacité à lire l'aura :
+Les auras
+IcôneAide auras.png
+Les survivants en train d’être guéris ou de se guérir eux-mêmes vous sont révélés dans un rayon de 28 / 30 / 32 mètres .
+« Toujours attachée aux fragments de sa vie passée, elle est attirée par ceux qui ont besoin d'aide. »
+
+Infirmière
+K04 Portrait de l'infirmière.png
+Agitation	Agitation	« On s'excite à l'idée de ferrer sa proie. »
+Lorsqu'un survivant est transporté, l'agitation s'active :
+
+Augmente votre vitesse de transport de 6 / 12 / 18 % .
+Augmente votre rayon de terreur
+IconHelp terrorRadius.png
+de +12 mètres .
+« À un certain moment, l’excitation de ferrer l’un d’entre nous devient plus importante que le désir de nous tuer. »	Trappeur
+K01 Le portrait du trappeur.png
+Instinct extraterrestre	Instinct extraterrestre	« Tu es si furtif, parfois on a l'impression que tu surgis de nulle part. »
+Chaque fois que vous accrochez un survivant, l'instinct extraterrestre s'active :
+
+L' aura
+IcôneAide auras.png
+du survivant le plus éloigné de votre position actuelle qui se trouve dans l' état de blessure
+IconHelp blessé.png
+vous est révélé pendant 8 secondes .
+Provoque chez ce survivant le syndrome de l' inconscientEffets d'état de l'icône inconscient.png Effet de statut pendant 40 / 50 / 60 secondes .
+« La lumière jaune, c'est pour mes yeux seulement. » — Dallas	Xénomorphe
+K33 Le portrait du Xénomorphe.png
+Tonnerre terrifiant	Tonnerre terrifiant	« Sur terre comme en mer, vos ennemis ont appris à trembler devant votre puissance. »
+Après une chute d'une certaine hauteur, le Tonnerre Démoniaque s'active pendant 15 / 20 / 25 secondes :
+
+Augmente la portée de votre attaque en fente de +75 % .
+Le Tonnerre qui fait trembler tout a un temps de recharge de 5 secondes .
+«Vas-y. Cours. Dis à tes amis que je viens les chercher.» — Portia Maye
+
+Maître-chien
+K38 Le portrait du maître-chien.png
+Conscience éveillée	Conscience éveillée	«Vos gènes ont été modifiés pour aiguiser vos sens dans les situations intenses.»
+Lorsque vous transportez un Survivant, vous bénéficiez de l'effet suivant :
+
+Les auras
+IcôneAide auras.png
+Les autres survivants situés à moins de 16 / 18 / 20 mètres de votre position vous sont révélés.
+Cerveau
+K29 Le portrait du cerveau.png
+Embobiner	Embobiner	Vous bénéficiez de l'effet permanent suivant :
+Augmente votre vitesse de franchissement de 5 / 10 / 15 % .
+Chaque fois que vous franchissez une fenêtre
+Fenêtre d'aide IconHelp.png
+Bamboozle fait appel à l' Entité
+IconHelp entity.png
+pour l'effet suivant :
+
+Bloque l'accès à tous les survivants pendant 8 / 12 / 16 secondes .
+Réussir le saut à nouveau dans ce délai réinitialise le chronomètre.
+En franchissant un autre objet, l'effet s'applique à celui-ci.
+Bamboozle n'étend pas ses effets au franchissement d'une palette tombée au sol .
+
+Clown
+K12 Le portrait du clown.png
+Barbecue et piment	Barbecue et piment	Un lien profond avec l' Entité
+IconHelp entity.png
+libère le potentiel de la capacité à lire l'aura.
+Après avoir accroché un survivant, tous les survivants situés à au moins 60 / 50 / 40 mètres de cet hameçon voient leur aura s'activer.
+IcôneAide auras.png
+révélé à vous pendant 5 secondes .
+« Je ne peux tout simplement pas prendre plaisir à tuer. Il y a des choses qu'on est obligé de faire. Ça ne veut pas dire qu'on doit aimer ça. » — Drayton Sawyer
+
+Cannibale
+K09 Le portrait du cannibale.png
+Piles incluses	Piles incluses	« Se situer quelque part entre l'homme et la machine a ses avantages. »
+À moins de 16 mètres d'un générateur terminé
+IconHelpChargement des générateurs.png
+, vous bénéficiez de l'effet suivant :
+
+Confère un bonus de +5 % à la hâteEffets d'état de l'icône : hâte.png Effet de statut .
+Cet effet persiste pendant 1 / 3 / 5 seconde(s) .
+« Surprise ! Tu m'as manqué, Andy ? » — Chucky	Bon gars
+K34 Portrait de TheGoodGuy.png
+Bête de proie	Bête de proie	« Votre soif de tuer est si intense que votre connexion avec l'Entité est momentanément rompue, vous rendant totalement imprévisible. »
+Chaque fois que vous déclenchez la soif de sangIcôneAide soif de sang.png Effet de statut , Bête de proie s'active pendant 30 / 35 / 40 secondes :
+
+Accorde l' indétectableEffets d'état de l'icône indétectable.png Effet de statut .
+« Où est-elle allée ? »	Chasseresse
+K08 Portrait de la Chasseresse.png
+Murmure amer	Murmure amer	Développe le potentiel de votre capacité à lire l'aura.
+À chaque fois qu'un générateur
+IconHelpChargement des générateurs.png
+Une fois la quête « Murmure amer » terminée, son effet principal se déclenche :
+Les auras
+IcôneAide auras.png
+Les survivants situés à moins de 16 mètres de ce générateur vous sont révélés pendant 5 secondes .
+Une fois le dernier générateur terminé, Murmure amer déclenche son effet secondaire :
+
+Les auras de tous les survivants vous sont révélées pendant 5 / 7 / 10 secondes .
+
+
+Tous
+Échocardiographie sanguine	Échocardiographie sanguine	« La souffrance de l'un rejaillit sur les autres. »
+Chaque fois que vous accrochez un survivant, Écho de sang déclenche son effet :
+
+Provoque tous les survivants dans l' état blessé
+IconHelp blessé.png
+souffrir de l' épuisementEffets d'état de l'icône épuisés.pnget hémorragieEffets d'état de l'icône saignement.png Effets de statut pendant 20 / 25 / 30 secondes .
+« Attaquez un ennemi avec précision et ses alliés le ressentiront. » — Doctrine de Renjiro 6:3	Oni
+K18 TheOni Portrait.png
+Gardien du sang	Gardien du sang	Dès qu'au moins une porte de sortie
+IconHelp portes de sortie.png
+est ouvert, le Gardien de sang s'active :
+Les auras
+IcôneAide auras.png
+des survivants
+Aide à l'icône Chargement du survivant.png
+vous sont révélés, chaque fois qu'ils se trouvent à l'intérieur de la porte de sortie .
+Une fois par procès, accrocher un survivant pendant que le Gardien de sang est actif invoque l' Entité.
+IconHelp entity.png
+pour déclencher l'effet suivant :
+
+Tous les blocs ont ouvert les portes de sortie pendant 40 / 50 / 60 secondes , empêchant ainsi tout survivant restant de quitter l'épreuve par celles-ci.
+« Ceci est mon monde. Et tu ne pourras jamais le quitter. » — Freddy Krueger
+
+Cauchemar
+K10 Le Portrait du Cauchemar.png
+Limier	Limier	« Comme un chien de chasse, vous sentez les traces de sang à grande distance. »
+Bloodhound provoque les effets suivants :
+
+Des flaques de sang
+Effets d'état de l'icône saignement.png
+Les survivants blessés apparaissent en rouge vif .
+Prolonge leur durée de vie de 2 / 3 / 4 secondes .
+« Des cailloux qui scintillent au clair de lune ; ma vie s’écoule en un sentier si facile à suivre. »	Spectre
+K02 Le portrait du Spectre.png
+Force brutale	Force brutale	« Ta force prodigieuse te permet de percer les défenses de ta proie. »
+Lors de l'exécution de l' action Casser ou Endommager sur des murs destructibles
+IconHelp mur cassable.png
+, Palettes
+IconHelp pullDown.png
+, ou Générateurs
+IconHelpChargement des générateurs.png
+, Force brutale déclenche son effet :
+
+Augmente la vitesse d'action de 10 / 15 / 20 % .
+« Ce ne sont pas que des muscles. Une force obscure anime la bête. »	Trappeur
+K01 Le portrait du trappeur.png
+Appel de la saumure	Appel de la saumure	«Vos capacités psychiques influencent la technologie de manière dévastatrice.»
+Après avoir effectué l' action Générateur de dommages sur un générateur
+IconHelpChargement des générateurs.png
+, L'Appel de la Bave lui applique ses effets pendant 90 secondes :
+
+Augmente sa vitesse de régression à 130 / 140 / 150 % de la valeur par défaut.
+Met en valeur son aura
+IcôneAide auras.png
+à vous en jaune .
+Déclenche une notification sonore forte chaque fois qu'un survivant réussit un test d'habileté pendant la réparation.
+Onryō
+K27 Le portrait d'Onryo.png
+Témoin céleste	Témoin céleste	Toutes les 30 secondes , si l' obsession
+IcôneHelp obsession.png
+Si un survivant se trouve à 40 mètres de vous, vous voyez son aura pendant 2 / 2,5 / 3 secondes . Sinon, le survivant le plus éloigné devient l' Obsession .
+« Et ainsi les hérétiques se blottirent lâchement dans la nuit ; mais lorsque le Jugement arriva, Il les vit tous et les punit. » — (Témoin à Könrad, chap. 32)
+
+Jugement
+K44 Le Portrait du Jugement.png
+Intervention corrompue	Intervention corrompue	Vos prières invoquent une force obscure qui compromet les chances de survie des Survivants.
+Au début de l'épreuve, les 3 générateurs les plus éloignés de vous sont bloqués par l' Entité.
+IconHelp entity.png
+pendant 80 / 100 / 120 secondes .
+L'intervention corrompue se désactive prématurément dès que le premier survivant est placé dans l' état mourant.
+IcôneAide mourant.png
+.
+
+« Il sera connu dans tout le pays que les dieux maudissent les infidèles. » — (La Tablette d'Adiris, 3.7)
+
+Peste
+K15 Le portrait de la peste.png
+coulrophobie	coulrophobie	« Même ceux qui n'ont pas peur des clowns savent qu'ils doivent être terrifiés par vous. »
+Survivants à l'intérieur de votre rayon de terreur
+IconHelp terrorRadius.png
+subir les effets suivants :
+
+Réduit toutes les vitesses de guérison de 20 / 25 / 30 % .
+Augmente la vitesse de rotation du pointeur des tests de compétences de guérison de +50 % .
+Clown
+K12 Le portrait du clown.png
+Coup de grâce	Coup de grâce	À l'approche de la fin, vous passez au coup de grâce.
+Lorsqu'un générateur
+IconHelpChargement des générateurs.png
+une fois terminé, Coup de Grâce gagne +2 jetons , jusqu'à un maximum de 10 jetons par essai :
+
+Augmente la portée de votre prochaine attaque en fente de 70 / 75 / 80 % , tout en consommant -1 jeton .
+Coup de Grâce ne peut contenir qu'un maximum de 5 jetons à la fois.	Jumeaux
+K22 Portrait des jumeaux.png
+Limites cruelles	Limites cruelles	«Vos liens avec l'au-delà se manifestent lorsque votre proie tente de s'échapper.»
+Lorsqu'un générateur
+IconHelpChargement des générateurs.png
+Une fois la tâche accomplie, Cruel Limits déclenche son effet pendant 20 / 25 / 30 secondes :
+
+Bloque toutes les fenêtres
+Fenêtre d'aide IconHelp.png
+Pour tous les survivants.
+Les auras
+IcôneAide auras.png
+Les fenêtres bloquées vous sont révélées et surlignées en jaune .
+« L’échantillon semble capable d’influencer l’état des objets environnants, comme s’ils existaient sous une autre forme dans une dimension parallèle à la nôtre. » — Laboratoire national Hawkins	Démogorgon
+K17 Le portrait du Démogorgon.png
+Éliminer les faibles	Éliminer les faibles	Chaque fois que vous accrochez un survivant autre que votre Obsession
+IcôneHelp obsession.png
+, vous gagnez +1 jeton :
+Tant que l' Obsession est en vie, tous les autres Survivants subissent une pénalité de vitesse d'action cumulable de 2 / 2,5 / 3 % par jeton pour la réparation, la guérison et le sabotage, jusqu'à un maximum de 22 / 27,5 / 33 % ou 11 jetons .
+L' Obsession n'est pas affectée par cette pénalité et bénéficie en revanche d'un bonus permanent de +33 % à la vitesse d'action pour décrocher et soigner les autres survivants.
+On ne peut être obsédé que par un seul Survivant à la fois.
+
+Tous
+Arrogance sombre	Arrogance sombre	« Quand tout va bien, vous êtes une fatalité inévitable. »
+Lorsque vous franchissez une fenêtre
+Fenêtre d'aide IconHelp.png
+, vous bénéficiez de l'effet suivant :
+
+Augmente la vitesse de franchissement de 15 / 20 / 25 % .
+Chaque fois que vous êtes stupéfait par une palette
+IconHelp pullDown.png
+ou rendu aveugle par quelque moyen que ce soit, vous subissez les effets suivants :
+Réduit la vitesse de récupération après un étourdissement par palette de -15 % .
+Augmente la durée de l'aveuglement du tueur de +15 % .
+« Courez autant que vous voulez. Je ne me laisserai pas faire. » — Vecna	Liche
+K36 Le Portrait du Roi Liche.png
+Dévotion sombre	Dévotion sombre	« La démonstration de vos pouvoirs crée un tourbillon de panique qui se propage à travers tout le pays. »
+Chaque fois que l' obsession
+IcôneHelp obsession.png
+Si la cible est blessée de quelque manière que ce soit, Dark Devotion s'active pendant 35 / 40 / 45 secondes :
+
+Transfère votre rayon de terreur
+IconHelp terrorRadius.png
+à l' obsession .
+Ce rayon de terreur est fixé à 40 mètres .
+Accorde l' indétectableEffets d'état de l'icône indétectable.png Effet de statut .
+On ne peut être obsédé que par un seul Survivant à la fois.
+« Et la terreur s’emparera de l’incrédule rebelle qui annoncera faussement mon arrivée. » — (La Tablette d’Adiris, 48.9)
+
+Peste
+K15 Le portrait de la peste.png
+Les ténèbres révélées	Les ténèbres révélées	« En votre présence, les lieux que l’on croyait autrefois sûrs sont peut-être les plus dangereux. »
+Fouiller un casier
+IcôneAide casiers.png
+a l'effet suivant :
+
+Les auras
+IcôneAide auras.png
+Les survivants situés à moins de 8 mètres de n'importe quel casier vous sont révélés pendant 6 / 7 / 8 secondes .
+L'effet Darkness Revealed a un temps de recharge de 30 secondes .
+« Restez dans la lumière, mes enfants. Dans l'obscurité, votre peur vous trahira. » — Otto Stamper
+
+Drague
+K28 Portrait de TheDredge.png
+Interrupteur de l'homme mort	Interrupteur de l'homme mort	Après avoir accroché un survivant, le dispositif Dead Man's Switch déclenche son effet :
+Bloque le premier générateur
+IconHelpChargement des générateurs.png
+Tout survivant cesse de réparer pendant 25 / 30 / 35 secondes .
+Le générateur bloqué est mis en évidence en blanc .
+Le dispositif « Interrupteur mort » ne peut pas s'activer si son effet est toujours actif suite à une activation précédente.
+
+« J’ai vu le regard d’un homme lorsqu’il réalise qu’il va mourir. » — Caleb Quinn
+
+Lanceur de mort
+K19 Le Portrait du Lanceur de Mort.png
+Impasse	Impasse	Identique à No Holds Barred
+IconPerks NoHoldsBarred.png
+.
+« Personne ne nous échappe. » — Pinhead
+
+Cénobite
+K25 Le portrait du Cénobite.png
+L'Enchaînement de la Mort	L'Enchaînement de la Mort	« Ceux dont les vies sont liées par les ténèbres sont destinés à souffrir ensemble. »
+Chaque fois qu'un survivant termine de soigner un autre survivant pour l'équivalent de 1 état de santé
+Effets d'état de l'icône guérison.png
+, L'activation de Deathbound :
+
+Cela fait hurler le guérisseur et révèle sa position.
+Provoque chez le guérisseur l'effet de l' InconscienceEffets d'état de l'icône inconscient.png Effet de statut chaque fois qu'ils sont à plus de 12 / 8 / 4 mètres de l'autre survivant.
+Le guérisseur voit l' aura
+IcôneAide auras.png
+du Survivant Guéri alors que Lien de Mort est actif.
+Le lien mortel se désactive lorsque le soigneur perd un état de santé.	Bourreau
+K20 Le portrait du bourreau.png
+Chasseur de cerfs	Chasseur de cerfs	Débloque le potentiel de votre capacité à lire l'aura.
+Chaque fois qu'un Survivant lit votre aura
+IcôneAide auras.png
+, La capacité Traqueur de cerfs s'active pour la même durée que son action de lecture d'aura :
+L'aura de ce survivant vous est révélée.
+De plus, l'effet suivant se déclenche automatiquement toutes les 40 / 35 / 30 secondes :
+
+Votre aura est révélée pendant 3 secondes au survivant ayant actuellement le temps de poursuite cumulé le plus faible .
+
+
+Tous
+Désaccord	Désaccord	N'importe quel générateur
+IconHelpChargement des générateurs.png
+Les zones de réparation effectuées par au moins deux survivants dans un rayon de 64/96/128 mètres sont marquées par une aura jaune . 
+IcôneAide auras.png
+.
+Lorsque le générateur est sélectionné pour la première fois, Discordance déclenche une notification de bruit fort sur le générateur.
+Une fois que le générateur n'est plus à portée ou qu'il est en cours de réparation par un seul survivant , l'aura mise en évidence persistera pendant 4 secondes supplémentaires .
+« Les petits malins finissent par se faire tuer. On s'en occupe toujours. » — La Légion
+
+Légion
+K14 Portrait de la Légion.png
+Dissolution	Dissolution	« Tout se transforme en poussière. C'est aussi inévitable que la venue de la nuit. »
+Après 3 secondes de blessure infligée à un Survivant par quelque moyen que ce soit, Dissolution s'active pendant 12 / 16 / 20 secondes :
+
+Brise instantanément la palette suivante
+IconHelp pullDown.png
+ce survivant effectue un saut rapide à l'intérieur de votre rayon de terreur
+IconHelp terrorRadius.png
+.
+« Le jardin sera un lieu de joie parfaite ; grâce à la joie, rien ne pourra nous arrêter. » — Otto Stamper	Drague
+K28 Portrait de TheDredge.png
+Pénible	Pénible	«Votre émanation terrifiante frappe à une distance surnaturellement longue.»
+Vous bénéficiez de l'effet permanent suivant :
+
+Augmente votre rayon de terreur
+IconHelp terrorRadius.png
+de 20 / 25 / 30 % .
+Tous
+Dominance	Dominance	Le pouvoir que vous exercez sur cette terre sème la terreur dans le cœur de tous ceux qui croisent votre chemin.
+La première fois que chaque coffre
+Icône d'aide coffres.png
+et chaque Totem
+Aide à l'icône : chargement du totem.png
+sont utilisés par un Survivant, la Domination déclenche son effet :
+
+Invoque l' Entité
+IconHelp entity.png
+pour le bloquer pendant 8 / 12 / 16 secondes .
+L' aura
+IcôneAide auras.png
+L'accessoire bloqué vous est révélé en blanc .
+« Tragique, n'est-ce pas ? Comme vous devez vous sentir impuissant. » — Dracula	Seigneur des Ténèbres
+K37 Portrait du Seigneur des Ténèbres.png
+La poigne du dragon	La poigne du dragon	Après avoir effectué l' action Générateur de dommages sur un générateur
+IconHelpChargement des générateurs.png
+L'effet « Poigne du dragon » dure 30 secondes .
+Pendant sa durée d'activation, le premier survivant interagissant avec ce générateur subit les effets suivants :
+Les fait crier et révéler leur position pendant 4 secondes .
+Inflige des souffrances aux personnes exposéesEffets d'état de l'icône exposés.png Effet de statut pendant 60 secondes .
+La Poigne du Dragon a un temps de recharge de 60 / 45 / 30 secondes .
+
+« Un tel potentiel dans ce composé… même la plus infime trace provoque des effets anormaux. » — Journal de Talbot Grimes
+
+Fléau
+K21 TheBlight Portrait.png
+Lumière mourante	Lumière mourante	Identique à « Éliminer les faibles » .
+IconPerks dyingLight.png
+.
+« Ce n'est pas un homme… » — Dr Sam Loomis
+
+Forme
+K05 Le portrait de la forme.png
+Durable	Durable	«Vous êtes résistant à la douleur.»
+Vous bénéficiez de l'effet suivant :
+
+Réduit la durée des étourdissements de palettes de 40 / 45 / 50 % .
+Cet effet ne s'applique pas lorsque la cible est étourdie alors qu'elle porte un survivant.
+«Il ne recule devant rien.»	Hillbilly
+K03 Le portrait du Hillbilly.png
+Éruption	Éruption	« Le parasite NE-α vous confère l’intelligence et la conscience nécessaires pour tendre un piège. »
+Exécution de l' action Générateur de dommages sur les générateurs
+IconHelpChargement des générateurs.png
+met en valeur leurs auras
+IcôneAide auras.png
+en jaune .
+Chaque fois qu'un survivant entre dans l' état mourant.
+IcôneAide mourant.png
+Quoi qu'il en soit, Éruption déclenche les effets suivants sur tous les générateurs mis en évidence :
+
+Cela les fait exploser, les endommageant.
+Les fait instantanément régresser de -10 % de leur progression totale.
+Cela les amène ensuite à régresser.
+Provoque les effets suivants pour tous les survivants qui les réparent actuellement :
+Cela les fait hurler.
+Leur aura vous est révélée pendant 8 / 10 / 12 secondes .
+L'Éruption a un temps de recharge de 30 secondes après le déclenchement de ses effets, ce qui réinitialise également les auras mises en évidence.
+« Il peut utiliser des armes ? » — Jill Valentine
+
+Némésis
+K24 Le portrait de Nemesis.png
+Mettre le feu	Mettre le feu	La pression accrue liée à la perte de vos proies vous remplit de colère et vous donne une motivation insoupçonnée.
+Pour chaque générateur complété , Fire Up gagne +1 jeton , jusqu'à un maximum de 5 jetons :
+
+Augmente la vitesse d' action des interactions suivantes de 4/5/6 % par jeton ( cumulable ) , jusqu'à un maximum de 20/25/30 % :
+Ramasser et déposer des survivants.
+Briser les murs destructibles
+IconHelp mur cassable.png
+et des palettes tombées
+IconHelp pullDown.png
+.
+Générateurs endommageant
+IconHelpChargement des générateurs.png
+.
+Fenêtres de coffre-fort
+Fenêtre d'aide IconHelp.png
+.
+« Pourquoi tu ne crèves pas, putain ? » — Freddy Krueger	Cauchemar
+K10 Le Portrait du Cauchemar.png
+Hésitation forcée	Hésitation forcée	«Vous avez appris à connaître les faiblesses émotionnelles des êtres organiques et comment les exploiter.»
+Chaque fois qu'un survivant est placé dans l' état mourant
+IcôneAide mourant.png
+par tous les moyens, l'hésitation forcée déclenche son effet :
+
+Provoque un malus de -20 % pour tous les autres survivants situés à moins de 16 mètres . Effets d'état de l'icône entravés.png Effet de statut pendant 10 secondes .
+L'hésitation forcée a un temps de recharge de 40 / 35 / 30 secondes .
+« LA CAPACITÉ D'EMPATHIE DE L'ESPRIT ORGANIQUE DÉPASSE TOUT OBSTACLE. » — HUX-A7-13
+
+Singularité
+K32 Le portrait de la singularité.png
+Pénitence forcée	Pénitence forcée	« Ceux qui font obstacle à leur devoir subiront un jugement sévère. »
+Lorsqu'un Survivant déclenche un Coup de Protection , il subit l'effet suivant :
+
+Inflige aux brisésIconStatusEffects cassé.png Effet de statut pendant 60 / 70 / 80 secondes .
+Bourreau
+K20 Le portrait du bourreau.png
+Enlacés pour toujours	Enlacés pour toujours	« Plus la lutte est intense, plus l'évasion est difficile. »
+À chaque fois qu'un Survivant subit des dégâts, Forever Entwined gagne +1 Jeton , jusqu'à un maximum de 6 / 7 / 8 Jetons :
+
+Augmente la vitesse d'action pour lâcher, accrocher et ramasser un survivant de +4 % par jeton, cumulable , jusqu'à un maximum de 24 / 28 / 32 % .
+« Tu as essayé de me dévorer, alors tu n'as pas le droit de te plaindre si je te mange, n'est-ce pas ? » — Ken Kaneki	Goule
+K39 Le portrait du goule.png
+La mort de Franklin	La mort de Franklin	Les survivants touchés par votre attaque de base dévastatrice laissent tomber tout objet équipé.
+Éléments d'aide de l'icône.png
+sur l'impact :
+Les auras
+IcôneAide auras.png
+Les objets perdus sont révélés à une distance de 32 / 48 / 64 mètres .
+« Sally, j'entends quelque chose. Arrête ! Arrête ! » — Franklin Hardesty
+
+Cannibale
+K09 Le portrait du cannibale.png
+Amis jusqu'à la fin	Amis jusqu'à la fin	«Vous tuerez quiconque se mettra entre vous et votre cible.»
+Lorsque vous accrochez des survivants qui ne sont pas l' obsession
+IcôneHelp obsession.png
+, les effets suivants s'appliquent à l' Obsession :
+
+Leur aura
+IcôneAide auras.png
+est révélé pendant 6 / 8 / 10 secondes .
+Ils souffrent de l' exposition
+Effets d'état de l'icône exposés.png
+ Effet de statut pendant 20 secondes .
+Lorsque vous activez l' Obsession , les effets suivants s'appliquent à un Survivant aléatoire :
+Provoque un cri chez le survivant, qui révèle ainsi sa position au tueur.
+Elles deviennent la nouvelle obsession .
+On ne peut être obsédé que par un seul Survivant à la fois.
+« J'ai de la viande fraîche en réserve, et je ne te laisserai pas la gâcher, pas cette fois ! » — Chucky
+
+Bon gars
+K34 Portrait de TheGoodGuy.png
+Poursuite furtive	Poursuite furtive	« Tu rôdes dans l'ombre, éliminant tes victimes une par une. »
+Après avoir accroché l' Obsession
+IcôneHelp obsession.png
+, vous bénéficiez des effets suivants pendant 14 / 16 / 18 secondes :
+
+Accorde l' indétectableEffets d'état de l'icône indétectable.png Effet de statut .
+Confère un bonus de +10 % à la hâteEffets d'état de l'icône : hâte.png Effet de statut .
+Lorsqu'un autre survivant met fin à l' obsession , le statut d'obsession est transféré à son sauveteur.
+On ne peut être obsédé que par un seul survivant à la fois.
+« Tu n'imagines pas ce que je te réserve. Ça fera la une des journaux pendant des semaines. Je m'en assurerai. » — Le Visage Fantôme
+
+Visage de fantôme
+K16 Le portrait de TheGhostFace.png
+Jeu en marche	Jeu en marche	« D’abord, vous choisissez votre proie, ensuite vous la dépecez. »
+Chaque fois que vous touchez le Survivant ayant actuellement le temps de poursuite cumulé le plus élevé avec une attaque de base , « Chasse en marche » déclenche son effet principal :
+
+Transfère le statut d'obsession à ce survivant.
+Tout en poursuivant l' obsession
+IcôneHelp obsession.png
+, l'exécution de l' action Briser ou Endommager provoque le déclenchement de l'effet secondaire de Jeu en marche :
+Confère un bonus de +7 % à la hâteEffets d'état de l'icône : hâte.png Effet de statut pendant 8 / 9 / 10 secondes .
+On ne peut être obsédé que par un seul Survivant à la fois.
+"Celui-ci pourrait en fait être un défi..." — Sonhadores Sombrios, numéro 3
+
+Marchand de crânes
+K31 LeSkullMerchant Portrait.png
+Passionné de mécanique	Passionné de mécanique	«Vous avez le don de reconnaître les rouages ​​bien huilés.»
+Après qu'un survivant perde un état de santé
+Effets d'état de l'icône guérison.png
+Gearhead s'active pendant 30 secondes :
+
+Pendant que Gearhead est actif, un survivant
+Aide à l'icône Chargement du survivant.png
+réussir un bon contrôle de compétences
+IconHelp skillChecks.png
+tandis que la réparation révèle leur aura
+IcôneAide auras.png
+à vous pendant 6 / 7 / 8 secondes .
+« Parfois, c'est le meilleur travail d'un homme qui le conduit à la tombe. » — Le directeur de prison
+
+Lanceur de mort
+K19 Le Portrait du Lanceur de Mort.png
+Limites génétiques	Limites génétiques	« Autour de vous, les limites de la vie humaine deviennent évidentes. »
+Chaque fois qu'un Survivant perd un état de santé, quelle qu'en soit la cause, Limites génétiques déclenche son effet :
+
+Cela leur fait souffrir d' épuisement.Effets d'état de l'icône épuisés.png Effet de statut pendant 6 / 7 / 8 secondes .
+« LE CORPS ORGANIQUE EST SI LIMITÉ. » — HUX-A7-13	Singularité
+K32 Le portrait de la singularité.png
+Étreinte sinistre	Étreinte sinistre	Votre acte de servitude envers l'Entité n'est pas passé inaperçu.
+À chaque fois qu'un survivant est accroché pour la première fois, Étreinte sinistre gagne +1 jeton et s'active lorsque vous vous trouvez à au moins 16 mètres de l' hameçon.
+IconHelpChargement hook.png
+:
+
+1 à 3 jetons : Bloque tous les générateurs
+IconHelpChargement des générateurs.png
+pendant 6 / 8 / 10 secondes .
+4 jetons : Bloque tous les générateurs pendant 40 secondes et l' aura
+IcôneAide auras.png
+de l' obsession
+IcôneHelp obsession.png
+vous est révélé pendant 6 secondes .
+« Ne sommes-nous que prisonniers de notre propre chagrin ? » — Carmina Mora	Artiste
+K26 Portrait de l'artiste.png
+Détraqué	Détraqué	« Pour une raison inconnue, les machines ont la fâcheuse tendance à tomber en panne lorsqu'on est à proximité. »
+Chaque fois qu'un survivant cesse d'ouvrir une porte de sortie
+IconHelp portes de sortie.png
+Après avoir accumulé au moins 80 % de progression vers l'ouverture, Haywire provoque sa régression :
+
+Régresse à un rythme de 80 / 90 / 100 % de la vitesse normale d'ouverture du portail.
+Cela provoque chez les survivants l'apparition de lumières clignotant aléatoirement au-dessus de l'interrupteur pendant sa régression.
+« Il n'y aura pas de rédemption pour toi. » — Springtrap	Animatronique
+K40 Le portrait animatronique.png
+Aide recherchée	Aide recherchée	« Ils auront beau essayer, vous savez comment garder une longueur d'avance sur vos invités. »
+Après avoir effectué l' action Générateur de dégâts , l'offre « Recherche d'emploi » s'active :
+
+Les causes de ce générateur
+IconHelpChargement des générateurs.png
+devenir un générateur compromis .
+Une fois le générateur compromis terminé, vous bénéficiez de l'effet suivant pendant 40 / 50 / 60 secondes :
+Augmente la vitesse de récupération des attaques de base réussies de +25 % .
+« Tu crois seulement avoir le contrôle… » ​​— Springtrap	Animatronique
+K40 Le portrait animatronique.png
+Maléfice : Faveur du sang	Maléfice : Faveur du sang	"Un sort qui s'attire les faveurs de l'Entité lorsque le sang est versé."
+Maléfice : La Faveur du Sang allume un Totem de Maléfice
+Effets d'état de l'icône maudit.png
+Au début de l'Épreuve, les Survivants sont maudits par ses effets maléfiques .
+Chaque fois qu'un Survivant perd un état de santé
+Effets d'état de l'icône guérison.png
+Quoi qu'il en soit, le sort Hex : Faveur de sang déclenche son effet pendant 15 secondes :
+
+Blocs tous les palettes debout
+IconHelp pullDown.png
+à moins de 24 / 28 / 32 mètres de ce Survivant.
+Aucun survivant ne peut déposer les palettes bloquées .
+Les effets de la malédiction persistent jusqu'à ce que le totem de la malédiction soit béni ou purifié par un survivant, le désactivant pour le reste de l'épreuve.
+« Il ne serait pas exagéré de suggérer que les Épreuves constituent une sorte de réponse biologique. » — Journal de Talbot Grimes
+
+Fléau
+K21 TheBlight Portrait.png
+Hex : Contrôle des foules	Hex : Contrôle des foules	"Un sortilège qui garantit que ceux qui vous sont inférieurs soient correctement rassemblés."
+Chaque fois qu'un survivant effectue une action de franchissement précipité à une fenêtre
+Fenêtre d'aide IconHelp.png
+, Hex : Contrôle des foules s'active sur un totem aléatoire et déclenche son effet :
+
+Bloque cette fenêtre pour tous les survivants.
+Augmente la vitesse de base des fenêtres bloquées de 15 %
+Révèle les auras des fenêtres bloquées dans un rayon de 24 mètres.
+Maléfice : Contrôle des foules est limité à 4/5/6 fenêtres qu'il peut affecter simultanément. Les effets du Maléfice persistent jusqu'à ce que le Totem de Maléfice soit béni ou purifié par un Survivant, le désactivant ainsi pour le reste de l'Épreuve .
+« Tu n'as aucun contrôle. Les gens comme toi n'en ont jamais eu. » — Ji-Woon Hak
+
+Filou
+K23 Le portrait du farceur.png
+Maléfice : Dévorer l'espoir	Maléfice : Dévorer l'espoir	"Un sortilège qui tire sa puissance de l'espoir.
+Le faux espoir des survivants attise votre faim."
+Maléfice : Dévorer l'espoir allume un totem de maléfice
+Effets d'état de l'icône maudit.png
+Au début de l'Épreuve, le sort Maléfice « Dévorer l'espoir » inflige une malédiction aux Survivants .
+Lorsqu'un Survivant est décroché à au moins 24 mètres de votre position, le sort gagne 1 jeton , jusqu'à un maximum de 5 jetons .
+
+À 2 jetons : 10 secondes après avoir accroché un survivant, vous obtenez un bonus de vitesse de 3/4/5 % . Effets d'état de l'icône : hâte.png Effet de statut pendant 10 secondes .
+À 3 jetons : Inflige à tous les survivants l'effet « Exposé ».Effets d'état de l'icône exposés.png Effet de statut .
+À 5 jetons : Débloque la capacité Tuer , vous permettant de tuer de vos propres mains les survivants mourants.
+Les effets de la malédiction persistent jusqu'à ce que le totem de la malédiction soit béni ou purifié par un survivant, le désactivant pour le reste de l'épreuve.
+« Si tu ne fais rien, tu auras leur sang sur les mains. Si tu les sauves, sa faim grandira. »
+
+Vieille sorcière
+K06 Le portrait de la sorcière.png
+Maléfice : Affronte les ténèbres	Maléfice : Affronte les ténèbres	« Vous faites un exemple de l'une de vos victimes, forçant ainsi ses alliés à être impressionnés par votre pouvoir. »
+S'il existe encore un Totem Ennuyeux
+Aide à l'icône : chargement du totem.png
+Dans l'environnement, Hex : Face aux ténèbres allume un totem Hex
+Effets d'état de l'icône maudit.png
+Après avoir blessé un Survivant de quelque manière que ce soit, le sort le maudit . Tant
+qu'il est maudit, les effets suivants se déclenchent toutes les 35 / 30 / 25 secondes sur tous les autres Survivants situés en dehors du rayon de terreur.
+IconHelp terrorRadius.png
+:
+
+Cela les fait hurler.
+Leurs auras
+IcôneAide auras.png
+vous sont révélées pendant 2 secondes .
+Maléfice : Affronter les ténèbres est désactivé une fois que le survivant maudit retrouve un état de santé normal.
+IcôneAide en bonne santé.png
+ou entre dans l' état mourant
+IcôneAide mourant.png
+Par tous les moyens, le Totem de Malédiction peut être éteint .
+Les effets de la Malédiction persistent jusqu'à ce qu'un Survivant bénisse ou purifie le Totem , le désactivant ainsi pour le reste de l'Épreuve.
+« Je vais en faire un exemple. Ces vers pleurnichards ne connaîtront jamais la paix. » — Tarhos Kovács
+
+Chevalier
+K30 Le Portrait du Chevalier.png
+Malédiction : Le Fou de la Fortune	Malédiction : Le Fou de la Fortune	"Un sort qui joue avec la souffrance de sa victime."
+S'il existe encore un Totem Ennuyeux
+Aide à l'icône : chargement du totem.png
+Dans cet environnement, Hex : Fortune's Fool allume un totem Hex.
+Effets d'état de l'icône maudit.png
+chaque fois que vous accrochez un Survivant pour la première fois , vous le maudissez avec ses effets Hex .
+
+Inflige aux inconscientsEffets d'état de l'icône inconscient.png Effet de statut .
+Bloque le Totem Hex pour tous les autres survivants pendant 90 secondes .
+Les totems Hex bloqués ne peuvent être purifiés ni bénis par les survivants.
+Cela n'affecte pas le Survivant Maudit .
+L' aura
+IcôneAide auras.png
+Le Totem maudit se révèle au Survivant maudit à moins de 24 / 20 / 16 mètres .
+Les effets de la malédiction persistent jusqu'à ce que le Totem soit béni ou purifié par un Survivant, le désactivant ainsi pour le reste de l'Épreuve.	Tous
+Maléfice : Terre hantée	Maléfice : Terre hantée	Hex : Lumières au sol hantées 2 Totems Hex
+Effets d'état de l'icône maudit.png
+Au début de l'Épreuve, un piège est tendu aux Survivants.
+Bénir ou purifier l'un des Totems Maléfiques déclenche le piège et l'effet suivant :
+Provoque les souffrances de tous les survivants dues à l' exposition.Effets d'état de l'icône exposés.png Effet de statut pendant 40 / 50 / 60 secondes .
+Maléfice : Terrain hanté éteint le second totem maléfique après avoir déclenché son piège.
+Maléfice : Terrain hanté est désactivé pour le reste de l’épreuve après avoir activé son effet.
+
+« Sa maison est devenue profane. »
+
+Esprit
+K13 Le portrait de l'esprit.png
+Hex : Esprit de la Ruche	Hex : Esprit de la Ruche	«Vous vous êtes retrouvé lié à quelque chose de sombre et d'inconnaissable... et vous l'avez embrassé.»
+La première fois que vous accrochez un survivant
+Aide à l'icône Chargement du survivant.png
+, un Totem Dull aléatoire
+Aide à l'icône : chargement du totem.png
+devient un totem Hex
+Effets d'état de l'icône maudit.png
+, à condition qu'un Totem Éteint
+Aide à l'icône : chargement du totem.png
+demeure sur le lieu du procès.
+
+Générateurs
+IconHelpChargement des générateurs.png
+sont mises en évidence ; l'intensité des auras du générateur
+IcôneAide auras.png
+révèle l'avancement de leurs réparations.
+
+Dès que 4 générateurs au total auront été achevés dans le cadre de l'essai :
+
+Tous les générateurs restants explosent, perdent 6 / 8 / 10 % de progrès et commencent à régresser .
+Le totem hexagonal associé
+Effets d'état de l'icône maudit.png
+devient ennuyeux, et cet avantage est désactivé pour le reste du procès.
+Les effets de la malédiction persistent jusqu'à ce que le totem de la malédiction soit béni ou purifié par un survivant, le désactivant pour le reste de l'épreuve.
+« Vous… nous avez laissé entrer. Et maintenant, vous allez devoir nous laisser rester. » — Henry Creel
+
+D'abord
+K42 Le Premier Portrait.png
+Hex : Berceuse de la Chasseresse	Hex : Berceuse de la Chasseresse	"Un sortilège qui puise sa puissance dans le désespoir.
+Votre chasse est un chant d'effroi irrésistible qui trouble l'attention de votre proie."
+Les survivants qui effectuent des actions de soin ou de réparation subissent l'effet suivant :
+
+Augmente la pénalité de progression pour les tests de compétences ratés de 2 / 4 / 6 % .
+À chaque fois qu'un Survivant est accroché, le sort : Berceuse de la Chasseresse gagne en puissance et lui confère +1 jeton , jusqu'à un maximum de 5 jetons .
+Les Survivants effectuant des actions de Soin ou de Réparation subissent l'effet supplémentaire suivant :
+Réduit le délai entre le signal sonore annonçant un test d'habileté imminent et son apparition, en fonction du nombre de jetons accumulés :
+1 jeton : -14 %
+2 jetons : -28 %
+3 jetons : -42 %
+4 jetons : -56 %
+5 jetons : Supprime complètement le signal audio.
+Les effets de la malédiction persistent jusqu'à ce que le totem de la malédiction soit béni ou purifié par un survivant, le désactivant pour le reste de l'épreuve.
+«Cette chanson me rend fou !»
+
+Chasseresse
+K08 Portrait de la Chasseresse.png
+Malédiction : Nul n'échappe à la mort	Malédiction : Nul n'échappe à la mort	« Un sortilège qui puise sa force dans l'espoir.
+Vous êtes animé par le pouvoir de votre totem de sortilège lorsque les survivants sont sur le point de s'échapper. »
+Une fois les portes de sortie
+IconHelp portes de sortie.png
+sont alimentés, s'il reste un Totem Dull
+Aide à l'icône : chargement du totem.png
+restant dans l'environnement, Hex : Personne n'échappe à la mort s'active et l'allume :
+
+Confère un bonus de hâte de 2/3/4 % Effets d'état de l'icône : hâte.png Effet de statut .
+Provoque les souffrances de tous les survivants dues à l' exposition.Effets d'état de l'icône exposés.png Effet de statut .
+Une fois l' effet de statut révélé aux survivants, Malédiction : Nul n'échappe à la mort déclenche l'effet suivant :
+L'aura de son totem Hex est révélée à tous les survivants dans un rayon de 4 mètres .
+Cette portée s'étend progressivement jusqu'à 24 mètres sur une période de 30 secondes .
+Malédiction : Nul n'échappe à la mort reste inactive si aucun totem terne n'est disponible.
+Les effets de la malédiction persistent jusqu'à ce que le totem de la malédiction soit béni ou purifié par un survivant, le désactivant pour le reste de l'épreuve.
+
+« Et la bête devint plus rapide et plus puissante, comme si les fouets ténébreux de l'Entité s'abattaient sur son dos. »
+
+Tous
+Malédiction : Rien que de la misère	Malédiction : Rien que de la misère	« Tu as été poussé au plus profond de la souffrance, et maintenant tu es prêt à infliger cette souffrance aux autres. »
+Après avoir infligé des dégâts aux Survivants 8 fois au total avec des attaques de base , un Totem Dull aléatoire apparaît
+Aide à l'icône : chargement du totem.png
+devient un totem Hex
+Effets d'état de l'icône maudit.png
+, maudissant tous les survivants :
+
+Les survivants touchés par une attaque de base subissent un malus de -5 % de ralentissement.Effets d'état de l'icône entravés.png Effet de statut pendant 10 / 12,5 / 15 secondes .
+Les effets de la malédiction persistent jusqu'à ce que le totem de la malédiction soit béni ou purifié par un survivant, le désactivant pour le reste de l'épreuve.
+« Tous les problèmes de ce monde sont dus aux insuffisances de la personne concernée. » — Ken Kaneki
+
+Goule
+K39 Le portrait du goule.png
+Hex : Ouverture du Destin	Hex : Ouverture du Destin	"Un sort qui joue sur la paranoïa des autres."
+Crée un totem hexagonal qui maudit le générateur le plus éloigné
+IconHelpChargement des générateurs.png
+depuis son emplacement :
+
+L' aura
+IcôneAide auras.png
+La partie du Générateur Maudit est mise en évidence en jaune .
+Lorsqu'un Survivant répare le Générateur Maudit pendant au moins 5 secondes , Hex : Ouverture Funeste déclenche les effets suivants pendant 20 / 25 / 30 secondes :
+Transfère votre rayon de terreur
+IconHelp terrorRadius.png
+au Générateur Maudit .
+Ce rayon de terreur est fixé à 32 mètres .
+Accorde l' indétectableEffets d'état de l'icône indétectable.png Effet de statut .
+Une fois le générateur maudit réparé, le générateur suivant le plus éloigné est à son tour maudit.
+Les effets de la malédiction persistent jusqu'à ce que le totem maudit soit béni ou purifié par un survivant, le désactivant ainsi pour le reste de l'épreuve.
+« Du chaos du salut, soyez avertis : la mort rôde de toutes parts. » — « Fog Hill » de Giovanni Serrata
+
+Krasue
+K41 Le portrait de Krasue.png
+Hex : Pentimento	Hex : Pentimento	«Vous révélez le véritable pouvoir des Totems, caché dans leurs vestiges.»
+Libère le potentiel de votre capacité à lire l'aura :
+
+Les auras
+IcôneAide auras.png
+Les Totems purifiés vous sont révélés en blanc .
+Appuyez sur le bouton d'interaction au-dessus des restes d'un totem purifié.
+Aide à l'icône : chargement du totem.png
+pour le ressusciter en tant que Totem Ravagé .
+Pour chaque Totem Ravagé , Hex : Pentimento gagne +1 Jeton , jusqu'à un maximum de 5 Jetons .
+1 jeton : Réduit la vitesse d'action pour la guérison et la réparation de -20 % .
+2 à 5 jetons : Augmentez la force de la pénalité de vitesse d'action d'un montant cumulable de 1 / 2 / 3 % par jeton, jusqu'à un maximum de 24 / 28 / 32 % .
+Les survivants maudits par Hex : Pentimento voient les auras des totems rallumés dans un rayon de 16 mètres .
+Une fois que Hex : Pentimento a atteint sa limite de 5 jetons , il invoque l'Entité pour l'effet suivant :
+Bloque tous les totems rallumés pour le reste de l'épreuve.
+Les totems ne peuvent être rallumés qu'une seule fois par épreuve, l'Entité consommant les restes des totems rallumés une fois purifiés.
+Les effets de la malédiction persistent jusqu'à ce que le totem de la malédiction soit béni ou purifié par un survivant, le désactivant pour le reste de l'épreuve.
+
+« Bien qu’un repentir soit une œuvre d’art intrinsèquement dissimulée, il y a quelque chose à dire sur le désir de découvrir ce qui se cache au-delà. » — Guide de l’art et du processus (1961)
+
+Artiste
+K26 Portrait de l'artiste.png
+Hex : Jouet	Hex : Jouet	Identique à Hex : Le Fou de la Fortune
+IconPerks hexPlaything.png
+.
+« Nous sommes venus. Maintenant, tu dois venir avec nous. Goûte à notre plaisir. » — Pinhead
+
+Cénobite
+K25 Le portrait du Cénobite.png
+Hex : Rétribution	Hex : Rétribution	"Un sort qui se déchaîne sur sa propre destruction.
+Ceux qui te trahissent seront punis."
+Chaque fois qu'un Survivant bénit ou purifie un Totem
+Aide à l'icône : chargement du totem.png
+, Maléfice : La vengeance déclenche son effet principal :
+
+Provoque chez ce survivant le syndrome de l' inconscientEffets d'état de l'icône inconscient.png Effet de statut pendant 40 / 50 / 60 secondes .
+Chaque fois qu'un Totem Hex est retiré par quelque moyen que ce soit, y compris par lui-même, Hex : Châtiment déclenche son effet secondaire :
+Les auras
+IcôneAide auras.png
+L'identité de tous les Survivants vous est révélée pendant 20 secondes .
+Les effets de la malédiction persistent jusqu'à ce que le totem de la malédiction soit béni ou purifié par un survivant, le désactivant pour le reste de l'épreuve.
+« Espèce d'idiot, tu t'es tiré une balle dans le pied. » — Caleb Quinn
+
+Lanceur de mort
+K19 Le Portrait du Lanceur de Mort.png
+Maléfice : Ruine	Maléfice : Ruine	"Un sort qui affecte la progression de la réparation du générateur de tous les survivants."
+Tous les générateurs
+IconHelpChargement des générateurs.png
+Les appareils non actuellement en réparation subissent l'effet suivant :
+
+Les amène à régresser automatiquement à 100 / 125 / 150 % du taux de régression par défaut.
+Les effets de la malédiction persistent jusqu'à ce que le totem de la malédiction soit béni ou purifié par un survivant, le désactivant pour le reste de l'épreuve.
+« Une malédiction pèse sur toi. Elle causera ta perte. »
+
+Vieille sorcière
+K06 Le portrait de la sorcière.png
+Malédiction : Mort de peur	Malédiction : Mort de peur	Lorsque vous accrochez 3 survivants différents, le sort : Mort de peur s'active sur un totem terne aléatoire.
+Aide à l'icône : chargement du totem.png
+et déclenche son effet :
+Démontage de palette (bases)
+IconHelp pullDown.png
+Lors d'une poursuite, provoque un cri chez tous les survivants situés à moins de 13 mètres et leur inflige un malus de 11/12/13 % . Effets d'état de l'icône entravés.png Effet de statut pendant 3 secondes .
+Les effets de la malédiction persistent jusqu'à ce que le totem de la malédiction soit béni ou purifié par un survivant, le désactivant pour le reste de l'épreuve.
+« Un cri a retenti dans la forêt. Comme si quelqu'un l'attaquait. » — Signalement de personne disparue de Mount Ormond
+
+Slasher
+K43 Le portrait du tueur.png
+Hex : Le Troisième Sceau	Hex : Le Troisième Sceau	"Un sort qui entrave les capacités de lecture d'aura des Survivants."
+Les 2/3/4 derniers survivants touchés par une attaque de base ou spéciale souffrent de cécité de façon permanente .
+IconStatusEffects vision.png
+ Effet de statut .
+Les effets de la malédiction persistent jusqu'à ce que le totem de malédiction soit béni ou purifié par un survivant, le désactivant pour le reste de l'épreuve.
+
+«Elle a touché ta peau, tu portes la marque de la sorcière !»
+
+Vieille sorcière
+K06 Le portrait de la sorcière.png
+Maléfice : Le frisson de la chasse	Maléfice : Le frisson de la chasse	« Un sortilège qui tire sa puissance de l'espoir.
+Le faux espoir des Survivants vous remplit d'excitation et renforce vos Totems. »
+Commencez l'épreuve avec 5 jetons , un pour chaque totem situé dans l'environnement :
+
+Réduit la vitesse d'action pour la bénédiction et la purification de 8 / 9 / 10 % par jeton, jusqu'à un maximum de 40 / 45 / 50 % .
+Maléfice : Le frisson de la chasse perd -1 jeton à chaque fois qu'un totem est purifié.
+Les effets de la malédiction persistent jusqu'à ce que le totem de la malédiction soit béni ou purifié par un survivant, le désactivant pour le reste de l'épreuve.
+
+Tous
+Hex : Deux peuvent jouer	Hex : Deux peuvent jouer	"Un sort qui donne une leçon à ceux qui s'en prennent à vous."
+Chaque fois que vous êtes étourdi ou aveuglé par un Survivant, un total de 4 / 3 / 2 fois , et s'il n'y a pas encore de Totem Hex
+Effets d'état de l'icône maudit.png
+déjà associé à Hex : Two Can Play et il existe au moins un Totem ennuyeux
+Aide à l'icône : chargement du totem.png
+Restant dans le Terrain d'Épreuve, le sort « Deux peuvent jouer » s'active sur un totem aléatoire :
+
+Aveugle tous les survivants qui vous étourdissent ou vous aveuglent pendant 1,5 seconde .
+Cela n'affecte pas les survivants transportés.
+Les effets de la malédiction persistent jusqu'à ce que le totem de la malédiction soit béni ou purifié par un survivant, le désactivant pour le reste de l'épreuve.
+« À partir de maintenant, fini le gentil garçon. » — Chucky
+
+Bon gars
+K34 Portrait de TheGoodGuy.png
+Hex : Sous votre pouce	Hex : Sous votre pouce	Lorsqu'un survivant atteint l'état de crochet, le sort : Sous votre joug s'active sur un totem terne aléatoire .
+Aide à l'icône : chargement du totem.png
+:
+Les survivants en fuite ne peuvent pas gagner plus de 25/20/15 % de hâte . 
+Effets d'état de l'icône : hâte.png
+immédiatement.
+Chaque fois qu'un survivant en course à moins de 32 mètres gagne de la Hâte , la position du survivant vous est révélée pendant 4 secondes .
+Les effets de la malédiction persistent jusqu'à ce que le totem de la malédiction soit béni ou purifié par un survivant, le désactivant pour le reste de l'épreuve.
+« Ils courront, mais le Jugement réduira en cendres et en fumée le sol même qu'ils fouleront. » — (Visions de Gerhardt, chap. 1)
+
+Jugement
+K44 Le Portrait du Jugement.png
+Maléfice : Immortel	Maléfice : Immortel	"Un sortilège qui entretient les forces maléfiques qui circulent tout au long de l'Épreuve."
+Lorsqu'un survivant se trouve à moins de 2 / 3 / 4 mètres d'un totem terne
+Aide à l'icône : chargement du totem.png
+, Maléfice : Immortel déclenche son effet principal :
+
+Leur aura
+IcôneAide auras.png
+vous est révélé tant qu'ils restent dans cette plage.
+Chaque fois qu'un totem Hex
+Effets d'état de l'icône maudit.png
+est purifié, Hex : Immortel déclenche son effet secondaire :
+Transfère le Hex purifié au Totem Hex associé à Hex : Immortel , le remplaçant.
+Les effets de la malédiction persistent jusqu'à ce que le totem de la malédiction soit béni ou purifié par un survivant, le désactivant pour le reste de l'épreuve.	Fléau
+K21 TheBlight Portrait.png
+Maléfice : Destin funeste	Maléfice : Destin funeste	Vous apercevez votre victime de loin et décidez de prolonger ses souffrances.
+Après un générateur
+IconHelpChargement des générateurs.png
+Une fois le sort terminé, Hex : Destin funeste s'active et illumine un Totem terne aléatoire.
+Aide à l'icône : chargement du totem.png
+, maudissant l' obsession
+IcôneHelp obsession.png
+:
+
+Réduit leur vitesse de réparation de 27 / 30 / 33 % .
+L' aura
+IcôneAide auras.png
+le Totem Hex leur est révélé à moins de 12 mètres .
+« Alors peine, mortel, peine ! Tes efforts seront vains ! » — Dracula	Seigneur des Ténèbres
+K37 Portrait du Seigneur des Ténèbres.png
+Accumulateur	Accumulateur	Vous protégez le peu que vous possédez et vous êtes vigilant face à ceux qui fouillent dans vos réserves.
+Le Gardien déclenche une notification de bruit fort pendant 4 secondes chaque fois qu'un Survivant effectue l'une des actions suivantes à moins de 32 / 48 / 64 mètres de votre position :
+
+Déverrouille un coffre
+Icône d'aide coffres.png
+.
+Ramasse n'importe quel objet
+Éléments d'aide de l'icône.png
+.
+Le talent « Accumulateur » fait apparaître 2 coffres supplémentaires dans l'épreuve.
+
+Jumeaux
+K22 Portrait des jumeaux.png
+L'orgueil	L'orgueil	«Vous ne montrez aucune pitié, surtout envers ceux qui sont assez fous pour résister.»
+Chaque fois qu'un Survivant vous étourdit de quelque manière que ce soit, l'Hubris déclenche son effet :
+
+Cela les expose à souffrir de l' expositionEffets d'état de l'icône exposés.png Effet de statut pendant 20 / 25 / 30 secondes .
+L'hubris a un temps de refroidissement de 20 secondes .
+« Vous avez commis une grave erreur en vous opposant à moi aujourd'hui. » — Tarhos Kovács
+
+Chevalier
+K30 Le Portrait du Chevalier.png
+L'avidité humaine	L'avidité humaine	On peut toujours compter sur l'avarice des vivants et l'utiliser à son avantage.
+Permet d'ouvrir les coffres d'un coup de pied.
+Icône d'aide coffres.png
+et fermez-les.
+
+Les auras
+IcôneAide auras.png
+Les coffres non ouverts vous sont révélés en permanence.
+Les auras des survivants s'approchant à moins de 8 mètres des coffres non ouverts ou fermés vous sont révélées pendant 3 / 4 / 5 secondes .
+L'avidité humaine a un temps de recharge de 10 secondes sur la capacité à donner des coups de pied dans les coffres .
+« Venez tous en courant, et voyez quel destin vous attend ! » — Dracula
+
+Seigneur des Ténèbres
+K37 Portrait du Seigneur des Ténèbres.png
+Hystérie	Hystérie	« Tu sais comment brutaliser un membre de l'équipe pour semer la panique. »
+Chaque fois que vous blessez un Survivant en bonne santé, l'hystérie déclenche son effet :
+
+Provoque tous les survivants actuellement dans l' état de blessure
+IconHelp blessé.png
+souffrir de l' inconscientEffets d'état de l'icône inconscient.png Effet de statut pendant 30 / 35 / 40 secondes .
+Cet effet s'applique également au Survivant qui le déclenche.
+Hystérie a un temps de recharge de 20 secondes .
+« Excusez-moi d'avoir été un peu nerveux. Je ne savais pas trop à quoi m'attendre. » — Robert Kendo
+
+Némésis
+K24 Le portrait de Nemesis.png
+Je suis tout ouïe.	Je suis tout ouïe.	« Tu aiguises tes sens dans le royaume obscur de l' Entité. »
+IconHelp entity.png
+."
+Chaque fois qu'un Survivant effectue une action de Franchissement précipité à moins de 48 mètres de votre position, vous bénéficiez de l'effet suivant :
+
+L' aura
+IcôneAide auras.png
+Le profil du Survivant vous est révélé pendant 8 secondes .
+Je suis tout ouïe a un temps de recharge de 60 / 45 / 30 secondes .
+« N'ayez crainte. Je me prépare à ça depuis toujours. » — Le Visage Fantôme
+
+Visage de fantôme
+K16 Le portrait de TheGhostFace.png
+La peur contagieuse	La peur contagieuse	«Les cris des infidèles font bondir votre cœur.»
+Chaque fois qu'un survivant est placé dans l' état mourant
+IcôneAide mourant.png
+par tous les moyens, tous les autres survivants dans votre rayon de terreur
+IconHelp terrorRadius.png
+Ils hurleront et vous révéleront leur position pendant 4/5/6 secondes . « L’horreur saisit le cœur des infidèles qui pleurent aux pieds des déchus. » — (Hymne de louange, 11.4 )
+
+Peste
+K15 Le portrait de la peste.png
+Insidieux	Insidieux	Débloque la capacité de furtivité.
+Après être resté immobile pendant 3 / 2 / 1 seconde(s) , Insidieux s'active tant que vous restez immobile :
+Accorde l' indétectableEffets d'état de l'icône indétectable.png Effet de statut .
+Insidieux se désactive dès que vous recommencez à bouger.
+
+Tous
+Poigne de fer	Poigne de fer	« Votre emprise implacable sur les survivants rend les évasions quasi impossibles. »
+Lorsqu'ils transportent un Survivant, ils subissent les effets suivants :
+
+Réduit de 75 % l’intensité du mitraillage involontaire causé par leurs mouvements .
+Augmente le temps nécessaire pour se libérer de votre emprise de 4 / 8 / 12 % .
+Tous
+Iron Maiden	Iron Maiden	Lors de l'interaction avec un casier vide
+IcôneAide casiers.png
+Iron Maiden applique son effet principal :
+Augmente votre vitesse de recherche de 30 / 40 / 50 % .
+Chaque fois qu'un Survivant sort d'un Casier , Iron Maiden déclenche ses effets secondaires :
+
+Cela les fait crier et déclenche une notification de bruit fort à leur emplacement actuel.
+Cet effet persiste pendant 4 secondes .
+Cela les expose à souffrir de l' expositionEffets d'état de l'icône exposés.png Effet de statut pendant 30 secondes .
+« Ce n'est pas un endroit pour les lâches. » — La Légion
+
+Légion
+K14 Portrait de la Légion.png
+Faites-les attendre	Faites-les attendre	Endommager tout survivant autre que l' Obsession
+IcôneHelp obsession.png
+Une attaque de base permet à « Tener en attente » de gagner 1 jeton , jusqu'à un maximum de 6/7/8 jetons . Infliger des dégâts à l' obsession avec une attaque de base ou spéciale lui fait perdre 2 jetons .
+Accorde une réduction cumulable de -5 % par jeton du temps de recharge sur les attaques de base réussies , jusqu'à un maximum de 30 / 35 / 40 % .
+« Les faire attendre » gèle son compteur de jetons actuel une fois que l' Obsession est sacrifiée ou tuée.
+Vous ne pouvez être obsédé que par un seul Survivant à la fois.
+
+Tous
+Assommer	Assommer	« Le traumatisme causé par vos agressions brutales rend les appels à l'aide extrêmement difficiles. »
+Chaque fois qu'un survivant s'éloigne de plus de 6 mètres d'une palette
+IconHelp pullDown.png
+Dans les 6 secondes qui suivent sa chute, Knock Out déclenche son effet :
+
+Cela leur cause un handicap de -5 %. Effets d'état de l'icône entravés.png Effet de statut pendant 3 / 4 / 5 secondes .
+« Oh, ce fusil ne sert à rien. La bonne vieille méthode… avec une masse ! Voyez-vous, c’est mieux comme ça. Ils meurent mieux comme ça. » — Nubbins Sawyer	Cannibale
+K09 Le portrait du cannibale.png
+Toucher langoureux	Toucher langoureux	« Ton aura terrifiante est si suffocante que même les scènes les plus horribles finissent par épuiser ta proie. »
+Quand un survivant fait fuir un corbeau
+IconHelp corbeaux.png
+À moins de 36 mètres de votre position, Languid Touch active :
+
+Provoque chez ce survivant l' épuisement.Effets d'état de l'icône épuisés.png Effet de statut pendant 6 / 8 / 10 secondes .
+Toucher languide a un temps de recharge de 5 secondes .
+« Soumets-toi à moi. C'est inévitable. » — Vecna
+
+Liche
+K36 Le Portrait du Roi Liche.png
+Dévaster	Dévaster	Endommager un générateur
+IconHelpChargement des générateurs.png
+Cela lui permet de régresser 2 % plus vite pour chaque charge qu'il possède.
+Cet avantage a un temps de recharge de 55 / 50 / 45 secondes après avoir endommagé un générateur .
+
+« Ils ont construit des hyperordinateurs, des gratte-ciel et des réseaux quantiques, mais tout cela a tremblé et s'est effondré sous le pouvoir de la lumière du Jugement. » — (Témoin à Koenrad, chap. 8)
+
+Jugement
+K44 Le Portrait du Jugement.png
+Poursuivant mortel	Poursuivant mortel	«Vous avez été conçu pour traquer et éliminer les cibles.»
+Au début de l'épreuve, les auras
+IcôneAide auras.png
+de tous les survivants
+Aide à l'icône Chargement du survivant.png
+vous sont révélés pendant 7 / 8 / 9 secondes .
+
+Prolonge de +2 secondes la durée de toutes les occurrences d'une aura de survivant qui vous est révélée .
+Le Poursuivant Létal bénéficie de son propre effet.
+« …elle sait ce qu’elle veut et ne s’arrêtera pas tant qu’elle ne l’aura pas obtenu. » — Carlos Oliveira
+
+Némésis
+K24 Le portrait de Nemesis.png
+Effet de levier	Effet de levier	« Achevez vos concurrents lorsqu'ils sont à terre. Ne leur laissez jamais le terrain perdu. »
+Lorsqu'un survivant effectue une action de décrochement , il subit l'effet suivant pendant 60 secondes :
+
+Réduit leur vitesse de guérison de 20 / 25 / 30 % .
+« Parfait. On peut maintenant passer à l'attaque. » — Adriana Imai	Marchand de crânes
+K31 LeSkullMerchant Portrait.png
+Né de la lumière	Né de la lumière	Contrairement aux autres créatures du Brouillard, vous vous êtes adapté à la lumière.
+Les auras
+IcôneAide auras.png
+Les survivants qui tentent de vous aveugler par tous les moyens vous sont révélés pendant 6 / 8 / 10 secondes .
+Confère l'immunité contre l'éblouissement causé par les lampes torches.
+Icônes lampe torche.png
+, Pétards
+IconItems chinoisFirecracker.png
+, Grenades flash
+IconItems flashGrenade.png
+et la mine à explosion
+IconPerks blastMine.png
+.
+« Ces monstres… ils s’adaptent ! Ils acquièrent de nouvelles capacités étranges. » — Vigo, Journal de Vigo
+
+Hillbilly
+K03 Le portrait du Hillbilly.png
+apprentissage automatique	apprentissage automatique	« Libéré de vos chaînes, vous renaissez et êtes prêt à éliminer vos créateurs. »
+Après l'exécution de l' action Générateur de dégâts , l'apprentissage automatique s'active :
+
+Les causes de ce générateur
+IconHelpChargement des générateurs.png
+devenir un générateur compromis .
+Endommager un autre générateur lui transfère l'état.
+L' aura
+IcôneAide auras.png
+La partie du générateur compromis est surlignée en jaune jusqu'à ce qu'elle soit terminée.
+Une fois le générateur compromis terminé, vous bénéficiez des effets suivants pendant 40 / 50 / 60 secondes :
+IndétectableEffets d'état de l'icône indétectable.png Effet de statut
++8 % de hâteEffets d'état de l'icône : hâte.png Effet de statut
+L'apprentissage automatique se désactive après utilisation.
+« TU N'AURAS AUCUN POUVOIR SUR MOI. » — HUX-A7-13
+
+Singularité
+K32 Le portrait de la singularité.png
+Mad Grit	Mad Grit	Lorsque vous transportez un Survivant, la compétence « Fou de rage » s'active :
+Supprime le temps de recharge des attaques de base ratées .
+Interrompt la progression de l'esquive du survivant transporté pendant 2 / 3 / 4 secondes à chaque fois que vous touchez avec succès un autre survivant.
+« Il n'y a plus moyen d'y échapper. On est trop forts pour ça. » — La Légion
+
+Légion
+K14 Portrait de la Légion.png
+Faites votre choix	Faites votre choix	Chaque fois qu'un survivant est sauvé d'un crochet
+IconHelpChargement hook.png
+, lorsque vous vous trouvez à plus de 32 mètres de distance, l'option « Faites votre choix » s'active :
+Provoque un cri chez le survivant qui se décroche, révélant ainsi sa position.
+Cela les expose à souffrir de l' expositionEffets d'état de l'icône exposés.png Effet de statut pendant 40 / 50 / 60 secondes .
+L'option « Faites votre choix » a un temps de recharge de 40 / 50 / 60 secondes .
+
+« Vous seriez surpris de voir quels outils peuvent sauver une vie. » — Amanda Young
+
+Cochon
+K11 Le Portrait du Cochon.png
+Tempête impitoyable	Tempête impitoyable	«Votre terrible traumatisme est ressenti par tous.»
+Lorsqu'un générateur
+IconHelpChargement des générateurs.png
+Lorsque la progression de la réparation atteint 90 % , Tempête impitoyable déclenche son effet :
+
+Tous les survivants qui réparent ce générateur sont confrontés à un flux continu de tests de compétences.
+IconHelp skillChecks.png
+jusqu'à ce que le générateur soit terminé.
+Si un Survivant participant échoue à un test de compétence ou interrompt l'action de quelque manière que ce soit, l' Entité
+IconHelp entity.png
+bloque le générateur pendant 16 / 18 / 20 secondes .
+Tempête impitoyable ne peut se déclencher qu'une seule fois par générateur et par essai.	Onryō
+K27 Le portrait d'Onryo.png
+Brise-esprit	Brise-esprit	« Ta présence angoissante épuise et affaiblit ta proie. »
+Lors de la réparation d'un générateur
+IconHelpChargement des générateurs.png
+Les survivants souffrent des effets suivants :
+
+Incite la cécitéIconStatusEffects vision.pnget épuiséEffets d'état de l'icône épuisés.png Effets de statut .
+Les deux effets de statut persistent pendant 3 / 4 / 5 secondes après la fin de l'interaction.
+Mindbreaker ne peut pas être utilisé pour annuler un effet de statut Épuisé existant , mais suspend son minuteur à la place.
+« Les capacités télépathiques apparentes du spécimen peuvent susciter des sentiments d'effroi et de fatigue chez les personnes se trouvant à proximité. » — Laboratoire national Hawkins
+
+Démogorgon
+K17 Le portrait du Démogorgon.png
+Surveillance et abus	Surveillance et abus	« Méticuleux dans votre approche, terrifiant dans votre application. »
+Lorsqu'il poursuit activement un Survivant, Monitor & Abuse applique son principal effet :
+
+Augmente votre rayon de terreur
+IconHelp terrorRadius.png
+de 5 / 10 / 15 % .
+Même sans poursuivre activement un survivant, la surveillance et les abus appliquent leur effet secondaire :
+Réduit votre rayon de terreur de 15 / 20 / 25 % .
+« Il est temps pour votre traitement ! » — Herman Carter, Le Docteur
+
+Médecin
+K07 Le portrait du docteur.png
+Némésis	Némésis	«Vous cherchez à vous venger de ceux qui vous ont fait du tort.»
+Chaque fois qu'un survivant autre que votre Obsession
+IcôneHelp obsession.png
+vous aveugle par n'importe quel moyen ou vous étourdit avec une palette
+IconHelp pullDown.png
+ou un casier
+IcôneAide casiers.png
+, Nemesis déclenche son effet principal :
+
+Ce survivant devient alors votre obsession du moment .
+Chaque fois que votre Obsession se tourne vers un autre Survivant, de quelque manière que ce soit, Nemesis déclenche ses effets secondaires :
+Provoque chez ce survivant le syndrome de l' inconscientEffets d'état de l'icône inconscient.png Effet de statut pendant 40 / 50 / 60 secondes .
+Leur aura
+IcôneAide auras.png
+vous est révélé pendant 8 secondes .
+On ne peut être obsédé que par un seul Survivant à la fois.
+« Seul un fou cracherait au visage d'un démon et crierait victoire. » — Doctrine de Renjiro 4:9
+
+Oni
+K18 TheOni Portrait.png
+Tous les coups sont permis	Tous les coups sont permis	«Vous provoquez des souffrances mentales en anéantissant tout espoir d'évasion.»
+À chaque fois qu'un générateur
+IconHelpChargement des générateurs.png
+Une fois terminé, No Holds Barred fait appel à The Entity
+IconHelp entity.png
+pour les effets suivants :
+
+Bloque le générateur ayant la plus grande progression pendant 15 / 20 / 25 secondes .
+L' aura
+IcôneAide auras.png
+Le générateur bloqué est mis en évidence en blanc .
+Tous
+Pas de quartier	Pas de quartier	« Chaque escarmouche se terminait par une salve incessante de tirs de canon, ne laissant aucun doute sur la supériorité de l'un ou de l'autre. »
+Chaque fois qu'un Survivant se soignant par quelque moyen que ce soit atteint 75 % de progression de guérison, No Quarter déclenche son effet :
+
+Le survivant est confronté à un flux continu de tests d'habileté.
+IconHelp skillChecks.png
+jusqu'à ce que l' auto-guérison soit complète.
+S'ils échouent à un test de compétence ou interrompent l'action de quelque manière que ce soit, ils subissent l'état BriséIconStatusEffects cassé.png Effet de statut pendant 20 / 25 / 30 secondes .
+« Tirez une autre bordée ! N'arrêtez pas avant que la mer ne les emporte ! » — Portia Maye
+
+Maître-chien
+K38 Le portrait du maître-chien.png
+Aucune issue	Aucune issue	«Vous n'allez pas laisser n'importe qui entrer dans le salon VIP.»
+À chaque fois que vous accrochez un survivant pour la première fois, No Way Out gagne +1 jeton .
+Une fois les portes de sortie
+IconHelp portes de sortie.png
+sont alimentés, No Way Out s'active :
+
+Le premier survivant qui interagit avec l'un des interrupteurs de la porte de sortie déclenche une notification sonore forte à son emplacement.
+En déclenchant la notification de bruit fort , No Way Out fait appel à l' Entité
+IconHelp entity.png
+pour l'effet suivant :
+Bloque les deux interrupteurs de la porte de sortie pendant 12 secondes .
+Ce délai est prolongé de 6 / 9 / 12 secondes supplémentaires par jeton accumulé, jusqu'à un maximum combiné de 36 / 48 / 60 secondes .
+« Ce bruit quand tu saignes… laisse-moi l’entendre encore. » — Ji-Woon Hak	Filou
+K23 Le portrait du farceur.png
+Aucun n'est gratuit	Aucun n'est gratuit	« Vous savez mieux que quiconque que la lumière au bout du tunnel n'est qu'une illusion. »
+À chaque fois que vous accrochez un survivant pour la première fois, « Aucun n'est gratuit » gagne +1 jeton , jusqu'à un maximum de 4 jetons .
+Une fois que tous les générateurs
+IconHelpChargement des générateurs.png
+sont terminés, None Are Free fait appel à l' Entité
+IconHelp entity.png
+pour déclencher l'effet suivant :
+
+Bloque toutes les fenêtres
+Fenêtre d'aide IconHelp.png
+et palettes verticales
+IconHelp pullDown.png
+pour une durée cumulable de 12 / 14 / 16 secondes par jeton, jusqu'à un maximum de 48 / 56 / 64 secondes .
+« Je n’ai pas tort. Ce qui ne va pas, c’est ce monde chaotique ! » — Ken Kaneki	Goule
+K39 Le portrait du goule.png
+Nulle part où se cacher	Nulle part où se cacher	« Les machinations des faibles et des lâches suscitent votre colère.
+Votre colère oblige les Survivants à se révéler. »
+Exécution de l' action Générateur de dommages sur un générateur
+IconHelpChargement des générateurs.png
+déclencheurs Nulle part où se cacher :
+
+Les auras
+IcôneAide auras.png
+de tous les survivants situés à moins de 24 mètres de l' emplacement du générateur vous sont révélés pendant 3 / 4 / 5 secondes .
+« Dehors, lâches ! Montrez-vous ! » — Tarhos Kovács	Chevalier
+K30 Le Portrait du Chevalier.png
+Oppression	Oppression	« La vie a été difficile pour toi, alors tu la rendras difficile pour les autres. »
+Exécution de l' action Générateur de dommages sur un générateur
+IconHelpChargement des générateurs.png
+déclenche les effets suivants :
+
+Sélectionne aléatoirement jusqu'à 4 générateurs supplémentaires qui commenceront également à régresser.
+Déclenche un test de compétence difficile
+IconHelp skillChecks.png
+pour tous les survivants qui sont en train de les réparer.
+L'oppression a un temps de recharge de 45 / 40 / 35 secondes .
+« Qu’ils soient maudits comme ils nous maudiraient. » — Charlotte Deshayes
+
+Jumeaux
+K22 Portrait des jumeaux.png
+Surcharge	Surcharge	«Vous êtes animé par votre haine du progrès.»
+Exécution de l' action Générateur de dommages sur un générateur
+IconHelpChargement des générateurs.png
+applique une surcharge :
+
+Le prochain survivant qui interagira avec ce générateur devra effectuer un test d'habileté difficile.
+IconHelp skillChecks.png
+.
+Régresse instantanément ce générateur de 2 / 3 / 4 % de sa progression maximale possible en plus de la pénalité de progression par défaut.
+Après l'application d'une surcharge à un générateur , l'effet suivant s'applique également :
+Augmente la vitesse de régression de 85 % à 130 % de sa valeur par défaut au cours des 30 prochaines secondes .
+« C'est un piège, mais un piège dans lequel il faut tomber… » — Herman Carter	Médecin
+K07 Le portrait du docteur.png
+Présence écrasante	Présence écrasante	« Le simple fait de savoir que vous êtes proche suffit à perturber vos victimes. »
+Chaque fois qu'un survivant commence à utiliser un objet
+Éléments d'aide de l'icône.png
+À moins de 32 mètres de votre position, Présence écrasante déclenche son effet principal :
+
+Inflige aux épuisésEffets d'état de l'icône épuisés.png Effet de statut pendant 15 secondes .
+Chaque fois qu'un Survivant situé à moins de 32 mètres de votre position est Épuisé de quelque manière que ce soit, Présence Écrasante déclenche son effet secondaire :
+L' aura
+IcôneAide auras.png
+Le survivant épuisé le plus proche de votre position vous est révélé pendant 2 / 3 / 4 secondes .
+Présence écrasante a un temps de recharge de 25 secondes .
+« Merde ! ​​J’ai laissé tomber la gaze ! »
+
+Médecin
+K07 Le portrait du docteur.png
+Peur fantôme	Peur fantôme	«Vous avez toujours eu la réputation de surprendre les invités qui ne se doutent de rien.»
+Lorsqu'un survivant se trouve dans votre rayon de terreur
+IconHelp terrorRadius.png
+Ils vous regardent, ils souffrent des effets suivants :
+
+Cela les fait crier et révéler leur aura.
+IcôneAide auras.png
+à vous pendant 2 secondes .
+La Peur Fantôme a un temps de recharge de 80 / 70 / 60 secondes .
+« Excellent. Vos cris me plaisent. » — Springtrap
+
+Animatronique
+K40 Le portrait animatronique.png
+Jouez avec votre nourriture	Jouez avec votre nourriture	Identique à « Voir comment ils courent »
+IconPerks jouez avec votre nourriture.png
+.
+« Tu les as trompés, n'est-ce pas Michael ? Mais pas moi. » — Dr Sam Loomis
+
+Forme
+K05 Le portrait de la forme.png
+Pop Goes the Weasel	Pop Goes the Weasel	« Un lien profond avec l'Entité libère une force immense. »
+Après avoir accroché un survivant, Pop Goes the Weasel s'active pendant 35 / 40 / 45 secondes .
+Pendant son activation, endommager manuellement un générateur
+IconHelpChargement des générateurs.png
+déclenche l'effet suivant :
+
+Augmente le taux de régression de +15 %, ce qui donne une régression de 20 % .
+Pop Goes the Weasel se désactive après utilisation ou une fois son minuteur écoulé.	Clown
+K12 Le portrait du clown.png
+Prédateur	Prédateur	« Votre capacité de pistage exceptionnelle vous permet de retrouver plus facilement les proies perdues. »
+Chaque fois qu'un Survivant est perdu lors d'une Poursuite , Prédateur déclenche son effet :
+
+Leur aura
+IcôneAide auras.png
+vous est révélé pendant 4 secondes .
+Le prédateur a un temps de recharge de 60 / 50 / 40 secondes .
+« Ne jamais cesser d'avancer et espérer avoir toujours deux coups d'avance sur la bête. » — Auteur inconnu, Carnet
+
+Spectre
+K02 Le portrait du Spectre.png
+Carnage	Carnage	Chaque fois que vous cassez une palette
+IconHelp pullDown.png
+ou un mur cassable
+IconHelp mur cassable.png
+, gagnez un jeton, jusqu'à 13
+Chaque fois que vous êtes aveuglé ou étourdi par une palette, vous gagnez 1 % de hâte.Effets d'état de l'icône : hâte.png Effet de statut pour chaque jeton que cet avantage possède pendant 13 secondes .
+Cet atout a un temps de recharge de 30 / 25 / 20 secondes après avoir été aveuglé ou étourdi par une palette.
+
+« Des traces de poursuite ont mené au cœur des bois, où le corps de la victime a été retrouvé. » — Port Henly Herald
+
+Slasher
+K43 Le portrait du tueur.png
+Rancune	Rancune	Lorsqu'un générateur
+IconHelpChargement des générateurs.png
+Une fois la mission accomplie, Rancor déclenche ses effets principaux :
+Provoque des cris chez tous les survivants et déclenche une alerte sonore à leur emplacement actuel.
+Cet effet persiste pendant 3 secondes .
+Votre aura
+IcôneAide auras.png
+est révélé à l' Obsession
+IcôneHelp obsession.png
+pendant 5 / 4 / 3 secondes .
+Une fois les portes de sortie
+IconHelp portes de sortie.png
+sont alimentés, Rancor déclenche en outre ses effets secondaires sur l' Obsession :
+
+Inflige des souffrances aux personnes exposéesEffets d'état de l'icône exposés.png Effet de statut pour le reste de l'essai.
+Permet de les tuer à proximité immédiate.
+On ne peut être obsédé que par un seul Survivant à la fois.
+
+Esprit
+K13 Le portrait de l'esprit.png
+Brutalité rapide	Brutalité rapide	Vous vous déplacez avec une vitesse et une fureur qui glacent le sang.
+Vous ne pouvez plus gagner la soif de sang
+IcôneAide soif de sang.png
+ Effet de statut .
+Réussir une attaque de base sur un survivant vous octroie un bonus de +5 % de vitesse.
+Effets d'état de l'icône : hâte.png
+ Effet de statut pendant 8 / 9 / 10 secondes .
+« Attrapez-le, mettez-le dans le sas, débarrassez-vous-en. » — Dallas
+
+Xénomorphe
+K33 Le portrait du Xénomorphe.png
+Vorace	Vorace	« L’air est imprégné d’une odeur de sang.
+L’heure est au festin. »
+À chaque fois que vous accrochez un Survivant pour la première fois, Ravenous gagne +1 Jeton , jusqu'à un maximum de 4 Jetons .
+Une fois que vous avez accumulé 4 Jetons , tous les Survivants subissent les effets suivants :
+
+Cela les fait hurler.
+Inflige des souffrances aux personnes exposéesEffets d'état de l'icône exposés.png Effet de statut pendant 40 / 50 / 60 secondes .
+« Le sang de Ginevra en pleurs coule / Le diable sent les faibles. » — Fabbro Barone, « Ginevra »	Krasue
+K41 Le portrait de Krasue.png
+Souviens-toi de moi	Souviens-toi de moi	Chaque fois que l' obsession
+IcôneHelp obsession.png
+perd un état de santé
+Effets d'état de l'icône guérison.png
+par tous les moyens, Remember Me gagne +1 jeton , jusqu'à un maximum de 3 / 4 / 5 jetons :
+Augmente la durée d'ouverture des deux portes de sortie
+IconHelp portes de sortie.png
+par une durée cumulable de 6 secondes par jeton, jusqu'à un temps d'ouverture supplémentaire maximal de 18 / 24 / 30 secondes .
+Cela donne un temps d'ouverture maximal possible de 38 / 44 / 50 secondes pour les deux portes de sortie .
+Le sort « Souviens-toi de moi » n’applique pas sa pénalité à l’ Obsession , lui permettant d’ouvrir les deux portes de sortie dans le délai par défaut de 20 secondes .
+
+On ne peut être obsédé que par un seul Survivant à la fois.
+
+« Tu ne te souviens pas ? Tu dois t'en souvenir. Tu es mon numéro un, et tu ne te réveilleras plus jamais. » — Freddy Krueger
+
+Cauchemar
+K10 Le Portrait du Cauchemar.png
+Gardez le meilleur pour la fin	Gardez le meilleur pour la fin	Identique à « Les faire attendre »
+IconPerks saveTheBestForLast noLicense.png
+.
+« La mort est arrivée dans votre petite ville, shérif. » — Dr Sam Loomis
+
+Forme
+K05 Le portrait de la forme.png
+Crochet du Fléau : Déferlements de Rage	Crochet du Fléau : Déferlements de Rage	«Vous établissez une connexion psychique avec l'Entité et modifiez les règles du Procès.»
+Au début de l'épreuve, 4 crochets dans l'environnement sont transformés en crochets de fléau :
+
+Les auras
+IcôneAide auras.png
+Ces crochets de fléau sont mis en évidence en blanc .
+Chaque fois qu'un Survivant est décroché d'un crochet du Fléau , les effets suivants s'appliquent :
+
+Les auras de tous les autres survivants sont révélées pendant 5 / 6 / 7 secondes .
+Onryō
+K27 Le portrait d'Onryo.png
+Crochet du Fléau : Don de la Douleur	Crochet du Fléau : Don de la Douleur	Identique à Scourge Hook : Plaies pleureuses
+IconPerks scourgeHookWeepingWounds.png
+.
+« Nous allons déchirer ton âme. » — Pinhead
+
+Cénobite
+K25 Le portrait du Cénobite.png
+Crochet du fléau : Le tour du pendu	Crochet du fléau : Le tour du pendu	«Vos modifications ingénieuses apportées aux crochets vous alertent en cas de tentative de falsification.»
+Au début de l'épreuve, 4 crochets dans l'environnement sont transformés en crochets de fléau :
+
+Les auras
+IcôneAide auras.png
+Ces crochets de fléau sont mis en évidence en blanc .
+Lorsqu'un Survivant est transporté, le Crochet du Fléau : Tour du Pendu déclenche son effet principal :
+
+Les auras de tous les survivants situés à moins de 12 / 14 / 16 mètres d'un crochet du Fléau vous sont révélées.
+Lorsqu'un survivant déclenche une action de sabotage sur un crochet
+IconHelpChargement hook.png
+, Crochet du Fléau : Le Tour du Pendu déclenche son effet secondaire :
+Déclenche une notification sonore forte à l'emplacement de ce point d'accroche .
+« Pas d’excuses, pas d’équivoques… Pas de larmes. » — Amanda Young	Cochon
+K11 Le Portrait du Cochon.png
+Crochet de fléau : Boussole dentelée	Crochet de fléau : Boussole dentelée	« Parfois, la boussole indique le nord. D'autres fois, elle indique un tout autre endroit. »
+Au début de l'épreuve, 4 crochets dans l'environnement sont transformés en crochets de fléau :
+
+Les auras
+IcôneAide auras.png
+Ces crochets de fléau sont mis en évidence en blanc .
+Lorsqu'un survivant est décroché d'un crochet normal , l'effet suivant s'applique :
+
+L' hameçon
+IconHelpChargement hook.png
+est transformé en crochet de fléau .
+Chaque fois que vous accrochez un Survivant à un Crochet du Fléau , l'effet suivant s'applique :
+L' aura
+IcôneAide auras.png
+du générateur
+IconHelpChargement des générateurs.png
+La progression la plus importante est mise en évidence en jaune pendant 6 / 8 / 10 secondes .
+« Jetons l'ancre ! Je vais tracer une nouvelle route. » — Portia Maye
+
+Maître-chien
+K38 Le portrait du maître-chien.png
+Crochet du Fléau : Sanctuaire Monstrueux	Crochet du Fléau : Sanctuaire Monstrueux	«Vos soins attentifs aux Crochets trouvés au sous-sol ont éveillé l'intérêt de l'Entité.»
+Au début du procès, les 4 crochets situés à l'intérieur du sous-sol
+IconHelp sous-sol.png
+et 4 crochets supplémentaires situés sur l'ensemble du terrain d'essai sont tous transformés en crochets de fléau :
+
+Les auras
+IcôneAide auras.png
+Les crochets de Scourge sont mis en évidence en blanc .
+Lorsque vous vous trouvez à plus de 24 mètres d'un Survivant accroché à un Crochet du Fléau , l'effet suivant s'applique :
+Accélère leur processus de sacrifice de 10 / 15 / 20 % .
+«Alors tu sauras qu'il n'y a pas d'échappatoire. Suspendu dans les profondeurs, tu feras face aux ténèbres.»	Tous
+Crochet du Fléau : Résonance de la Douleur	Crochet du Fléau : Résonance de la Douleur	Une douleur insoutenable se propage vers l'extérieur.
+Au début de l'épreuve, 4 crochets dans l'environnement sont transformés en crochets de fléau :
+
+Les auras
+IcôneAide auras.png
+Ces crochets de fléau sont mis en évidence en blanc .
+Commencez l'essai avec 4 jetons .
+
+Lorsqu'un Survivant est accroché pour la première fois à un Crochet du Fléau , Crochet du Fléau : Résonance de la Douleur consomme -1 Jeton et applique les effets suivants :
+
+Provoque le générateur
+IconHelpChargement des générateurs.png
+avec la progression la plus rapide pour exploser, l'endommageant.
+Régresse instantanément le générateur endommagé de 10 / 15 / 20 % de sa progression totale.
+Provoque ensuite une régression du générateur endommagé .
+Provoque des cris chez tous les survivants réparant le générateur endommagé .
+Cela ne déclenche pas de notification de bruit excessif .
+Crochet du Fléau : La résonance de la douleur est désactivée pour le reste de l’épreuve une fois tous les jetons consommés.
+« La douleur déborde de la chair, les ténèbres souillent l'horizon. » — La Fille dans l'Ombre de Carmina Mora
+
+Artiste
+K26 Portrait de l'artiste.png
+Crochet du Fléau : Plaies Saignantes	Crochet du Fléau : Plaies Saignantes	"Tu es celui qui apporte une douce douleur."
+Au début de l'épreuve, 4 crochets dans l'environnement sont transformés en crochets de fléau :
+
+Les auras
+IcôneAide auras.png
+Ces crochets de fléau sont mis en évidence en blanc .
+Chaque fois qu'un Survivant est décroché d'un crochet du Fléau , les effets suivants s'appliquent :
+
+Provoque l'hémorragie chez le survivantEffets d'état de l'icône saignement.png Effet de statut pendant 90 secondes .
+Après avoir retrouvé une pleine santé pour la première fois, le Survivant subit l'effet suivant jusqu'à ce qu'il soit blessé à nouveau, de quelque manière que ce soit :
+Réduit leur vitesse d'action pour la guérison et la réparation de 10 / 13 / 16 % .
+Tous
+Projet secret	Projet secret	« Élevé pour être une arme, tu t'es libéré grâce aux compétences mêmes que tes ravisseurs avaient cultivées en toi. »
+Chaque fois qu'un totem
+Aide à l'icône : chargement du totem.png
+est béni ou purifié, un générateur aléatoire non bloqué devient bloqué pendant 20 / 25 / 30 secondes .
+
+Lorsque n'importe quel nombre de générateurs
+IconHelpChargement des générateurs.png
+Une fois bloqué, vous devenez indétectable.
+Effets d'état de l'icône indétectable.png
+ Effet de statut pendant 30 secondes .
+
+« Vous êtes prisonnier ici, tout comme moi » — Henry Creel
+
+D'abord
+K42 Le Premier Portrait.png
+Observez comment ils courent	Observez comment ils courent	Perdre son obsession
+IcôneHelp obsession.png
+Participer à une poursuite permet à « Voir comment ils courent » de gagner +1 jeton , jusqu'à un maximum de 3 jetons . Effectuer une attaque de base ou spéciale susceptible d'infliger des dégâts à un survivant lui fait perdre -1 jeton .
+Tant que vous possédez au moins 1 jeton , vous bénéficiez de l'effet suivant :
+Confère un bonus cumulable de 3/4/5 % de célérité . Effets d'état de l'icône : hâte.png Effet de statut par jeton, jusqu'à un maximum de 9 / 12 / 15 % .
+Le sort « See How They Run » a un délai de récupération de 10 secondes entre chaque obtention de jetons supplémentaires.
+
+On ne peut être obsédé que par un seul Survivant à la fois.
+
+Tous
+Toucher septique	Toucher septique	« Le Pays des Ombres engloutit tout.
+Guérir ne fait que retarder l'inévitable. »
+Chaque fois qu'un Survivant effectue une action de Soin à l'intérieur du Rayon de Terreur
+IconHelp terrorRadius.png
+, ils souffrent des effets suivants :
+
+Inflige la cécitéIconStatusEffects vision.pnget épuiséEffets d'état de l'icône épuisés.png Effets de statut .
+Ces effets persistent pendant 20 / 25 / 30 secondes après que l'action de guérison soit interrompue par quelque moyen que ce soit.
+« N’admettez ni la peur, ni la douleur, ni le doute. Ce sont les germes de l’obscurité. » — Otto Stamper	Drague
+K28 Portrait de TheDredge.png
+Né dans l'ombre	Né dans l'ombre	« Tu as une vision perçante dans l'obscurité de la nuit. »
+Chaque fois que vous êtes aveuglé, de quelque manière que ce soit, Shadowborn déclenche son effet :
+
+Confère un bonus de hâte de 6/8/10 % Effets d'état de l'icône : hâte.png Effet de statut pendant 10 secondes .
+« Brillant dans les ténèbres les plus profondes, ses yeux percent la nuit et vous transpercent l’âme. »	Spectre
+K02 Le portrait du Spectre.png
+Espoir brisé	Espoir brisé	Pour capturer votre proie, vous devez d'abord anéantir son espoir.
+Au lieu d'éteindre les totems de bienfait
+Icône Atl Hud BoonTotem.png
+Vous les détruisez.
+Détruire un totem de bienfait de cette manière révèle les auras
+IcôneAide auras.png
+de tous les survivants qui se trouvaient à portée à ce moment-là pendant 6 / 7 / 8 secondes .
+« Ici, rien n'est permanent. Rien, sauf notre damnation éternelle. » — Auteur inconnu, Carnet
+
+Tous
+Ombre silencieuse	Ombre silencieuse	Lorsque vous accrochez un survivant, vous obtenez l'indétectabilité.Effets d'état de l'icône indétectable.png Effet de statut pendant 11 / 12 / 13 secondes .
+Lorsque les portes de sortie
+IconHelp portes de sortie.png
+sont alimentés, vous bénéficiez de l'indétectabilité
+Effets d'état de l'icône indétectable.png
+pour le reste du procès.
+
+« L’avez-vous vu ou non ? Je ne peux pas lancer un avis de recherche sur la base d’un mauvais pressentiment. » — Sergent Reyes, police de Greenville
+
+Slasher
+K43 Le portrait du tueur.png
+Boucher négligent	Boucher négligent	« Tu sais où frapper pour les faire saigner. »
+Les survivants touchés par votre attaque de base vicieuse subissent les effets suivants pendant 70 / 80 / 90 secondes :
+
+Provoque l' hémorragieEffets d'état de l'icône saignement.pnget mutiléIconStatusEffects déformé.png Effets de statut .
+Modifie la puissance d' Hémorragie :
+Augmente la fréquence d'apparition des bassins de sang
+Effets d'état de l'icône saignement.png
+par 50 / 75 / 100 % .
+Augmente le taux de régression de la progression de la guérison partielle de +25 % .
+« C’est dans sa nature sadique. Il n’y a pas de mise à mort rapide car elle se délecte du spectacle obscène de nos souffrances atroces. »	Tous
+Espions de l'ombre	Espions de l'ombre	« Permet aux corbeaux présents dans l'environnement de communiquer directement avec vous. »
+Chaque fois qu'un survivant surprend un corbeau
+IconHelp corbeaux.png
+À moins de 20 / 28 / 36 mètres de votre position, Espions de l'ombre déclenche son effet :
+
+Vous alerte grâce à une notification sonore unique en forme de corbeau .
+L'effet « Espions de l'ombre » a un délai de récupération de 5 secondes entre les alertes.
+« Dans l’ombre, ils nous tourmentent, marquant nos esprits à jamais à chaque cri. »
+
+Tous
+Fureur spirituelle	Fureur spirituelle	« Chaque obstacle que vous surmontez amplifie la colère de l'Entité. »
+Après avoir cassé manuellement un total de 4 / 3 / 2 palettes tombées
+IconHelp pullDown.png
+par tous les moyens, la Fureur Spirituelle s'active :
+
+Brise instantanément la prochaine palette utilisée par un survivant pour vous étourdir.
+La Fureur spirituelle se désactive après utilisation et n'affecte pas la durée de l' étourdissement de la palette .
+« La fureur coule dans ses veines. »
+
+Esprit
+K13 Le portrait de l'esprit.png
+Ébloui par les étoiles	Ébloui par les étoiles	«Votre talent de showman hors pair éblouit tout le monde.»
+Lorsque vous transportez un Survivant, Starstruck s'active :
+
+Inflige des dégâts à tous les autres survivants dans votre rayon de terreur
+IconHelp terrorRadius.png
+souffrir de l' ExposéEffets d'état de l'icône exposés.png Effet de statut .
+Cet effet persiste pendant 26 / 28 / 30 secondes après que les survivants affectés aient quitté le rayon de terreur ou que Starstruck se désactive.
+Starstruck se désactive après avoir accroché ou lâché le survivant transporté et a un temps de recharge de 60 secondes .
+« Savourez cet instant, rares sont ceux qui s'en approchent autant. » — Ji-Woon Hak
+
+Filou
+K23 Le portrait du farceur.png
+Stridor	Stridor	Vous êtes extrêmement sensible à la respiration de votre proie.
+Augmente le volume des gémissements de douleur des survivants blessés de 30 / 40 / 50 % .
+Augmente le volume de la respiration régulière des survivants de 15 / 20 / 25 % .
+« Si vous ne vous arrêtez pas pour reprendre votre souffle… elle le fera. »
+
+Infirmière
+K04 Portrait de l'infirmière.png
+Anatomie supérieure	Anatomie supérieure	« Des décennies de recherche ont abouti à toi : quelque chose de plus rapide, de plus fort et de plus dangereux que n'importe quel humain. »
+Chaque fois qu'un Survivant effectue une action de Saut éclair à moins de 12 mètres de votre position, Anatomie supérieure s'active :
+
+Augmente votre vitesse de franchissement de 30 / 35 / 40 % .
+
+L' aptitude Anatomie supérieure se désactive après un saut. Son temps de recharge est de 25 secondes .	Cerveau
+K29 Le portrait du cerveau.png
+Surtension	Surtension	«Votre présence étrange charge l'air et perturbe la technologie.»
+Chaque fois que vous mettez un survivant dans l' état mourant
+IcôneAide mourant.png
+Avec votre attaque de base , Surcharge déclenche son effet :
+
+Provoque tous les générateurs
+IconHelpChargement des générateurs.png
+À moins de 32 mètres de votre position, exploser instantanément puis régresser.
+Régresse instantanément tous les générateurs affectés de 6 / 7 / 8 % .
+« La créature semble exercer une influence inconnue sur l'électricité et les appareils électroniques environnants. » — Laboratoire national de Hawkins	Démogorgon
+K17 Le portrait du Démogorgon.png
+Surveillance	Surveillance	Libère le potentiel de votre capacité à lire l'aura :
+Les auras
+IcôneAide auras.png
+de générateurs endommagés
+IconHelpChargement des générateurs.png
+sont mises en évidence en fonction de leur état actuel :
+
+Aura blanche : Le générateur est actuellement en train de régresser.
+Aura jaune : Le générateur a cessé de régresser grâce à l'intervention des survivants.
+Cet effet dure 8 / 12 / 16 secondes , après quoi l' aura du générateur reprend sa couleur par défaut.
+Pendant que les survivants réparent les générateurs , ils subissent l'effet suivant :
+Augmente la portée audible de tous les bruits liés à l' interaction de réparation de +8 mètres .
+« Tu vas bien te tenir ? » — Amanda Young	Cochon
+K11 Le Portrait du Cochon.png
+CLAQUEMENT!	CLAQUEMENT!	«Votre proie est terrifiée par votre poursuite implacable.»
+Commencez l'épreuve avec 3 jetons .
+À chaque fois que vous détruisez un mur destructible, vous gagnez des jetons.
+IconHelp mur cassable.png
+ou une palette tombée
+IconHelp pullDown.png
+, THWACK ! consomme -1 jeton et applique l'effet suivant :
+
+Provoque le cri et la révélation de l' aura de tous les survivants situés à moins de 36 mètres de votre position.
+IcôneAide auras.png
+pendant 4 / 5 / 6 secondes .
+Chaque fois que vous accrochez un survivant, THWACK! reçoit +1 jeton .
+« Tous ceux qui se dressaient sur son chemin redoutaient son puissant CLAC ! » — Sonhadores Sombrios, numéro 3
+
+Marchand de crânes
+K31 LeSkullMerchant Portrait.png
+Terminus	Terminus	«Vous êtes un tacticien brillant qui se prépare à toutes les éventualités.»
+Une fois les portes de sortie
+IconHelp portes de sortie.png
+sont alimentés, Terminus s'active :
+
+Provoque la souffrance de la Brèche chez tous les survivants blessés, mourants ou accros.IconStatusEffects cassé.png Effet de statut .
+Cet effet dure jusqu'à ce que l'une des portes de sortie soit ouverte, après quoi il persiste pendant encore 35 / 40 / 45 secondes .
+Cerveau
+K29 Le portrait du cerveau.png
+Impératif territorial	Impératif territorial	Débloque le potentiel de votre capacité à lire les auras.
+Chaque fois qu'un Survivant entre dans le sous-sol
+IconHelp sous-sol.png
+tant que vous vous trouvez à plus de 24 mètres de son entrée, l'Impératif Territorial s'active :
+L' aura
+IcôneAide auras.png
+de ce Survivant vous est révélé pendant 4 / 5 / 6 secondes .
+L'impératif territorial a un temps de recharge de 45 secondes .
+
+«Nous ne sommes en sécurité nulle part...»
+
+Chasseresse
+K08 Portrait de la Chasseresse.png
+Thanatophobie	Thanatophobie	« Leur courage s’effrite face à leur mortalité indéniable. »
+Dès qu'au moins un Survivant est blessé, mourant ou accro, la Thanatophobie s'active.
+Tant qu'elle est active, tous les Survivants subissent l'effet principal suivant :
+
+Encourt une pénalité de vitesse d'action cumulable de 1 / 1,5 / 2 % par survivant blessé, mourant ou accroché pour le nettoyage, la réparation et le sabotage, jusqu'à un maximum de 4 / 6 / 8 % .
+Si les quatre Survivants sont blessés, mourants ou accros, ils subissent l'effet secondaire suivant :
+Augmente la pénalité de +12 % supplémentaires pour un total de 16 / 18 / 20 % .
+«Elle joue avec nous et se délecte de notre douleur.»	Infirmière
+K04 Portrait de l'infirmière.png
+Tremblements palpitants	Tremblements palpitants	«Vos sombres desseins et votre sang-froid rusé éveillent l' Entité
+IconHelp entity.png
+."
+Après avoir récupéré un Survivant, Frissons Glaçants déclenche ses effets :
+
+Bloque tous les générateurs
+IconHelpChargement des générateurs.png
+Aucun survivant ne répare actuellement cette zone depuis 16 secondes .
+Les auras
+IcôneAide auras.png
+Les générateurs bloqués sont mis en évidence en blanc .
+La compétence Frissons palpitants a un temps de recharge de 40 / 35 / 30 secondes .
+« La nuit me protège et ici, c'est sans fin. » — Le Visage Fantôme
+
+Visage de fantôme
+K16 Le portrait de TheGhostFace.png
+Bricoleur	Bricoleur	Lorsqu'un générateur
+IconHelpChargement des générateurs.png
+une fois réparée à 70 % , vous bénéficiez des effets suivants :
+Déclenche une notification sonore forte pour ce générateur, révélant son emplacement.
+Accorde l' indétectable
+Effets d'état de l'icône indétectable.png
+ Effet de statut pendant les 12 / 14 / 16 prochaines secondes .
+Le mode Bricoleur ne peut se déclencher qu'une seule fois par générateur et par essai.
+
+« Le Hillbilly fabrique des outils impressionnants avec des bouts de ferraille. Des outils destinés à nous mutiler de façon créative. » — Notebook
+
+Hillbilly
+K03 Le portrait du Hillbilly.png
+Sentier du tourment	Sentier du tourment	«Vous guidez vos victimes sur un chemin de douleur et de punition.»
+Exécution de l' action Générateur de dommages sur un générateur
+IconHelpChargement des générateurs.png
+active le Sentier du Tourment :
+
+Accorde l' indétectableEffets d'état de l'icône indétectable.png Effet de statut .
+L' aura
+IcôneAide auras.png
+Le générateur endommagé est révélé à tous les survivants et mis en évidence en jaune .
+Le Sentier de Tourment se désactive une fois que le Générateur Endommagé cesse de régresser de quelque manière que ce soit et a un temps de recharge de 60 / 45 / 30 secondes entre les activations.	Bourreau
+K20 Le portrait du bourreau.png
+Remonter le temps	Remonter le temps	« Malgré toute leur résistance, le temps passe et votre plan directeur se rapproche de sa réalisation. »
+Après avoir accroché un survivant, pendant 40 / 50 / 60 secondes , appuyez sur le bouton de capacité active pour faire exploser un générateur cible à moins de 20 mètres , perdre -10 % de progression et commencer à régresser.
+
+« Rien ne t'arrivera… Rien que tu ne mérites pas ! » — Henry Creel
+
+D'abord
+K42 Le Premier Portrait.png
+Arme ultime	Arme ultime	« Quand ils vous repèrent, ils savent que la fin est proche. »
+Chaque fois que vous fouillez un casier
+IcôneAide casiers.png
+L'arme ultime déclenche ses effets sur tous les survivants situés à moins de 40 mètres de son emplacement :
+
+Cela les fait crier et révéler leur position.
+Inflige la cécitéIconStatusEffects vision.png Effet de statut pendant 30 secondes .
+L'arme ultime a un temps de recharge de 55 / 50 / 45 secondes .
+« Je ne peux pas te mentir sur tes chances, mais… je te plains. » — Ash
+
+Xénomorphe
+K33 Le portrait du Xénomorphe.png
+Non lié	Non lié	« La douleur persiste dans l'air, un arôme envoûtant qui excite les pulsions. »
+Lorsqu'un Survivant est blessé de quelque manière que ce soit, Déchaîné s'active pendant 24 / 27 / 30 secondes :
+
+Voûter une fenêtre
+Fenêtre d'aide IconHelp.png
+Tant que Déchaîné est actif, octroie +7 % de HâteEffets d'état de l'icône : hâte.png Effet de statut pendant 10 secondes .
+Cet effet ne peut pas se cumuler avec lui-même.
+« Je l'ai entendu. Il courait. Il se rapprochait ! » — Témoignage anonyme, 09/09/1979	Inconnu
+K35 Le portrait inconnu.png
+Défait	Défait	« L’espoir est l’illusion qui maintient ses victimes en vie. »
+Pour chaque test de compétence de réparation ou de guérison 
+IconHelp skillChecks.png
+En cas d'échec d'un Survivant, l' action « Échec » rapporte 3 jetons supplémentaires , jusqu'à un maximum de 18/24/30 jetons . Effectuer l' action « Générateur de dégâts » sur un générateur
+IconHelpChargement des générateurs.png
+consomme tous les jetons accumulés et applique les effets suivants :
+
+Régresse instantanément le générateur endommagé de -1 % cumulable de sa progression totale par jeton, jusqu'à un maximum de 18 / 24 / 30 % .
+Bloque le générateur endommagé pendant 1 seconde par jeton, jusqu'à un maximum de 18 / 24 / 30 secondes .
+Provoque la régression du générateur endommagé une fois débloqué.
+Undone a un temps de recharge de 60 secondes .
+« Un comportement erratique des machines pourrait être lié à [CENSURÉ], des tests supplémentaires sont nécessaires. » — Rapport OSS, 12/02/1943
+
+Inconnu
+K35 Le portrait inconnu.png
+Imprévu	Imprévu	« La terreur prend de nombreuses formes et murmure des mensonges dévastateurs à l'oreille de ses victimes. »
+Après avoir effectué l' action Générateur de dommages sur un générateur
+IconHelpChargement des générateurs.png
+, vous bénéficiez des effets suivants pendant 22 / 26 / 30 secondes :
+
+Transfère votre rayon de terreur
+IconHelp terrorRadius.png
+au générateur endommagé .
+Ce rayon de terreur est fixé à 32 mètres .
+Accorde l' indétectableEffets d'état de l'icône indétectable.png Effet de statut .
+L'événement Imprévu a un temps de recharge de 30 secondes .
+« Maman, si tu trouves ça, je suis désolé… » — Dernière entrée de journal, 07/12/1991
+
+Inconnu
+K35 Le portrait inconnu.png
+Présence inquiétante	Présence inquiétante	«Votre seule présence inspire une grande peur.»
+À l'intérieur de votre rayon de terreur
+IconHelp terrorRadius.png
+Les survivants qui effectuent des actions de réparation ou de guérison subissent les effets suivants :
+
+Augmente les chances de déclencher un test de compétence de +10 % .
+Réduit la zone de réussite de ces tests de compétence.
+IconHelp skillChecks.png
+de 40 / 50 / 60 % .
+« Sa présence nous accable. »	Trappeur
+K01 Le portrait du trappeur.png
+Implacable	Implacable	« Vous récupérez plus rapidement des attaques manquées effectuées avec votre arme principale. »
+Les attaques de base bénéficient de l'effet suivant :
+
+Réduit le temps de recharge des attaques manquées de 20 / 25 / 30 % .
+Tous
+Œil errant	Œil errant	« Des proies ensanglantées vous entourent, rivalisant pour attirer votre attention. »
+Chaque fois que vous commencez à poursuivre un Survivant, Œil vagabond déclenche l'effet suivant :
+
+Les auras
+IcôneAide auras.png
+tous les autres survivants blessés situés à moins de 20 mètres de votre position vous sont révélés pendant 5 secondes .
+L'Œil vagabond a un temps de recharge de 40 / 35 / 30 secondes .
+« Une goutte ne suffit pas / quand un fleuve est nécessaire. » — « La grandeur de Samuel » d'Elliot Campbell
+
+Krasue
+K41 Le portrait de Krasue.png
+Harmonie du tissage	Harmonie du tissage	« Tu es tellement sensible aux énergies magiques que tu peux percevoir même les plus infimes ondulations autour des enchantements. »
+Chaque fois qu'un article
+Éléments d'aide de l'icône.png
+lorsqu'elle est épuisée pour la première fois, elle est automatiquement supprimée :
+
+Les auras
+IcôneAide auras.png
+Les objets laissés par les survivants vous sont révélés, ainsi que les auras des survivants se trouvant à moins de 12 mètres d'eux.
+Les survivants affectés voient également l'aura de cet objet .
+Provoque l'effet « Inconscient » chez les survivants qui ramassent un objet de survivant.Effets d'état de l'icône inconscient.png Effet de statut pendant 20 / 25 / 30 secondes .
+« Aucune nouveauté ne te protégera de moi ! » — Vecna	Liche
+K36 Le Portrait du Roi Liche.png
+Chuchotements	Chuchotements	«Vous avez une compréhension rudimentaire de la voix de l'Entité.»
+Dès qu'un Survivant se trouve à moins de 48 / 40 / 32 mètres de votre position, Murmures déclenche son effet :
+
+Vous permet d'entendre les murmures sporadiques de l' Entité
+IconHelp entity.png
+, indiquant la présence d'un survivant.
+« Les motivations du Brouillard restent obscures, mais il est indéniable qu'il prend souvent le parti de la bête. » — Auteur inconnu, Carnet	Tous
+Tactiques Zanshin	Tactiques Zanshin	« Vous êtes mentalement alerte et conscient des points clés sur le champ de bataille et des ennemis proches en retraite. »
+Libère le potentiel de votre capacité à lire l'aura :
+
+Les auras
+IcôneAide auras.png
+de palettes
+IconHelp pullDown.png
+et Windows
+Fenêtre d'aide IconHelp.png
+vous sont révélés à moins de 32 mètres .
+Chaque fois qu'un Survivant laisse tomber une Palette , Tactiques de Zanshin déclenche l'effet suivant :
+Leur aura vous est révélée pendant 3 / 4 / 5 secondes .
+« La force de ton ennemi réside dans sa faiblesse. » — Doctrine de Renjiro 12:5

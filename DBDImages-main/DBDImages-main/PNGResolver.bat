@@ -1,0 +1,1 @@
+for /r %%i in (*.png) do magick "%%i" "%%i"

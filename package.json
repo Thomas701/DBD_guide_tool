@@ -1,0 +1,33 @@
+{
+  "name": "dbd-build-tool",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build:data": "tsc -p tsconfig.json",
+    "build:app": "tsc -p tsconfig.app.json && vite build",
+    "build": "npm run build:data && npm run build:app",
+    "import:data": "npm run build:data && node dist/src/import/run-import.js",
+    "audit:analysis": "npm run build:data && node scripts/audit-build-analysis.mjs",
+    "data:export": "npm run build:data && node scripts/generate-dbd-knowledge.mjs",
+    "assistant:proxy": "npm run data:export && node scripts/openai-assistant-proxy.mjs",
+    "start:app": "node scripts/start-app.mjs",
+    "assistant:install-browser": "playwright install chromium",
+    "test:chatgpt-browser": "node scripts/test-chatgpt-browser.mjs",
+    "test": "npm run build:data && node --test dist/tests/import.test.js dist/tests/catalog.test.js dist/tests/build-calculator.test.js dist/tests/build-repository.test.js scripts/codex-assistant-provider.test.mjs",
+    "check": "npm test && npm run import:data -- --check && npm run audit:analysis && npm run build:app"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "playwright": "^1.62.1",
+    "typescript": "^7.0.2",
+    "vite": "^6.4.3"
+  },
+  "dependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  }
+}

@@ -1,0 +1,333 @@
+
+
+
+PERK:
+name;side;category;character;icon;description;effect;recharge
+
+PIEGEUR:
+agitation;1;speed,terror_rayon,survivant_transport;le piégeur;null;null;+18%[speed],+12[terror_rayon];null
+force brute;1;destruction;le piégeur;null;null;+20%[destruction];null
+présence perturbante;1;hability_test;le piégeur;null;null;+10%[hability_test(présence)],-60%[hability_test(size)];null
+
+SPECTRE:
+limier;1;blood_trace;le spectre;null;null;+4[blood_trace(time)];null
+prédateur;1;aura,chase,recharge;le spectre;null;null;+4[aura];40
+rejeton de l'ombre;1;speed,blind;le spectre;null;null;+10%[speed];null
+
+MONTAGNARD
+tenace;1;chase;le montagnard;null;null;-50%[chase(etourdissement_time)];null
+rejeton de la lumière;1;aura,blind,chase;le montagnard;null;null;+10[aura];null
+réparateur;1;generator,indetectable,aura;le montagnard;null;null;+16[indetectable];null
+
+Infirmière:
+thanatophobie;1;care,action;l'infirmière;null;null;+2%[action(survivant)];null
+vocation de l'infirmière;1;aura;l'infirmière;null;null;infinite[aura];null
+stridor;1;sound;l'infirmière;null;null;+25%[sound(respiration)],+50%[sound(gemissement)];null
+
+Harpie:
+mangeur d'espoir;1;totem,be_one_shot,speed,hook;la harpie;null;null;+5%[speed(10sec)],infinite[be_one_shot];null
+ruine;1;totem,generator;la harpie;null;null;+150%[generator(down_speed)];null
+le troisième sceau;1;totem,blind,chase;la harpie;null;null;+x[blind];null
+
+DOCTEUR:
+présence écrasante;1;action,exhausted,aura,recharge;le docteur;null;null;+4[aura];25
+surveillance et maltraitance;1;chase,terror_rayon;le docteur;null;null;+15[terror_rayon(in_chase)],-25%[terror_rayon(no_chase)];null
+surcharge;1;generator,destruction,hability_test;le docteur;null;null;+130%[generator(down_speed)],-x%[hability_test(size)];null
+
+CHASSEUSE:
+prédation;1;bloodlust,indetectable,chase;la chasseuse;null;null;+40[indetectable];null
+berceuse de la chasseuse;1;sound,hook,generator,hability_test,totem;la chasseuse;null;null;-100%[sound(hability_test)];null
+instinct territorial;1;cave,aura,recharge;la chasseuse;null;null;+6[aura];45
+
+CAUCHEMAR:
+gardien de sang;1;exit_door,hook,aura;le cauchemar;null;null;+60[exit_door(lock)];null
+intensité ardente;1;generator,destruction,hook,chase,speed,survivant_transport;le cauchemar;null;null;+6%[hook,destruction(generator),speed(jump)];null
+souviens-toi de moi;1;exit_door,obsession;le cauchemar;null;null;-150%[exit_door(speed)];null
+
+CLOWN:
+coulrophobie;1;terror_rayon,care,hability_test;le clown;null;null;-30%[care(speed)],+50%[hability_test(speed)];null
+le tour est joué;1;hook,generator,destruction;le clowb;null;null;+15%[generator(down)];null
+déboussoler;1;chase,speed;le clown;null;null;+15%[speed(jump)];null
+
+ESPRIT:
+fureur de l'esprit;1;destruction,chase,blind;l'esprit;null;null;null;null
+terrain hanté;1;totem,be_one_shot,action;l'esprit;null;null;+60[be_one_shot];null
+rancoeur;1;generator,aura,obsession,be_one_shot;l'esprit;null;null;+3[aura],infinite(be_one_shot(obsession));null
+
+LEGION:
+discordance;1;generator,aura;la légion;null;null;+4[aura];null
+cran dément;1;survivant_transport,hook;la légion;null;null;+4[survivant_transport];null
+vierge de fer;1;locker,sound,aura,be_one_shot;la légion;null;null;+30[be_one_shot],+4[aura],+50%[locker(open)];null
+
+EPIDEMIE:
+intervention impure;1;generator;l'épidémie;null;null;+120[generator(can_be_fixed)];null
+peur contagieuse;1;sound,chase,terror_rayon,aura;l'épidémie;null;null;+6[aura];null
+sombre dévotion;1;obsession,terror_rayon,indetectable;l'épidémie;null;null;+40[terror_rayon],infinite[indetectable];null
+
+
+GHOST FACE:
+je vous écoute;1;action,sound,aura,recharge;ghost face;null;null;+8[aura];30
+frissons palpitants;1;survivant_transport,hook,generator,recharge;ghost face;null;null;+16[generator(lock)];30
+poursuite furtive;1;obsession,hook,survivant_transport,speed,indetectable;ghost face;null;null;+10%[speed],+18[indetectable];null
+
+ONI:
+tactiques de zanshin;1;aura,action,chase;l'oni;null;null;+5[aura];null
+écho sanguin;1;hook,survivant_transport,exhausted,care;l'oni;null;null;+30[exhausted,care];null
+ennemi juré;1;blind,chase,obsession,indetectable,aura;l'oni;null;null;+60[indetectable],+8[aura];null
+
+LANCE-MORT:
+bricolo;1;generator,hability_test,chase,aura;le lance-mort;null;null;+8[aura];null
+dispositif de l'homme mort;1;hook,survivant_transport,generator,recharge;le lance-mort;null;null;+35[generator(lock)];35
+châtiment;1;totem,action,indetectable,aura;le lance-mort;null;null;+60[indetectable],+20[aura];null
+
+FLEAU:
+prise du dragon;1;generator,sound,aura,be_one_shot,recharge;le fléau;null;null;+4[aura],+60[be_one_shot];30
+immortel;1;totem,action,aura;le fléau;null;null;infinite[aura];null
+faveur de sang;1;totem,chase;le fléau;null;null;+15[chase(palette_lock)];null
+
+DRAGAGE:
+dissolution;1;action,chase,destruction;le dragage;null;null;+20[destruction(palette)];null
+ténèbres révélées;1;locker,aura,recharge,action;le dragage;null;null;+8[aura];30
+toucher septique;1;care,terror_rayon,blind,exhausted;le dragage;null;null;+30[blind,exhausted];null
+
+CHEVALIER:
+nulle part où se cacher;1;generator,aura,destruction;le chevalier;null;null;+5[aura];null
+affrontez les ténèbres;1;chase,totem,sound,aura;le chevalier;null;null;+2[aura];null
+hubris;1;chase,be_one_shot,recharge;le chevalier;null;null;+30[be_one_shot];null
+
+L'ANIMATRONIQUE:
+on embauche;1;generator,chase;l'animatronique;null;null;+25%[attaque_speed];null
+frayeur fantôme;1;terror_rayon,sound,aura,recharge;l'animatronique;null;null;+2[aura];60
+détraqué;1;exit_door;l'animatronique;null;null;+100%[exit_door(regression)];null
+
+LE PREMIER:
+remonter le temps;1;hook,survivant_transport,generator;le premier;null;null;-10%[generator];null
+projet secret;1;totem,generator,indetectable;le premier;null;null;+30[indetectable];null
+la ruche;1;totem,aura,generator;le premier;null;null;-10%[generator];null
+
+JUGEMENT:
+témoin céleste;1;obsession,aura;le jugement;null;null;+3[aura];null
+sous votre coupe;1;totem,hook,survivant_transport,speed,aura;le jugement;null;null;infinite[aura];null
+semer la dévastation;1;destruction,generator,recharge;le jugement;null;null;-2%[generator];45
+
+SLASHER:
+frayeur mortelle;1;hook,survivant_transport,totem,chase,destruction,sound,speed;le slasher;null;null;-13%[speed];null
+ombre silencieuse;1;hook,survivant_transport,indetectable,generator;le slasher;null;null;infinite[indetectable];null
+saccage;1;destruction,blind,speed,recharge;le slasher;null;null;+13%[speed];20
+
+KRASUE:
+vorace;1;hook,survivant_transport,sound,be_one_shot;le krasue;null;null;+60[be_one_shot];null
+oeil vagabond;1;chase,aura,care,recharge;le krasue;null;null;+5[aura];30
+ouverture maudite;1;totem,generator,indetectable,terror_rayon;le krasue;null;null;+30[indetectable];null
+
+GOULE:
+que du malheur;1;chase,totem,speed;la goule;null;null;-5%[speed];null
+à jamais liés;1;care,hook,survivant_transport,speed;la goule;null;null;+4%[hook];null
+personne n'est libre;1;hook,survivant_transport,generator,chase;la goule;null;null;+16[chase(palette(lock),jump(lock))];null
+
+MAITRESSE MOLOSSES:
+coup de tonnerre;1;speed,chase,recharge;la maîtresse des molosses;null;null;+75%[chase(attack_distance)];5
+boussole de douleur;1;hook,survivant_transport,aura;la maîtresse des molosses;null;null;+10[aura];null
+pas de quartier;1;care,hability_test;la maîtresse des molosses;null;null;+30[care(sick)];null
+
+SEIGNEUR DES TENEBRE:
+destin misérable;1;totem,obsession,speed,aura;le seigneur des ténèbres;null;null;-33%[generator];null
+avidité humaine;1;aura,recharge,aura;le seigneur des ténèbres;null;null;+5[aura];10
+domination;1;totem,action;le seigneur des ténèbres;null;null;+16[action(lock)];null
+
+LICHE:
+lien avec la trame;1;aura,indetectable,action;la liche;null;null;infinite[aura],+30[indetectable];null
+contact languide;1;exhausted,recharge,action;la liche;null;null;+10[exhausted];5
+arrogance ténébreuse;1;chase,blind,speed;la liche;null;null;+25%[chase(jump)],-15%[blind(speed)];null
+
+INCONNU:
+inexorable;1;care,chase,speed;l'inconnu;null;null;+7%[chase(jump)];null
+inattendu;1;destruction,generator,terror_rayon,indetectable,recharge;l'inconnu;null;null;+30[indetectable];30
+interrompu;1;hability_test,generator,destruction,recharge;l'inconnu;null;null;-30%[generator],-30[generator(lock)];60
+
+BRAVE GARS:
+on peut jouer à deux;1;totem,blind,chase;le brave gars;null;null;+1.5[blind];null
+amis pour la vie;1;hook,survivant_transport,be_one_shot,obsession,aura,sound;le brave gars;null;null;+20[be_one_shot],+10[aura];null
+piles incluses;1;generator,speed;le brave gars;null;null;+5%[speed];null
+
+XENOMORPHE:
+arme ultime;1;blind,recharge,action,sound;le xénomorphe;null;null;+30[blind];45
+brutalité rapide;1;chase,speed,bloodlust;le xénomorphe;null;null;+5%[speed];null
+instinct d'alien;1;hook,survivant_transport,indetectable,aura,care;le xénomorphe;null;null;+60[indetectable],+8[aura];null
+
+SINGULARITE:
+limites génétiques;1;care,exhausted,chase;la singularité;null;null;+8[exhausted];null
+hésitation forcée;1;chase,speed,recharge;la singularité;null;null;-20%[speed];30
+apprentissage automatique;1;destruction,generator,speed,indetectable;la singularité;null;null;+8%[speed],+60[indetectable];null
+
+MARCHANDE CRÂNE:
+ouverture de la chasse;1;chase,obsession,destruction,speed;la marchande de crânes;null;null;+7%[speed];null
+vlan;1;hook,survivant_transport,destruction,sound,aura;la marchande de crânes;null;null;+6[aura];null
+effet de levier;1;hook,survivant_transport,care;la marchande de crânes;null;null;-30%[care];null
+
+MASTERMIND:
+anatomie supérieure;1;chase,speed,recharge;le mastermind;null;null;+40%[chase(jump)];25
+perception éveillée;1;hook,survivant_transport,aura;le mastermind;null;null;infinite[aura];null
+terminus;1;generator,care,exit_door;le mastermind;null;null;+45[care];null
+
+ONRYO:
+flots de rage;1;hook,survivant_transport,aura;l'onryo;null;null;+7[aura];null
+appel de la mer;1;destruction,hability_test,aura;l'onryo;null;null;-50%[generator];null
+tempête impitoyable;1;generator,hability_test;l'onryo;null;null;+20[generator(lock)];null
+
+ARTISTE
+sombre étreinte;1;hook,survivant_transport,generator,aura,obsession;l'artiste;null;null;+40[generator(lock)],+10[aura];null
+écho de douleur;1;hook,survivant_transport,generator,sound;l'artiste;null;null;-20%[generator];null
+repentir;1;totem,aura,speed,action;l'artiste;null;null;-20%[action];null
+
+NEMESIS:
+poursuivant meurtrier;1;aura;le nemesis;null;null;+9[aura];null
+hystérie;1;care,indetectable,recharge;le nemesis;null;null;+40[indetectable];20
+éruption;1;destruction,chase,sound,aura,recharge;le nemesis;null;null;-10%[generator],+12[aura];null
+
+FARCEUR:
+fascination;1;hook,survivant_transport,be_one_shot,recharge;le farceur;null;null;infinite[be_one_shot];60
+contrôle des foules;1;chase,totem,speed,aura;le farceur;null;null;+15%[chase(jump)];null
+aucune issue;1;hook,survivant_transport,generator,exit_door;le farceur;null;null;+12[exit_door(lock)];null
+
+JUMEAUX:
+amasseur;1;action,aura;les jumeaux;null;null;infinite[aura];null
+oppression;1;destruction,generator,hability_test,recharge;les jumeaux;null;null;null;35
+coup de grâce;1;generator,chase;les jumeaux;null;null;+80%[chase(attack_distance)];null
+
+BOURREAU:
+pénitence forcée;1;chase,care;le bourreau;null;null;+80[care];null
+pistre de souffrance;1;generator,indetectable,aura,recharge;le bourreau;null;null;infinite[aura];30
+lien mortel;1;care,sound,indetectable,aura;le bourreau;null;null;infinite[aura,indetectable];null
+
+DEMOGORGON:
+surtension;1;chase,generator,sound;le démogorgon;null;null;-8%[generator];null
+briseur d'esprit;1;action,blind,exhausted;le démogorgon;null;null;infinite[blind,exhausted];null
+limites cruelles;1;generator,aura,chase;le démogorgon;null;null;+30[aura];null
+
+
+COCHON;
+coup du pendu;1;hook,survivant_transport,aura;le cochon;null;null;infinite[aura];null
+surveillance;1;aura,generator,sound;le cochon;null;null;+16[aura];null
+fais ton choix;1;hook,survivant_transport,sound,be_one_shot,recharge;le cochon;null;null;+60[be_one_shot];60
+
+CANNIBALE:
+chili et barbebue;1;hook,survivant_transport,aura;le cannibale;null;null;+5[aura];null
+K.O.;1;chase,speed;le cannibale;null;null;-5%[speed(survivant)];null
+la mort de Franklin;1;action;le cannibale;null;null;null;null
+
+DEFAULT:
+boucher sadique;1;care,chase;null;null;null;+90[care(hemorragie,estropiement)],-25%[care];null
+blessures béantes;1;hook,survivant_transport,care,generator;null;null;null;+90[care(hemorragie,estropiement)],-16%[generator,care];null
+sanctuaire monstrueux;1;hook,speed,survivant_transport;null;null;null;+20%[hook(death_speed)];null
+espions de l'ombre;1;aura,recharge;null;null;null;infinite[aura];5
+espoir brisé;1;totem,aura,destruction;null;null;null;+8[aura];null
+fais-les attendre;1;obsession,chase,speed;null;null;null;+40%[speed];null
+implacable;1;chase,speed;null;null;null;+30%[chase(attack_speed)];null
+inquiétant;1;terror_rayon;null;null;null;+30%[terror_rayon];null
+insidieux;1;indetectable;null;null;null;infinite[indetectable];null
+murmure amer;1;generator,aura;null;null;null;+5[aura(generator(fixed))],10[aura(generator(all_finished))];null
+murmures;1;sound;null;null;null;+x[sound];null
+pisteur;1;aura;null;null;null;infinite[aura];null
+poigne de fer;1;hook,survivant_transport,speed;null;null;null;-12%[hook(speed_debattement)],-75%[hook(strengh_debattement)];null
+regarde-les détaler;1;obsession,chase,recharge,speed;null;null;null;+15%[speed];10
+euphorie de la chasse;1;totem,action;null;null;null;-10%[action(totem)];null
+part d'infortune;1;totem,hook,survivant_transport,indetectable,aura;null;null;null;infinite[indetectable];null
+personne n'échappe à la mort;1;generator,chase,be_one_shot,speed,totem;null;null;null;+4%[speed],infinite[be_one_shot];null
+tous les coups sont permis;1;generator;null;null;null;+25[generator(lock)];null
+éradication des faibles;1;hook,survivant_transport,obsession,care,generator,action;null;null;null;-3%[care],-3%[generator(fixed)],-3%[hook];null
+
+
+
+
+
+CATEGORIE:
+- speed
+- terror_rayon
+- destruction
+- hability_test
+- blood_trace
+- chase
+- aura
+- recharge
+- generator
+- survivant_transport
+- blind
+- indetectable
+- care
+- action
+- sound
+- totem
+- be_one_shot
+- hook
+- exhausted
+- bloodlust
+- cave
+- exit_door
+- obsession
+- locker
+
+TIERS LIST:
+S+
+S-
+A+
+A-
+B+
+B-
+C+
+C-
+D
+
+
+KILLER:
+name;speed;terror_rayon;size;tierlist;difficulty
+
+le piégeur;4.6;32;big;D;easy
+le spectre;4.6;32;big;C+;easy
+le montagnard;4.6;40;big;A+;normal
+l'infirmière;3.8;32;normal;S+;nightmare
+la harpie;4.4;24;normal;C+;nightmare
+le docteur;4.6;32;big;D;difficult
+la chasseuse;4.4;20;big;C-;normal
+le cauchemar;4.6;32;normal;C+;normal
+le clown;4.6;32;big;B-;normal
+l'esprit;4.4;24;normal;A-;difficult
+la légion;4.6;32;normal;C-;easy
+l'épidémie;4.6;32;big;B+;difficult
+ghost face;4.6;24;normal;D;difficult
+l'oni;4.6;32;big;B+;nightmare
+le lance-mort;4.4;32;big;C+;difficult
+le fléau;4.4;40;normal;S-;nightmare
+le dragage;4.6;32;big;C-;difficult
+le chevalier;4.6;32;normal;B-;normal
+l'animatronique;4.4;24;normal;C+;difficult
+le premier;4.4;32;normal;A-;normal
+le jugement;4.4;32;big;B-;nightmare
+le slasher;4.4;32;normal;B-;normal
+le krasue;4.6;32;normal;B+;normal
+la goule;4.6;40;normal;A-;normal
+la maîtresse des molosses;4.6;32;normal;B+;normal
+le seigneur des ténèbres;4.6;32;big;A+;difficult
+la liche;4.6;32;normal;B-;normal
+l'inconnu;4.6;32;normal;C+;normal
+le brave gars;4.4;32;small;C-;normal
+le xénomorphe;4.6;32;normal;C-;normal
+la singularité;4.6;32;normal;A-;difficult
+la marchande de crânes;4.6;24;normal;D;difficult
+le mastermind;4.6;40;normal;B-;normal
+l'onryo;4.6;24;small;C-;normal
+l'artiste;4.6;32;normal;B-;difficult
+le nemesis;4.6;32;big;C+;difficult
+le farceur;4.4;24;normal;C-;normal
+les jumeaux;4.6;32;big;B+;nightmare
+le bourreau;4.6;32;big;B+;nightmare
+le démogorgon;4.6;32;big;C-;difficult
+le cochon;4.6;24;normal;C-;difficult
+le cannibale;4.6;32;big;C-;normal
+
+
+
+notification = aura
+endommager = destruction
+recharge =! null
+blessé = care

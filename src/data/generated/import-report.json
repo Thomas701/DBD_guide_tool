@@ -1,0 +1,1057 @@
+{
+  "formatVersion": 1,
+  "imported": {
+    "perks": 145,
+    "killers": 42,
+    "descriptions": 151
+  },
+  "skipped": {
+    "perks": 0,
+    "killers": 0
+  },
+  "sourceRows": {
+    "perkCandidates": 145,
+    "killerCandidates": 42
+  },
+  "warnings": [
+    {
+      "code": "description_cross_reference",
+      "severity": "warning",
+      "file": "description_categories.txt",
+      "line": 266,
+      "entity": "Impasse",
+      "field": "description",
+      "raw": "Identique à No Holds Barred",
+      "message": "description constituée d'un renvoi à résoudre par un alias explicite"
+    },
+    {
+      "code": "description_cross_reference",
+      "severity": "warning",
+      "file": "description_categories.txt",
+      "line": 351,
+      "entity": "Lumière mourante",
+      "field": "description",
+      "raw": "Identique à « Éliminer les faibles » .",
+      "message": "description constituée d'un renvoi à résoudre par un alias explicite"
+    },
+    {
+      "code": "description_zero_width_removed",
+      "severity": "warning",
+      "file": "description_categories.txt",
+      "line": 482,
+      "entity": "Passionné de mécanique",
+      "field": "description",
+      "raw": null,
+      "message": "2 caractère(s) U+200B supprimé(s)"
+    },
+    {
+      "code": "description_zero_width_removed",
+      "severity": "warning",
+      "file": "description_categories.txt",
+      "line": 528,
+      "entity": "Aide recherchée",
+      "field": "description",
+      "raw": null,
+      "message": "2 caractère(s) U+200B supprimé(s)"
+    },
+    {
+      "code": "description_cross_reference",
+      "severity": "warning",
+      "file": "description_categories.txt",
+      "line": 754,
+      "entity": "Hex : Jouet",
+      "field": "description",
+      "raw": "Identique à Hex : Le Fou de la Fortune",
+      "message": "description constituée d'un renvoi à résoudre par un alias explicite"
+    },
+    {
+      "code": "description_zero_width_removed",
+      "severity": "warning",
+      "file": "description_categories.txt",
+      "line": 1223,
+      "entity": "Présence écrasante",
+      "field": "description",
+      "raw": null,
+      "message": "2 caractère(s) U+200B supprimé(s)"
+    },
+    {
+      "code": "description_cross_reference",
+      "severity": "warning",
+      "file": "description_categories.txt",
+      "line": 1251,
+      "entity": "Jouez avec votre nourriture",
+      "field": "description",
+      "raw": "Identique à « Voir comment ils courent »",
+      "message": "description constituée d'un renvoi à résoudre par un alias explicite"
+    },
+    {
+      "code": "description_cross_reference",
+      "severity": "warning",
+      "file": "description_categories.txt",
+      "line": 1347,
+      "entity": "Gardez le meilleur pour la fin",
+      "field": "description",
+      "raw": "Identique à « Les faire attendre »",
+      "message": "description constituée d'un renvoi à résoudre par un alias explicite"
+    },
+    {
+      "code": "description_cross_reference",
+      "severity": "warning",
+      "file": "description_categories.txt",
+      "line": 1365,
+      "entity": "Crochet du Fléau : Don de la Douleur",
+      "field": "description",
+      "raw": "Identique à Scourge Hook : Plaies pleureuses",
+      "message": "description constituée d'un renvoi à résoudre par un alias explicite"
+    },
+    {
+      "code": "description_owner_missing",
+      "severity": "warning",
+      "file": "description_categories.txt",
+      "line": 1788,
+      "entity": "Tactiques Zanshin",
+      "field": "character",
+      "raw": null,
+      "message": "propriétaire de la description absent ou non identifiable"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 8,
+      "entity": "agitation",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 44,
+      "entity": "intensité ardente",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 44,
+      "entity": "intensité ardente",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "character_alias_applied",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 49,
+      "entity": "le tour est joué",
+      "field": "character",
+      "raw": "le clowb",
+      "message": "le clowb normalisé en le clown"
+    },
+    {
+      "code": "effect_syntax_normalized",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 55,
+      "entity": "rancoeur",
+      "field": "effect",
+      "raw": "infinite(be_one_shot(obsession))",
+      "message": "parenthèses externes normalisées en crochets"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 59,
+      "entity": "cran dément",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 59,
+      "entity": "cran dément",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 70,
+      "entity": "frissons palpitants",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 70,
+      "entity": "frissons palpitants",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 71,
+      "entity": "poursuite furtive",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 71,
+      "entity": "poursuite furtive",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 75,
+      "entity": "écho sanguin",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 75,
+      "entity": "écho sanguin",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 80,
+      "entity": "dispositif de l'homme mort",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 80,
+      "entity": "dispositif de l'homme mort",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "cooldown_missing_for_recharge_category",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 96,
+      "entity": "hubris",
+      "field": "recharge",
+      "raw": "null",
+      "message": "la catégorie recharge est présente mais aucun cooldown fiable n'est fourni"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 104,
+      "entity": "remonter le temps",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 104,
+      "entity": "remonter le temps",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 110,
+      "entity": "sous votre coupe",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 110,
+      "entity": "sous votre coupe",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 114,
+      "entity": "frayeur mortelle",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 114,
+      "entity": "frayeur mortelle",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 115,
+      "entity": "ombre silencieuse",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 115,
+      "entity": "ombre silencieuse",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 119,
+      "entity": "vorace",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 119,
+      "entity": "vorace",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 125,
+      "entity": "à jamais liés",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 125,
+      "entity": "à jamais liés",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 126,
+      "entity": "personne n'est libre",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 126,
+      "entity": "personne n'est libre",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 130,
+      "entity": "boussole de douleur",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 130,
+      "entity": "boussole de douleur",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 135,
+      "entity": "avidité humaine",
+      "field": "category",
+      "raw": "aura",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 150,
+      "entity": "amis pour la vie",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 150,
+      "entity": "amis pour la vie",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 156,
+      "entity": "instinct d'alien",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 156,
+      "entity": "instinct d'alien",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 165,
+      "entity": "vlan",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 165,
+      "entity": "vlan",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 166,
+      "entity": "effet de levier",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 166,
+      "entity": "effet de levier",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 170,
+      "entity": "perception éveillée",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 170,
+      "entity": "perception éveillée",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 174,
+      "entity": "flots de rage",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 174,
+      "entity": "flots de rage",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 179,
+      "entity": "sombre étreinte",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 179,
+      "entity": "sombre étreinte",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 180,
+      "entity": "écho de douleur",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 180,
+      "entity": "écho de douleur",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "cooldown_missing_for_recharge_category",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 186,
+      "entity": "éruption",
+      "field": "recharge",
+      "raw": "null",
+      "message": "la catégorie recharge est présente mais aucun cooldown fiable n'est fourni"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 189,
+      "entity": "fascination",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 189,
+      "entity": "fascination",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 191,
+      "entity": "aucune issue",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 191,
+      "entity": "aucune issue",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 210,
+      "entity": "coup du pendu",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 210,
+      "entity": "coup du pendu",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 212,
+      "entity": "fais ton choix",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 212,
+      "entity": "fais ton choix",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 215,
+      "entity": "chili et barbebue",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 215,
+      "entity": "chili et barbebue",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 221,
+      "entity": "blessures béantes",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 221,
+      "entity": "blessures béantes",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 222,
+      "entity": "sanctuaire monstrueux",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 222,
+      "entity": "sanctuaire monstrueux",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 232,
+      "entity": "poigne de fer",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 232,
+      "entity": "poigne de fer",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 235,
+      "entity": "part d'infortune",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 235,
+      "entity": "part d'infortune",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    },
+    {
+      "code": "category_duplicate_removed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 238,
+      "entity": "éradication des faibles",
+      "field": "category",
+      "raw": "hook",
+      "message": "catégorie dupliquée supprimée"
+    },
+    {
+      "code": "category_renamed",
+      "severity": "warning",
+      "file": "source.txt",
+      "line": 238,
+      "entity": "éradication des faibles",
+      "field": "category",
+      "raw": "survivant_transport",
+      "message": "survivant_transport normalisé en hook"
+    }
+  ],
+  "errors": [],
+  "unresolvedIcons": [],
+  "unresolvedKillerPortraits": [],
+  "unusedIcons": [],
+  "unusedKillerPortraits": [
+    "cenobite.png",
+    "shape.png"
+  ],
+  "unresolvedCharacters": [],
+  "unresolvedDescriptions": {
+    "perks": [
+      {
+        "perkId": "fire-up",
+        "name": "intensité ardente",
+        "line": 44,
+        "raw": null,
+        "reason": "aucune description liée par correspondance normalisée exacte"
+      },
+      {
+        "perkId": "rancor",
+        "name": "rancoeur",
+        "line": 55,
+        "raw": null,
+        "reason": "aucune description liée par correspondance normalisée exacte"
+      },
+      {
+        "perkId": "none-are-free",
+        "name": "personne n'est libre",
+        "line": 126,
+        "raw": null,
+        "reason": "aucune description liée par correspondance normalisée exacte"
+      },
+      {
+        "perkId": "scourge-hook-jagged-compass",
+        "name": "boussole de douleur",
+        "line": 130,
+        "raw": null,
+        "reason": "aucune description liée par correspondance normalisée exacte"
+      },
+      {
+        "perkId": "dark-arrogance",
+        "name": "arrogance ténébreuse",
+        "line": 141,
+        "raw": null,
+        "reason": "aucune description liée par correspondance normalisée exacte"
+      },
+      {
+        "perkId": "alien-instinct",
+        "name": "instinct d'alien",
+        "line": 156,
+        "raw": null,
+        "reason": "aucune description liée par correspondance normalisée exacte"
+      },
+      {
+        "perkId": "hex-crowd-control",
+        "name": "contrôle des foules",
+        "line": 190,
+        "raw": null,
+        "reason": "aucune description liée par correspondance normalisée exacte"
+      },
+      {
+        "perkId": "hex-thrill-of-the-hunt",
+        "name": "euphorie de la chasse",
+        "line": 234,
+        "raw": null,
+        "reason": "aucune description liée par correspondance normalisée exacte"
+      },
+      {
+        "perkId": "dying-light",
+        "name": "éradication des faibles",
+        "line": 238,
+        "raw": null,
+        "reason": "aucune description liée par correspondance normalisée exacte"
+      }
+    ],
+    "records": [
+      {
+        "descriptionId": "description-source-0018",
+        "name": "Instinct extraterrestre",
+        "line": 18,
+        "reason": "aucune perk liée par correspondance normalisée exacte"
+      },
+      {
+        "descriptionId": "description-source-0206",
+        "name": "Éliminer les faibles",
+        "line": 206,
+        "reason": "aucune perk liée par correspondance normalisée exacte"
+      },
+      {
+        "descriptionId": "description-source-0214",
+        "name": "Arrogance sombre",
+        "line": 214,
+        "reason": "aucune perk liée par correspondance normalisée exacte"
+      },
+      {
+        "descriptionId": "description-source-0266",
+        "name": "Impasse",
+        "line": 266,
+        "reason": "aucune perk liée par correspondance normalisée exacte"
+      },
+      {
+        "descriptionId": "description-source-0351",
+        "name": "Lumière mourante",
+        "line": 351,
+        "reason": "aucune perk liée par correspondance normalisée exacte"
+      },
+      {
+        "descriptionId": "description-source-0386",
+        "name": "Mettre le feu",
+        "line": 386,
+        "reason": "aucune perk liée par correspondance normalisée exacte"
+      },
+      {
+        "descriptionId": "description-source-0555",
+        "name": "Hex : Contrôle des foules",
+        "line": 555,
+        "reason": "aucune perk liée par correspondance normalisée exacte"
+      },
+      {
+        "descriptionId": "description-source-0754",
+        "name": "Hex : Jouet",
+        "line": 754,
+        "reason": "aucune perk liée par correspondance normalisée exacte"
+      },
+      {
+        "descriptionId": "description-source-0809",
+        "name": "Maléfice : Le frisson de la chasse",
+        "line": 809,
+        "reason": "aucune perk liée par correspondance normalisée exacte"
+      },
+      {
+        "descriptionId": "description-source-1170",
+        "name": "Aucun n'est gratuit",
+        "line": 1170,
+        "reason": "aucune perk liée par correspondance normalisée exacte"
+      },
+      {
+        "descriptionId": "description-source-1251",
+        "name": "Jouez avec votre nourriture",
+        "line": 1251,
+        "reason": "aucune perk liée par correspondance normalisée exacte"
+      },
+      {
+        "descriptionId": "description-source-1290",
+        "name": "Rancune",
+        "line": 1290,
+        "reason": "aucune perk liée par correspondance normalisée exacte"
+      },
+      {
+        "descriptionId": "description-source-1347",
+        "name": "Gardez le meilleur pour la fin",
+        "line": 1347,
+        "reason": "aucune perk liée par correspondance normalisée exacte"
+      },
+      {
+        "descriptionId": "description-source-1365",
+        "name": "Crochet du Fléau : Don de la Douleur",
+        "line": 1365,
+        "reason": "aucune perk liée par correspondance normalisée exacte"
+      },
+      {
+        "descriptionId": "description-source-1387",
+        "name": "Crochet de fléau : Boussole dentelée",
+        "line": 1387,
+        "reason": "aucune perk liée par correspondance normalisée exacte"
+      }
+    ]
+  },
+  "unparsedEffects": [
+    {
+      "perkId": "hex-the-third-seal",
+      "name": "le troisième sceau",
+      "line": 30,
+      "raw": "+x[blind]",
+      "reason": "valeur d'effet inconnue",
+      "token": "+x[blind]"
+    },
+    {
+      "perkId": "overcharge",
+      "name": "surcharge",
+      "line": 35,
+      "raw": "+130%[generator(down_speed)],-x%[hability_test(size)]",
+      "reason": "valeur d'effet inconnue",
+      "token": "-x%[hability_test(size)]"
+    },
+    {
+      "perkId": "spirit-fury",
+      "name": "fureur de l'esprit",
+      "line": 53,
+      "raw": "null",
+      "reason": "effet absent",
+      "token": "null"
+    },
+    {
+      "perkId": "help-wanted",
+      "name": "on embauche",
+      "line": 99,
+      "raw": "+25%[attaque_speed]",
+      "reason": "statistique inconnue: attaque_speed",
+      "token": "+25%[attaque_speed]"
+    },
+    {
+      "perkId": "undone",
+      "name": "interrompu",
+      "line": 146,
+      "raw": "-30%[generator],-30[generator(lock)]",
+      "reason": "valeur incompatible avec generator.lock",
+      "token": "-30[generator(lock)]"
+    },
+    {
+      "perkId": "oppression",
+      "name": "oppression",
+      "line": 195,
+      "raw": "null",
+      "reason": "effet absent",
+      "token": "null"
+    },
+    {
+      "perkId": "franklins-demise",
+      "name": "la mort de Franklin",
+      "line": 217,
+      "raw": "null",
+      "reason": "effet absent",
+      "token": "null"
+    },
+    {
+      "perkId": "whispers",
+      "name": "murmures",
+      "line": 230,
+      "raw": "+x[sound]",
+      "reason": "valeur d'effet inconnue",
+      "token": "+x[sound]"
+    }
+  ],
+  "incompleteTranslations": {
+    "perkNamesEn": 0,
+    "killerNamesEn": 0,
+    "perkDescriptionsEn": 145
+  }
+}

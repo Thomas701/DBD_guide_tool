@@ -1,0 +1,4 @@
+node_modules/
+dist/
+.data/chatgpt-browser-profile/
+.tmp-chrome-audit/
