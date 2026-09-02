@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-02T23:40:01.055Z",
+  "updatedAt": "2026-09-02T23:50:24.597Z",
   "build": {
     "id": null,
     "name": "le montagnard — Build",
-    "killerId": "hillbilly",
+    "killerId": "nurse",
     "perkIds": [
       "agitation"
     ]
@@ -12,18 +12,20 @@
   "scenario": {
     "conditions": {
       "not_in_chase": true,
-      "carrying_survivor": true
+      "carrying_survivor": true,
+      "after_hook": true,
+      "generator_damaged": true
     },
     "perkStates": {}
   },
   "assistantContext": {
     "killer": {
-      "name": "le montagnard",
-      "speed": 4.6,
-      "terrorRadius": 40,
-      "size": "big",
-      "tier": "A+",
-      "difficulty": "normal"
+      "name": "l'infirmière",
+      "speed": 3.8,
+      "terrorRadius": 32,
+      "size": "normal",
+      "tier": "S+",
+      "difficulty": "nightmare"
     },
     "perks": [
       {
@@ -61,7 +63,9 @@
     "currentState": {
       "activeConditions": {
         "not_in_chase": true,
-        "carrying_survivor": true
+        "carrying_survivor": true,
+        "after_hook": true,
+        "generator_damaged": true
       },
       "perkStates": {}
     },
@@ -93,10 +97,10 @@
         {
           "key": "killer.terror_radius",
           "label": "Rayon de terreur",
-          "base": 40,
-          "final": 52,
+          "base": 32,
+          "final": 44,
           "delta": 12,
-          "deltaPercent": 30,
+          "deltaPercent": 37.5,
           "unit": "m",
           "effects": [
             {
@@ -104,8 +108,8 @@
               "operation": "add",
               "value": 12,
               "unit": "meters",
-              "before": 40,
-              "after": 52,
+              "before": 32,
+              "after": 44,
               "condition": [
                 "Condition remplie : carrying_survivor"
               ],
