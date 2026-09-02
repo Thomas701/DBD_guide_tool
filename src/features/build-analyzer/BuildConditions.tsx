@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 
+import { killerConditionIconUrl } from "../../app/assets.js";
 import { conditionLabels } from "../../app/labels.js";
 import { KNOWN_CONDITIONS } from "../../domain/condition.js";
 import type { Perk } from "../../domain/perk.js";
@@ -45,8 +46,12 @@ export function BuildConditions({
         <div className="condition-toggle-list">
           {conditions.map((condition) => {
             const active = scenario.conditions[condition] === true;
+            const icon = killerConditionIconUrl(condition);
             return (
               <label className={`condition-toggle${active ? " active" : ""}`} key={condition}>
+                <span className={`condition-icon${icon ? "" : " empty"}`} aria-hidden="true">
+                  {icon && <img src={icon} alt="" />}
+                </span>
                 <span>{conditionLabel(condition)}</span>
                 <input
                   type="checkbox"
@@ -61,6 +66,7 @@ export function BuildConditions({
           {runtimePerks.map((perk) => (
             hasCooldown(perk) ? (
               <label className="runtime-condition" key={perk.id}>
+                <span className="condition-icon empty" aria-hidden="true" />
                 <span>
                   <strong>{perk.name.fr ?? perk.name.en ?? perk.id}</strong>
                   <small>État de déclenchement</small>
@@ -76,6 +82,7 @@ export function BuildConditions({
               </label>
             ) : (
               <label className={`condition-toggle runtime-toggle${(scenario.perkStates[perk.id] ?? "active") === "active" ? " active" : ""}`} key={perk.id}>
+                <span className="condition-icon empty" aria-hidden="true" />
                 <span>
                   <strong>{perk.name.fr ?? perk.name.en ?? perk.id}</strong>
                   <small>État de déclenchement</small>

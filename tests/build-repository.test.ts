@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { BUILDS_STORAGE_KEY, LocalBuildRepository } from "../src/services/build-repository.js";
+import { CATEGORY_OVERRIDES_STORAGE_KEY, LocalCategoryOverrideRepository } from "../src/services/description-overrides.js";
 
 class MemoryStorage {
   private readonly values = new Map<string, string>();
@@ -100,4 +101,15 @@ test("le repository signale un localStorage corrompu sans l'écraser", () => {
   assert.equal(storage.getItem(BUILDS_STORAGE_KEY), "{pas du json");
   builds.clear();
   assert.deepEqual(builds.list(), []);
+});
+
+test("les catégories locales acceptent une liste vide et peuvent revenir au natif", () => {
+  const storage = new MemoryStorage();
+  const categories = new LocalCategoryOverrideRepository(storage);
+
+  assert.deepEqual(categories.update("agitation", ["speed", "speed", "hook"]), { agitation: ["speed", "hook"] });
+  assert.deepEqual(categories.update("agitation", []), { agitation: [] });
+  assert.equal(storage.getItem(CATEGORY_OVERRIDES_STORAGE_KEY), JSON.stringify({ agitation: [] }));
+  assert.deepEqual(categories.delete("agitation"), {});
+  assert.equal(storage.getItem(CATEGORY_OVERRIDES_STORAGE_KEY), null);
 });

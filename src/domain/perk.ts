@@ -20,6 +20,7 @@ export interface Perk {
     fr: RichDescription | null;
     en: RichDescription | null;
   };
+  nativeDescriptionHtml?: string;
   effects: PerkEffect[];
   cooldown: number | null;
   effectImportStatus: EffectImportStatus;

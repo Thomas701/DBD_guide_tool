@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { killerPortraitUrl, perkIconUrl } from "../../app/assets.js";
 import { perkOwner } from "../../app/catalog.js";
@@ -21,6 +21,7 @@ interface PerkBrowserProps {
   equippedPerkIds: readonly string[];
   canEquip?: boolean;
   selectedPerkId: string | null;
+  scrollToPerkId?: string | null;
   onSelectPerk: (perkId: string | null) => void;
   onTogglePerk: (perkId: string) => void;
 }
@@ -31,6 +32,7 @@ export function PerkBrowser({
   equippedPerkIds,
   canEquip = true,
   selectedPerkId,
+  scrollToPerkId = null,
   onSelectPerk,
   onTogglePerk,
 }: PerkBrowserProps) {
@@ -46,6 +48,19 @@ export function PerkBrowser({
   const killerById = useMemo(() => new Map(killers.map((killer) => [killer.id, killer])), [killers]);
   const equippedPerkSet = new Set(equippedPerkIds);
   const buildIsFull = equippedPerkIds.length >= MAX_BUILD_PERKS;
+
+  useEffect(() => {
+    if (!scrollToPerkId) return;
+    if (!visiblePerks.some((perk) => perk.id === scrollToPerkId)) {
+      setFilters({ ...DEFAULT_PERK_FILTERS, categories: [] });
+      return;
+    }
+    const frame = window.requestAnimationFrame(() => {
+      document.querySelector<HTMLElement>(`[data-perk-id="${CSS.escape(scrollToPerkId)}"]`)
+        ?.scrollIntoView({ behavior: "auto", block: "center" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [scrollToPerkId, visiblePerks]);
 
   function toggleCategory(category: PerkCategory, checked: boolean): void {
     setFilters((current) => ({
@@ -205,7 +220,7 @@ export function PerkBrowser({
                 const isSelected = selectedPerkId === perk.id;
                 const isEquipped = equippedPerkSet.has(perk.id);
                 return (
-                  <article className={`perk-card${isSelected ? " selected" : ""}${isEquipped ? " equipped" : ""}`} key={perk.id}>
+                  <article className={`perk-card${isSelected ? " selected" : ""}${isEquipped ? " equipped" : ""}`} data-perk-id={perk.id} key={perk.id}>
                     {ownerPortrait && (
                       <span className="owner-portrait" aria-hidden="true">
                         <img src={ownerPortrait} alt="" loading="lazy" />

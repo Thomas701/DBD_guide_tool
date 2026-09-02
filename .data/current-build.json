@@ -1,17 +1,121 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-01T23:04:23.371Z",
+  "updatedAt": "2026-09-02T23:40:01.055Z",
   "build": {
     "id": null,
-    "name": "",
-    "killerId": null,
-    "perkIds": []
+    "name": "le montagnard — Build",
+    "killerId": "hillbilly",
+    "perkIds": [
+      "agitation"
+    ]
   },
   "scenario": {
     "conditions": {
-      "not_in_chase": true
+      "not_in_chase": true,
+      "carrying_survivor": true
     },
     "perkStates": {}
   },
-  "assistantContext": null
+  "assistantContext": {
+    "killer": {
+      "name": "le montagnard",
+      "speed": 4.6,
+      "terrorRadius": 40,
+      "size": "big",
+      "tier": "A+",
+      "difficulty": "normal"
+    },
+    "perks": [
+      {
+        "name": "agitation",
+        "categories": [
+          "speed",
+          "terror_rayon",
+          "hook"
+        ],
+        "effects": [
+          {
+            "stat": "killer.carry_speed",
+            "operation": "multiply",
+            "interpretation": "verified",
+            "value": 1.18,
+            "unit": "multiplier",
+            "condition": {
+              "type": "carrying_survivor"
+            }
+          },
+          {
+            "stat": "killer.terror_radius",
+            "operation": "add",
+            "interpretation": "verified",
+            "value": 12,
+            "unit": "meters",
+            "condition": {
+              "type": "carrying_survivor"
+            }
+          }
+        ],
+        "description": "- Quand vous transportez un survivant:\n- Augmente votre vitesse de transport de 6 / 12 / 18 %.\n- Augmente votre rayon de terreur de +12 mètres."
+      }
+    ],
+    "currentState": {
+      "activeConditions": {
+        "not_in_chase": true,
+        "carrying_survivor": true
+      },
+      "perkStates": {}
+    },
+    "calculatedData": {
+      "affectedStats": [
+        {
+          "key": "killer.carry_speed",
+          "label": "Vitesse de transport",
+          "base": 3.68,
+          "final": 4.3424,
+          "delta": 0.6624,
+          "deltaPercent": 18,
+          "unit": "m/s",
+          "effects": [
+            {
+              "perk": "agitation",
+              "operation": "multiply",
+              "value": 1.18,
+              "unit": "multiplier",
+              "before": 3.68,
+              "after": 4.3424,
+              "condition": [
+                "Condition remplie : carrying_survivor"
+              ],
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "key": "killer.terror_radius",
+          "label": "Rayon de terreur",
+          "base": 40,
+          "final": 52,
+          "delta": 12,
+          "deltaPercent": 30,
+          "unit": "m",
+          "effects": [
+            {
+              "perk": "agitation",
+              "operation": "add",
+              "value": 12,
+              "unit": "meters",
+              "before": 40,
+              "after": 52,
+              "condition": [
+                "Condition remplie : carrying_survivor"
+              ],
+              "status": "active"
+            }
+          ]
+        }
+      ],
+      "qualitativeEffects": [],
+      "unresolvedEffects": []
+    }
+  }
 }
