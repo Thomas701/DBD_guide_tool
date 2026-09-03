@@ -1,17 +1,239 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-01T23:04:23.371Z",
+  "updatedAt": "2026-09-02T14:39:33.568Z",
   "build": {
-    "id": null,
-    "name": "",
-    "killerId": null,
-    "perkIds": []
+    "id": "47519792-b12d-474f-aa3f-477ab211186f",
+    "name": "le dragage — Exit door",
+    "killerId": "dredge",
+    "perkIds": [
+      "no-way-out",
+      "blood-warden",
+      "remember-me",
+      "haywire"
+    ]
   },
   "scenario": {
     "conditions": {
-      "not_in_chase": true
+      "not_in_chase": true,
+      "exit_gates_powered": false,
+      "perk_triggered": true,
+      "exit_gate_open": false,
+      "survivor_hooked": true,
+      "exit_gate_progress_80": false
     },
     "perkStates": {}
   },
-  "assistantContext": null
+  "assistantContext": {
+    "killer": {
+      "name": "le dragage",
+      "speed": 4.6,
+      "terrorRadius": 32,
+      "size": "big",
+      "tier": "C-",
+      "difficulty": "difficult"
+    },
+    "perks": [
+      {
+        "name": "aucune issue",
+        "categories": [
+          "hook",
+          "generator",
+          "exit_door"
+        ],
+        "effects": [
+          {
+            "stat": "exit_gate.lock",
+            "operation": "block",
+            "interpretation": "verified",
+            "duration": 60,
+            "unit": "seconds",
+            "condition": {
+              "operator": "all",
+              "conditions": [
+                {
+                  "type": "exit_gates_powered"
+                },
+                {
+                  "type": "perk_triggered"
+                }
+              ]
+            }
+          }
+        ],
+        "description": "- À chaque fois que vous accrochez un survivant pour la première fois, No Way Out gagne +1 jeton.\n- Une fois les portes de sortie sont alimentés:\n- Le premier survivant qui interagit avec l'un des interrupteurs de la porte de sortie déclenche une notification sonore forte à son emplacement.\n- En déclenchant la notification de bruit fort, No Way Out fait appel à l'Entité:\n- Bloque les deux interrupteurs de la porte de sortie pendant 12 secondes.\n- Ce délai est prolongé de 6 / 9 / 12 secondes supplémentaires par jeton accumulé, jusqu'à un maximum combiné de 36 / 48 / 60 secondes."
+      },
+      {
+        "name": "gardien de sang",
+        "categories": [
+          "exit_door",
+          "hook",
+          "aura"
+        ],
+        "effects": [
+          {
+            "stat": "exit_gate.lock",
+            "operation": "block",
+            "interpretation": "verified",
+            "duration": 60,
+            "unit": "seconds",
+            "condition": {
+              "operator": "all",
+              "conditions": [
+                {
+                  "type": "exit_gate_open"
+                },
+                {
+                  "type": "survivor_hooked"
+                }
+              ]
+            }
+          },
+          {
+            "stat": "survivor.aura.exit_gate",
+            "operation": "reveal",
+            "interpretation": "verified",
+            "value": true,
+            "unit": "boolean",
+            "duration": null,
+            "condition": {
+              "type": "exit_gate_open"
+            }
+          }
+        ],
+        "description": "- Dès qu'au moins une porte de sortie est ouvert:\n- Vous voyez les auras des survivants vous sont révélés, chaque fois qu'ils se trouvent à l'intérieur de la porte de sortie.\n- Une fois par procès, accrocher un survivant tant que le Gardien de sang est actif invoque l'Entité.:\n- Tous les blocs ont ouvert les portes de sortie pendant 40 / 50 / 60 secondes, empêchant ainsi tout survivant restant de quitter l'épreuve par celles-ci."
+      },
+      {
+        "name": "souviens-toi de moi",
+        "categories": [
+          "exit_door",
+          "obsession"
+        ],
+        "effects": [
+          {
+            "stat": "exit_gate.open_time",
+            "operation": "add",
+            "interpretation": "verified",
+            "value": 30,
+            "unit": "seconds",
+            "condition": {
+              "type": "perk_triggered"
+            }
+          }
+        ],
+        "description": "- Chaque fois que l'obsession perd un état de santé par tous les moyens, Remember Me gagne +1 jeton, jusqu'à un maximum de 3 / 4 / 5 jetons:\n- Augmente la durée d'ouverture des deux portes de sortie par une durée cumulable de 6 secondes par jeton, jusqu'à un temps d'ouverture supplémentaire maximal de 18 / 24 / 30 secondes.\n- Cela donne un temps d'ouverture maximal possible de 38 / 44 / 50 secondes pour les deux portes de sortie.\n- Le sort « Souviens-toi de moi » n’applique pas sa pénalité à l'Obsession, lui permettant d’ouvrir les deux portes de sortie dans le délai par défaut de 20 secondes.\n- On ne peut être obsédé que par un seul Survivant à la fois."
+      },
+      {
+        "name": "détraqué",
+        "categories": [
+          "exit_door"
+        ],
+        "effects": [
+          {
+            "stat": "exit_gate.regression_rate",
+            "operation": "set",
+            "interpretation": "verified",
+            "value": 100,
+            "unit": "percent",
+            "condition": {
+              "type": "exit_gate_progress_80"
+            }
+          }
+        ],
+        "description": "- Chaque fois qu'un survivant cesse d'ouvrir une porte de sortie Après avoir accumulé au moins 80 % de progression vers l'ouverture, Haywire provoque sa régression:\n- Régresse à un rythme de 80 / 90 / 100 % de la vitesse normale d'ouverture du portail.\n- Cela provoque chez les survivants l'apparition de lumières clignotant aléatoirement au-dessus de l'interrupteur pendant sa régression."
+      }
+    ],
+    "currentState": {
+      "activeConditions": {
+        "not_in_chase": true,
+        "exit_gates_powered": false,
+        "perk_triggered": true,
+        "exit_gate_open": false,
+        "survivor_hooked": true,
+        "exit_gate_progress_80": false
+      },
+      "perkStates": {}
+    },
+    "calculatedData": {
+      "affectedStats": [
+        {
+          "key": "exit_gate.open_time",
+          "label": "Ouverture d’une porte de sortie",
+          "base": 20,
+          "final": 50,
+          "delta": 30,
+          "deltaPercent": 150,
+          "unit": "s",
+          "effects": [
+            {
+              "perk": "souviens-toi de moi",
+              "operation": "add",
+              "value": 30,
+              "unit": "seconds",
+              "before": 20,
+              "after": 50,
+              "condition": [
+                "Condition remplie : perk_triggered"
+              ],
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "key": "exit_gate.regression_rate",
+          "label": "Régression relative d’une porte",
+          "base": 0,
+          "final": 0,
+          "delta": 0,
+          "deltaPercent": null,
+          "unit": "% vitesse d’ouverture",
+          "effects": [
+            {
+              "perk": "détraqué",
+              "operation": "set",
+              "value": 100,
+              "unit": "percent",
+              "before": null,
+              "after": null,
+              "condition": [
+                "Condition manquante : exit_gate_progress_80"
+              ],
+              "status": "inactive"
+            }
+          ]
+        }
+      ],
+      "qualitativeEffects": [
+        {
+          "label": "Portes de sortie bloquées",
+          "perk": "aucune issue",
+          "condition": [
+            "Condition manquante : exit_gates_powered",
+            "Condition remplie : perk_triggered"
+          ],
+          "status": "inactive",
+          "duration": 60
+        },
+        {
+          "label": "Portes de sortie bloquées",
+          "perk": "gardien de sang",
+          "condition": [
+            "Condition manquante : exit_gate_open",
+            "Condition remplie : survivor_hooked"
+          ],
+          "status": "inactive",
+          "duration": 60
+        },
+        {
+          "label": "Aura des survivants révélée",
+          "perk": "gardien de sang",
+          "condition": [
+            "Condition manquante : exit_gate_open"
+          ],
+          "status": "inactive",
+          "duration": null
+        }
+      ],
+      "unresolvedEffects": []
+    }
+  }
 }
