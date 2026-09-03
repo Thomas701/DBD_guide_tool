@@ -1,31 +1,35 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-03T17:55:30.715Z",
+  "updatedAt": "2026-09-03T19:19:36.177Z",
   "build": {
     "id": "b7ff2dc0-f604-4ea3-94de-4df7f02af6d6",
     "name": "l'infirmière — Build teffst 2dqzd",
-    "killerId": "nurse",
+    "killerId": "blight",
     "perkIds": [
       "agitation",
-      "brutal-strength",
-      "shadowborn"
+      "unnerving-presence",
+      "bloodhound",
+      "brutal-strength"
     ]
   },
   "scenario": {
     "conditions": {
       "not_in_chase": true,
       "after_blind": true,
-      "carrying_survivor": true
+      "carrying_survivor": true,
+      "inside_terror_radius": true,
+      "survivor_injured": true,
+      "outside_terror_radius": false
     },
     "perkStates": {}
   },
   "assistantContext": {
     "killer": {
-      "name": "l'infirmière",
-      "speed": 3.8,
-      "terrorRadius": 32,
+      "name": "le fléau",
+      "speed": 4.4,
+      "terrorRadius": 40,
       "size": "normal",
-      "tier": "S+",
+      "tier": "S-",
       "difficulty": "nightmare"
     },
     "perks": [
@@ -61,6 +65,64 @@
         "description": "- Quand vous transportez un survivant:\n- Augmente votre vitesse de transport de 6 / 12 / 18 %.\n- Augmente votre rayon de terreur de +12 mètres."
       },
       {
+        "name": "présence perturbante",
+        "categories": [
+          "hability_test"
+        ],
+        "effects": [
+          {
+            "stat": "generator.skill_check_chance",
+            "operation": "add",
+            "interpretation": "verified",
+            "value": 10,
+            "unit": "percentage_points",
+            "condition": {
+              "type": "inside_terror_radius"
+            }
+          },
+          {
+            "stat": "generator.skill_check_good_zone",
+            "operation": "multiply",
+            "interpretation": "verified",
+            "value": 0.4,
+            "unit": "multiplier",
+            "condition": {
+              "type": "inside_terror_radius"
+            }
+          },
+          {
+            "stat": "healing.skill_check_good_zone",
+            "operation": "multiply",
+            "interpretation": "verified",
+            "value": 0.4,
+            "unit": "multiplier",
+            "condition": {
+              "type": "inside_terror_radius"
+            }
+          }
+        ],
+        "description": "- À l'intérieur de votre rayon de terreur Les survivants qui effectuent des actions de réparation ou de guérison subissent les effets suivants:\n- Augmente les chances de déclencher un test de compétence de +10 %.\n- Réduit la zone de réussite de ces tests de compétence. de 40 / 50 / 60 %."
+      },
+      {
+        "name": "limier",
+        "categories": [
+          "blood_trace"
+        ],
+        "effects": [
+          {
+            "stat": "tracking.blood_pool_lifetime",
+            "operation": "add",
+            "interpretation": "verified",
+            "value": 4,
+            "unit": "seconds",
+            "condition": {
+              "type": "survivor_injured"
+            }
+          }
+        ],
+        "description": "- Des flaques de sang Les survivants blessés apparaissent en rouge vif.\n- Prolonge leur durée de vie de 2 / 3 / 4 secondes."
+      },
+      {
         "name": "force brute",
         "categories": [
           "destruction"
@@ -89,62 +151,21 @@
           }
         ],
         "description": "- Quand vous Casser ou Endommager sur des murs destructibles, Palettes, ou Générateurs:\n- Augmente la vitesse d'action de 10 / 15 / 20 %."
-      },
-      {
-        "name": "rejeton de l'ombre",
-        "categories": [
-          "speed",
-          "blind"
-        ],
-        "effects": [
-          {
-            "stat": "killer.speed",
-            "operation": "multiply",
-            "interpretation": "verified",
-            "value": 1.1,
-            "unit": "multiplier",
-            "condition": {
-              "type": "after_blind"
-            },
-            "duration": 10
-          }
-        ],
-        "description": "- Chaque fois que vous êtes aveuglé, de quelque manière que ce soit:\n- Vous gagnez 6/8/10 % de vitesse pendant 10 secondes."
       }
     ],
     "currentState": {
       "activeConditions": {
         "not_in_chase": true,
         "after_blind": true,
-        "carrying_survivor": true
+        "carrying_survivor": true,
+        "inside_terror_radius": true,
+        "survivor_injured": true,
+        "outside_terror_radius": false
       },
       "perkStates": {}
     },
     "calculatedData": {
       "affectedStats": [
-        {
-          "key": "killer.speed",
-          "label": "Vitesse du tueur",
-          "base": 3.8,
-          "final": 4.18,
-          "delta": 0.38,
-          "deltaPercent": 10,
-          "unit": "m/s",
-          "effects": [
-            {
-              "perk": "rejeton de l'ombre",
-              "operation": "multiply",
-              "value": 1.1,
-              "unit": "multiplier",
-              "before": 3.8,
-              "after": 4.18,
-              "condition": [
-                "Condition remplie : after_blind"
-              ],
-              "status": "active"
-            }
-          ]
-        },
         {
           "key": "generator.damage_time",
           "label": "Endommagement d’un générateur",
@@ -163,6 +184,52 @@
               "after": 1.5,
               "condition": [
                 "Aucune condition requise"
+              ],
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "key": "generator.skill_check_chance",
+          "label": "Probabilité de test sur générateur",
+          "base": 8,
+          "final": 18,
+          "delta": 10,
+          "deltaPercent": 125,
+          "unit": "%/s",
+          "effects": [
+            {
+              "perk": "présence perturbante",
+              "operation": "add",
+              "value": 10,
+              "unit": "percentage_points",
+              "before": 8,
+              "after": 18,
+              "condition": [
+                "Condition remplie : inside_terror_radius"
+              ],
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "key": "generator.skill_check_good_zone",
+          "label": "Zone Bon sur générateur",
+          "base": 13,
+          "final": 5.2,
+          "delta": -7.8,
+          "deltaPercent": -60,
+          "unit": "% du cadran",
+          "effects": [
+            {
+              "perk": "présence perturbante",
+              "operation": "multiply",
+              "value": 0.4,
+              "unit": "multiplier",
+              "before": 13,
+              "after": 5.2,
+              "condition": [
+                "Condition remplie : inside_terror_radius"
               ],
               "status": "active"
             }
@@ -238,12 +305,35 @@
           ]
         },
         {
+          "key": "healing.skill_check_good_zone",
+          "label": "Zone Bon pendant un soin",
+          "base": 15,
+          "final": 6,
+          "delta": -9,
+          "deltaPercent": -60,
+          "unit": "% du cadran",
+          "effects": [
+            {
+              "perk": "présence perturbante",
+              "operation": "multiply",
+              "value": 0.4,
+              "unit": "multiplier",
+              "before": 15,
+              "after": 6,
+              "condition": [
+                "Condition remplie : inside_terror_radius"
+              ],
+              "status": "active"
+            }
+          ]
+        },
+        {
           "key": "killer.terror_radius",
           "label": "Rayon de terreur",
-          "base": 32,
-          "final": 44,
+          "base": 40,
+          "final": 52,
           "delta": 12,
-          "deltaPercent": 37.5,
+          "deltaPercent": 30,
           "unit": "m",
           "effects": [
             {
@@ -251,8 +341,8 @@
               "operation": "add",
               "value": 12,
               "unit": "meters",
-              "before": 32,
-              "after": 44,
+              "before": 40,
+              "after": 52,
               "condition": [
                 "Condition remplie : carrying_survivor"
               ],
@@ -262,7 +352,13 @@
         }
       ],
       "qualitativeEffects": [],
-      "unresolvedEffects": []
+      "unresolvedEffects": [
+        {
+          "perk": "limier",
+          "stat": "tracking.blood_pool_lifetime",
+          "reason": "Valeur de base non vérifiée dans statistiques_fixe.txt"
+        }
+      ]
     }
   }
 }

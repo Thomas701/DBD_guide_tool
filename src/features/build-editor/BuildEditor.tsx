@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { perkIconUrl } from "../../app/assets.js";
 import { MAX_BUILD_PERKS } from "../../domain/build.js";
 import type { Perk } from "../../domain/perk.js";
@@ -15,7 +17,12 @@ interface BuildEditorProps {
 }
 
 export function BuildEditor({ perks, selectedPerkId, onRemove, onBrowse, scenario, onConditionChange, onPerkStateChange }: BuildEditorProps) {
+  const [openConditions, setOpenConditions] = useState<Record<string, boolean>>({});
   const slots = Array.from({ length: MAX_BUILD_PERKS }, (_, index) => perks[index] ?? null);
+
+  function toggleConditions(perkId: string): void {
+    setOpenConditions((current) => ({ ...current, [perkId]: !current[perkId] }));
+  }
 
   return (
     <div className="build-editor compact-build-editor">
@@ -30,6 +37,7 @@ export function BuildEditor({ perks, selectedPerkId, onRemove, onBrowse, scenari
 
           const hasConditions = collectBuildConditions([perk]).length > 0 || perkNeedsRuntimeState(perk);
           const name = perk.name.fr ?? perk.name.en ?? perk.id;
+          const conditionsOpen = openConditions[perk.id] === true;
           const content = <>
             <span className="perk-icon build-icon">
               {perkIconUrl(perk) ? <img src={perkIconUrl(perk) ?? ""} alt="" /> : <span className="image-placeholder" aria-hidden="true">?</span>}
@@ -51,10 +59,20 @@ export function BuildEditor({ perks, selectedPerkId, onRemove, onBrowse, scenari
                 {content}
               </button>
               {hasConditions && (
-                <details className="perk-condition-details">
-                  <summary aria-label={`Afficher les conditions de ${name}`}><span className="perk-slot-chevron" aria-hidden="true" /></summary>
-                  <PerkConditions perk={perk} scenario={scenario} onConditionChange={onConditionChange} onPerkStateChange={onPerkStateChange} />
-                </details>
+                <>
+                  <button
+                    className="perk-condition-toggle"
+                    type="button"
+                    aria-label={`Afficher les conditions de ${name}`}
+                    aria-expanded={conditionsOpen}
+                    onClick={() => toggleConditions(perk.id)}
+                  >
+                    <span className="perk-slot-chevron" aria-hidden="true" />
+                  </button>
+                  <div className={`perk-condition-region${conditionsOpen ? " expanded" : ""}`} aria-hidden={!conditionsOpen}>
+                    <PerkConditions perk={perk} scenario={scenario} onConditionChange={onConditionChange} onPerkStateChange={onPerkStateChange} />
+                  </div>
+                </>
               )}
               <button className="perk-slot-remove" type="button" onClick={() => onRemove(perk.id)} aria-label={`Retirer ${name}`}>×</button>
             </article>

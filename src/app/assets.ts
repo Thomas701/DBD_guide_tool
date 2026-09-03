@@ -26,11 +26,18 @@ const conditionBackgroundModules = import.meta.glob(
   { eager: true, query: "?url", import: "default" }
 ) as Record<string, string>;
 
+const logoModules = import.meta.glob(
+  "../../DBDImages-main/DBDImages-main/images/logo/*.png",
+  { eager: true, query: "?url", import: "default" }
+) as Record<string, string>;
+
 const perkImages = byFileName(perkModules);
 const portraitImages = byFileName(portraitModules);
 const killerPropertyImages = byFileName(killerPropertyModules);
 const killerConditionImages = byFileName(killerConditionModules);
+const logoImages = byFileName(logoModules);
 export const conditionIconBackgroundUrl = Object.values(conditionBackgroundModules)[0] ?? null;
+export const appLogoUrl = logoImages.get("logo_dbd_build_analyser.png") ?? Object.values(logoModules)[0] ?? null;
 
 const conditionImageNames: Record<string, string> = {
   not_in_chase: "stop_chase.png",

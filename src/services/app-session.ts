@@ -4,6 +4,8 @@ export const APP_SESSION_STORAGE_KEY = "dbd-build-tool.current-session";
 
 export type AppView = "build" | "killers" | "perks";
 
+type CatalogScrollPositions = Record<"killers" | "perks", number>;
+
 export interface AppSession {
   activeView: AppView;
   selectedKillerId: string | null;
@@ -15,6 +17,7 @@ export interface AppSession {
   scenario: BuildScenario;
   paneLayout: { left: number; right: number; center: number };
   sidebarLayout: { killer: number; perks: number; rightTop: number };
+  catalogScrollPositions: CatalogScrollPositions;
 }
 
 export const DEFAULT_APP_SESSION: AppSession = {
@@ -27,7 +30,8 @@ export const DEFAULT_APP_SESSION: AppSession = {
   conversationKey: "empty-build",
   scenario: { conditions: { not_in_chase: true }, perkStates: {} },
   paneLayout: { left: 19, right: 25, center: 52 },
-  sidebarLayout: { killer: 198, perks: 286, rightTop: 276 }
+  sidebarLayout: { killer: 198, perks: 286, rightTop: 276 },
+  catalogScrollPositions: { killers: 0, perks: 0 }
 };
 
 export function readAppSession(raw: string | null, knownKillerIds: ReadonlySet<string>, knownPerkIds: ReadonlySet<string>): AppSession {
@@ -49,7 +53,8 @@ export function readAppSession(raw: string | null, knownKillerIds: ReadonlySet<s
       conversationKey: typeof value.conversationKey === "string" && value.conversationKey ? value.conversationKey : "empty-build",
       scenario: readScenario(value.scenario),
       paneLayout: readNumberLayout(value.paneLayout, DEFAULT_APP_SESSION.paneLayout),
-      sidebarLayout: readNumberLayout(value.sidebarLayout, DEFAULT_APP_SESSION.sidebarLayout)
+      sidebarLayout: readNumberLayout(value.sidebarLayout, DEFAULT_APP_SESSION.sidebarLayout),
+      catalogScrollPositions: readNumberLayout(value.catalogScrollPositions, DEFAULT_APP_SESSION.catalogScrollPositions)
     };
   } catch {
     return cloneDefault();
@@ -98,6 +103,7 @@ function cloneDefault(): AppSession {
     equippedPerkIds: [],
     scenario: { conditions: { ...DEFAULT_APP_SESSION.scenario.conditions }, perkStates: {} },
     paneLayout: { ...DEFAULT_APP_SESSION.paneLayout },
-    sidebarLayout: { ...DEFAULT_APP_SESSION.sidebarLayout }
+    sidebarLayout: { ...DEFAULT_APP_SESSION.sidebarLayout },
+    catalogScrollPositions: { ...DEFAULT_APP_SESSION.catalogScrollPositions }
   };
 }

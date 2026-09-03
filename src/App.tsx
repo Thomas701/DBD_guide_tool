@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
 
+import { appLogoUrl } from "./app/assets.js";
 import { killers, perks } from "./app/catalog.js";
 import { MAX_BUILD_PERKS, type Build } from "./domain/build.js";
 import type { PerkCategory } from "./domain/category.js";
@@ -34,6 +35,7 @@ import { createCurrentBuildExport, syncCurrentBuildFile, updateNativePerk } from
 
 type TopbarMenu = "help" | "settings" | null;
 type InstallState = "available" | "unsupported" | "installed";
+type CatalogView = Extract<AppView, "killers" | "perks">;
 const DEFAULT_PANE_LAYOUT = DEFAULT_APP_SESSION.paneLayout;
 const DEFAULT_ASSISTANT_SERVER = import.meta.env.VITE_ASSISTANT_SERVER_URL
   ?? import.meta.env.VITE_OPENAI_ASSISTANT_ENDPOINT
@@ -70,6 +72,10 @@ export default function App() {
   const [installPromptEvent, setInstallPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstallingApp, setIsInstallingApp] = useState(false);
   const workspaceRef = useRef<HTMLElement>(null);
+  const killerCatalogRef = useRef<HTMLElement>(null);
+  const perkCatalogRef = useRef<HTMLElement>(null);
+  const previousViewRef = useRef<AppView | null>(null);
+  const catalogScrollPositionsRef = useRef({ ...initialSession.catalogScrollPositions });
   const buildRepository = repositoryState.repository;
   const descriptionOverrideRepository = descriptionRepositoryState.repository;
   const categoryOverrideRepository = categoryRepositoryState.repository;
@@ -100,11 +106,37 @@ export default function App() {
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
-      const session: AppSession = { activeView, selectedKillerId, selectedPerkId, equippedPerkIds, activeBuildId, buildName, conversationKey, scenario, paneLayout, sidebarLayout };
+      const session: AppSession = {
+        activeView,
+        selectedKillerId,
+        selectedPerkId,
+        equippedPerkIds,
+        activeBuildId,
+        buildName,
+        conversationKey,
+        scenario,
+        paneLayout,
+        sidebarLayout,
+        catalogScrollPositions: { ...catalogScrollPositionsRef.current }
+      };
       try { window.localStorage.setItem(APP_SESSION_STORAGE_KEY, JSON.stringify(session)); } catch { /* Reprise indisponible si le navigateur bloque le stockage. */ }
     }, 120);
     return () => window.clearTimeout(timeout);
   }, [activeView, selectedKillerId, selectedPerkId, equippedPerkIds, activeBuildId, buildName, conversationKey, scenario, paneLayout, sidebarLayout]);
+
+  useEffect(() => {
+    const previousView = previousViewRef.current;
+    previousViewRef.current = activeView;
+    if (previousView === activeView && previousView !== null) return;
+    if (activeView === "killers") {
+      const frame = window.requestAnimationFrame(() => restoreCatalogScroll("killers"));
+      return () => window.cancelAnimationFrame(frame);
+    }
+    if (activeView === "perks" && selectedPerkId === null) {
+      const frame = window.requestAnimationFrame(() => restoreCatalogScroll("perks"));
+      return () => window.cancelAnimationFrame(frame);
+    }
+  }, [activeView, selectedPerkId]);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -195,17 +227,23 @@ export default function App() {
   }, []);
 
   function selectKiller(killer: Killer): void {
-    if (killer.id !== selectedKillerId) {
-      setSelectedKillerId(killer.id);
-      if (!buildName) setBuildName(defaultBuildName(killer));
-      setRepositoryMessage(null);
-    }
-    setActiveView("killers");
+    runUiTransition(() => {
+      if (killer.id !== selectedKillerId) {
+        setSelectedKillerId(killer.id);
+        if (!buildName) setBuildName(defaultBuildName(killer));
+        setRepositoryMessage(null);
+      }
+      setActiveView("killers");
+      setTopbarMenu(null);
+    });
   }
 
   function removeKiller(): void {
-    setSelectedKillerId(null);
-    setActiveView("killers");
+    runUiTransition(() => {
+      setSelectedKillerId(null);
+      setActiveView("killers");
+      setTopbarMenu(null);
+    });
   }
 
   function refreshSavedBuilds(): void {
@@ -376,14 +414,42 @@ export default function App() {
   }
 
   function browsePerk(perkId: string | null): void {
-    if (perkId === null) {
-      setSelectedPerkId(null);
-      setActiveView("perks");
-      return;
-    }
+    runUiTransition(() => {
+      if (perkId === null) {
+        setSelectedPerkId(null);
+        setActiveView("perks");
+        setTopbarMenu(null);
+        return;
+      }
 
-    setSelectedPerkId((current) => current === perkId ? null : perkId);
-    if (activeView !== "build") setActiveView("perks");
+      setSelectedPerkId((current) => current === perkId ? null : perkId);
+      if (activeView !== "build") {
+        setActiveView("perks");
+        setTopbarMenu(null);
+      }
+    });
+  }
+
+  function showView(view: AppView): void {
+    runUiTransition(() => {
+      setActiveView(view);
+      setTopbarMenu(null);
+    });
+  }
+
+  function selectPerk(perkId: string | null): void {
+    runUiTransition(() => {
+      setSelectedPerkId(perkId);
+    });
+  }
+
+  function rememberCatalogScroll(view: CatalogView, scrollTop: number): void {
+    catalogScrollPositionsRef.current[view] = scrollTop;
+  }
+
+  function restoreCatalogScroll(view: CatalogView): void {
+    const panel = view === "killers" ? killerCatalogRef.current : perkCatalogRef.current;
+    panel?.scrollTo({ top: catalogScrollPositionsRef.current[view], behavior: "auto" });
   }
 
   function resizeColumn(pane: "left" | "right", delta: number): void {
@@ -431,7 +497,7 @@ export default function App() {
         canInstallApplication={canInstallApplication}
         isInstallingApplication={isInstallingApp}
         onInstallApplication={() => { void installApplication(); }}
-        onViewChange={(view) => { setActiveView(view); setTopbarMenu(null); }}
+        onViewChange={showView}
         onMenuChange={setTopbarMenu}
         onResetScenario={() => setScenario(emptyScenario())}
       />
@@ -439,8 +505,10 @@ export default function App() {
       <main className={`analyzer-workspace view-${activeView}`} ref={workspaceRef} style={workspaceStyle}>
         <aside className="analyzer-sidebar left-sidebar">
           <section className="analyzer-panel selected-loadout-panel" aria-label="Tueur et perks sélectionnés">
-            <SelectedKillerCard killer={selectedKiller} onChange={() => setActiveView("killers")} onRemove={removeKiller} />
-            <BuildEditor perks={equippedPerks} selectedPerkId={selectedPerkId} onRemove={togglePerk} onBrowse={browsePerk} scenario={scenario} onConditionChange={setScenarioCondition} onPerkStateChange={setPerkRuntimeState} />
+            <SelectedKillerCard killer={selectedKiller} onChange={() => showView("killers")} onRemove={removeKiller} />
+            <div className="build-editor-scroll-region">
+              <BuildEditor perks={equippedPerks} selectedPerkId={selectedPerkId} onRemove={togglePerk} onBrowse={browsePerk} scenario={scenario} onConditionChange={setScenarioCondition} onPerkStateChange={setPerkRuntimeState} />
+            </div>
           </section>
         </aside>
 
@@ -451,7 +519,7 @@ export default function App() {
             <>
               {selectedKiller && calculation
                 ? <BuildAnalyzer calculation={calculation} perks={equippedPerks} />
-                : <EmptyCenterPanel title="Impact Analysis" action="Choisir un tueur" onAction={() => setActiveView("killers")}>Sélectionnez un tueur pour commencer l’analyse.</EmptyCenterPanel>}
+                : <EmptyCenterPanel title="Impact Analysis" action="Choisir un tueur" onAction={() => showView("killers")}>Sélectionnez un tueur pour commencer l’analyse.</EmptyCenterPanel>}
               <ResizeHandle orientation="horizontal" label="Redimensionner l’analyse et l’assistant" onDelta={resizeCenter} onReset={() => setPaneLayout(DEFAULT_PANE_LAYOUT)} />
               {selectedKiller && calculation
                 ? <BuildAssistant conversationKey={conversationKey} killer={selectedKiller} perks={equippedPerks} scenario={scenario} calculation={calculation} currentBuild={currentBuildExport} />
@@ -460,13 +528,21 @@ export default function App() {
           )}
 
           {activeView === "killers" && (
-            <section className="analyzer-panel impact-analysis workspace-catalog-panel killers-workspace-panel">
+            <section
+              className="analyzer-panel impact-analysis workspace-catalog-panel killers-workspace-panel"
+              ref={killerCatalogRef}
+              onScroll={(event) => rememberCatalogScroll("killers", event.currentTarget.scrollTop)}
+            >
               <KillerSelector killers={killers} selectedKillerId={selectedKillerId} onSelect={selectKiller} />
             </section>
           )}
 
           {activeView === "perks" && (
-            <section className="analyzer-panel impact-analysis workspace-catalog-panel perks-workspace-panel">
+            <section
+              className="analyzer-panel impact-analysis workspace-catalog-panel perks-workspace-panel"
+              ref={perkCatalogRef}
+              onScroll={(event) => rememberCatalogScroll("perks", event.currentTarget.scrollTop)}
+            >
               {!selectedKiller && <p className="catalog-notice">Sélectionnez un tueur avant d’ajouter des perks au build.</p>}
               <PerkBrowser
                 perks={effectivePerks}
@@ -475,7 +551,7 @@ export default function App() {
                 canEquip={selectedKiller !== null}
                 selectedPerkId={selectedPerkId}
                 scrollToPerkId={selectedPerkId}
-                onSelectPerk={setSelectedPerkId}
+                onSelectPerk={selectPerk}
                 onTogglePerk={togglePerk}
               />
             </section>
@@ -495,7 +571,7 @@ export default function App() {
               canEquip={selectedKiller !== null}
               isEquipped={equippedPerkIds.includes(selectedPerk.id)}
               buildIsFull={equippedPerkIds.length >= MAX_BUILD_PERKS}
-              onClose={() => setSelectedPerkId(null)}
+              onClose={() => selectPerk(null)}
               onResetDescriptionOverride={resetDescriptionOverride}
               onSaveDescriptionOverride={saveDescriptionOverride}
               onSaveNativeDescription={(perkId, html) => saveNativePerkChanges(perkId, { descriptionHtml: html })}
@@ -637,7 +713,9 @@ function Topbar({
   return (
     <header className="site-header analyzer-topbar">
       <button className="brand" type="button" onClick={() => onViewChange("build")}>
-        <span className="brand-mark" aria-hidden="true">Ⅳ</span>
+        <span className="brand-mark" aria-hidden="true">
+          {appLogoUrl ? <img className="brand-logo" src={appLogoUrl} alt="" /> : <span className="brand-mark-text">Ⅳ</span>}
+        </span>
         <span>Build Analyzer</span>
       </button>
       <nav className="main-navigation" aria-label="Navigation principale">
@@ -809,6 +887,19 @@ function currentAssistantServerUrl(): string {
 
 function detectInstallState(): InstallState {
   return isStandaloneApp() ? "installed" : "unsupported";
+}
+
+function runUiTransition(update: () => void): void {
+  const documentWithTransitions = document as Document & {
+    startViewTransition?: (callback: () => void) => { finished: Promise<void> };
+  };
+  if (typeof documentWithTransitions.startViewTransition === "function") {
+    documentWithTransitions.startViewTransition(() => {
+      update();
+    });
+    return;
+  }
+  update();
 }
 
 function isStandaloneApp(): boolean {

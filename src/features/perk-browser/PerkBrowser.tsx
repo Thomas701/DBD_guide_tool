@@ -58,7 +58,7 @@ export function PerkBrowser({
     }
     const frame = window.requestAnimationFrame(() => {
       document.querySelector<HTMLElement>(`[data-perk-id="${CSS.escape(scrollToPerkId)}"]`)
-        ?.scrollIntoView({ behavior: "auto", block: "center" });
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
     });
     return () => window.cancelAnimationFrame(frame);
   }, [scrollToPerkId, visiblePerks]);
@@ -108,7 +108,7 @@ export function PerkBrowser({
       </div>
 
       <div className={`library-layout${filtersVisible ? "" : " filters-collapsed"}`}>
-        {filtersVisible && <aside className="filter-panel" aria-label="Filtres des perks">
+        <aside className={`filter-panel${filtersVisible ? "" : " is-hidden"}`} aria-label="Filtres des perks" aria-hidden={!filtersVisible}>
           <div className="filter-title">
             <h3>Filtres</h3>
             <button className="text-button" type="button" onClick={resetFilters}>Réinitialiser</button>
@@ -204,7 +204,7 @@ export function PerkBrowser({
               <option value="without">Sans cooldown</option>
             </select>
           </label>
-        </aside>}
+        </aside>
 
         <div className="perk-results">
           {visiblePerks.length > 0 ? (

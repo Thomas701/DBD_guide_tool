@@ -78,6 +78,19 @@ export function PerkInspectorPanel({
     setIsEditingCategories((current) => !current);
   }
 
+  function runPanelTransition(update: () => void): void {
+    const documentWithTransitions = document as Document & {
+      startViewTransition?: (callback: () => void) => { finished: Promise<void> };
+    };
+    if (typeof documentWithTransitions.startViewTransition === "function") {
+      documentWithTransitions.startViewTransition(() => {
+        update();
+      });
+      return;
+    }
+    update();
+  }
+
   function toggleDraftCategory(category: PerkCategory, checked: boolean): void {
     setDraftCategories((current) => checked
       ? [...current, category]
@@ -176,7 +189,7 @@ export function PerkInspectorPanel({
           <button
             className={`manager-icon-button description-edit-button${isEditingDescription ? " active" : ""}`}
             type="button"
-            onClick={() => setIsEditingDescription((current) => !current)}
+            onClick={() => runPanelTransition(() => setIsEditingDescription((current) => !current))}
             aria-label={isEditingDescription ? "Fermer l’éditeur de description" : "Modifier la description"}
             title={isEditingDescription ? "Fermer l’éditeur" : "Modifier la description"}
           >
@@ -192,21 +205,23 @@ export function PerkInspectorPanel({
       </div>
 
       {isEditingDescription ? (
-        <div className="inspector-editor-stack">
+        <div className="inspector-editor-stack description-surface description-surface-editor">
           <EditModeToggle mode={editMode} onChange={changeEditMode} />
           <RichDescriptionEditor
             description={selectedDescription}
             initialHtml={editMode === "native" ? nativeDescriptionHtml : descriptionOverride ?? nativeDescriptionHtml}
-            onCancel={() => setIsEditingDescription(false)}
+            onCancel={() => runPanelTransition(() => setIsEditingDescription(false))}
             onSave={async (html) => {
               if (editMode === "native") await onSaveNativeDescription(perk.id, html);
               else onSaveDescriptionOverride(perk.id, html);
-              setIsEditingDescription(false);
+              runPanelTransition(() => setIsEditingDescription(false));
             }}
           />
         </div>
       ) : (
-        <RichDescription description={selectedDescription} editableHtml={displayedDescriptionHtml} />
+        <div className="description-surface description-surface-preview">
+          <RichDescription description={selectedDescription} editableHtml={displayedDescriptionHtml} />
+        </div>
       )}
     </section>
   );

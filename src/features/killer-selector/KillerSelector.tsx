@@ -47,7 +47,7 @@ export function KillerSelector({ killers, selectedKillerId, onSelect }: KillerSe
         </div>
       </div>
 
-      {filtersVisible && <section className="toolbar" aria-label="Recherche et tri des tueurs">
+      <section className={`toolbar catalog-filter-toolbar${filtersVisible ? "" : " filters-hidden"}`} aria-label="Recherche et tri des tueurs" aria-hidden={!filtersVisible}>
         <label className="field search-field">
           <span>Rechercher</span>
           <input
@@ -90,9 +90,9 @@ export function KillerSelector({ killers, selectedKillerId, onSelect }: KillerSe
           aria-pressed={listView}
           onClick={() => setListView((current) => !current)}
         >
-          {listView ? "Vue en blocs" : "Vue en liste"}
+          {listView ? "Vue en liste" : "Vue en blocs"}
         </button>
-      </section>}
+      </section>
 
       {visibleKillers.length > 0 ? (
         <section className={`killer-grid${listView ? " killer-list" : ""}`} aria-label="Liste des tueurs">
