@@ -2,7 +2,9 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type Keyboard
 
 import { killers, perks } from "./app/catalog.js";
 import { MAX_BUILD_PERKS, type Build } from "./domain/build.js";
+import type { PerkCategory } from "./domain/category.js";
 import type { Killer } from "./domain/killer.js";
+import type { Perk } from "./domain/perk.js";
 import { BuildAnalyzer } from "./features/build-analyzer/BuildAnalyzer.js";
 import { BuildConditions } from "./features/build-analyzer/BuildConditions.js";
 import { BuildAssistant } from "./features/build-assistant/BuildAssistant.js";
@@ -14,7 +16,9 @@ import { PerkInspectorPanel } from "./features/perk-browser/PerkInspectorPanel.j
 import { PerkBrowser } from "./features/perk-browser/PerkBrowser.js";
 import { SavedBuilds } from "./features/saved-builds/SavedBuilds.js";
 import {
+  CATEGORY_OVERRIDES_STORAGE_KEY,
   DESCRIPTION_OVERRIDES_STORAGE_KEY,
+  LocalCategoryOverrideRepository,
   LocalDescriptionOverrideRepository
 } from "./services/description-overrides.js";
 import { BUILDS_STORAGE_KEY, LocalBuildRepository } from "./services/build-repository.js";
@@ -27,7 +31,7 @@ import {
   type BuildScenario,
   type PerkRuntimeState
 } from "./services/build-calculator.js";
-import { createCurrentBuildExport, syncCurrentBuildFile } from "./services/local-data.js";
+import { createCurrentBuildExport, syncCurrentBuildFile, updateNativePerk } from "./services/local-data.js";
 
 type TopbarMenu = "help" | "settings" | null;
 const DEFAULT_PANE_LAYOUT = DEFAULT_APP_SESSION.paneLayout;
@@ -46,9 +50,12 @@ export default function App() {
   const [activeBuildId, setActiveBuildId] = useState<string | null>(initialSession.activeBuildId);
   const [buildName, setBuildName] = useState(initialSession.buildName);
   const [conversationKey, setConversationKey] = useState(initialSession.conversationKey);
+  const [catalogPerks, setCatalogPerks] = useState<Perk[]>(() => perks);
   const [savedBuilds, setSavedBuilds] = useState<Build[]>([]);
   const [descriptionRepositoryState] = useState(createDescriptionOverrideRepository);
   const [descriptionOverrides, setDescriptionOverrides] = useState<Record<string, string>>(descriptionRepositoryState.overrides);
+  const [categoryRepositoryState] = useState(createCategoryOverrideRepository);
+  const [categoryOverrides, setCategoryOverrides] = useState<Record<string, PerkCategory[]>>(categoryRepositoryState.overrides);
   const [repositoryState] = useState(createBuildRepository);
   const [repositoryMessage, setRepositoryMessage] = useState<string | null>(null);
   const [canResetStorage, setCanResetStorage] = useState(false);
@@ -58,13 +65,19 @@ export default function App() {
   const workspaceRef = useRef<HTMLElement>(null);
   const buildRepository = repositoryState.repository;
   const descriptionOverrideRepository = descriptionRepositoryState.repository;
+  const categoryOverrideRepository = categoryRepositoryState.repository;
+  const effectivePerks = useMemo(() => catalogPerks.map((perk) => Object.hasOwn(categoryOverrides, perk.id)
+    ? { ...perk, categories: categoryOverrides[perk.id] ?? [] }
+    : perk
+  ), [catalogPerks, categoryOverrides]);
   const selectedKiller = selectedKillerId ? killers.find((killer) => killer.id === selectedKillerId) ?? null : null;
-  const selectedPerk = selectedPerkId ? perks.find((perk) => perk.id === selectedPerkId) ?? null : null;
+  const selectedNativePerk = selectedPerkId ? catalogPerks.find((perk) => perk.id === selectedPerkId) ?? null : null;
+  const selectedPerk = selectedPerkId ? effectivePerks.find((perk) => perk.id === selectedPerkId) ?? null : null;
   const selectedPerkOwner = selectedPerk?.characterId ? killers.find((killer) => killer.id === selectedPerk.characterId) ?? null : null;
   const equippedPerks = useMemo(() => equippedPerkIds.flatMap((id) => {
-    const perk = perks.find((candidate) => candidate.id === id);
+    const perk = effectivePerks.find((candidate) => candidate.id === id);
     return perk ? [perk] : [];
-  }), [equippedPerkIds]);
+  }), [equippedPerkIds, effectivePerks]);
   const calculation = useMemo(
     () => selectedKiller ? calculateBuild({ killer: selectedKiller, perks: equippedPerks, scenario }) : null,
     [selectedKiller, equippedPerks, scenario]
@@ -114,13 +127,20 @@ export default function App() {
         setDescriptionOverrides(descriptionOverrideRepository.list());
       }
     };
+    const syncCategoryOverrides = (event: StorageEvent): void => {
+      if (event.key === CATEGORY_OVERRIDES_STORAGE_KEY || event.key === null) {
+        setCategoryOverrides(categoryOverrideRepository.list());
+      }
+    };
     window.addEventListener("storage", syncBuilds);
     window.addEventListener("storage", syncDescriptionOverrides);
+    window.addEventListener("storage", syncCategoryOverrides);
     return () => {
       window.removeEventListener("storage", syncBuilds);
       window.removeEventListener("storage", syncDescriptionOverrides);
+      window.removeEventListener("storage", syncCategoryOverrides);
     };
-  }, [buildRepository, descriptionOverrideRepository]);
+  }, [buildRepository, categoryOverrideRepository, descriptionOverrideRepository]);
 
   const defaultName = selectedKiller ? defaultBuildName(selectedKiller) : "";
   const activeSavedBuild = activeBuildId ? savedBuilds.find((build) => build.id === activeBuildId) ?? null : null;
@@ -130,17 +150,27 @@ export default function App() {
     .filter((message): message is string => message !== null)
     .join(" ") || null;
 
+  useEffect(() => {
+    const handleSaveShortcut = (event: globalThis.KeyboardEvent): void => {
+      if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== "s") return;
+      event.preventDefault();
+      saveBuild();
+    };
+    window.addEventListener("keydown", handleSaveShortcut);
+    return () => window.removeEventListener("keydown", handleSaveShortcut);
+  }, [activeBuildId, buildName, conversationKey, equippedPerkIds, selectedKiller, repositoryState.persistent]);
+
   function selectKiller(killer: Killer): void {
     if (killer.id !== selectedKillerId) {
       setSelectedKillerId(killer.id);
-      setSelectedPerkId(null);
-      setEquippedPerkIds([]);
-      setActiveBuildId(null);
-      setBuildName(defaultBuildName(killer));
+      if (!buildName) setBuildName(defaultBuildName(killer));
       setRepositoryMessage(null);
-      setScenario(emptyScenario());
-      setConversationKey(newConversationKey("draft"));
     }
+    setActiveView("killers");
+  }
+
+  function removeKiller(): void {
+    setSelectedKillerId(null);
     setActiveView("killers");
   }
 
@@ -203,7 +233,7 @@ export default function App() {
       setRepositoryMessage(`Impossible de charger « ${build.name} » : tueur absent du catalogue.`);
       return;
     }
-    const knownPerkIds = build.perkIds.filter((id) => perks.some((perk) => perk.id === id));
+    const knownPerkIds = build.perkIds.filter((id) => catalogPerks.some((perk) => perk.id === id));
     const missingPerkCount = build.perkIds.length - knownPerkIds.length;
     setSelectedKillerId(killer.id);
     setEquippedPerkIds(knownPerkIds);
@@ -292,6 +322,30 @@ export default function App() {
     setDescriptionOverrides(descriptionOverrideRepository.delete(perkId));
   }
 
+  function saveCategoryOverride(perkId: string, categories: readonly PerkCategory[]): void {
+    setCategoryOverrides(categoryOverrideRepository.update(perkId, categories));
+  }
+
+  function resetCategoryOverride(perkId: string): void {
+    setCategoryOverrides(categoryOverrideRepository.delete(perkId));
+  }
+
+  async function saveNativePerkChanges(perkId: string, changes: { descriptionHtml?: string; categories?: readonly PerkCategory[] }): Promise<void> {
+    try {
+      const updated = await updateNativePerk(currentAssistantServerUrl(), perkId, changes);
+      setCatalogPerks((current) => current.map((perk) => perk.id === updated.id ? updated : perk));
+      setRepositoryMessage("Source native de la perk mise à jour.");
+    } catch (error) {
+      setRepositoryMessage(errorMessage(error));
+      throw error;
+    }
+  }
+
+  function browsePerk(perkId: string | null): void {
+    setSelectedPerkId(perkId);
+    setActiveView("perks");
+  }
+
   function resizeColumn(pane: "left" | "right", delta: number): void {
     const width = workspaceRef.current?.clientWidth ?? 1;
     const change = delta / width * 100;
@@ -333,10 +387,11 @@ export default function App() {
 
       <main className={`analyzer-workspace view-${activeView}`} ref={workspaceRef} style={workspaceStyle}>
         <aside className="analyzer-sidebar left-sidebar">
-          <SelectedKillerCard killer={selectedKiller} onChange={() => setActiveView("killers")} />
-          <ResizeHandle orientation="horizontal" label="Redimensionner le tueur sélectionné et les perks" onDelta={(delta) => resizeSidebar("killer", delta)} onReset={() => setSidebarLayout(DEFAULT_SIDEBAR_LAYOUT)} />
-          <BuildEditor perks={equippedPerks} onRemove={togglePerk} onClear={() => setEquippedPerkIds([])} onBrowse={() => setActiveView("perks")} />
-          <ResizeHandle orientation="horizontal" label="Redimensionner les perks et les conditions" onDelta={(delta) => resizeSidebar("perks", delta)} onReset={() => setSidebarLayout(DEFAULT_SIDEBAR_LAYOUT)} />
+          <section className="analyzer-panel selected-loadout-panel" aria-label="Tueur et perks sélectionnés">
+            <SelectedKillerCard killer={selectedKiller} onChange={() => setActiveView("killers")} onRemove={removeKiller} />
+            <BuildEditor perks={equippedPerks} onRemove={togglePerk} onBrowse={browsePerk} />
+          </section>
+          <ResizeHandle orientation="horizontal" label="Redimensionner la sélection et les conditions" onDelta={(delta) => resizeSidebar("perks", delta)} onReset={() => setSidebarLayout(DEFAULT_SIDEBAR_LAYOUT)} />
           <BuildConditions perks={equippedPerks} scenario={scenario} onConditionChange={setScenarioCondition} onPerkStateChange={setPerkRuntimeState} onReset={() => setScenario(emptyScenario())} />
         </aside>
 
@@ -365,11 +420,12 @@ export default function App() {
             <section className="analyzer-panel impact-analysis workspace-catalog-panel perks-workspace-panel">
               {!selectedKiller && <p className="catalog-notice">Sélectionnez un tueur avant d’ajouter des perks au build.</p>}
               <PerkBrowser
-                perks={perks}
+                perks={effectivePerks}
                 killers={killers}
                 equippedPerkIds={equippedPerkIds}
                 canEquip={selectedKiller !== null}
                 selectedPerkId={selectedPerkId}
+                scrollToPerkId={selectedPerkId}
                 onSelectPerk={setSelectedPerkId}
                 onTogglePerk={togglePerk}
               />
@@ -385,12 +441,18 @@ export default function App() {
               perk={selectedPerk}
               owner={selectedPerkOwner}
               descriptionOverride={descriptionOverrides[selectedPerk.id] ?? null}
+              categoryOverride={Object.hasOwn(categoryOverrides, selectedPerk.id) ? categoryOverrides[selectedPerk.id] ?? [] : null}
+              nativeCategories={selectedNativePerk?.categories ?? selectedPerk.categories}
               canEquip={selectedKiller !== null}
               isEquipped={equippedPerkIds.includes(selectedPerk.id)}
               buildIsFull={equippedPerkIds.length >= MAX_BUILD_PERKS}
               onClose={() => setSelectedPerkId(null)}
               onResetDescriptionOverride={resetDescriptionOverride}
               onSaveDescriptionOverride={saveDescriptionOverride}
+              onSaveNativeDescription={(perkId, html) => saveNativePerkChanges(perkId, { descriptionHtml: html })}
+              onResetCategoryOverride={resetCategoryOverride}
+              onSaveCategoryOverride={saveCategoryOverride}
+              onSaveNativeCategories={(perkId, categories) => saveNativePerkChanges(perkId, { categories })}
               onTogglePerk={togglePerk}
             />
           ) : (
@@ -411,10 +473,12 @@ export default function App() {
               onResetStorage={resetStorage}
             />
           )}
-          <ResizeHandle orientation="horizontal" label="Redimensionner le panneau supérieur et le résumé" onDelta={(delta) => resizeSidebar("rightTop", delta)} onReset={() => setSidebarLayout(DEFAULT_SIDEBAR_LAYOUT)} />
-          {calculation
-            ? <BuildSummary calculation={calculation} perks={equippedPerks} scenario={scenario} />
-            : <section className="analyzer-panel build-summary"><div className="compact-section-heading"><div><span className="section-icon" aria-hidden="true">▤</span><h2>Build Summary</h2></div></div><p className="panel-empty">Aucun build à résumer.</p></section>}
+          {!(activeView === "perks" && selectedPerk) && <>
+            <ResizeHandle orientation="horizontal" label="Redimensionner le panneau supérieur et le résumé" onDelta={(delta) => resizeSidebar("rightTop", delta)} onReset={() => setSidebarLayout(DEFAULT_SIDEBAR_LAYOUT)} />
+            {calculation
+              ? <BuildSummary calculation={calculation} perks={equippedPerks} scenario={scenario} />
+              : <section className="analyzer-panel build-summary"><div className="compact-section-heading"><div><span className="section-icon" aria-hidden="true">▤</span><h2>Build Summary</h2></div></div><p className="panel-empty">Aucun build à résumer.</p></section>}
+          </>}
         </aside>
       </main>
     </div>
@@ -627,6 +691,16 @@ function createDescriptionOverrideRepository(): { repository: LocalDescriptionOv
     return { repository, overrides: repository.list() };
   } catch {
     const repository = new LocalDescriptionOverrideRepository(createMemoryStorage());
+    return { repository, overrides: {} };
+  }
+}
+
+function createCategoryOverrideRepository(): { repository: LocalCategoryOverrideRepository; overrides: Record<string, PerkCategory[]> } {
+  try {
+    const repository = new LocalCategoryOverrideRepository(window.localStorage);
+    return { repository, overrides: repository.list() };
+  } catch {
+    const repository = new LocalCategoryOverrideRepository(createMemoryStorage());
     return { repository, overrides: {} };
   }
 }

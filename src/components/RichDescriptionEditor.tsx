@@ -10,17 +10,17 @@ import {
 interface RichDescriptionEditorProps {
   description: RichDescriptionValue | null;
   initialHtml: string | null;
-  onSave: (html: string) => void;
+  onSave: (html: string) => void | Promise<void>;
   onCancel: () => void;
-  onReset?: () => void;
 }
 
-type EditorCommand = "bold" | "italic" | "underline" | "insertUnorderedList" | "removeFormat" | "foreColor";
+type EditorCommand = "bold" | "italic" | "underline" | "strikeThrough" | "insertUnorderedList" | "insertOrderedList" | "justifyLeft" | "justifyCenter" | "justifyRight" | "formatBlock" | "removeFormat" | "foreColor";
 
 interface ToolbarAction {
   label: string;
   shortLabel: string;
   command: Exclude<EditorCommand, "foreColor">;
+  value?: string;
 }
 
 type EditableDocument = Document & {
@@ -34,7 +34,13 @@ const TOOLBAR_ACTIONS: readonly ToolbarAction[] = [
   { label: "Gras", shortLabel: "B", command: "bold" },
   { label: "Italique", shortLabel: "I", command: "italic" },
   { label: "Souligner", shortLabel: "U", command: "underline" },
-  { label: "Liste", shortLabel: "Liste", command: "insertUnorderedList" },
+  { label: "Barrer", shortLabel: "S", command: "strikeThrough" },
+  { label: "Liste à puces", shortLabel: "• Liste", command: "insertUnorderedList" },
+  { label: "Liste numérotée", shortLabel: "1. Liste", command: "insertOrderedList" },
+  { label: "Aligner à gauche", shortLabel: "←", command: "justifyLeft" },
+  { label: "Centrer", shortLabel: "↔", command: "justifyCenter" },
+  { label: "Aligner à droite", shortLabel: "→", command: "justifyRight" },
+  { label: "Citation", shortLabel: "❝", command: "formatBlock", value: "blockquote" },
 ];
 
 const COLOR_PRESETS = [
@@ -53,10 +59,11 @@ export function RichDescriptionEditor({
   initialHtml,
   onSave,
   onCancel,
-  onReset,
 }: RichDescriptionEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const [draftHtml, setDraftHtml] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     const nextHtml = initialHtml?.trim()
@@ -64,6 +71,7 @@ export function RichDescriptionEditor({
       : richDescriptionToEditableHtml(description);
 
     setDraftHtml(nextHtml);
+    setSaveError(null);
     if (editorRef.current) editorRef.current.innerHTML = nextHtml;
   }, [description, initialHtml]);
 
@@ -97,14 +105,16 @@ export function RichDescriptionEditor({
     }
 
     const workingRange = range.cloneRange();
-    if (workingRange.collapsed) {
-      const inlineContainer = closestFormattingContainer(workingRange.startContainer, editor);
-      if (!inlineContainer) {
+    const startContainer = closestFormattingContainer(workingRange.startContainer, editor);
+    const endContainer = closestFormattingContainer(workingRange.endContainer, editor);
+    if (startContainer && (workingRange.collapsed || startContainer === endContainer)) {
+      workingRange.selectNode(startContainer);
+    } else if (workingRange.collapsed) {
+      if (!startContainer) {
         (document as EditableDocument).execCommand("removeFormat", false);
         syncDraft();
         return;
       }
-      workingRange.selectNodeContents(inlineContainer);
     }
 
     const fragment = workingRange.extractContents();
@@ -163,19 +173,25 @@ export function RichDescriptionEditor({
     syncDraft();
   }
 
-  function save(): void {
+  async function save(): Promise<void> {
     const nextHtml = sanitizeDescriptionHtml(editorRef.current?.innerHTML ?? draftHtml);
     if (!hasMeaningfulDescriptionContent(nextHtml)) return;
 
     if (editorRef.current) editorRef.current.innerHTML = nextHtml;
     setDraftHtml(nextHtml);
-    onSave(nextHtml);
+    setIsSaving(true);
+    setSaveError(null);
+    try {
+      await onSave(nextHtml);
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "Enregistrement impossible.");
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   return (
     <div className="description-editor">
-      <p className="description-editor-note">Les changements sont enregistrés localement sur cet appareil.</p>
-
       <div className="description-editor-toolbar" role="toolbar" aria-label="Outils de mise en forme de la description">
         {TOOLBAR_ACTIONS.map((action) => (
           <button
@@ -183,7 +199,7 @@ export function RichDescriptionEditor({
             key={action.command}
             type="button"
             onMouseDown={keepSelection}
-            onClick={() => applyCommand(action.command)}
+            onClick={() => applyCommand(action.command, action.value)}
             title={action.label}
             aria-label={action.label}
           >
@@ -236,22 +252,19 @@ export function RichDescriptionEditor({
         suppressContentEditableWarning
       />
 
+      {saveError && <p className="description-editor-error" role="alert">{saveError}</p>}
+
       <div className="description-editor-actions">
-        {onReset && (
-          <button className="text-button" type="button" onClick={onReset}>
-            Réinitialiser
-          </button>
-        )}
-        <button className="secondary-button compact-button" type="button" onClick={onCancel}>
+        <button className="secondary-button compact-button" type="button" onClick={onCancel} disabled={isSaving}>
           Annuler
         </button>
         <button
           className="primary-button compact-button"
           type="button"
-          disabled={!hasMeaningfulDescriptionContent(draftHtml)}
-          onClick={save}
+          disabled={isSaving || !hasMeaningfulDescriptionContent(draftHtml)}
+          onClick={() => void save()}
         >
-          Enregistrer
+          {isSaving ? "Enregistrement…" : "Enregistrer"}
         </button>
       </div>
     </div>

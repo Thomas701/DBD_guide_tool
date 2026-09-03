@@ -24,6 +24,8 @@ const TAG_RENAMES = new Map([
   ["DIV", "P"],
   ["FONT", "SPAN"],
   ["I", "EM"],
+  ["S", "SPAN"],
+  ["STRIKE", "SPAN"],
 ]);
 
 const ALLOWED_SPAN_CLASSES = new Set(["description-term", "description-value"]);
@@ -118,7 +120,11 @@ function sanitizeNode(node: ChildNode): Node[] {
   if (!ALLOWED_TAGS.has(tag)) return sanitizeNodes(Array.from(node.childNodes));
 
   const element = document.createElement(tag.toLowerCase());
-  if (tag === "SPAN") applySpanStyles(node, element as HTMLSpanElement);
+  if (tag === "SPAN") {
+    applySpanStyles(node, element as HTMLSpanElement);
+    if (originalTag === "S" || originalTag === "STRIKE") (element as HTMLSpanElement).style.textDecoration = "line-through";
+  }
+  if (tag === "BLOCKQUOTE" || tag === "P") applyBlockStyles(node, element as HTMLElement);
 
   element.append(...sanitizeNodes(Array.from(node.childNodes)));
 
@@ -153,7 +159,12 @@ function applySpanStyles(source: HTMLElement, target: HTMLSpanElement): void {
   if (source.style.fontStyle === "italic") target.style.fontStyle = "italic";
 
   const textDecoration = source.style.textDecorationLine || source.style.textDecoration;
-  if (textDecoration.includes("underline")) target.style.textDecoration = "underline";
+  const decorations = ["underline", "line-through"].filter((value) => textDecoration.includes(value));
+  if (decorations.length > 0) target.style.textDecoration = decorations.join(" ");
+}
+
+function applyBlockStyles(source: HTMLElement, target: HTMLElement): void {
+  if (["left", "center", "right"].includes(source.style.textAlign)) target.style.textAlign = source.style.textAlign;
 }
 
 function sanitizeCssColor(value: string): string | null {

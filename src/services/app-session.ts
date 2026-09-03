@@ -43,7 +43,7 @@ export function readAppSession(raw: string | null, knownKillerIds: ReadonlySet<s
       activeView: value.activeView === "killers" || value.activeView === "perks" ? value.activeView : "build",
       selectedKillerId: killerId,
       selectedPerkId: knownId(value.selectedPerkId, knownPerkIds),
-      equippedPerkIds: killerId ? equippedPerkIds : [],
+      equippedPerkIds,
       activeBuildId: nullableString(value.activeBuildId),
       buildName: typeof value.buildName === "string" ? value.buildName.slice(0, 80) : "",
       conversationKey: typeof value.conversationKey === "string" && value.conversationKey ? value.conversationKey : "empty-build",

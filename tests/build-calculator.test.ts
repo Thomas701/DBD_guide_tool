@@ -413,6 +413,15 @@ test("restaure une session locale en écartant les identifiants inconnus", () =>
   assert.equal(session.scenario.conditions.carrying_survivor, true);
 });
 
+test("conserve les perks d’une session même sans tueur sélectionné", () => {
+  const session = readAppSession(JSON.stringify({
+    selectedKillerId: null,
+    equippedPerkIds: ["agitation"]
+  }), new Set(["trapper"]), new Set(["agitation"]));
+
+  assert.deepEqual(session.equippedPerkIds, ["agitation"]);
+});
+
 function perk(id: string, effects: PerkEffect[]): Perk {
   return {
     id,

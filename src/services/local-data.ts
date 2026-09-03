@@ -1,5 +1,6 @@
 import type { Killer } from "../domain/killer.js";
 import type { Perk } from "../domain/perk.js";
+import type { PerkCategory } from "../domain/category.js";
 import type { BuildCalculation, BuildScenario } from "./build-calculator.js";
 import { buildAssistantContext, type AssistantBuildContext } from "./openai-build-assistant.js";
 import { normalizeServerUrl } from "./assistant-provider.js";
@@ -45,6 +46,21 @@ export async function syncCurrentBuildFile(serverUrl: string, currentBuild: Curr
   if (!response.ok) throw new Error(await responseError(response));
 }
 
+export async function updateNativePerk(
+  serverUrl: string,
+  perkId: string,
+  changes: { descriptionHtml?: string; categories?: readonly PerkCategory[] }
+): Promise<Perk> {
+  const response = await fetch(`${normalizeServerUrl(serverUrl)}/api/local-data/perk`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ perkId, changes })
+  });
+  const payload: unknown = await response.json().catch(() => null);
+  if (!response.ok || !isPerkResponse(payload)) throw new Error(isError(payload) ? payload.error : "Modification native indisponible.");
+  return payload.perk;
+}
+
 export async function createNativeChatCopy(serverUrl: string, question: string, currentBuild: CurrentBuildExport): Promise<{ text: string; characters: number }> {
   const response = await fetch(`${normalizeServerUrl(serverUrl)}/api/local-data/copy-prompt`, {
     method: "POST",
@@ -63,6 +79,11 @@ async function responseError(response: Response): Promise<string> {
 
 function isCopyResponse(value: unknown): value is { text: string; characters: number } {
   return typeof value === "object" && value !== null && "text" in value && typeof value.text === "string" && "characters" in value && typeof value.characters === "number";
+}
+
+function isPerkResponse(value: unknown): value is { perk: Perk } {
+  return typeof value === "object" && value !== null && "perk" in value
+    && typeof value.perk === "object" && value.perk !== null && "id" in value.perk && typeof value.perk.id === "string";
 }
 
 function isError(value: unknown): value is { error: string } {
