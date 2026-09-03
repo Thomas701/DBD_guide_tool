@@ -1,17 +1,20 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-03T17:19:07.945Z",
+  "updatedAt": "2026-09-03T17:55:30.715Z",
   "build": {
-    "id": null,
-    "name": "l'infirmière — Build",
+    "id": "b7ff2dc0-f604-4ea3-94de-4df7f02af6d6",
+    "name": "l'infirmière — Build teffst 2dqzd",
     "killerId": "nurse",
     "perkIds": [
-      "agitation"
+      "agitation",
+      "brutal-strength",
+      "shadowborn"
     ]
   },
   "scenario": {
     "conditions": {
       "not_in_chase": true,
+      "after_blind": true,
       "carrying_survivor": true
     },
     "perkStates": {}
@@ -56,17 +59,115 @@
           }
         ],
         "description": "- Quand vous transportez un survivant:\n- Augmente votre vitesse de transport de 6 / 12 / 18 %.\n- Augmente votre rayon de terreur de +12 mètres."
+      },
+      {
+        "name": "force brute",
+        "categories": [
+          "destruction"
+        ],
+        "effects": [
+          {
+            "stat": "killer.pallet_break_time",
+            "operation": "multiply",
+            "interpretation": "verified",
+            "value": 1.2,
+            "unit": "multiplier"
+          },
+          {
+            "stat": "killer.wall_break_time",
+            "operation": "multiply",
+            "interpretation": "verified",
+            "value": 1.2,
+            "unit": "multiplier"
+          },
+          {
+            "stat": "generator.damage_time",
+            "operation": "multiply",
+            "interpretation": "verified",
+            "value": 1.2,
+            "unit": "multiplier"
+          }
+        ],
+        "description": "- Quand vous Casser ou Endommager sur des murs destructibles, Palettes, ou Générateurs:\n- Augmente la vitesse d'action de 10 / 15 / 20 %."
+      },
+      {
+        "name": "rejeton de l'ombre",
+        "categories": [
+          "speed",
+          "blind"
+        ],
+        "effects": [
+          {
+            "stat": "killer.speed",
+            "operation": "multiply",
+            "interpretation": "verified",
+            "value": 1.1,
+            "unit": "multiplier",
+            "condition": {
+              "type": "after_blind"
+            },
+            "duration": 10
+          }
+        ],
+        "description": "- Chaque fois que vous êtes aveuglé, de quelque manière que ce soit:\n- Vous gagnez 6/8/10 % de vitesse pendant 10 secondes."
       }
     ],
     "currentState": {
       "activeConditions": {
         "not_in_chase": true,
+        "after_blind": true,
         "carrying_survivor": true
       },
       "perkStates": {}
     },
     "calculatedData": {
       "affectedStats": [
+        {
+          "key": "killer.speed",
+          "label": "Vitesse du tueur",
+          "base": 3.8,
+          "final": 4.18,
+          "delta": 0.38,
+          "deltaPercent": 10,
+          "unit": "m/s",
+          "effects": [
+            {
+              "perk": "rejeton de l'ombre",
+              "operation": "multiply",
+              "value": 1.1,
+              "unit": "multiplier",
+              "before": 3.8,
+              "after": 4.18,
+              "condition": [
+                "Condition remplie : after_blind"
+              ],
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "key": "generator.damage_time",
+          "label": "Endommagement d’un générateur",
+          "base": 1.8,
+          "final": 1.5,
+          "delta": -0.3,
+          "deltaPercent": -16.666667,
+          "unit": "s",
+          "effects": [
+            {
+              "perk": "force brute",
+              "operation": "multiply",
+              "value": 1.2,
+              "unit": "multiplier",
+              "before": 1.8,
+              "after": 1.5,
+              "condition": [
+                "Aucune condition requise"
+              ],
+              "status": "active"
+            }
+          ]
+        },
         {
           "key": "killer.carry_speed",
           "label": "Vitesse de transport",
@@ -85,6 +186,52 @@
               "after": 4.3424,
               "condition": [
                 "Condition remplie : carrying_survivor"
+              ],
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "key": "killer.wall_break_time",
+          "label": "Destruction d’un mur cassable",
+          "base": 2.34,
+          "final": 1.95,
+          "delta": -0.39,
+          "deltaPercent": -16.666667,
+          "unit": "s",
+          "effects": [
+            {
+              "perk": "force brute",
+              "operation": "multiply",
+              "value": 1.2,
+              "unit": "multiplier",
+              "before": 2.34,
+              "after": 1.95,
+              "condition": [
+                "Aucune condition requise"
+              ],
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "key": "killer.pallet_break_time",
+          "label": "Destruction d’une palette",
+          "base": 2.34,
+          "final": 1.95,
+          "delta": -0.39,
+          "deltaPercent": -16.666667,
+          "unit": "s",
+          "effects": [
+            {
+              "perk": "force brute",
+              "operation": "multiply",
+              "value": 1.2,
+              "unit": "multiplier",
+              "before": 2.34,
+              "after": 1.95,
+              "condition": [
+                "Aucune condition requise"
               ],
               "status": "active"
             }

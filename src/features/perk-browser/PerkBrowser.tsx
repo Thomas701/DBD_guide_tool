@@ -103,7 +103,7 @@ export function PerkBrowser({
           >
             ⋮
           </button>
-          <h2 id="perk-library-title">Choisis tes perks <span className="catalog-title-count">{totalKillerPerks} perks</span></h2>
+          <h2 id="perk-library-title">Sélectionne tes perks <span className="catalog-title-count">{totalKillerPerks} perks</span></h2>
         </div>
       </div>
 

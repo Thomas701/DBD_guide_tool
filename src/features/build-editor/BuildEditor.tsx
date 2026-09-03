@@ -6,6 +6,7 @@ import { PerkConditions } from "../build-analyzer/BuildConditions.js";
 
 interface BuildEditorProps {
   perks: readonly Perk[];
+  selectedPerkId: string | null;
   onRemove: (perkId: string) => void;
   onBrowse: (perkId: string | null) => void;
   scenario: BuildScenario;
@@ -13,7 +14,7 @@ interface BuildEditorProps {
   onPerkStateChange: (perkId: string, state: PerkRuntimeState) => void;
 }
 
-export function BuildEditor({ perks, onRemove, onBrowse, scenario, onConditionChange, onPerkStateChange }: BuildEditorProps) {
+export function BuildEditor({ perks, selectedPerkId, onRemove, onBrowse, scenario, onConditionChange, onPerkStateChange }: BuildEditorProps) {
   const slots = Array.from({ length: MAX_BUILD_PERKS }, (_, index) => perks[index] ?? null);
 
   return (
@@ -36,12 +37,22 @@ export function BuildEditor({ perks, onRemove, onBrowse, scenario, onConditionCh
             <span><strong>{name}</strong>{hasConditions && <small>Afficher les conditions</small>}</span>
           </>;
 
+          const isSelected = selectedPerkId === perk.id;
+
           return (
-            <article className="compact-perk-slot filled" key={perk.id}>
-              <button className="perk-slot-main" type="button" onClick={() => onBrowse(perk.id)} aria-label={`Voir ${name}`}>{content}</button>
+            <article className={`compact-perk-slot filled${isSelected ? " selected" : ""}`} key={perk.id}>
+              <button
+                className="perk-slot-main"
+                type="button"
+                onClick={() => onBrowse(perk.id)}
+                aria-label={`${isSelected ? "Désélectionner" : "Sélectionner"} ${name}`}
+                aria-pressed={isSelected}
+              >
+                {content}
+              </button>
               {hasConditions && (
                 <details className="perk-condition-details">
-                  <summary aria-label={`Afficher les conditions de ${name}`}><span aria-hidden="true">▶</span></summary>
+                  <summary aria-label={`Afficher les conditions de ${name}`}><span className="perk-slot-chevron" aria-hidden="true" /></summary>
                   <PerkConditions perk={perk} scenario={scenario} onConditionChange={onConditionChange} onPerkStateChange={onPerkStateChange} />
                 </details>
               )}

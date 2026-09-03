@@ -376,8 +376,14 @@ export default function App() {
   }
 
   function browsePerk(perkId: string | null): void {
-    setSelectedPerkId(perkId);
-    if (perkId === null || activeView !== "build") setActiveView("perks");
+    if (perkId === null) {
+      setSelectedPerkId(null);
+      setActiveView("perks");
+      return;
+    }
+
+    setSelectedPerkId((current) => current === perkId ? null : perkId);
+    if (activeView !== "build") setActiveView("perks");
   }
 
   function resizeColumn(pane: "left" | "right", delta: number): void {
@@ -434,7 +440,7 @@ export default function App() {
         <aside className="analyzer-sidebar left-sidebar">
           <section className="analyzer-panel selected-loadout-panel" aria-label="Tueur et perks sélectionnés">
             <SelectedKillerCard killer={selectedKiller} onChange={() => setActiveView("killers")} onRemove={removeKiller} />
-            <BuildEditor perks={equippedPerks} onRemove={togglePerk} onBrowse={browsePerk} scenario={scenario} onConditionChange={setScenarioCondition} onPerkStateChange={setPerkRuntimeState} />
+            <BuildEditor perks={equippedPerks} selectedPerkId={selectedPerkId} onRemove={togglePerk} onBrowse={browsePerk} scenario={scenario} onConditionChange={setScenarioCondition} onPerkStateChange={setPerkRuntimeState} />
           </section>
         </aside>
 

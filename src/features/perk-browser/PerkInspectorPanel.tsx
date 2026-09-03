@@ -121,6 +121,15 @@ export function PerkInspectorPanel({
         </button>
       </div>
 
+      <button
+        className="primary-button details-build-button"
+        type="button"
+        onClick={() => onTogglePerk(perk.id)}
+        disabled={!canEquip || (!isEquipped && buildIsFull)}
+      >
+        {!canEquip ? "Choisir un tueur" : isEquipped ? "Retirer du build" : buildIsFull ? "Build complet" : "Ajouter au build"}
+      </button>
+
       <div className="inspector-section-heading categories-section-heading">
         <div className="inspector-heading-controls">
           <p className="description-section-title">Catégories</p>
@@ -160,15 +169,6 @@ export function PerkInspectorPanel({
             : <span className="empty-copy">Aucune catégorie.</span>}
         </div>
       )}
-
-      <button
-        className="primary-button details-build-button"
-        type="button"
-        onClick={() => onTogglePerk(perk.id)}
-        disabled={!canEquip || (!isEquipped && buildIsFull)}
-      >
-        {!canEquip ? "Choisir un tueur" : isEquipped ? "Retirer du build" : buildIsFull ? "Build complet" : "Ajouter au build"}
-      </button>
 
       <div className="inspector-section-heading description-section-heading">
         <div className="inspector-heading-controls">

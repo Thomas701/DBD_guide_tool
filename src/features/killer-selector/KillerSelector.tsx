@@ -26,15 +26,28 @@ const propertyIcons = {
 export function KillerSelector({ killers, selectedKillerId, onSelect }: KillerSelectorProps) {
   const [options, setOptions] = useState<KillerListOptions>({ ...DEFAULT_KILLER_OPTIONS });
   const [listView, setListView] = useState(false);
+  const [filtersVisible, setFiltersVisible] = useState(true);
   const visibleKillers = useMemo(() => selectKillers(killers, options), [killers, options]);
 
   return (
     <section className="page-shell selector-page embedded-selector-page">
-      <section className="intro-block" aria-labelledby="killer-selector-title">
-        <h1 id="killer-selector-title" tabIndex={-1}>Choisir un tueur <span className="catalog-title-count">{killers.length} tueurs</span></h1>
-      </section>
+      <div className="section-heading catalog-selector-heading">
+        <div>
+          <button
+            className="filter-panel-toggle"
+            type="button"
+            aria-label={filtersVisible ? "Masquer les filtres" : "Afficher les filtres"}
+            aria-pressed={filtersVisible}
+            title={filtersVisible ? "Masquer les filtres" : "Afficher les filtres"}
+            onClick={() => setFiltersVisible((current) => !current)}
+          >
+            ⋮
+          </button>
+          <h1 id="killer-selector-title" tabIndex={-1}>Sélectionne un tueur <span className="catalog-title-count">{killers.length} tueurs</span></h1>
+        </div>
+      </div>
 
-      <section className="toolbar" aria-label="Recherche et tri des tueurs">
+      {filtersVisible && <section className="toolbar" aria-label="Recherche et tri des tueurs">
         <label className="field search-field">
           <span>Rechercher</span>
           <input
@@ -79,7 +92,7 @@ export function KillerSelector({ killers, selectedKillerId, onSelect }: KillerSe
         >
           {listView ? "Vue en blocs" : "Vue en liste"}
         </button>
-      </section>
+      </section>}
 
       {visibleKillers.length > 0 ? (
         <section className={`killer-grid${listView ? " killer-list" : ""}`} aria-label="Liste des tueurs">
