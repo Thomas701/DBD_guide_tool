@@ -161,14 +161,6 @@ export function PerkInspectorPanel({
         </div>
       )}
 
-      <div className="details-meta">
-        <span>{perk.cooldown === null ? "Aucun cooldown" : `Cooldown : ${perk.cooldown} s`}</span>
-        <span>{perk.icon ? "Icône disponible" : "Icône non résolue"}</span>
-        <span>{perk.analysisReadiness === "ready"
-          ? "Analyse disponible"
-          : perk.analysisReadiness === "partial" ? "Analyse partielle" : "Analyse à compléter"}</span>
-      </div>
-
       <button
         className="primary-button details-build-button"
         type="button"

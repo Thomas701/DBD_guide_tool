@@ -35,7 +35,6 @@ import { createCurrentBuildExport, syncCurrentBuildFile, updateNativePerk } from
 type TopbarMenu = "help" | "settings" | null;
 type InstallState = "available" | "unsupported" | "installed";
 const DEFAULT_PANE_LAYOUT = DEFAULT_APP_SESSION.paneLayout;
-const DEFAULT_SIDEBAR_LAYOUT = DEFAULT_APP_SESSION.sidebarLayout;
 const DEFAULT_ASSISTANT_SERVER = import.meta.env.VITE_ASSISTANT_SERVER_URL
   ?? import.meta.env.VITE_OPENAI_ASSISTANT_ENDPOINT
   ?? "http://127.0.0.1:8787";
@@ -66,7 +65,7 @@ export default function App() {
   const [canResetStorage, setCanResetStorage] = useState(false);
   const [scenario, setScenario] = useState<BuildScenario>(initialSession.scenario);
   const [paneLayout, setPaneLayout] = useState(initialSession.paneLayout);
-  const [sidebarLayout, setSidebarLayout] = useState(initialSession.sidebarLayout);
+  const [sidebarLayout] = useState(initialSession.sidebarLayout);
   const [installState, setInstallState] = useState<InstallState>(detectInstallState);
   const [installPromptEvent, setInstallPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstallingApp, setIsInstallingApp] = useState(false);
@@ -378,7 +377,7 @@ export default function App() {
 
   function browsePerk(perkId: string | null): void {
     setSelectedPerkId(perkId);
-    setActiveView("perks");
+    if (perkId === null || activeView !== "build") setActiveView("perks");
   }
 
   function resizeColumn(pane: "left" | "right", delta: number): void {
@@ -392,11 +391,6 @@ export default function App() {
   function resizeCenter(delta: number): void {
     const height = workspaceRef.current?.querySelector<HTMLElement>(".analyzer-main-column")?.clientHeight ?? 1;
     setPaneLayout((current) => ({ ...current, center: clamp(current.center + delta / height * 100, 30, 70) }));
-  }
-
-  function resizeSidebar(pane: keyof typeof DEFAULT_SIDEBAR_LAYOUT, delta: number): void {
-    const [minimum, maximum]: [number, number] = pane === "rightTop" ? [190, 620] : pane === "killer" ? [150, 360] : [170, 520];
-    setSidebarLayout((current) => ({ ...current, [pane]: clamp(current[pane] + delta, minimum, maximum) }));
   }
 
   async function installApplication(): Promise<void> {
@@ -417,10 +411,7 @@ export default function App() {
   const workspaceStyle = {
     "--left-pane": `${paneLayout.left}%`,
     "--right-pane": `${paneLayout.right}%`,
-    "--impact-pane": `${paneLayout.center}%`,
-    "--left-killer-pane": `${sidebarLayout.killer}px`,
-    "--left-perks-pane": `${sidebarLayout.perks}px`,
-    "--right-top-pane": `${sidebarLayout.rightTop}px`
+    "--impact-pane": `${paneLayout.center}%`
   } as CSSProperties;
 
   return (
@@ -488,7 +479,7 @@ export default function App() {
         <ResizeHandle orientation="vertical" label="Redimensionner la sidebar droite" onDelta={(delta) => resizeColumn("right", delta)} onReset={() => setPaneLayout(DEFAULT_PANE_LAYOUT)} />
 
         <aside className="analyzer-sidebar right-sidebar">
-          {activeView === "perks" && selectedPerk ? (
+          {activeView !== "killers" && selectedPerk ? (
             <PerkInspectorPanel
               perk={selectedPerk}
               owner={selectedPerkOwner}
@@ -508,29 +499,28 @@ export default function App() {
               onTogglePerk={togglePerk}
             />
           ) : (
-            <SavedBuilds
-              builds={savedBuilds}
-              activeBuildId={activeBuildId}
-              buildName={buildName}
-              buildNamePlaceholder={defaultName}
-              hasUnsavedChanges={hasUnsavedBuildChanges}
-              canResetStorage={canResetStorage}
-              canEdit={selectedKiller !== null}
-              onNameChange={setBuildName}
-              onSave={saveBuild}
-              onSaveAs={saveBuildAs}
-              onNew={startNewBuild}
-              onLoad={loadBuild}
-              onDelete={deleteBuild}
-              onResetStorage={resetStorage}
-            />
+            <section className="analyzer-panel build-manager build-summary sidebar-build-panel" aria-label="Gestion et résumé du build">
+              <SavedBuilds
+                builds={savedBuilds}
+                activeBuildId={activeBuildId}
+                buildName={buildName}
+                buildNamePlaceholder={defaultName}
+                hasUnsavedChanges={hasUnsavedBuildChanges}
+                canResetStorage={canResetStorage}
+                canEdit={selectedKiller !== null}
+                onNameChange={setBuildName}
+                onSave={saveBuild}
+                onSaveAs={saveBuildAs}
+                onNew={startNewBuild}
+                onLoad={loadBuild}
+                onDelete={deleteBuild}
+                onResetStorage={resetStorage}
+              />
+              {calculation
+                ? <BuildSummary calculation={calculation} perks={equippedPerks} scenario={scenario} />
+                : <div className="build-summary-content"><div className="compact-section-heading"><div><span className="section-icon" aria-hidden="true">▤</span><h2>Build Summary</h2></div></div><p className="panel-empty">Aucun build à résumer.</p></div>}
+            </section>
           )}
-          {!(activeView === "perks" && selectedPerk) && <>
-            <ResizeHandle orientation="horizontal" label="Redimensionner le panneau supérieur et le résumé" onDelta={(delta) => resizeSidebar("rightTop", delta)} onReset={() => setSidebarLayout(DEFAULT_SIDEBAR_LAYOUT)} />
-            {calculation
-              ? <BuildSummary calculation={calculation} perks={equippedPerks} scenario={scenario} />
-              : <section className="analyzer-panel build-summary"><div className="compact-section-heading"><div><span className="section-icon" aria-hidden="true">▤</span><h2>Build Summary</h2></div></div><p className="panel-empty">Aucun build à résumer.</p></section>}
-          </>}
         </aside>
       </main>
     </div>
@@ -653,10 +643,12 @@ function Topbar({
         ))}
       </nav>
       <div className="topbar-actions">
-        <button className={`install-app-button ${canInstallApplication ? "available" : installState}`} type="button" onClick={onInstallApplication} disabled={!canInstallApplication} title={installHint} aria-label={installButtonLabel}>
-          <span className="install-app-button-full">{installButtonLabel}</span>
-          <span className="install-app-button-compact">Installer</span>
-        </button>
+        {installState !== "installed" && (
+          <button className={`install-app-button ${canInstallApplication ? "available" : installState}`} type="button" onClick={onInstallApplication} disabled={!canInstallApplication} title={installHint} aria-label={installButtonLabel}>
+            <span className="install-app-button-full">{installButtonLabel}</span>
+            <span className="install-app-button-compact">Installer</span>
+          </button>
+        )}
         <button className="topbar-icon-button" type="button" onClick={() => onMenuChange(menu === "help" ? null : "help")} aria-label="Aide" aria-expanded={menu === "help"}>?</button>
         <button className="topbar-icon-button" type="button" onClick={() => onMenuChange(menu === "settings" ? null : "settings")} aria-label="Paramètres" aria-expanded={menu === "settings"}>⚙</button>
       </div>

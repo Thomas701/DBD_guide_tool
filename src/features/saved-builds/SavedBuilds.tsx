@@ -61,7 +61,7 @@ export function SavedBuilds({
   onResetStorage
 }: SavedBuildsProps) {
   return (
-    <section className="analyzer-panel build-manager" aria-labelledby="saved-builds-title">
+    <div className="build-manager-content" aria-labelledby="saved-builds-title">
       <div className="compact-section-heading">
         <div>
           <span className="section-icon" aria-hidden="true">□</span>
@@ -104,7 +104,7 @@ export function SavedBuilds({
         <button className="primary-button manager-save-button" type="button" onClick={onSave} disabled={!canEdit || !buildName.trim()}>Sauvegarder</button>
       </div>
       {canResetStorage && <button className="secondary-button storage-reset" type="button" onClick={onResetStorage}>Réinitialiser le stockage illisible</button>}
-    </section>
+    </div>
   );
 }
 

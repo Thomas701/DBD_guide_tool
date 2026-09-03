@@ -31,7 +31,7 @@ export function KillerSelector({ killers, selectedKillerId, onSelect }: KillerSe
   return (
     <section className="page-shell selector-page embedded-selector-page">
       <section className="intro-block" aria-labelledby="killer-selector-title">
-        <h1 id="killer-selector-title" tabIndex={-1}>Choisir un tueur</h1>
+        <h1 id="killer-selector-title" tabIndex={-1}>Choisir un tueur <span className="catalog-title-count">{killers.length} tueurs</span></h1>
       </section>
 
       <section className="toolbar" aria-label="Recherche et tri des tueurs">
@@ -80,10 +80,6 @@ export function KillerSelector({ killers, selectedKillerId, onSelect }: KillerSe
           {listView ? "Vue en blocs" : "Vue en liste"}
         </button>
       </section>
-
-      <p className="result-count" aria-live="polite">
-        {visibleKillers.length} tueur{visibleKillers.length > 1 ? "s" : ""}
-      </p>
 
       {visibleKillers.length > 0 ? (
         <section className={`killer-grid${listView ? " killer-list" : ""}`} aria-label="Liste des tueurs">

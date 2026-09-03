@@ -48,6 +48,7 @@ export function PerkBrowser({
   const killerById = useMemo(() => new Map(killers.map((killer) => [killer.id, killer])), [killers]);
   const equippedPerkSet = new Set(equippedPerkIds);
   const buildIsFull = equippedPerkIds.length >= MAX_BUILD_PERKS;
+  const totalKillerPerks = perks.filter((perk) => perk.side === "killer").length;
 
   useEffect(() => {
     if (!scrollToPerkId) return;
@@ -102,12 +103,7 @@ export function PerkBrowser({
           >
             ⋮
           </button>
-          <h2 id="perk-library-title">Perks de tueur</h2>
-        </div>
-        <div className="catalog-heading-actions">
-          <p className="result-count" aria-live="polite">
-            {visiblePerks.length} sur {perks.filter((perk) => perk.side === "killer").length}
-          </p>
+          <h2 id="perk-library-title">Choisis tes perks <span className="catalog-title-count">{totalKillerPerks} perks</span></h2>
         </div>
       </div>
 

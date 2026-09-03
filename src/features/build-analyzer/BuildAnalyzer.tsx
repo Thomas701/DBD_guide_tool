@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { killerPropertyIconUrl } from "../../app/assets.js";
 import type { Perk } from "../../domain/perk.js";
 import type {
@@ -18,6 +20,7 @@ const propertyIcons: Readonly<Record<string, string | null>> = {
 };
 
 export function BuildAnalyzer({ calculation, perks }: BuildAnalyzerProps) {
+  const [view, setView] = useState<"list" | "chart">("list");
   const unavailablePerks = perks.filter((perk) => perk.effects.length === 0);
   const hasPartialData = calculation.unresolvedEffects.length > 0
     || unavailablePerks.length > 0
@@ -25,12 +28,11 @@ export function BuildAnalyzer({ calculation, perks }: BuildAnalyzerProps) {
 
   return (
     <section className="analyzer-panel impact-analysis" aria-labelledby="build-analyzer-title">
-      <div className="impact-heading">
-        <div className="compact-section-heading">
-          <div>
-            <span className="section-icon target-icon" aria-hidden="true">⌾</span>
-            <h2 id="build-analyzer-title">Impact Analysis</h2>
-          </div>
+      <h2 className="sr-only" id="build-analyzer-title">Impact Analysis</h2>
+      <div className="impact-tabs-row">
+        <div className="impact-tabs" role="tablist" aria-label="Affichage de l’analyse">
+          <button type="button" role="tab" aria-selected={view === "list"} onClick={() => setView("list")}>Liste</button>
+          <button type="button" role="tab" aria-selected={view === "chart"} onClick={() => setView("chart")}>Graphique</button>
         </div>
         <span className={`analysis-state${hasPartialData ? " partial" : ""}`}>
           {hasPartialData ? "Analyse partielle" : "Données vérifiées"}
@@ -41,16 +43,18 @@ export function BuildAnalyzer({ calculation, perks }: BuildAnalyzerProps) {
         <p className="panel-empty impact-empty">Ajoutez une perk pour afficher son impact réel.</p>
       ) : (
         <>
-          <div className="impact-table" role="table" aria-label="Statistiques affectées par le build">
-            <div className="impact-table-head" role="row">
-              <span role="columnheader">Statistic</span>
-              <span role="columnheader">Base Value</span>
-              <span aria-hidden="true" />
-              <span role="columnheader">Modified Value</span>
-              <span role="columnheader">Delta</span>
+          {view === "list" ? (
+            <div className="impact-table" role="table" aria-label="Statistiques affectées par le build sous forme de liste">
+              <div className="impact-table-head" role="row">
+                <span role="columnheader">Statistic</span>
+                <span role="columnheader">Base Value</span>
+                <span aria-hidden="true" />
+                <span role="columnheader">Modified Value</span>
+                <span role="columnheader">Delta</span>
+              </div>
+              {calculation.affectedStats.map((stat) => <StatRow stat={stat} key={stat.key} />)}
             </div>
-            {calculation.affectedStats.map((stat) => <StatRow stat={stat} key={stat.key} />)}
-          </div>
+          ) : <ImpactChart stats={calculation.affectedStats} />}
 
           {calculation.affectedStats.length === 0 && calculation.qualitativeEffects.length === 0 && (
             <p className="panel-empty impact-empty">Aucune référence fiable n’est affectée dans ce scénario.</p>
@@ -82,6 +86,36 @@ export function BuildAnalyzer({ calculation, perks }: BuildAnalyzerProps) {
         </>
       )}
     </section>
+  );
+}
+
+function ImpactChart({ stats }: { stats: readonly CalculatedStat[] }) {
+  return (
+    <div className="impact-chart" role="tabpanel" aria-label="Statistiques affectées par le build sous forme de graphique">
+      {stats.map((stat) => {
+        const maximum = Math.max(Math.abs(stat.base), Math.abs(stat.final), 1);
+        return (
+          <article className="impact-chart-row" key={stat.key}>
+            <header>
+              <span className="stat-identity"><StatIcon stat={stat} /><span><strong>{stat.label}</strong><small>{stat.theme}</small></span></span>
+              <strong className={stat.delta === 0 || stat.benefit === null ? "neutral" : stat.benefit > 0 ? "positive" : "negative"}>{deltaPrimary(stat, false)}</strong>
+            </header>
+            <ChartBar label="Base" value={stat.base} unit={stat.unit} maximum={maximum} />
+            <ChartBar label="Modifiée" value={stat.final} unit={stat.unit} maximum={maximum} modified />
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
+function ChartBar({ label, value, unit, maximum, modified = false }: { label: string; value: number; unit: string; maximum: number; modified?: boolean }) {
+  return (
+    <div className={`impact-chart-bar${modified ? " modified" : ""}`}>
+      <span>{label}</span>
+      <span className="impact-chart-track"><span style={{ width: `${Math.max(4, Math.abs(value) / maximum * 100)}%` }} /></span>
+      <strong>{formatValue(value, unit)}</strong>
+    </div>
   );
 }
 

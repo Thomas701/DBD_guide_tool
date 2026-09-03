@@ -27,6 +27,7 @@ export function SelectedKillerCard({ killer, onChange, onRemove }: SelectedKille
         <button className="selected-killer-main" type="button" onClick={onChange} aria-label="Changer de tueur">
           <span className="selected-killer-image">
             {portrait ? <img src={portrait} alt="" /> : <span className="image-placeholder" aria-hidden="true">?</span>}
+            <span className="tier-mark">{killer.tier}</span>
           </span>
           <span className="selected-killer-info">
             <strong>{killer.name.fr ?? killer.name.en ?? killer.id}</strong>

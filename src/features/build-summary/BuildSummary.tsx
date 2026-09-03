@@ -25,7 +25,7 @@ export function BuildSummary({ calculation, perks, scenario }: BuildSummaryProps
   const categoryCounts = countCategories(calculation);
 
   return (
-    <section className="analyzer-panel build-summary" aria-labelledby="build-summary-title">
+    <div className="build-summary-content" aria-labelledby="build-summary-title">
       <div className="compact-section-heading">
         <div>
           <span className="section-icon" aria-hidden="true">▤</span>
@@ -78,7 +78,7 @@ export function BuildSummary({ calculation, perks, scenario }: BuildSummaryProps
           </div>
         ) : <p>Aucune catégorie affectée.</p>}
       </div>
-    </section>
+    </div>
   );
 }
 

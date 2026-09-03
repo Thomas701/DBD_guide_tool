@@ -38,15 +38,13 @@ export function BuildEditor({ perks, onRemove, onBrowse, scenario, onConditionCh
 
           return (
             <article className="compact-perk-slot filled" key={perk.id}>
-              {hasConditions ? (
+              <button className="perk-slot-main" type="button" onClick={() => onBrowse(perk.id)} aria-label={`Voir ${name}`}>{content}</button>
+              {hasConditions && (
                 <details className="perk-condition-details">
-                  <summary className="perk-slot-main">{content}</summary>
+                  <summary aria-label={`Afficher les conditions de ${name}`}><span aria-hidden="true">▶</span></summary>
                   <PerkConditions perk={perk} scenario={scenario} onConditionChange={onConditionChange} onPerkStateChange={onPerkStateChange} />
                 </details>
-              ) : (
-                <button className="perk-slot-main" type="button" onClick={() => onBrowse(perk.id)} aria-label={`Voir ${name}`}>{content}</button>
               )}
-              {hasConditions && <button className="perk-slot-inspect" type="button" onClick={() => onBrowse(perk.id)} aria-label={`Voir le détail de ${name}`}>i</button>}
               <button className="perk-slot-remove" type="button" onClick={() => onRemove(perk.id)} aria-label={`Retirer ${name}`}>×</button>
             </article>
           );
