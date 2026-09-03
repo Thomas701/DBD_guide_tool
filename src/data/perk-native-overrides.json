@@ -1,1 +1,44 @@
-{}
+{
+  "agitation": {
+    "nativeDescriptionHtml": "<p><span>Lorsque vous transportez un survivant:</span><br></p><ul><li>Votre <span class=\"description-term\">vitesse de transport</span>&nbsp;augmente de <span class=\"description-value\">6 / 12 / 18 %</span>.</li><li>Votre <span class=\"description-term\">rayon de terreur</span>&nbsp;augmente de <span class=\"description-value\">+12 mètres</span>.</li></ul>"
+  },
+  "brutal-strength": {
+    "nativeDescriptionHtml": "<ul><li>Vous Cassez/Endommagez des <span class=\"description-term\">murs destructibles</span>, <span class=\"description-term\">Palettes</span>, et&nbsp;<span class=\"description-term\">Générateurs</span>&nbsp;<span class=\"description-value\">10 / 15 / 20 %</span><span>plus vite.</span></li></ul>"
+  },
+  "unnerving-presence": {
+    "nativeDescriptionHtml": "<p><span>Lorsque les survivants sont dans votre </span><span class=\"description-term\">rayon de terreur</span><span>&nbsp;:</span><br></p><ul><li>Augmente les chances de déclencher un test d'habilité de <span class=\"description-value\">+10 %</span>.</li><li>Réduit la zone de réussite de ces tests de <span class=\"description-value\">40 / 50 / 60 %</span>.</li></ul>"
+  },
+  "bloodhound": {
+    "nativeDescriptionHtml": "<ul><li>Les flaques de sang des survivants <span class=\"description-term\">blessé</span><strong><span style=\"color: rgb(241, 108, 101);\">s</span></strong> sont plus brillantes et durent plus longtemps avant de disparaître (&nbsp;<span class=\"description-value\">2 / 3 / 4 secondes</span> )</li></ul>"
+  },
+  "predator": {
+    "nativeDescriptionHtml": "<p>Lorsque vous cessez de pourchasser un survivant:<br></p><ul><li>Son <span class=\"description-term\">aura</span> vous est révélé pendant <span class=\"description-value\">4 secondes</span>.</li><li><span class=\"description-term\">Temps de recharge avant réutilisation</span>: <span class=\"description-value\">60 / 50 / 40 secondes</span>.</li></ul>"
+  },
+  "shadowborn": {
+    "nativeDescriptionHtml": "<p><span>Chaque fois que vous êtes aveuglé, de quelque manière que ce soit:</span><br></p><ul><li>Vous gagnez <span class=\"description-value\">6/8/10 %</span> de <span class=\"description-term\">vitesse</span> pendant <span class=\"description-value\">10 secondes</span>.</li></ul>"
+  },
+  "enduring": {
+    "nativeDescriptionHtml": "<ul><li>Réduit la durée des étourdissements de <span class=\"description-term\">palettes</span> de <span class=\"description-value\">40 / 45 / 50 %</span>.&nbsp;</li><li>(Si vous porter un survivant, cette effet ne s'applique pas)</li></ul>"
+  },
+  "lightborn": {
+    "nativeDescriptionHtml": "<ul><li><span>Vous voyez l'<span style=\"color: rgb(241, 108, 101);\"><strong>aura</strong></span> les survivants qui tentent de vous aveugler par tous les moyens pendant </span><span class=\"description-value\">6 / 8 / 10 secondes</span><span>.</span></li><li>Confère l'immunité contre l'éblouissement causé par les lampes torches, Pétards, Grenades flash, et la mine à explosion.</li></ul>"
+  },
+  "tinkerer": {
+    "nativeDescriptionHtml": "<p><span>Pour chaque générateur qui atteint&nbsp;</span><span class=\"description-value\">70 %</span><span>de progression (une seule fois pas générateur):</span><br></p><ul><li>Déclenche une notification sonore sur ce <span class=\"description-term\">générateur</span>, révélant son emplacement.</li><li>Vous devenez <span class=\"description-term\">indétectable</span> pendant les <span class=\"description-value\">12 / 14 / 16</span> prochaines secondes.</li></ul>"
+  },
+  "thanatophobia": {
+    "nativeDescriptionHtml": "<p><span style=\"color: rgb(243, 240, 235);\">Pour chaque survivant blessé, en état critique ou accroché, tous les autres survivants subissent les effets suivants:</span><br></p><ul><li>pénalité cumulable de <span style=\"color: rgb(240, 202, 127);\"><span class=\"description-value\">/1.5/2 %</span></span> aux vitesses d'action de <span style=\"color: rgb(121, 199, 255);\">Réparation</span>, de <span style=\"color: rgb(121, 199, 255);\">Sabotage</span>, et de <span style=\"color: rgb(121, 199, 255);\">Purification</span>, jusqu'à un maximum de <span class=\"description-value\">4/6/8%</span>Si les quatre Survivants sont <span class=\"description-term\">blessé</span><span style=\"color: rgb(241, 108, 101);\"><strong>s</strong></span>, <span style=\"color: rgb(241, 108, 101);\"><strong>en état critique </strong></span>ou <span style=\"color: rgb(241, 108, 101);\"><strong>accrochées</strong></span>:</li></ul><ul><li>Augmente la pénalité des effets précédents de <span class=\"description-value\">+12 %</span> supplémentaires pour un total de <span class=\"description-value\">16 / 18 / 20 %</span>.</li></ul>"
+  },
+  "a-nurses-calling": {
+    "nativeDescriptionHtml": "<ul><li>L'<span style=\"color: rgb(241, 108, 101);\"><strong>aura</strong></span> des survivants en train d’être guéris ou de se guérir eux-mêmes vous est révélée dans un rayon de <span class=\"description-value\">28 / 30 / 32 mètres</span>.</li></ul>"
+  },
+  "stridor": {
+    "nativeDescriptionHtml": "<p><ul><li>Augmente le volume des gémissements de douleur des survivants <span class=\"description-term\">blessé</span><span style=\"color: rgb(241, 108, 101);\"><strong>s</strong></span> de <span class=\"description-value\">30 / 40 / 50 %</span>.</li><li>Augmente le volume de la respiration régulière des survivants de <span class=\"description-value\">15 / 20 / 25 %</span>.</li></ul></p>"
+  },
+  "hex-devour-hope": {
+    "nativeDescriptionHtml": "<p><span>Allume un </span><span class=\"description-term\">totem</span><span> de maléfice en début de partie, le sort Maléfice « Dévorer l'espoir » inflige la malédiction suivante (tant que le totem n'est pas détruit) :<br></span><br><span>Lorsqu'un survivant est décroché à <strong>au moins</strong> </span><span class=\"description-value\">24 mètres</span><span> de votre position, vous gagnez&nbsp;</span><span class=\"description-value\">1 jeton</span><span>, jusqu'à un maximum de </span><span class=\"description-value\">5 jetons</span><span>.<br></span><br></p><ul><li>À <span class=\"description-value\">2 jetons</span>: Après avoir accroché un survivant, vous obtenez un bonus de <span class=\"description-term\">vitesse</span> de <span class=\"description-value\">3/4/5 %</span>. pendant <span class=\"description-value\">10 secondes</span>.</li><li>À <span class=\"description-value\">3 jetons</span>: Inflige à tous les survivants l'effet « <span style=\"color: rgb(241, 108, 101);\"><strong>A découvert</strong></span>&nbsp;»..</li><li>À <span class=\"description-value\">5 jetons</span>: Débloque la capacité <span style=\"color: rgb(241, 108, 101);\"><strong>Tuer</strong></span>, vous permettant de tuer de vos propres mains les survivants <span style=\"color: rgb(241, 108, 101); font-weight: 700;\">en état critique </span><span style=\"color: rgb(243, 240, 235);\">sans les accrocher</span>.</li></ul>"
+  },
+  "hex-ruin": {
+    "nativeDescriptionHtml": "<p>Allume un <strong><span style=\"color: rgb(241, 108, 101);\">totem </span></strong>de maléfice en début de partie qui provoque l'effet suivant (tant qu'il n'est pas détruit) :<br></p><ul><li>Tous les <span class=\"description-term\">générateurs</span> qui ne sont pas en cours de réparation régressent automatiquement à <span class=\"description-value\">100 / 125 / 150 %</span> plus vite.</li></ul>"
+  }
+}

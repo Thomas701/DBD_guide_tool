@@ -1,15 +1,14 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-03T19:19:36.177Z",
+  "updatedAt": "2026-09-03T23:27:37.123Z",
   "build": {
     "id": "b7ff2dc0-f604-4ea3-94de-4df7f02af6d6",
     "name": "l'infirmière — Build teffst 2dqzd",
     "killerId": "blight",
     "perkIds": [
-      "agitation",
       "unnerving-presence",
-      "bloodhound",
-      "brutal-strength"
+      "brutal-strength",
+      "a-nurses-calling"
     ]
   },
   "scenario": {
@@ -21,7 +20,9 @@
       "survivor_injured": true,
       "outside_terror_radius": false
     },
-    "perkStates": {}
+    "perkStates": {
+      "a-nurses-calling": "active"
+    }
   },
   "assistantContext": {
     "killer": {
@@ -33,37 +34,6 @@
       "difficulty": "nightmare"
     },
     "perks": [
-      {
-        "name": "agitation",
-        "categories": [
-          "speed",
-          "terror_rayon",
-          "hook"
-        ],
-        "effects": [
-          {
-            "stat": "killer.carry_speed",
-            "operation": "multiply",
-            "interpretation": "verified",
-            "value": 1.18,
-            "unit": "multiplier",
-            "condition": {
-              "type": "carrying_survivor"
-            }
-          },
-          {
-            "stat": "killer.terror_radius",
-            "operation": "add",
-            "interpretation": "verified",
-            "value": 12,
-            "unit": "meters",
-            "condition": {
-              "type": "carrying_survivor"
-            }
-          }
-        ],
-        "description": "- Quand vous transportez un survivant:\n- Augmente votre vitesse de transport de 6 / 12 / 18 %.\n- Augmente votre rayon de terreur de +12 mètres."
-      },
       {
         "name": "présence perturbante",
         "categories": [
@@ -104,25 +74,6 @@
         "description": "- À l'intérieur de votre rayon de terreur Les survivants qui effectuent des actions de réparation ou de guérison subissent les effets suivants:\n- Augmente les chances de déclencher un test de compétence de +10 %.\n- Réduit la zone de réussite de ces tests de compétence. de 40 / 50 / 60 %."
       },
       {
-        "name": "limier",
-        "categories": [
-          "blood_trace"
-        ],
-        "effects": [
-          {
-            "stat": "tracking.blood_pool_lifetime",
-            "operation": "add",
-            "interpretation": "verified",
-            "value": 4,
-            "unit": "seconds",
-            "condition": {
-              "type": "survivor_injured"
-            }
-          }
-        ],
-        "description": "- Des flaques de sang Les survivants blessés apparaissent en rouge vif.\n- Prolonge leur durée de vie de 2 / 3 / 4 secondes."
-      },
-      {
         "name": "force brute",
         "categories": [
           "destruction"
@@ -151,6 +102,27 @@
           }
         ],
         "description": "- Quand vous Casser ou Endommager sur des murs destructibles, Palettes, ou Générateurs:\n- Augmente la vitesse d'action de 10 / 15 / 20 %."
+      },
+      {
+        "name": "vocation de l'infirmière",
+        "categories": [
+          "aura"
+        ],
+        "effects": [
+          {
+            "stat": "survivor.aura",
+            "operation": "reveal",
+            "interpretation": "inferred",
+            "source": {
+              "format": "legacy-effect",
+              "raw": "infinite[aura]"
+            },
+            "value": true,
+            "unit": "boolean",
+            "duration": null
+          }
+        ],
+        "description": "- Vous voyez les survivants en train d’être guéris ou de se guérir eux-mêmes vous sont révélés dans un rayon de 28 / 30 / 32 mètres."
       }
     ],
     "currentState": {
@@ -162,7 +134,9 @@
         "survivor_injured": true,
         "outside_terror_radius": false
       },
-      "perkStates": {}
+      "perkStates": {
+        "a-nurses-calling": "active"
+      }
     },
     "calculatedData": {
       "affectedStats": [
@@ -236,29 +210,6 @@
           ]
         },
         {
-          "key": "killer.carry_speed",
-          "label": "Vitesse de transport",
-          "base": 3.68,
-          "final": 4.3424,
-          "delta": 0.6624,
-          "deltaPercent": 18,
-          "unit": "m/s",
-          "effects": [
-            {
-              "perk": "agitation",
-              "operation": "multiply",
-              "value": 1.18,
-              "unit": "multiplier",
-              "before": 3.68,
-              "after": 4.3424,
-              "condition": [
-                "Condition remplie : carrying_survivor"
-              ],
-              "status": "active"
-            }
-          ]
-        },
-        {
           "key": "killer.wall_break_time",
           "label": "Destruction d’un mur cassable",
           "base": 2.34,
@@ -326,39 +277,21 @@
               "status": "active"
             }
           ]
-        },
-        {
-          "key": "killer.terror_radius",
-          "label": "Rayon de terreur",
-          "base": 40,
-          "final": 52,
-          "delta": 12,
-          "deltaPercent": 30,
-          "unit": "m",
-          "effects": [
-            {
-              "perk": "agitation",
-              "operation": "add",
-              "value": 12,
-              "unit": "meters",
-              "before": 40,
-              "after": 52,
-              "condition": [
-                "Condition remplie : carrying_survivor"
-              ],
-              "status": "active"
-            }
-          ]
         }
       ],
-      "qualitativeEffects": [],
-      "unresolvedEffects": [
+      "qualitativeEffects": [
         {
-          "perk": "limier",
-          "stat": "tracking.blood_pool_lifetime",
-          "reason": "Valeur de base non vérifiée dans statistiques_fixe.txt"
+          "label": "Aura des survivants révélée",
+          "perk": "vocation de l'infirmière",
+          "condition": [
+            "Effet importé sans condition structurée",
+            "Effet déclenché dans la simulation"
+          ],
+          "status": "active",
+          "duration": null
         }
-      ]
+      ],
+      "unresolvedEffects": []
     }
   }
 }
