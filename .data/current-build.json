@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-02T14:39:33.568Z",
+  "updatedAt": "2026-09-03T14:20:03.451Z",
   "build": {
     "id": "47519792-b12d-474f-aa3f-477ab211186f",
     "name": "le dragage — Exit door",
-    "killerId": "dredge",
+    "killerId": "blight",
     "perkIds": [
       "no-way-out",
       "blood-warden",
@@ -16,7 +16,7 @@
     "conditions": {
       "not_in_chase": true,
       "exit_gates_powered": false,
-      "perk_triggered": true,
+      "perk_triggered": false,
       "exit_gate_open": false,
       "survivor_hooked": true,
       "exit_gate_progress_80": false
@@ -25,12 +25,12 @@
   },
   "assistantContext": {
     "killer": {
-      "name": "le dragage",
-      "speed": 4.6,
-      "terrorRadius": 32,
-      "size": "big",
-      "tier": "C-",
-      "difficulty": "difficult"
+      "name": "le fléau",
+      "speed": 4.4,
+      "terrorRadius": 40,
+      "size": "normal",
+      "tier": "S-",
+      "difficulty": "nightmare"
     },
     "perks": [
       {
@@ -146,7 +146,7 @@
       "activeConditions": {
         "not_in_chase": true,
         "exit_gates_powered": false,
-        "perk_triggered": true,
+        "perk_triggered": false,
         "exit_gate_open": false,
         "survivor_hooked": true,
         "exit_gate_progress_80": false
@@ -159,9 +159,9 @@
           "key": "exit_gate.open_time",
           "label": "Ouverture d’une porte de sortie",
           "base": 20,
-          "final": 50,
-          "delta": 30,
-          "deltaPercent": 150,
+          "final": 20,
+          "delta": 0,
+          "deltaPercent": 0,
           "unit": "s",
           "effects": [
             {
@@ -169,12 +169,12 @@
               "operation": "add",
               "value": 30,
               "unit": "seconds",
-              "before": 20,
-              "after": 50,
+              "before": null,
+              "after": null,
               "condition": [
-                "Condition remplie : perk_triggered"
+                "Condition manquante : perk_triggered"
               ],
-              "status": "active"
+              "status": "inactive"
             }
           ]
         },
@@ -208,7 +208,7 @@
           "perk": "aucune issue",
           "condition": [
             "Condition manquante : exit_gates_powered",
-            "Condition remplie : perk_triggered"
+            "Condition manquante : perk_triggered"
           ],
           "status": "inactive",
           "duration": 60

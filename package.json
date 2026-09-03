@@ -1,6 +1,8 @@
 {
   "name": "dbd-build-tool",
   "version": "0.1.0",
+  "description": "Web app pour créer, sauvegarder et analyser des builds Killer Dead by Daylight.",
+  "author": "Thomas701",
   "private": true,
   "type": "module",
   "scripts": {

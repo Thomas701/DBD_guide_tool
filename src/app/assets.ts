@@ -21,10 +21,16 @@ const killerConditionModules = import.meta.glob(
   { eager: true, query: "?url", import: "default" }
 ) as Record<string, string>;
 
+const conditionBackgroundModules = import.meta.glob(
+  "../../DBDImages-main/DBDImages-main/images/backgrounds/basic/veryrare.png",
+  { eager: true, query: "?url", import: "default" }
+) as Record<string, string>;
+
 const perkImages = byFileName(perkModules);
 const portraitImages = byFileName(portraitModules);
 const killerPropertyImages = byFileName(killerPropertyModules);
 const killerConditionImages = byFileName(killerConditionModules);
+export const conditionIconBackgroundUrl = Object.values(conditionBackgroundModules)[0] ?? null;
 
 const conditionImageNames: Record<string, string> = {
   not_in_chase: "stop_chase.png",

@@ -6,7 +6,6 @@ import type { PerkCategory } from "./domain/category.js";
 import type { Killer } from "./domain/killer.js";
 import type { Perk } from "./domain/perk.js";
 import { BuildAnalyzer } from "./features/build-analyzer/BuildAnalyzer.js";
-import { BuildConditions } from "./features/build-analyzer/BuildConditions.js";
 import { BuildAssistant } from "./features/build-assistant/BuildAssistant.js";
 import { BuildEditor } from "./features/build-editor/BuildEditor.js";
 import { BuildSummary } from "./features/build-summary/BuildSummary.js";
@@ -34,11 +33,17 @@ import {
 import { createCurrentBuildExport, syncCurrentBuildFile, updateNativePerk } from "./services/local-data.js";
 
 type TopbarMenu = "help" | "settings" | null;
+type InstallState = "available" | "unsupported" | "installed";
 const DEFAULT_PANE_LAYOUT = DEFAULT_APP_SESSION.paneLayout;
 const DEFAULT_SIDEBAR_LAYOUT = DEFAULT_APP_SESSION.sidebarLayout;
 const DEFAULT_ASSISTANT_SERVER = import.meta.env.VITE_ASSISTANT_SERVER_URL
   ?? import.meta.env.VITE_OPENAI_ASSISTANT_ENDPOINT
   ?? "http://127.0.0.1:8787";
+
+interface BeforeInstallPromptEvent extends Event {
+  prompt(): Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
+}
 
 export default function App() {
   const [initialSession] = useState(loadPersistedAppSession);
@@ -62,6 +67,9 @@ export default function App() {
   const [scenario, setScenario] = useState<BuildScenario>(initialSession.scenario);
   const [paneLayout, setPaneLayout] = useState(initialSession.paneLayout);
   const [sidebarLayout, setSidebarLayout] = useState(initialSession.sidebarLayout);
+  const [installState, setInstallState] = useState<InstallState>(detectInstallState);
+  const [installPromptEvent, setInstallPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
+  const [isInstallingApp, setIsInstallingApp] = useState(false);
   const workspaceRef = useRef<HTMLElement>(null);
   const buildRepository = repositoryState.repository;
   const descriptionOverrideRepository = descriptionRepositoryState.repository;
@@ -159,6 +167,33 @@ export default function App() {
     window.addEventListener("keydown", handleSaveShortcut);
     return () => window.removeEventListener("keydown", handleSaveShortcut);
   }, [activeBuildId, buildName, conversationKey, equippedPerkIds, selectedKiller, repositoryState.persistent]);
+
+  useEffect(() => {
+    const media = window.matchMedia("(display-mode: standalone)");
+    const syncInstallState = (): void => {
+      setInstallState(isStandaloneApp() ? "installed" : (current) => current === "available" ? current : "unsupported");
+    };
+    const handleBeforeInstallPrompt = (event: Event): void => {
+      const prompt = event as BeforeInstallPromptEvent;
+      prompt.preventDefault();
+      setInstallPromptEvent(prompt);
+      setInstallState(isStandaloneApp() ? "installed" : "available");
+    };
+    const handleInstalled = (): void => {
+      setInstallPromptEvent(null);
+      setInstallState("installed");
+      setIsInstallingApp(false);
+    };
+    syncInstallState();
+    media.addEventListener("change", syncInstallState);
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt as EventListener);
+    window.addEventListener("appinstalled", handleInstalled);
+    return () => {
+      media.removeEventListener("change", syncInstallState);
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt as EventListener);
+      window.removeEventListener("appinstalled", handleInstalled);
+    };
+  }, []);
 
   function selectKiller(killer: Killer): void {
     if (killer.id !== selectedKillerId) {
@@ -364,6 +399,21 @@ export default function App() {
     setSidebarLayout((current) => ({ ...current, [pane]: clamp(current[pane] + delta, minimum, maximum) }));
   }
 
+  async function installApplication(): Promise<void> {
+    if (!installPromptEvent || installState === "installed" || isInstallingApp) return;
+    setIsInstallingApp(true);
+    try {
+      await installPromptEvent.prompt();
+      const choice = await installPromptEvent.userChoice.catch(() => null);
+      setInstallState(choice?.outcome === "accepted" ? "installed" : detectInstallState());
+    } finally {
+      setInstallPromptEvent(null);
+      setIsInstallingApp(false);
+    }
+  }
+
+  const canInstallApplication = installState === "available" && installPromptEvent !== null && !isInstallingApp;
+
   const workspaceStyle = {
     "--left-pane": `${paneLayout.left}%`,
     "--right-pane": `${paneLayout.right}%`,
@@ -380,6 +430,10 @@ export default function App() {
         menu={topbarMenu}
         savedBuildCount={savedBuilds.length}
         hasBuild={selectedKiller !== null}
+        installState={installState}
+        canInstallApplication={canInstallApplication}
+        isInstallingApplication={isInstallingApp}
+        onInstallApplication={() => { void installApplication(); }}
         onViewChange={(view) => { setActiveView(view); setTopbarMenu(null); }}
         onMenuChange={setTopbarMenu}
         onResetScenario={() => setScenario(emptyScenario())}
@@ -389,10 +443,8 @@ export default function App() {
         <aside className="analyzer-sidebar left-sidebar">
           <section className="analyzer-panel selected-loadout-panel" aria-label="Tueur et perks sélectionnés">
             <SelectedKillerCard killer={selectedKiller} onChange={() => setActiveView("killers")} onRemove={removeKiller} />
-            <BuildEditor perks={equippedPerks} onRemove={togglePerk} onBrowse={browsePerk} />
+            <BuildEditor perks={equippedPerks} onRemove={togglePerk} onBrowse={browsePerk} scenario={scenario} onConditionChange={setScenarioCondition} onPerkStateChange={setPerkRuntimeState} />
           </section>
-          <ResizeHandle orientation="horizontal" label="Redimensionner la sélection et les conditions" onDelta={(delta) => resizeSidebar("perks", delta)} onReset={() => setSidebarLayout(DEFAULT_SIDEBAR_LAYOUT)} />
-          <BuildConditions perks={equippedPerks} scenario={scenario} onConditionChange={setScenarioCondition} onPerkStateChange={setPerkRuntimeState} onReset={() => setScenario(emptyScenario())} />
         </aside>
 
         <ResizeHandle orientation="vertical" label="Redimensionner la sidebar gauche" onDelta={(delta) => resizeColumn("left", delta)} onReset={() => setPaneLayout(DEFAULT_PANE_LAYOUT)} />
@@ -555,6 +607,10 @@ function Topbar({
   menu,
   savedBuildCount,
   hasBuild,
+  installState,
+  canInstallApplication,
+  isInstallingApplication,
+  onInstallApplication,
   onViewChange,
   onMenuChange,
   onResetScenario
@@ -563,10 +619,25 @@ function Topbar({
   menu: TopbarMenu;
   savedBuildCount: number;
   hasBuild: boolean;
+  installState: InstallState;
+  canInstallApplication: boolean;
+  isInstallingApplication: boolean;
+  onInstallApplication: () => void;
   onViewChange: (view: AppView) => void;
   onMenuChange: (menu: TopbarMenu) => void;
   onResetScenario: () => void;
 }) {
+  const installButtonLabel = installState === "installed"
+    ? "Application installée"
+    : isInstallingApplication
+      ? "Installation..."
+      : "Installer l’application";
+  const installHint = installState === "installed"
+    ? "La web app est déjà installée sur cet appareil."
+    : canInstallApplication
+      ? "Installer la web app dans une fenêtre dédiée du navigateur."
+      : "L’installation sera proposée dès que le navigateur l’autorisera.";
+
   return (
     <header className="site-header analyzer-topbar">
       <button className="brand" type="button" onClick={() => onViewChange("build")}>
@@ -582,8 +653,12 @@ function Topbar({
         ))}
       </nav>
       <div className="topbar-actions">
-        <button type="button" onClick={() => onMenuChange(menu === "help" ? null : "help")} aria-label="Aide" aria-expanded={menu === "help"}>?</button>
-        <button type="button" onClick={() => onMenuChange(menu === "settings" ? null : "settings")} aria-label="Paramètres" aria-expanded={menu === "settings"}>⚙</button>
+        <button className={`install-app-button ${canInstallApplication ? "available" : installState}`} type="button" onClick={onInstallApplication} disabled={!canInstallApplication} title={installHint} aria-label={installButtonLabel}>
+          <span className="install-app-button-full">{installButtonLabel}</span>
+          <span className="install-app-button-compact">Installer</span>
+        </button>
+        <button className="topbar-icon-button" type="button" onClick={() => onMenuChange(menu === "help" ? null : "help")} aria-label="Aide" aria-expanded={menu === "help"}>?</button>
+        <button className="topbar-icon-button" type="button" onClick={() => onMenuChange(menu === "settings" ? null : "settings")} aria-label="Paramètres" aria-expanded={menu === "settings"}>⚙</button>
       </div>
       {menu && (
         <div className="topbar-popover" role="status">
@@ -732,4 +807,13 @@ function currentAssistantServerUrl(): string {
   } catch {
     return normalizeServerUrl(DEFAULT_ASSISTANT_SERVER);
   }
+}
+
+function detectInstallState(): InstallState {
+  return isStandaloneApp() ? "installed" : "unsupported";
+}
+
+function isStandaloneApp(): boolean {
+  return window.matchMedia("(display-mode: standalone)").matches
+    || (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
 }
