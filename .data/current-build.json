@@ -1,28 +1,27 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-03T23:27:37.123Z",
+  "updatedAt": "2026-09-04T14:45:13.185Z",
   "build": {
-    "id": "b7ff2dc0-f604-4ea3-94de-4df7f02af6d6",
-    "name": "l'infirmière — Build teffst 2dqzd",
+    "id": "47519792-b12d-474f-aa3f-477ab211186f",
+    "name": "le dragage — Exit door",
     "killerId": "blight",
     "perkIds": [
-      "unnerving-presence",
-      "brutal-strength",
-      "a-nurses-calling"
+      "no-way-out",
+      "blood-warden",
+      "remember-me",
+      "haywire"
     ]
   },
   "scenario": {
     "conditions": {
       "not_in_chase": true,
-      "after_blind": true,
-      "carrying_survivor": true,
-      "inside_terror_radius": true,
-      "survivor_injured": true,
-      "outside_terror_radius": false
+      "exit_gates_powered": false,
+      "perk_triggered": false,
+      "exit_gate_open": false,
+      "survivor_hooked": true,
+      "exit_gate_progress_80": false
     },
-    "perkStates": {
-      "a-nurses-calling": "active"
-    }
+    "perkStates": {}
   },
   "assistantContext": {
     "killer": {
@@ -35,259 +34,202 @@
     },
     "perks": [
       {
-        "name": "présence perturbante",
+        "name": "aucune issue",
         "categories": [
-          "hability_test"
+          "hook",
+          "generator",
+          "exit_door"
         ],
         "effects": [
           {
-            "stat": "generator.skill_check_chance",
-            "operation": "add",
+            "stat": "exit_gate.lock",
+            "operation": "block",
             "interpretation": "verified",
-            "value": 10,
-            "unit": "percentage_points",
+            "duration": 60,
+            "unit": "seconds",
             "condition": {
-              "type": "inside_terror_radius"
-            }
-          },
-          {
-            "stat": "generator.skill_check_good_zone",
-            "operation": "multiply",
-            "interpretation": "verified",
-            "value": 0.4,
-            "unit": "multiplier",
-            "condition": {
-              "type": "inside_terror_radius"
-            }
-          },
-          {
-            "stat": "healing.skill_check_good_zone",
-            "operation": "multiply",
-            "interpretation": "verified",
-            "value": 0.4,
-            "unit": "multiplier",
-            "condition": {
-              "type": "inside_terror_radius"
+              "operator": "all",
+              "conditions": [
+                {
+                  "type": "exit_gates_powered"
+                },
+                {
+                  "type": "perk_triggered"
+                }
+              ]
             }
           }
         ],
-        "description": "- À l'intérieur de votre rayon de terreur Les survivants qui effectuent des actions de réparation ou de guérison subissent les effets suivants:\n- Augmente les chances de déclencher un test de compétence de +10 %.\n- Réduit la zone de réussite de ces tests de compétence. de 40 / 50 / 60 %."
+        "description": "- À chaque fois que vous accrochez un survivant pour la première fois, No Way Out gagne +1 jeton.\n- Une fois les portes de sortie sont alimentés:\n- Le premier survivant qui interagit avec l'un des interrupteurs de la porte de sortie déclenche une notification sonore forte à son emplacement.\n- En déclenchant la notification de bruit fort, No Way Out fait appel à l'Entité:\n- Bloque les deux interrupteurs de la porte de sortie pendant 12 secondes.\n- Ce délai est prolongé de 6 / 9 / 12 secondes supplémentaires par jeton accumulé, jusqu'à un maximum combiné de 36 / 48 / 60 secondes."
       },
       {
-        "name": "force brute",
+        "name": "gardien de sang",
         "categories": [
-          "destruction"
-        ],
-        "effects": [
-          {
-            "stat": "killer.pallet_break_time",
-            "operation": "multiply",
-            "interpretation": "verified",
-            "value": 1.2,
-            "unit": "multiplier"
-          },
-          {
-            "stat": "killer.wall_break_time",
-            "operation": "multiply",
-            "interpretation": "verified",
-            "value": 1.2,
-            "unit": "multiplier"
-          },
-          {
-            "stat": "generator.damage_time",
-            "operation": "multiply",
-            "interpretation": "verified",
-            "value": 1.2,
-            "unit": "multiplier"
-          }
-        ],
-        "description": "- Quand vous Casser ou Endommager sur des murs destructibles, Palettes, ou Générateurs:\n- Augmente la vitesse d'action de 10 / 15 / 20 %."
-      },
-      {
-        "name": "vocation de l'infirmière",
-        "categories": [
+          "exit_door",
+          "hook",
           "aura"
         ],
         "effects": [
           {
-            "stat": "survivor.aura",
+            "stat": "exit_gate.lock",
+            "operation": "block",
+            "interpretation": "verified",
+            "duration": 60,
+            "unit": "seconds",
+            "condition": {
+              "operator": "all",
+              "conditions": [
+                {
+                  "type": "exit_gate_open"
+                },
+                {
+                  "type": "survivor_hooked"
+                }
+              ]
+            }
+          },
+          {
+            "stat": "survivor.aura.exit_gate",
             "operation": "reveal",
-            "interpretation": "inferred",
-            "source": {
-              "format": "legacy-effect",
-              "raw": "infinite[aura]"
-            },
+            "interpretation": "verified",
             "value": true,
             "unit": "boolean",
-            "duration": null
+            "duration": null,
+            "condition": {
+              "type": "exit_gate_open"
+            }
           }
         ],
-        "description": "- Vous voyez les survivants en train d’être guéris ou de se guérir eux-mêmes vous sont révélés dans un rayon de 28 / 30 / 32 mètres."
+        "description": "- Dès qu'au moins une porte de sortie est ouvert:\n- Vous voyez les auras des survivants vous sont révélés, chaque fois qu'ils se trouvent à l'intérieur de la porte de sortie.\n- Une fois par procès, accrocher un survivant tant que le Gardien de sang est actif invoque l'Entité.:\n- Tous les blocs ont ouvert les portes de sortie pendant 40 / 50 / 60 secondes, empêchant ainsi tout survivant restant de quitter l'épreuve par celles-ci."
+      },
+      {
+        "name": "souviens-toi de moi",
+        "categories": [
+          "exit_door",
+          "obsession"
+        ],
+        "effects": [
+          {
+            "stat": "exit_gate.open_time",
+            "operation": "add",
+            "interpretation": "verified",
+            "value": 30,
+            "unit": "seconds",
+            "condition": {
+              "type": "perk_triggered"
+            }
+          }
+        ],
+        "description": "- Chaque fois que l'obsession perd un état de santé par tous les moyens, Remember Me gagne +1 jeton, jusqu'à un maximum de 3 / 4 / 5 jetons:\n- Augmente la durée d'ouverture des deux portes de sortie par une durée cumulable de 6 secondes par jeton, jusqu'à un temps d'ouverture supplémentaire maximal de 18 / 24 / 30 secondes.\n- Cela donne un temps d'ouverture maximal possible de 38 / 44 / 50 secondes pour les deux portes de sortie.\n- Le sort « Souviens-toi de moi » n’applique pas sa pénalité à l'Obsession, lui permettant d’ouvrir les deux portes de sortie dans le délai par défaut de 20 secondes.\n- On ne peut être obsédé que par un seul Survivant à la fois."
+      },
+      {
+        "name": "détraqué",
+        "categories": [
+          "exit_door"
+        ],
+        "effects": [
+          {
+            "stat": "exit_gate.regression_rate",
+            "operation": "set",
+            "interpretation": "verified",
+            "value": 100,
+            "unit": "percent",
+            "condition": {
+              "type": "exit_gate_progress_80"
+            }
+          }
+        ],
+        "description": "- Chaque fois qu'un survivant cesse d'ouvrir une porte de sortie Après avoir accumulé au moins 80 % de progression vers l'ouverture, Haywire provoque sa régression:\n- Régresse à un rythme de 80 / 90 / 100 % de la vitesse normale d'ouverture du portail.\n- Cela provoque chez les survivants l'apparition de lumières clignotant aléatoirement au-dessus de l'interrupteur pendant sa régression."
       }
     ],
     "currentState": {
       "activeConditions": {
         "not_in_chase": true,
-        "after_blind": true,
-        "carrying_survivor": true,
-        "inside_terror_radius": true,
-        "survivor_injured": true,
-        "outside_terror_radius": false
+        "exit_gates_powered": false,
+        "perk_triggered": false,
+        "exit_gate_open": false,
+        "survivor_hooked": true,
+        "exit_gate_progress_80": false
       },
-      "perkStates": {
-        "a-nurses-calling": "active"
-      }
+      "perkStates": {}
     },
     "calculatedData": {
       "affectedStats": [
         {
-          "key": "generator.damage_time",
-          "label": "Endommagement d’un générateur",
-          "base": 1.8,
-          "final": 1.5,
-          "delta": -0.3,
-          "deltaPercent": -16.666667,
+          "key": "exit_gate.open_time",
+          "label": "Ouverture d’une porte de sortie",
+          "base": 20,
+          "final": 20,
+          "delta": 0,
+          "deltaPercent": 0,
           "unit": "s",
           "effects": [
             {
-              "perk": "force brute",
-              "operation": "multiply",
-              "value": 1.2,
-              "unit": "multiplier",
-              "before": 1.8,
-              "after": 1.5,
-              "condition": [
-                "Aucune condition requise"
-              ],
-              "status": "active"
-            }
-          ]
-        },
-        {
-          "key": "generator.skill_check_chance",
-          "label": "Probabilité de test sur générateur",
-          "base": 8,
-          "final": 18,
-          "delta": 10,
-          "deltaPercent": 125,
-          "unit": "%/s",
-          "effects": [
-            {
-              "perk": "présence perturbante",
+              "perk": "souviens-toi de moi",
               "operation": "add",
-              "value": 10,
-              "unit": "percentage_points",
-              "before": 8,
-              "after": 18,
+              "value": 30,
+              "unit": "seconds",
+              "before": null,
+              "after": null,
               "condition": [
-                "Condition remplie : inside_terror_radius"
+                "Condition manquante : perk_triggered"
               ],
-              "status": "active"
+              "status": "inactive"
             }
           ]
         },
         {
-          "key": "generator.skill_check_good_zone",
-          "label": "Zone Bon sur générateur",
-          "base": 13,
-          "final": 5.2,
-          "delta": -7.8,
-          "deltaPercent": -60,
-          "unit": "% du cadran",
+          "key": "exit_gate.regression_rate",
+          "label": "Régression relative d’une porte",
+          "base": 0,
+          "final": 0,
+          "delta": 0,
+          "deltaPercent": null,
+          "unit": "% vitesse d’ouverture",
           "effects": [
             {
-              "perk": "présence perturbante",
-              "operation": "multiply",
-              "value": 0.4,
-              "unit": "multiplier",
-              "before": 13,
-              "after": 5.2,
+              "perk": "détraqué",
+              "operation": "set",
+              "value": 100,
+              "unit": "percent",
+              "before": null,
+              "after": null,
               "condition": [
-                "Condition remplie : inside_terror_radius"
+                "Condition manquante : exit_gate_progress_80"
               ],
-              "status": "active"
-            }
-          ]
-        },
-        {
-          "key": "killer.wall_break_time",
-          "label": "Destruction d’un mur cassable",
-          "base": 2.34,
-          "final": 1.95,
-          "delta": -0.39,
-          "deltaPercent": -16.666667,
-          "unit": "s",
-          "effects": [
-            {
-              "perk": "force brute",
-              "operation": "multiply",
-              "value": 1.2,
-              "unit": "multiplier",
-              "before": 2.34,
-              "after": 1.95,
-              "condition": [
-                "Aucune condition requise"
-              ],
-              "status": "active"
-            }
-          ]
-        },
-        {
-          "key": "killer.pallet_break_time",
-          "label": "Destruction d’une palette",
-          "base": 2.34,
-          "final": 1.95,
-          "delta": -0.39,
-          "deltaPercent": -16.666667,
-          "unit": "s",
-          "effects": [
-            {
-              "perk": "force brute",
-              "operation": "multiply",
-              "value": 1.2,
-              "unit": "multiplier",
-              "before": 2.34,
-              "after": 1.95,
-              "condition": [
-                "Aucune condition requise"
-              ],
-              "status": "active"
-            }
-          ]
-        },
-        {
-          "key": "healing.skill_check_good_zone",
-          "label": "Zone Bon pendant un soin",
-          "base": 15,
-          "final": 6,
-          "delta": -9,
-          "deltaPercent": -60,
-          "unit": "% du cadran",
-          "effects": [
-            {
-              "perk": "présence perturbante",
-              "operation": "multiply",
-              "value": 0.4,
-              "unit": "multiplier",
-              "before": 15,
-              "after": 6,
-              "condition": [
-                "Condition remplie : inside_terror_radius"
-              ],
-              "status": "active"
+              "status": "inactive"
             }
           ]
         }
       ],
       "qualitativeEffects": [
         {
-          "label": "Aura des survivants révélée",
-          "perk": "vocation de l'infirmière",
+          "label": "Portes de sortie bloquées",
+          "perk": "aucune issue",
           "condition": [
-            "Effet importé sans condition structurée",
-            "Effet déclenché dans la simulation"
+            "Condition manquante : exit_gates_powered",
+            "Condition manquante : perk_triggered"
           ],
-          "status": "active",
+          "status": "inactive",
+          "duration": 60
+        },
+        {
+          "label": "Portes de sortie bloquées",
+          "perk": "gardien de sang",
+          "condition": [
+            "Condition manquante : exit_gate_open",
+            "Condition remplie : survivor_hooked"
+          ],
+          "status": "inactive",
+          "duration": 60
+        },
+        {
+          "label": "Aura des survivants révélée",
+          "perk": "gardien de sang",
+          "condition": [
+            "Condition manquante : exit_gate_open"
+          ],
+          "status": "inactive",
           "duration": null
         }
       ],

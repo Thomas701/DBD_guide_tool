@@ -2185,7 +2185,7 @@
       "file": "source.txt",
       "line": 50
     },
-    "nativeDescriptionHtml": "<p><span>Lorsque vous franchissez une fenêtre :</span><br></p><ul><li>Vous passez les <span style=\"color: rgb(241, 108, 101);\"><strong>fenêtre&nbsp;</strong></span><span class=\"description-value\">5 / 10 / 15 %</span>&nbsp;plus vite.</li><li><span>La <span style=\"color: rgb(241, 108, 101);\"><strong>fenêtre </strong></span>en question est bloquée pour tous les survivants pendant </span><span class=\"description-value\">8 / 12 / 16 secondes</span><span>.<br></span></li><li><span>Franchir à nouveau la même <span style=\"color: rgb(241, 108, 101);\"><strong>fenêtre </strong></span>dans ce délai réinitialise le chronomètre.</span></li><li>En franchissant une autre <span style=\"color: rgb(241, 108, 101);\"><strong>fenêtre</strong></span>, l'effet s'applique à cette dernière</li></ul>"
+    "nativeDescriptionHtml": "<p><span>Lorsque vous franchissez une fenêtre :<br></span><br></p><ul><li>Vous passez les fenêtre&nbsp;<span class=\"description-value\">5 / 10 / 15 %</span>&nbsp;plus vite.</li><li><span>La fenêtre en question est bloquée pour tous les survivants pendant </span><span class=\"description-value\">8 / 12 / 16 secondes</span><span>.<br></span></li><li><span>Franchir à nouveau la même fenêtre dans ce délai réinitialise le chronomètre.</span></li><li>En franchissant une autre fenêtre, l'effet s'applique à cette dernière</li></ul>"
   },
   {
     "id": "spirit-fury",
