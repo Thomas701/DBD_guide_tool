@@ -14,6 +14,7 @@ import { SelectedKillerCard } from "./features/build-workspace/SelectedKillerCar
 import { KillerSelector } from "./features/killer-selector/KillerSelector.js";
 import { PerkInspectorPanel } from "./features/perk-browser/PerkInspectorPanel.js";
 import { PerkBrowser } from "./features/perk-browser/PerkBrowser.js";
+import { PerkFiltersPanel } from "./features/perk-browser/PerkFiltersPanel.js";
 import { SavedBuilds } from "./features/saved-builds/SavedBuilds.js";
 import {
   CATEGORY_OVERRIDES_STORAGE_KEY,
@@ -32,6 +33,7 @@ import {
   type PerkRuntimeState
 } from "./services/build-calculator.js";
 import { createCurrentBuildExport, syncCurrentBuildFile, updateNativePerk } from "./services/local-data.js";
+import { DEFAULT_PERK_FILTERS, type PerkFilters } from "./services/perk-filter.js";
 
 type TopbarMenu = "help" | "settings" | null;
 type InstallState = "available" | "unsupported" | "installed";
@@ -57,6 +59,8 @@ export default function App() {
   const [buildName, setBuildName] = useState(initialSession.buildName);
   const [conversationKey, setConversationKey] = useState(initialSession.conversationKey);
   const [catalogPerks, setCatalogPerks] = useState<Perk[]>(() => perks);
+  const [perkFilters, setPerkFilters] = useState<PerkFilters>({ ...DEFAULT_PERK_FILTERS, categories: [] });
+  const [perkFilterDetailsOpen, setPerkFilterDetailsOpen] = useState({ characters: false, categories: false });
   const [savedBuilds, setSavedBuilds] = useState<Build[]>([]);
   const [descriptionRepositoryState] = useState(createDescriptionOverrideRepository);
   const [descriptionOverrides, setDescriptionOverrides] = useState<Record<string, string>>(descriptionRepositoryState.overrides);
@@ -443,6 +447,16 @@ export default function App() {
     });
   }
 
+  function updatePerkFilters(filters: PerkFilters): void {
+    setSelectedPerkId(null);
+    setPerkFilters(filters);
+  }
+
+  function updatePerkFilterDetailsOpen(detail: "characters" | "categories", open: boolean): void {
+    setSelectedPerkId(null);
+    setPerkFilterDetailsOpen((current) => ({ ...current, [detail]: open }));
+  }
+
   function rememberCatalogScroll(view: CatalogView, scrollTop: number): void {
     catalogScrollPositionsRef.current[view] = scrollTop;
   }
@@ -503,13 +517,14 @@ export default function App() {
       />
 
       <main className={`analyzer-workspace view-${activeView}`} ref={workspaceRef} style={workspaceStyle}>
-        <aside className="analyzer-sidebar left-sidebar">
-          <section className="analyzer-panel selected-loadout-panel" aria-label="Tueur et perks sélectionnés">
+        <aside className={`analyzer-sidebar left-sidebar${activeView === "perks" ? " perks-sidebar" : ""}`}>
+          <section className={`analyzer-panel selected-loadout-panel${activeView === "perks" ? " perks-loadout-panel" : ""}`} aria-label="Tueur et perks sélectionnés">
             <SelectedKillerCard killer={selectedKiller} onChange={() => showView("killers")} onRemove={removeKiller} />
             <div className="build-editor-scroll-region">
-              <BuildEditor perks={equippedPerks} selectedPerkId={selectedPerkId} onRemove={togglePerk} onBrowse={browsePerk} scenario={scenario} onConditionChange={setScenarioCondition} onPerkStateChange={setPerkRuntimeState} />
+              <BuildEditor perks={equippedPerks} selectedPerkId={selectedPerkId} compact={activeView === "perks"} onRemove={togglePerk} onBrowse={browsePerk} scenario={scenario} onConditionChange={setScenarioCondition} onPerkStateChange={setPerkRuntimeState} />
             </div>
           </section>
+          <PerkFiltersPanel killers={killers} filters={perkFilters} detailsOpen={perkFilterDetailsOpen} onChange={updatePerkFilters} onDetailsOpenChange={updatePerkFilterDetailsOpen} />
         </aside>
 
         <ResizeHandle orientation="vertical" label="Redimensionner la sidebar gauche" onDelta={(delta) => resizeColumn("left", delta)} onReset={() => setPaneLayout(DEFAULT_PANE_LAYOUT)} />
@@ -547,10 +562,12 @@ export default function App() {
               <PerkBrowser
                 perks={effectivePerks}
                 killers={killers}
+                filters={perkFilters}
                 equippedPerkIds={equippedPerkIds}
                 canEquip={selectedKiller !== null}
                 selectedPerkId={selectedPerkId}
                 scrollToPerkId={selectedPerkId}
+                onFiltersChange={updatePerkFilters}
                 onSelectPerk={selectPerk}
                 onTogglePerk={togglePerk}
               />

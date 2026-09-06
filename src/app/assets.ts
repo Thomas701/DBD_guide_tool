@@ -38,6 +38,7 @@ const killerConditionImages = byFileName(killerConditionModules);
 const logoImages = byFileName(logoModules);
 export const conditionIconBackgroundUrl = Object.values(conditionBackgroundModules)[0] ?? null;
 export const appLogoUrl = logoImages.get("logo_dbd_build_analyser.png") ?? Object.values(logoModules)[0] ?? null;
+export const entityPortraitUrl = portraitImages.get("entity.png") ?? null;
 
 const conditionImageNames: Record<string, string> = {
   not_in_chase: "stop_chase.png",
