@@ -61,24 +61,9 @@ export async function updateNativePerk(
   return payload.perk;
 }
 
-export async function createNativeChatCopy(serverUrl: string, question: string, currentBuild: CurrentBuildExport): Promise<{ text: string; characters: number }> {
-  const response = await fetch(`${normalizeServerUrl(serverUrl)}/api/local-data/copy-prompt`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ question, currentBuild })
-  });
-  const payload: unknown = await response.json().catch(() => null);
-  if (!response.ok || !isCopyResponse(payload)) throw new Error(isError(payload) ? payload.error : "Contexte local indisponible.");
-  return payload;
-}
-
 async function responseError(response: Response): Promise<string> {
   const payload: unknown = await response.json().catch(() => null);
   return isError(payload) ? payload.error : `Erreur HTTP ${response.status}`;
-}
-
-function isCopyResponse(value: unknown): value is { text: string; characters: number } {
-  return typeof value === "object" && value !== null && "text" in value && typeof value.text === "string" && "characters" in value && typeof value.characters === "number";
 }
 
 function isPerkResponse(value: unknown): value is { perk: Perk } {

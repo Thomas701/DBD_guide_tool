@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
+import howToPlayText from "../partie_dbd.txt?raw";
+import fixedStatisticsText from "../statistiques_fixe.txt?raw";
 
-import { appLogoUrl } from "./app/assets.js";
+import { appLogoUrl, killerPortraitUrl, killerTerrorRadiusUrl, killerThemeUrl, originalKillerThemeUrl } from "./app/assets.js";
 import { killers, perks } from "./app/catalog.js";
 import { MAX_BUILD_PERKS, type Build } from "./domain/build.js";
 import type { PerkCategory } from "./domain/category.js";
@@ -33,7 +35,9 @@ import {
   type PerkRuntimeState
 } from "./services/build-calculator.js";
 import { createCurrentBuildExport, syncCurrentBuildFile, updateNativePerk } from "./services/local-data.js";
+import { DEFAULT_KILLER_OPTIONS, type KillerListOptions } from "./services/killer-selector.js";
 import { DEFAULT_PERK_FILTERS, type PerkFilters } from "./services/perk-filter.js";
+import { killerPowerDescription } from "./services/killer-powers.js";
 
 type TopbarMenu = "help" | "settings" | null;
 type InstallState = "available" | "unsupported" | "installed";
@@ -52,6 +56,10 @@ export default function App() {
   const [initialSession] = useState(loadPersistedAppSession);
   const [activeView, setActiveView] = useState<AppView>(initialSession.activeView);
   const [topbarMenu, setTopbarMenu] = useState<TopbarMenu>(null);
+  const [howToPlayOpen, setHowToPlayOpen] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(initialSession.soundEnabled);
+  const [musicVolume, setMusicVolume] = useState(initialSession.musicVolume);
+  const [killerInfo, setKillerInfo] = useState<Killer | null>(null);
   const [selectedKillerId, setSelectedKillerId] = useState<string | null>(initialSession.selectedKillerId);
   const [selectedPerkId, setSelectedPerkId] = useState<string | null>(initialSession.selectedPerkId);
   const [equippedPerkIds, setEquippedPerkIds] = useState<string[]>(initialSession.equippedPerkIds);
@@ -60,6 +68,9 @@ export default function App() {
   const [conversationKey, setConversationKey] = useState(initialSession.conversationKey);
   const [catalogPerks, setCatalogPerks] = useState<Perk[]>(() => perks);
   const [perkFilters, setPerkFilters] = useState<PerkFilters>({ ...DEFAULT_PERK_FILTERS, categories: [] });
+  const [killerOptions, setKillerOptions] = useState<KillerListOptions>({ ...DEFAULT_KILLER_OPTIONS });
+  const [killerListView, setKillerListView] = useState(false);
+  const [killerFiltersVisible, setKillerFiltersVisible] = useState(true);
   const [perkFilterDetailsOpen, setPerkFilterDetailsOpen] = useState({ characters: false, categories: false });
   const [savedBuilds, setSavedBuilds] = useState<Build[]>([]);
   const [descriptionRepositoryState] = useState(createDescriptionOverrideRepository);
@@ -76,6 +87,10 @@ export default function App() {
   const [installPromptEvent, setInstallPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstallingApp, setIsInstallingApp] = useState(false);
   const workspaceRef = useRef<HTMLElement>(null);
+  const killerThemeAudioRef = useRef<HTMLAudioElement | null>(null);
+  const originalThemeAudioRef = useRef<HTMLAudioElement | null>(null);
+  const themePlaybackRequestRef = useRef(0);
+  const terrorRadiusAudioRef = useRef<HTMLAudioElement | null>(null);
   const killerCatalogRef = useRef<HTMLElement>(null);
   const perkCatalogRef = useRef<HTMLElement>(null);
   const previousViewRef = useRef<AppView | null>(null);
@@ -109,9 +124,26 @@ export default function App() {
   }), [activeBuildId, buildName, selectedKiller, equippedPerks, scenario, calculation]);
 
   useEffect(() => {
+    killerThemeAudioRef.current = new Audio();
+    originalThemeAudioRef.current = new Audio();
+    terrorRadiusAudioRef.current = new Audio();
+    return () => [killerThemeAudioRef, originalThemeAudioRef, terrorRadiusAudioRef].forEach(({ current }) => current?.pause());
+  }, []);
+
+  useEffect(() => {
+    [killerThemeAudioRef.current, originalThemeAudioRef.current, terrorRadiusAudioRef.current].forEach((audio) => {
+      if (!audio) return;
+      audio.volume = musicVolume;
+      if (!soundEnabled) audio.pause();
+    });
+  }, [soundEnabled, musicVolume]);
+
+  useEffect(() => {
     const timeout = window.setTimeout(() => {
       const session: AppSession = {
         activeView,
+        soundEnabled,
+        musicVolume,
         selectedKillerId,
         selectedPerkId,
         equippedPerkIds,
@@ -126,7 +158,7 @@ export default function App() {
       try { window.localStorage.setItem(APP_SESSION_STORAGE_KEY, JSON.stringify(session)); } catch { /* Reprise indisponible si le navigateur bloque le stockage. */ }
     }, 120);
     return () => window.clearTimeout(timeout);
-  }, [activeView, selectedKillerId, selectedPerkId, equippedPerkIds, activeBuildId, buildName, conversationKey, scenario, paneLayout, sidebarLayout]);
+  }, [activeView, soundEnabled, musicVolume, selectedKillerId, selectedPerkId, equippedPerkIds, activeBuildId, buildName, conversationKey, scenario, paneLayout, sidebarLayout]);
 
   useEffect(() => {
     const previousView = previousViewRef.current;
@@ -239,6 +271,8 @@ export default function App() {
       }
       setActiveView("killers");
       setTopbarMenu(null);
+      stopTerrorRadius();
+      void playKillerTheme(killer);
     });
   }
 
@@ -247,6 +281,12 @@ export default function App() {
       setSelectedKillerId(null);
       setActiveView("killers");
       setTopbarMenu(null);
+      stopTerrorRadius();
+      killerThemeAudioRef.current?.pause();
+      if (killerThemeAudioRef.current) killerThemeAudioRef.current.currentTime = 0;
+      originalThemeAudioRef.current?.pause();
+      if (originalThemeAudioRef.current) originalThemeAudioRef.current.currentTime = 0;
+      void playOriginalKillerTheme();
     });
   }
 
@@ -427,15 +467,19 @@ export default function App() {
       }
 
       setSelectedPerkId((current) => current === perkId ? null : perkId);
-      if (activeView !== "build") {
-        setActiveView("perks");
-        setTopbarMenu(null);
-      }
     });
   }
 
   function showView(view: AppView): void {
     runUiTransition(() => {
+      if (view === "constants") {
+        themePlaybackRequestRef.current += 1;
+        stopTerrorRadius();
+        killerThemeAudioRef.current?.pause();
+        originalThemeAudioRef.current?.pause();
+      } else if (activeView === "constants" && selectedKiller) {
+        void playKillerTheme(selectedKiller);
+      }
       setActiveView(view);
       setTopbarMenu(null);
     });
@@ -445,6 +489,61 @@ export default function App() {
     runUiTransition(() => {
       setSelectedPerkId(perkId);
     });
+  }
+
+  async function playKillerTheme(killer: Killer): Promise<void> {
+    if (!soundEnabled) return;
+    const request = ++themePlaybackRequestRef.current;
+    const theme = killerThemeAudioRef.current;
+    if (!theme) return;
+    killerThemeAudioRef.current?.pause();
+    originalThemeAudioRef.current?.pause();
+    const url = await killerThemeUrl(killer.id);
+    if (request !== themePlaybackRequestRef.current) return;
+    if (!url) {
+      void playOriginalKillerTheme(request);
+      return;
+    }
+    theme.pause();
+    theme.loop = false;
+    theme.src = url;
+    theme.onended = () => { if (request === themePlaybackRequestRef.current) void playOriginalKillerTheme(request); };
+    void theme.play().catch(() => undefined);
+  }
+
+  async function playOriginalKillerTheme(request = ++themePlaybackRequestRef.current): Promise<void> {
+    if (!soundEnabled) return;
+    const url = await originalKillerThemeUrl();
+    if (request !== themePlaybackRequestRef.current) return;
+    if (!url) return;
+    const original = originalThemeAudioRef.current;
+    if (!original) return;
+    killerThemeAudioRef.current?.pause();
+    original.src = url;
+    original.loop = true;
+    void original.play().catch(() => undefined);
+  }
+
+  function stopTerrorRadius(): void {
+    const audio = terrorRadiusAudioRef.current;
+    if (!audio) return;
+    audio.pause();
+    audio.currentTime = 0;
+  }
+
+  function pauseThemeMusic(): void {
+    killerThemeAudioRef.current?.pause();
+    originalThemeAudioRef.current?.pause();
+  }
+
+  function resumeThemeMusic(): void {
+    if (!soundEnabled) return;
+    const activeTheme = killerThemeAudioRef.current;
+    if (activeTheme?.src && activeTheme.currentTime < activeTheme.duration) {
+      void activeTheme.play().catch(() => undefined);
+      return;
+    }
+    void playOriginalKillerTheme();
   }
 
   function updatePerkFilters(filters: PerkFilters): void {
@@ -513,13 +612,17 @@ export default function App() {
         onInstallApplication={() => { void installApplication(); }}
         onViewChange={showView}
         onMenuChange={setTopbarMenu}
+        onHelp={() => setHowToPlayOpen(true)}
         onResetScenario={() => setScenario(emptyScenario())}
       />
+      {topbarMenu === "settings" && <SettingsModal soundEnabled={soundEnabled} volume={musicVolume} onSoundEnabledChange={setSoundEnabled} onVolumeChange={setMusicVolume} onClose={() => setTopbarMenu(null)} />}
+      {howToPlayOpen && <HowToPlayModal onClose={() => setHowToPlayOpen(false)} />}
+      {killerInfo && <KillerInfoModal killer={killerInfo} killers={killers} onClose={() => setKillerInfo(null)} />}
 
-      <main className={`analyzer-workspace view-${activeView}`} ref={workspaceRef} style={workspaceStyle}>
+      {activeView === "constants" ? <ConstantsView /> : <main className={`analyzer-workspace view-${activeView}`} ref={workspaceRef} style={workspaceStyle}>
         <aside className={`analyzer-sidebar left-sidebar${activeView === "perks" ? " perks-sidebar" : ""}`}>
           <section className={`analyzer-panel selected-loadout-panel${activeView === "perks" ? " perks-loadout-panel" : ""}`} aria-label="Tueur et perks sélectionnés">
-            <SelectedKillerCard killer={selectedKiller} onChange={() => showView("killers")} onRemove={removeKiller} />
+            <SelectedKillerCard killer={selectedKiller} onChange={() => showView("killers")} onRemove={removeKiller} onTerrorRadiusStart={pauseThemeMusic} onTerrorRadiusStop={resumeThemeMusic} onShowInfo={setKillerInfo} />
             <div className="build-editor-scroll-region">
               <BuildEditor perks={equippedPerks} selectedPerkId={selectedPerkId} compact={activeView === "perks"} onRemove={togglePerk} onBrowse={browsePerk} scenario={scenario} onConditionChange={setScenarioCondition} onPerkStateChange={setPerkRuntimeState} />
             </div>
@@ -537,7 +640,7 @@ export default function App() {
                 : <EmptyCenterPanel title="Impact Analysis" action="Choisir un tueur" onAction={() => showView("killers")}>Sélectionnez un tueur pour commencer l’analyse.</EmptyCenterPanel>}
               <ResizeHandle orientation="horizontal" label="Redimensionner l’analyse et l’assistant" onDelta={resizeCenter} onReset={() => setPaneLayout(DEFAULT_PANE_LAYOUT)} />
               {selectedKiller && calculation
-                ? <BuildAssistant conversationKey={conversationKey} killer={selectedKiller} perks={equippedPerks} scenario={scenario} calculation={calculation} currentBuild={currentBuildExport} />
+                ? <BuildAssistant conversationKey={conversationKey} killer={selectedKiller} perks={equippedPerks} scenario={scenario} calculation={calculation} currentBuild={currentBuildExport} allKillers={killers} allPerks={effectivePerks} howToPlay={howToPlayText} constants={fixedStatisticsText} perkDescriptionOverrides={descriptionOverrides} />
                 : <EmptyCenterPanel title="Build Assistant">L’assistant sera disponible dès qu’un tueur aura été sélectionné.</EmptyCenterPanel>}
             </>
           )}
@@ -548,7 +651,7 @@ export default function App() {
               ref={killerCatalogRef}
               onScroll={(event) => rememberCatalogScroll("killers", event.currentTarget.scrollTop)}
             >
-              <KillerSelector killers={killers} selectedKillerId={selectedKillerId} onSelect={selectKiller} />
+              <KillerSelector killers={killers} selectedKillerId={selectedKillerId} options={killerOptions} listView={killerListView} filtersVisible={killerFiltersVisible} onOptionsChange={setKillerOptions} onListViewChange={setKillerListView} onFiltersVisibleChange={setKillerFiltersVisible} onShowInfo={setKillerInfo} onSelect={selectKiller} />
             </section>
           )}
 
@@ -578,7 +681,7 @@ export default function App() {
         <ResizeHandle orientation="vertical" label="Redimensionner la sidebar droite" onDelta={(delta) => resizeColumn("right", delta)} onReset={() => setPaneLayout(DEFAULT_PANE_LAYOUT)} />
 
         <aside className="analyzer-sidebar right-sidebar">
-          {activeView !== "killers" && selectedPerk ? (
+          {selectedPerk ? (
             <PerkInspectorPanel
               perk={selectedPerk}
               owner={selectedPerkOwner}
@@ -621,7 +724,7 @@ export default function App() {
             </section>
           )}
         </aside>
-      </main>
+      </main>}
     </div>
   );
 }
@@ -641,6 +744,74 @@ function EmptyCenterPanel({ title, action, onAction, children }: {
       </div>
     </section>
   );
+}
+
+type FixedStatisticsBlock =
+  | { type: "heading"; level: number; text: string }
+  | { type: "paragraph"; text: string }
+  | { type: "table"; columns: string[]; rows: string[][] };
+
+function ConstantsView() {
+  const [query, setQuery] = useState("");
+  const blocks = useMemo(() => parseFixedStatistics(fixedStatisticsText), []);
+  const normalizedQuery = query.trim().toLocaleLowerCase("fr");
+  const visibleBlocks = blocks.flatMap((block) => {
+    if (!normalizedQuery) return [block];
+    if (block.type === "table") {
+      const rows = block.rows.filter((row) => row.join(" ").toLocaleLowerCase("fr").includes(normalizedQuery));
+      return rows.length > 0 ? [{ ...block, rows }] : [];
+    }
+    return block.text.toLocaleLowerCase("fr").includes(normalizedQuery) ? [block] : [];
+  });
+
+  return <main className="constants-page">
+    <header className="constants-header">
+      <div><span className="eyebrow">Dead by Daylight</span><h1>Constantes</h1><p>Valeurs de référence et unités de mesure utilisées dans le jeu.</p></div>
+      <label className="constants-search"><span>Rechercher</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Ex. générateur, 4,6 m/s…" autoComplete="off" /></label>
+    </header>
+    <section className="constants-content" aria-label="Constantes de Dead by Daylight">
+      {visibleBlocks.length > 0 ? visibleBlocks.map((block, index) => {
+        if (block.type === "heading") {
+          const Heading = `h${Math.min(block.level + 1, 3)}` as "h2" | "h3";
+          return <Heading key={`heading-${index}`} className={`constants-heading level-${block.level}`}>{formatGuideText(block.text)}</Heading>;
+        }
+        if (block.type === "paragraph") return <p key={`paragraph-${index}`} className="constants-note">{formatGuideText(block.text)}</p>;
+        return <div className="constants-table-wrap" key={`table-${index}`}><table className="constants-table"><thead><tr>{block.columns.map((column, columnIndex) => <th key={columnIndex}>{formatGuideText(column)}</th>)}</tr></thead><tbody>{block.rows.map((row, rowIndex) => <tr key={rowIndex}>{row.map((cell, cellIndex) => <td key={cellIndex}>{formatGuideText(cell)}</td>)}</tr>)}</tbody></table></div>;
+      }) : <p className="constants-empty">Aucune constante ne correspond à cette recherche.</p>}
+    </section>
+  </main>;
+}
+
+function parseFixedStatistics(source: string): FixedStatisticsBlock[] {
+  const blocks: FixedStatisticsBlock[] = [];
+  const lines = source.replace(/\r/g, "").split("\n");
+  for (let index = 0; index < lines.length;) {
+    const line = lines[index]?.trim() ?? "";
+    if (!line || line === "---") { index += 1; continue; }
+    const heading = /^(#{1,3})\s+(.+)$/.exec(line);
+    if (heading) { const [, marks = "#", text = ""] = heading; blocks.push({ type: "heading", level: marks.length, text }); index += 1; continue; }
+    if (line.startsWith("|") && /^\|\s*:?-+/.test(lines[index + 1]?.trim() ?? "")) {
+      const columns = tableCells(line);
+      index += 2;
+      const rows: string[][] = [];
+      while ((lines[index]?.trim() ?? "").startsWith("|")) { rows.push(tableCells(lines[index] ?? "")); index += 1; }
+      blocks.push({ type: "table", columns, rows });
+      continue;
+    }
+    const paragraph: string[] = [];
+    while (index < lines.length) {
+      const current = lines[index]?.trim() ?? "";
+      if (!current || current === "---" || current.startsWith("#") || current.startsWith("|")) break;
+      paragraph.push(current);
+      index += 1;
+    }
+    if (paragraph.length) blocks.push({ type: "paragraph", text: paragraph.join(" ") }); else index += 1;
+  }
+  return blocks;
+}
+
+function tableCells(line: string): string[] {
+  return line.trim().replace(/^\||\|$/g, "").split("|").map((cell) => cell.trim());
 }
 
 function ResizeHandle({ orientation, label, onDelta, onReset }: {
@@ -702,6 +873,7 @@ function Topbar({
   onInstallApplication,
   onViewChange,
   onMenuChange,
+  onHelp,
   onResetScenario
 }: {
   activeView: AppView;
@@ -714,6 +886,7 @@ function Topbar({
   onInstallApplication: () => void;
   onViewChange: (view: AppView) => void;
   onMenuChange: (menu: TopbarMenu) => void;
+  onHelp: () => void;
   onResetScenario: () => void;
 }) {
   const installButtonLabel = installState === "installed"
@@ -736,10 +909,10 @@ function Topbar({
         <span>Build Analyzer</span>
       </button>
       <nav className="main-navigation" aria-label="Navigation principale">
-        {(["build", "killers", "perks"] as AppView[]).map((view) => (
+        {(["build", "killers", "perks", "constants"] as AppView[]).map((view) => (
           <button className={activeView === view ? "active" : ""} type="button" onClick={() => onViewChange(view)} aria-current={activeView === view ? "page" : undefined} key={view}>
-            <span aria-hidden="true">{view === "build" ? "⌘" : view === "killers" ? "☠" : "◇"}</span>
-            {view[0]?.toUpperCase()}{view.slice(1)}
+            <span aria-hidden="true">{view === "build" ? "⌘" : view === "killers" ? "☠" : view === "perks" ? "◇" : "≡"}</span>
+            {view === "constants" ? "Constantes" : `${view[0]?.toUpperCase()}${view.slice(1)}`}
           </button>
         ))}
       </nav>
@@ -750,10 +923,10 @@ function Topbar({
             <span className="install-app-button-compact">Installer</span>
           </button>
         )}
-        <button className="topbar-icon-button" type="button" onClick={() => onMenuChange(menu === "help" ? null : "help")} aria-label="Aide" aria-expanded={menu === "help"}>?</button>
+        <button className="topbar-icon-button help-button" type="button" onClick={onHelp} aria-label="How to play ?"><span aria-hidden="true">?</span><span className="topbar-icon-tooltip" role="tooltip">How to play ?</span></button>
         <button className="topbar-icon-button" type="button" onClick={() => onMenuChange(menu === "settings" ? null : "settings")} aria-label="Paramètres" aria-expanded={menu === "settings"}>⚙</button>
       </div>
-      {menu && (
+      {menu === "help" && (
         <div className="topbar-popover" role="status">
           {menu === "help" ? (
             <><strong>Aide rapide</strong><p>Choisissez un tueur, équipez jusqu’à quatre perks, puis activez les conditions à simuler.</p></>
@@ -764,6 +937,94 @@ function Topbar({
       )}
     </header>
   );
+}
+
+function SettingsModal({ soundEnabled, volume, onSoundEnabledChange, onVolumeChange, onClose }: {
+  soundEnabled: boolean;
+  volume: number;
+  onSoundEnabledChange: (enabled: boolean) => void;
+  onVolumeChange: (volume: number) => void;
+  onClose: () => void;
+}) {
+  return <div className="app-modal-backdrop" role="presentation" onMouseDown={onClose}>
+    <section className="app-modal settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title" onMouseDown={(event) => event.stopPropagation()}>
+      <header><h2 id="settings-title">Paramètres</h2><button type="button" onClick={onClose} aria-label="Fermer">×</button></header>
+      <label className="sound-toggle"><input type="checkbox" checked={soundEnabled} onChange={(event) => onSoundEnabledChange(event.target.checked)} /><span>Activer le son</span></label>
+      <label className="field"><span>Volume musique</span><input type="range" min="0" max="1" step="0.05" value={volume} disabled={!soundEnabled} onChange={(event) => onVolumeChange(Number(event.target.value))} /></label>
+    </section>
+  </div>;
+}
+
+function HowToPlayModal({ onClose }: { onClose: () => void }) {
+  return <div className="app-modal-backdrop" role="presentation" onMouseDown={onClose}>
+    <section className="app-modal how-to-play-modal" role="dialog" aria-modal="true" aria-labelledby="how-to-play-title" onMouseDown={(event) => event.stopPropagation()}>
+      <header><h2 id="how-to-play-title">How to play ?</h2><button type="button" onClick={onClose} aria-label="Fermer">×</button></header>
+      <div className="how-to-play-content">{renderHowToPlay(howToPlayText)}</div>
+    </section>
+  </div>;
+}
+
+function renderHowToPlay(source: string): ReactNode[] {
+  const blocks: ReactNode[] = [];
+  const lines = source.replace(/\r/g, "").split("\n");
+  for (let index = 0; index < lines.length;) {
+    const line = lines[index]?.trim() ?? "";
+    if (!line || line === "---") { index += 1; continue; }
+    if (line.startsWith("# ")) { blocks.push(<p className="how-to-play-intro" key={`title-${index}`}>{formatGuideText(line.slice(2))}</p>); index += 1; continue; }
+    if (line.startsWith("## ")) { blocks.push(<h3 key={`heading-${index}`}>{formatGuideText(line.slice(3))}</h3>); index += 1; continue; }
+    if (line.startsWith("* ")) {
+      const items: string[] = [];
+      while ((lines[index]?.trim() ?? "").startsWith("* ")) { items.push((lines[index] ?? "").trim().slice(2)); index += 1; }
+      blocks.push(<ul key={`list-${index}`}>{items.map((item, itemIndex) => <li key={itemIndex}>{formatGuideText(item)}</li>)}</ul>);
+      continue;
+    }
+    const paragraph: string[] = [];
+    while (index < lines.length) {
+      const current = lines[index]?.trim() ?? "";
+      if (!current || current === "---" || current.startsWith("#") || current.startsWith("* ")) break;
+      paragraph.push(current);
+      index += 1;
+    }
+    blocks.push(<p key={`paragraph-${index}`}>{formatGuideText(paragraph.join(" "))}</p>);
+  }
+  return blocks;
+}
+
+function formatGuideText(value: string): ReactNode[] {
+  return value.split(/(\*\*.*?\*\*)/g).filter(Boolean).map((part, index) => part.startsWith("**") && part.endsWith("**")
+    ? <strong key={index}>{part.slice(2, -2)}</strong>
+    : part
+  );
+}
+
+function KillerInfoModal({ killer, killers, onClose }: { killer: Killer; killers: readonly Killer[]; onClose: () => void }) {
+  const [infoKiller, setInfoKiller] = useState(killer);
+  const railRef = useRef<HTMLDivElement>(null);
+  const portrait = killerPortraitUrl(infoKiller);
+  const killerLoop = [...killers, ...killers, ...killers];
+
+  useEffect(() => {
+    setInfoKiller(killer);
+  }, [killer]);
+
+  useEffect(() => {
+    const rail = railRef.current;
+    if (rail) rail.scrollLeft = rail.scrollWidth / 3;
+  }, [killers.length]);
+
+  const moveRail = (direction: -1 | 1) => railRef.current?.scrollBy({ left: direction * 260, behavior: "smooth" });
+  const keepRailLooping = () => {
+    const rail = railRef.current;
+    if (!rail) return;
+    const third = rail.scrollWidth / 3;
+    if (rail.scrollLeft < 4 || rail.scrollLeft > rail.scrollWidth - rail.clientWidth - 4) rail.scrollLeft = third;
+  };
+  return <div className="app-modal-backdrop" role="presentation" onMouseDown={onClose}>
+    <section className="app-modal killer-info-modal" role="dialog" aria-modal="true" aria-labelledby="killer-info-title" onMouseDown={(event) => event.stopPropagation()}>
+      <header><h2 id="killer-info-title">{infoKiller.name.fr ?? infoKiller.name.en}</h2><div className="killer-info-carousel"><button type="button" onClick={() => moveRail(-1)} aria-label="Tueurs précédents">‹</button><div className="killer-info-profiles" ref={railRef} onScroll={keepRailLooping} onWheel={(event) => { event.preventDefault(); event.currentTarget.scrollBy({ left: event.deltaY, behavior: "auto" }); }}>{killerLoop.map((candidate, index) => { const candidatePortrait = killerPortraitUrl(candidate); const name = candidate.name.fr ?? candidate.name.en ?? candidate.id; return <button className={candidate.id === infoKiller.id ? "selected" : ""} type="button" key={`${candidate.id}-${index}`} onClick={() => setInfoKiller(candidate)} aria-label={`Afficher le pouvoir de ${name}`} aria-pressed={candidate.id === infoKiller.id}>{candidatePortrait ? <img src={candidatePortrait} alt="" /> : name.slice(0, 1)}</button>; })}</div><button type="button" onClick={() => moveRail(1)} aria-label="Tueurs suivants">›</button></div><button className="killer-info-close" type="button" onClick={onClose} aria-label="Fermer">×</button></header>
+      <div className="killer-info-content" key={infoKiller.id}>{portrait && <img src={portrait} alt="" />}<p>{killerPowerDescription(infoKiller)}</p></div>
+    </section>
+  </div>;
 }
 
 function errorMessage(error: unknown): string {

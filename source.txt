@@ -214,7 +214,7 @@ fais ton choix;1;hook,survivant_transport,sound,be_one_shot,recharge;le cochon;n
 CANNIBALE:
 chili et barbebue;1;hook,survivant_transport,aura;le cannibale;null;null;+5[aura];null
 K.O.;1;chase,speed;le cannibale;null;null;-5%[speed(survivant)];null
-la mort de Franklin;1;action;le cannibale;null;null;null;null
+trépas de Franklin;1;action;le cannibale;null;null;null;null
 
 DEFAULT:
 boucher sadique;1;care,chase;null;null;null;+90[care(hemorragie,estropiement)],-25%[care];null

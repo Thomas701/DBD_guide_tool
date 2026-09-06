@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-09-06T21:42:13.281Z",
+  "build": {
+    "id": "b7ff2dc0-f604-4ea3-94de-4df7f02af6d6",
+    "name": "l'infirmière — Build teffst 2dqzd",
+    "killerId": "good-guy",
+    "perkIds": [
+      "predator",
+      "shadowborn",
+      "enduring",
+      "lightborn"
+    ]
+  },
+  "scenario": {
+    "conditions": {
+      "not_in_chase": true,
+      "after_blind": true,
+      "carrying_survivor": true,
+      "inside_terror_radius": true,
+      "survivor_injured": true,
+      "outside_terror_radius": false,
+      "perk_triggered": true,
+      "exit_gate_open": true,
+      "survivor_hooked": true,
+      "exit_gate_progress_80": true,
+      "exit_gates_powered": true,
+      "compromised_generator_completed": true
+    },
+    "perkStates": {
+      "a-nurses-calling": "active",
+      "territorial-imperative": "active",
+      "nowhere-to-hide": "active",
+      "phantom-fear": "active",
+      "predator": "active",
+      "lightborn": "active"
+    }
+  },
+  "assistantContext": {
+    "killer": {
+      "name": "le brave gars",
+      "speed": 4.4,
+      "terrorRadius": 32,
+      "size": "small",
+      "tier": "C-",
+      "difficulty": "normal"
+    },
+    "perks": [
+      {
+        "name": "prédateur",
+        "categories": [
+          "aura",
+          "chase",
+          "recharge"
+        ],
+        "effects": [
+          {
+            "stat": "survivor.aura",
+            "operation": "reveal",
+            "interpretation": "inferred",
+            "source": {
+              "format": "legacy-effect",
+              "raw": "+4[aura]"
+            },
+            "duration": 4,
+            "unit": "seconds"
+          }
+        ],
+        "description": "- Chaque fois qu'un Survivant est perdu lors d'une Poursuite:\n- Leur aura vous est révélé pendant 4 secondes.\n- Temps de recharge: 60 / 50 / 40 secondes."
+      },
+      {
+        "name": "rejeton de l'ombre",
+        "categories": [
+          "speed",
+          "blind"
+        ],
+        "effects": [
+          {
+            "stat": "killer.speed",
+            "operation": "multiply",
+            "interpretation": "verified",
+            "value": 1.1,
+            "unit": "multiplier",
+            "condition": {
+              "type": "after_blind"
+            },
+            "duration": 10
+          }
+        ],
+        "description": "- Chaque fois que vous êtes aveuglé, de quelque manière que ce soit:\n- Vous gagnez 6/8/10 % de vitesse pendant 10 secondes."
+      },
+      {
+        "name": "tenace",
+        "categories": [
+          "chase"
+        ],
+        "effects": [
+          {
+            "stat": "killer.pallet_stun_duration",
+            "operation": "multiply",
+            "interpretation": "verified",
+            "value": 0.5,
+            "unit": "multiplier"
+          }
+        ],
+        "description": "- Vous bénéficiez de l'effet suivant:\n- Réduit la durée des étourdissements de palettes de 40 / 45 / 50 %.\n- Cet effet ne s'applique pas lorsque la cible est étourdie alors qu'elle porte un survivant."
+      },
+      {
+        "name": "rejeton de la lumière",
+        "categories": [
+          "aura",
+          "blind",
+          "chase"
+        ],
+        "effects": [
+          {
+            "stat": "survivor.aura",
+            "operation": "reveal",
+            "interpretation": "inferred",
+            "source": {
+              "format": "legacy-effect",
+              "raw": "+10[aura]"
+            },
+            "duration": 10,
+            "unit": "seconds"
+          }
+        ],
+        "description": "- Contrairement aux autres créatures du Brouillard, vous vous êtes adapté à la lumière.\n- Vous voyez les survivants qui tentent de vous aveugler par tous les moyens pendant 6 / 8 / 10 secondes.\n- Confère l'immunité contre l'éblouissement causé par les lampes torches.\n- Icônes lampe torche.png, Pétards.\n- IconItems chinoisFirecracker.png, Grenades flash.\n- IconItems flashGrenade.png et la mine à explosion."
+      }
+    ],
+    "currentState": {
+      "activeConditions": {
+        "not_in_chase": true,
+        "after_blind": true,
+        "carrying_survivor": true,
+        "inside_terror_radius": true,
+        "survivor_injured": true,
+        "outside_terror_radius": false,
+        "perk_triggered": true,
+        "exit_gate_open": true,
+        "survivor_hooked": true,
+        "exit_gate_progress_80": true,
+        "exit_gates_powered": true,
+        "compromised_generator_completed": true
+      },
+      "perkStates": {
+        "a-nurses-calling": "active",
+        "territorial-imperative": "active",
+        "nowhere-to-hide": "active",
+        "phantom-fear": "active",
+        "predator": "active",
+        "lightborn": "active"
+      }
+    },
+    "calculatedData": {
+      "affectedStats": [
+        {
+          "key": "killer.speed",
+          "label": "Vitesse du tueur",
+          "base": 4.4,
+          "final": 4.84,
+          "delta": 0.44,
+          "deltaPercent": 10,
+          "unit": "m/s",
+          "effects": [
+            {
+              "perk": "rejeton de l'ombre",
+              "operation": "multiply",
+              "value": 1.1,
+              "unit": "multiplier",
+              "before": 4.4,
+              "after": 4.84,
+              "condition": [
+                "Condition remplie : after_blind"
+              ],
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "key": "killer.pallet_stun_duration",
+          "label": "Étourdissement par palette",
+          "base": 2,
+          "final": 1,
+          "delta": -1,
+          "deltaPercent": -50,
+          "unit": "s",
+          "effects": [
+            {
+              "perk": "tenace",
+              "operation": "multiply",
+              "value": 0.5,
+              "unit": "multiplier",
+              "before": 2,
+              "after": 1,
+              "condition": [
+                "Aucune condition requise"
+              ],
+              "status": "active"
+            }
+          ]
+        }
+      ],
+      "qualitativeEffects": [
+        {
+          "label": "Aura des survivants révélée",
+          "perk": "prédateur",
+          "condition": [
+            "Effet importé sans condition structurée",
+            "Effet déclenché dans la simulation"
+          ],
+          "status": "active",
+          "duration": 4
+        },
+        {
+          "label": "Aura des survivants révélée",
+          "perk": "rejeton de la lumière",
+          "condition": [
+            "Effet importé sans condition structurée",
+            "Effet déclenché dans la simulation"
+          ],
+          "status": "active",
+          "duration": 10
+        }
+      ],
+      "unresolvedEffects": []
+    }
+  }
+}

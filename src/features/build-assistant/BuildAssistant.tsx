@@ -16,7 +16,9 @@ import {
   type CodexProviderStatus
 } from "../../services/assistant-provider.js";
 import type { BuildCalculation, BuildScenario } from "../../services/build-calculator.js";
-import { createNativeChatCopy, type CurrentBuildExport } from "../../services/local-data.js";
+import type { CurrentBuildExport } from "../../services/local-data.js";
+import { killerPowerDescription } from "../../services/killer-powers.js";
+import { buildNativeChatPrompt } from "../../services/native-chat-prompt.js";
 import { buildAssistantContext } from "../../services/openai-build-assistant.js";
 
 interface BuildAssistantProps {
@@ -26,6 +28,11 @@ interface BuildAssistantProps {
   scenario: BuildScenario;
   calculation: BuildCalculation;
   currentBuild: CurrentBuildExport;
+  allKillers: readonly Killer[];
+  allPerks: readonly Perk[];
+  howToPlay: string;
+  constants: string;
+  perkDescriptionOverrides: Readonly<Record<string, string>>;
 }
 
 interface ChatMessage {
@@ -46,7 +53,7 @@ const SUGGESTIONS = [
   "Pourquoi cette statistique a changé ?"
 ] as const;
 
-export function BuildAssistant({ conversationKey, killer, perks, scenario, calculation, currentBuild }: BuildAssistantProps) {
+export function BuildAssistant({ conversationKey, killer, perks, scenario, calculation, currentBuild, allKillers, allPerks, howToPlay, constants, perkDescriptionOverrides }: BuildAssistantProps) {
   const [histories, setHistories] = useState<Record<string, ChatMessage[]>>(loadHistories);
   const [draft, setDraft] = useState("");
   const [serverUrl, setServerUrl] = useState(loadServerUrl);
@@ -112,12 +119,19 @@ export function BuildAssistant({ conversationKey, killer, perks, scenario, calcu
     requestController.current = controller;
     try {
       if (providerId === "clipboard") {
-        const copied = await createNativeChatCopy(serverUrl, question, currentBuild);
-        await copyText(copied.text);
+        const copied = buildNativeChatPrompt(question, currentBuild, {
+          howToPlay,
+          constants,
+          killers: allKillers,
+          perks: allPerks,
+          perkDescriptionOverrides,
+          killerPowerDescription
+        });
+        await copyText(copied);
         setActivity("completed");
         setHistories((current) => ({
           ...current,
-          [conversationKey]: [...(current[conversationKey] ?? updatedMessages), message("assistant", `Contexte DBD, build actuel et question copiés (${copied.characters.toLocaleString("fr-FR")} caractères). Collez-les dans votre GPT distant.`)]
+          [conversationKey]: [...(current[conversationKey] ?? updatedMessages), message("assistant", `How to play, constantes, tueurs, perks, build actuel et question copiés (${copied.length.toLocaleString("fr-FR")} caractères). Collez-les dans votre GPT distant.`)]
         }));
         return;
       }
@@ -204,12 +218,13 @@ export function BuildAssistant({ conversationKey, killer, perks, scenario, calcu
 
   function saveSettings(nextProvider = providerId, close = true): void {
     const normalizedUrl = normalizeServerUrl(serverUrl);
-    if (!normalizedUrl) return;
-    setServerUrl(normalizedUrl);
+    const needsServer = nextProvider === "browser" || nextProvider === "codex" || nextProvider === "openai";
+    if (needsServer && !normalizedUrl) return;
+    if (normalizedUrl) setServerUrl(normalizedUrl);
     setProviderId(nextProvider);
     if (close) setShowConnection(false);
     try {
-      window.localStorage.setItem(ASSISTANT_SERVER_STORAGE_KEY, normalizedUrl);
+      if (normalizedUrl) window.localStorage.setItem(ASSISTANT_SERVER_STORAGE_KEY, normalizedUrl);
       window.localStorage.setItem(PROVIDER_STORAGE_KEY, nextProvider);
     } catch {
       // La configuration reste disponible en mémoire.
@@ -256,7 +271,7 @@ export function BuildAssistant({ conversationKey, killer, perks, scenario, calcu
             ))}
           </fieldset>
 
-          {providerId !== "local" && (
+          {(providerId === "browser" || providerId === "codex" || providerId === "openai") && (
             <label>Serveur local
               <input type="url" value={serverUrl} onChange={(event) => setServerUrl(event.target.value)} placeholder="http://127.0.0.1:8787" />
             </label>
@@ -291,7 +306,7 @@ export function BuildAssistant({ conversationKey, killer, perks, scenario, calcu
           )}
 
           {providerId === "openai" && <p>Ce mode utilise le proxy local et nécessite <code>OPENAI_API_KEY</code> uniquement dans le processus serveur.</p>}
-          {providerId === "clipboard" && <p>Le bouton d’envoi copie les connaissances DBD, le build actuel et votre question. Collez ensuite le contenu dans le GPT distant de votre choix.</p>}
+          {providerId === "clipboard" && <p>Le bouton d’envoi copie How to play, les constantes, tous les tueurs et leurs pouvoirs, toutes les perks, le build actuel et votre question. Collez ensuite le contenu dans le GPT distant de votre choix.</p>}
           {providerId === "local" && <p>Ce mode répond uniquement à partir des calculs locaux, sans service externe.</p>}
           {connectionError && <p className="assistant-connection-error" role="alert">{connectionError}</p>}
           <div><button className="primary-button" type="submit">Enregistrer</button></div>

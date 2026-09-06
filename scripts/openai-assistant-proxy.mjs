@@ -2,7 +2,7 @@ import { createServer } from "node:http";
 
 import { BrowserChatGPTProvider, BrowserProviderError } from "./chatgpt-browser-provider.mjs";
 import { CodexChatGPTProvider, CodexProviderError } from "./codex-assistant-provider.mjs";
-import { createNativeChatPrompt, updateNativePerk, writeCurrentBuild } from "./local-data-files.mjs";
+import { updateNativePerk, writeCurrentBuild } from "./local-data-files.mjs";
 
 const port = Number(process.env.OPENAI_ASSISTANT_PORT ?? 8787);
 const apiKey = process.env.OPENAI_API_KEY;
@@ -50,14 +50,6 @@ const server = createServer(async (request, response) => {
         throw new HttpError(400, "Modification native de perk invalide.");
       }
       return send(response, 200, { perk: await updateNativePerk(body.perkId, body.changes) });
-    }
-    if (request.method === "POST" && url.pathname === "/api/local-data/copy-prompt") {
-      const body = await readJson(request);
-      if (!isRecord(body) || typeof body.question !== "string" || !isRecord(body.currentBuild)) {
-        throw new HttpError(400, "Question ou build courant invalide.");
-      }
-      const text = await createNativeChatPrompt(body.question, body.currentBuild);
-      return send(response, 200, { text, characters: text.length });
     }
     if (request.method === "POST" && url.pathname === "/api/assistant/message") {
       const body = await readJson(request);

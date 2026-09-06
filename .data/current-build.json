@@ -1,15 +1,12 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-06T18:48:56.766Z",
+  "updatedAt": "2026-09-06T22:51:17.242Z",
   "build": {
     "id": "b7ff2dc0-f604-4ea3-94de-4df7f02af6d6",
     "name": "l'infirmière — Build teffst 2dqzd",
-    "killerId": "blight",
+    "killerId": "nurse",
     "perkIds": [
-      "haywire",
-      "nowhere-to-hide",
-      "help-wanted",
-      "phantom-fear"
+      "mad-grit"
     ]
   },
   "scenario": {
@@ -25,110 +22,65 @@
       "survivor_hooked": true,
       "exit_gate_progress_80": true,
       "exit_gates_powered": true,
-      "compromised_generator_completed": true
+      "compromised_generator_completed": true,
+      "after_basic_attack": true
     },
     "perkStates": {
       "a-nurses-calling": "active",
       "territorial-imperative": "active",
       "nowhere-to-hide": "active",
-      "phantom-fear": "active"
+      "phantom-fear": "active",
+      "predator": "active",
+      "lightborn": "active"
     }
   },
   "assistantContext": {
     "killer": {
-      "name": "le fléau",
-      "speed": 4.4,
-      "terrorRadius": 40,
+      "name": "l'infirmière",
+      "speed": 3.8,
+      "terrorRadius": 32,
       "size": "normal",
-      "tier": "S-",
+      "tier": "S+",
       "difficulty": "nightmare"
     },
     "perks": [
       {
-        "name": "détraqué",
+        "name": "cran dément",
         "categories": [
-          "exit_door"
+          "hook"
         ],
         "effects": [
           {
-            "stat": "exit_gate.regression_rate",
+            "stat": "killer.missed_attack_recovery_time",
             "operation": "set",
             "interpretation": "verified",
-            "value": 100,
-            "unit": "percent",
+            "value": 0,
+            "unit": "seconds",
             "condition": {
-              "type": "exit_gate_progress_80"
+              "type": "carrying_survivor"
+            }
+          },
+          {
+            "stat": "hook.wiggle_paused",
+            "operation": "apply_status",
+            "interpretation": "verified",
+            "value": true,
+            "unit": "boolean",
+            "duration": 4,
+            "condition": {
+              "operator": "all",
+              "conditions": [
+                {
+                  "type": "carrying_survivor"
+                },
+                {
+                  "type": "after_basic_attack"
+                }
+              ]
             }
           }
         ],
-        "description": "- Chaque fois qu'un survivant cesse d'ouvrir une porte de sortie Après avoir accumulé au moins 80 % de progression vers l'ouverture, Haywire provoque sa régression:\n- Régresse à un rythme de 80 / 90 / 100 % de la vitesse normale d'ouverture du portail.\n- Cela provoque chez les survivants l'apparition de lumières clignotant aléatoirement au-dessus de l'interrupteur pendant sa régression."
-      },
-      {
-        "name": "nulle part où se cacher",
-        "categories": [
-          "generator",
-          "aura",
-          "destruction"
-        ],
-        "effects": [
-          {
-            "stat": "survivor.aura",
-            "operation": "reveal",
-            "interpretation": "inferred",
-            "source": {
-              "format": "legacy-effect",
-              "raw": "+5[aura]"
-            },
-            "duration": 5,
-            "unit": "seconds"
-          }
-        ],
-        "description": "- Exécution de l'action Générateur de dommages sur un générateur déclencheurs Nulle part où se cacher:\n- Vous voyez les auras de tous les survivants situés à moins de 24 mètres de l'emplacement du générateur pendant 3 / 4 / 5 secondes."
-      },
-      {
-        "name": "on embauche",
-        "categories": [
-          "generator",
-          "chase"
-        ],
-        "effects": [
-          {
-            "stat": "killer.successful_attack_recovery_time",
-            "operation": "multiply",
-            "interpretation": "verified",
-            "value": 1.25,
-            "unit": "multiplier",
-            "condition": {
-              "type": "compromised_generator_completed"
-            },
-            "duration": 60,
-            "calculationMode": "action_speed"
-          }
-        ],
-        "description": "- Après avoir effectué l'action Générateur de dégâts:\n- Les causes de ce générateur devenir un générateur compromis.\n- Une fois le générateur compromis terminé, vous bénéficiez de l'effet suivant pendant 40 / 50 / 60 secondes:\n- Augmente la vitesse de récupération des attaques de base réussies de +25 %."
-      },
-      {
-        "name": "frayeur fantôme",
-        "categories": [
-          "terror_rayon",
-          "sound",
-          "aura",
-          "recharge"
-        ],
-        "effects": [
-          {
-            "stat": "survivor.aura",
-            "operation": "reveal",
-            "interpretation": "inferred",
-            "source": {
-              "format": "legacy-effect",
-              "raw": "+2[aura]"
-            },
-            "duration": 2,
-            "unit": "seconds"
-          }
-        ],
-        "description": "- Lorsqu'un survivant se trouve dans votre rayon de terreur Ils vous regardent, ils souffrent des effets suivants:\n- Cela les fait crier et révéler leur aura. à vous pendant 2 secondes.\n- La Peur Fantôme a un temps de recharge de 80 / 70 / 60 secondes."
+        "description": "- Quand vous transportez un survivant:\n- Supprime le temps de recharge des attaques de base ratées.\n- Interrompt la progression de l'esquive du survivant transporté pendant 2 / 3 / 4 secondes à chaque fois que vous touchez avec succès un autre survivant."
       }
     ],
     "currentState": {
@@ -144,58 +96,38 @@
         "survivor_hooked": true,
         "exit_gate_progress_80": true,
         "exit_gates_powered": true,
-        "compromised_generator_completed": true
+        "compromised_generator_completed": true,
+        "after_basic_attack": true
       },
       "perkStates": {
         "a-nurses-calling": "active",
         "territorial-imperative": "active",
         "nowhere-to-hide": "active",
-        "phantom-fear": "active"
+        "phantom-fear": "active",
+        "predator": "active",
+        "lightborn": "active"
       }
     },
     "calculatedData": {
       "affectedStats": [
         {
-          "key": "exit_gate.regression_rate",
-          "label": "Régression relative d’une porte",
-          "base": 0,
-          "final": 100,
-          "delta": 100,
-          "deltaPercent": null,
-          "unit": "% vitesse d’ouverture",
-          "effects": [
-            {
-              "perk": "détraqué",
-              "operation": "set",
-              "value": 100,
-              "unit": "percent",
-              "before": 0,
-              "after": 100,
-              "condition": [
-                "Condition remplie : exit_gate_progress_80"
-              ],
-              "status": "active"
-            }
-          ]
-        },
-        {
-          "key": "killer.successful_attack_recovery_time",
-          "label": "Récupération après attaque réussie",
-          "base": 2.7,
-          "final": 2.16,
-          "delta": -0.54,
-          "deltaPercent": -20,
+          "key": "killer.missed_attack_recovery_time",
+          "label": "Récupération après attaque ratée",
+          "base": 1.5,
+          "final": 0,
+          "delta": -1.5,
+          "deltaPercent": -100,
           "unit": "s",
           "effects": [
             {
-              "perk": "on embauche",
-              "operation": "multiply",
-              "value": 1.25,
-              "unit": "multiplier",
-              "before": 2.7,
-              "after": 2.16,
+              "perk": "cran dément",
+              "operation": "set",
+              "value": 0,
+              "unit": "seconds",
+              "before": 1.5,
+              "after": 0,
               "condition": [
-                "Condition remplie : compromised_generator_completed"
+                "Condition remplie : carrying_survivor"
               ],
               "status": "active"
             }
@@ -204,24 +136,14 @@
       ],
       "qualitativeEffects": [
         {
-          "label": "Aura des survivants révélée",
-          "perk": "nulle part où se cacher",
+          "label": "Progression de gigotement interrompue",
+          "perk": "cran dément",
           "condition": [
-            "Effet importé sans condition structurée",
-            "Effet déclenché dans la simulation"
+            "Condition remplie : carrying_survivor",
+            "Condition remplie : after_basic_attack"
           ],
           "status": "active",
-          "duration": 5
-        },
-        {
-          "label": "Aura des survivants révélée",
-          "perk": "frayeur fantôme",
-          "condition": [
-            "Effet importé sans condition structurée",
-            "Effet déclenché dans la simulation"
-          ],
-          "status": "active",
-          "duration": 2
+          "duration": 4
         }
       ],
       "unresolvedEffects": []

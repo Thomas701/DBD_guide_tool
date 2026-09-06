@@ -2,12 +2,14 @@ import type { BuildScenario, PerkRuntimeState, ScenarioConditionValue } from "./
 
 export const APP_SESSION_STORAGE_KEY = "dbd-build-tool.current-session";
 
-export type AppView = "build" | "killers" | "perks";
+export type AppView = "build" | "killers" | "perks" | "constants";
 
 type CatalogScrollPositions = Record<"killers" | "perks", number>;
 
 export interface AppSession {
   activeView: AppView;
+  soundEnabled: boolean;
+  musicVolume: number;
   selectedKillerId: string | null;
   selectedPerkId: string | null;
   equippedPerkIds: string[];
@@ -22,6 +24,8 @@ export interface AppSession {
 
 export const DEFAULT_APP_SESSION: AppSession = {
   activeView: "build",
+  soundEnabled: true,
+  musicVolume: 0.35,
   selectedKillerId: null,
   selectedPerkId: null,
   equippedPerkIds: [],
@@ -44,7 +48,9 @@ export function readAppSession(raw: string | null, knownKillerIds: ReadonlySet<s
       ? [...new Set(value.equippedPerkIds.filter((id): id is string => typeof id === "string" && knownPerkIds.has(id)))].slice(0, 4)
       : [];
     return {
-      activeView: value.activeView === "killers" || value.activeView === "perks" ? value.activeView : "build",
+      activeView: value.activeView === "killers" || value.activeView === "perks" || value.activeView === "constants" ? value.activeView : "build",
+      soundEnabled: typeof value.soundEnabled === "boolean" ? value.soundEnabled : DEFAULT_APP_SESSION.soundEnabled,
+      musicVolume: clamp(value.musicVolume, DEFAULT_APP_SESSION.musicVolume, 0, 1),
       selectedKillerId: killerId,
       selectedPerkId: knownId(value.selectedPerkId, knownPerkIds),
       equippedPerkIds,
@@ -91,6 +97,10 @@ function nullableString(value: unknown): string | null {
 
 function finiteNumber(value: unknown, fallback: number): number {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function clamp(value: unknown, fallback: number, minimum: number, maximum: number): number {
+  return Math.min(maximum, Math.max(minimum, finiteNumber(value, fallback)));
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

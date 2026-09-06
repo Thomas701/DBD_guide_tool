@@ -23,6 +23,8 @@ export const DEFAULT_KILLER_OPTIONS: Readonly<KillerListOptions> = {
   locale: "fr"
 };
 
+const searchAliases: Record<string, string> = { "good-guy": "chucky", slasher: "jason voorhees" };
+
 export function selectKillers(
   killers: readonly Killer[],
   options: Readonly<KillerListOptions>
@@ -31,7 +33,7 @@ export function selectKillers(
   const collator = new Intl.Collator(options.locale, { sensitivity: "base", numeric: true });
   const direction = options.direction === "asc" ? 1 : -1;
   const result = killers.filter((killer) => {
-    const names = normalizeWords([killer.name.fr, killer.name.en].filter(Boolean).join(" "));
+    const names = normalizeWords([killer.name.fr, killer.name.en, searchAliases[killer.id]].filter(Boolean).join(" "));
     return terms.every((term) => names.includes(term));
   });
 

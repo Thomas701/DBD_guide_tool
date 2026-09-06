@@ -141,7 +141,7 @@ export const PERK_ALIASES = [
   { sourceNameFr: "fais ton choix", id: "make-your-choice", nameEn: "Make Your Choice", descriptionNameFr: "Faites votre choix", iconFile: "makeyourchoice.png" },
   { sourceNameFr: "chili et barbebue", id: "barbecue-and-chilli", nameEn: "Barbecue & Chilli", descriptionNameFr: "Barbecue et piment", iconFile: "barbecueandchilli.png" },
   { sourceNameFr: "K.O.", id: "knock-out", nameEn: "Knock Out", descriptionNameFr: "Assommer", iconFile: "knockout.png" },
-  { sourceNameFr: "la mort de Franklin", id: "franklins-demise", nameEn: "Franklin's Demise", descriptionNameFr: "La mort de Franklin", iconFile: "franklinsdemise.png" },
+  { sourceNameFr: "trépas de Franklin", id: "franklins-demise", nameEn: "Franklin's Demise", descriptionNameFr: "Trépas de Franklin", iconFile: "franklinsdemise.png" },
   { sourceNameFr: "boucher sadique", id: "sloppy-butcher", nameEn: "Sloppy Butcher", descriptionNameFr: "Boucher négligent", iconFile: "sloppybutcher.png" },
   { sourceNameFr: "blessures béantes", id: "scourge-hook-weeping-wounds", nameEn: "Scourge Hook: Weeping Wounds", descriptionNameFr: "Crochet du Fléau : Plaies Saignantes", iconFile: "scourgehookgiftofpain.png" },
   { sourceNameFr: "sanctuaire monstrueux", id: "scourge-hook-monstrous-shrine", nameEn: "Scourge Hook: Monstrous Shrine", descriptionNameFr: "Crochet du Fléau : Sanctuaire Monstrueux", iconFile: "scourgehookmonstrousshrine.png" },

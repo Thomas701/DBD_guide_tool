@@ -1,10 +1,9 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import { killerPortraitUrl, killerPropertyIconUrl } from "../../app/assets.js";
 import { difficultyLabels, sizeLabels } from "../../app/labels.js";
 import type { Killer } from "../../domain/killer.js";
 import {
-  DEFAULT_KILLER_OPTIONS,
   selectKillers,
   type KillerListOptions,
   type KillerSortKey
@@ -13,6 +12,13 @@ import {
 interface KillerSelectorProps {
   killers: readonly Killer[];
   selectedKillerId: string | null;
+  options: KillerListOptions;
+  listView: boolean;
+  filtersVisible: boolean;
+  onOptionsChange: (options: KillerListOptions) => void;
+  onListViewChange: (listView: boolean) => void;
+  onFiltersVisibleChange: (visible: boolean) => void;
+  onShowInfo: (killer: Killer) => void;
   onSelect: (killer: Killer) => void;
 }
 
@@ -23,10 +29,7 @@ const propertyIcons = {
   difficulty: killerPropertyIconUrl("difficulty.png")
 };
 
-export function KillerSelector({ killers, selectedKillerId, onSelect }: KillerSelectorProps) {
-  const [options, setOptions] = useState<KillerListOptions>({ ...DEFAULT_KILLER_OPTIONS });
-  const [listView, setListView] = useState(false);
-  const [filtersVisible, setFiltersVisible] = useState(true);
+export function KillerSelector({ killers, selectedKillerId, options, listView, filtersVisible, onOptionsChange, onListViewChange, onFiltersVisibleChange, onShowInfo, onSelect }: KillerSelectorProps) {
   const visibleKillers = useMemo(() => selectKillers(killers, options), [killers, options]);
 
   return (
@@ -39,7 +42,7 @@ export function KillerSelector({ killers, selectedKillerId, onSelect }: KillerSe
             aria-label={filtersVisible ? "Masquer les filtres" : "Afficher les filtres"}
             aria-pressed={filtersVisible}
             title={filtersVisible ? "Masquer les filtres" : "Afficher les filtres"}
-            onClick={() => setFiltersVisible((current) => !current)}
+            onClick={() => onFiltersVisibleChange(!filtersVisible)}
           >
             ⋮
           </button>
@@ -53,7 +56,7 @@ export function KillerSelector({ killers, selectedKillerId, onSelect }: KillerSe
           <input
             type="search"
             value={options.query}
-            onChange={(event) => setOptions((current) => ({ ...current, query: event.target.value }))}
+            onChange={(event) => onOptionsChange({ ...options, query: event.target.value })}
             placeholder="Nom français ou anglais…"
           />
         </label>
@@ -61,10 +64,10 @@ export function KillerSelector({ killers, selectedKillerId, onSelect }: KillerSe
           <span>Trier par</span>
           <select
             value={options.sortBy}
-            onChange={(event) => setOptions((current) => ({
-              ...current,
+            onChange={(event) => onOptionsChange({
+              ...options,
               sortBy: event.target.value as KillerSortKey
-            }))}
+            })}
           >
             <option value="tier">Tier</option>
             <option value="difficulty">Difficulté</option>
@@ -76,10 +79,7 @@ export function KillerSelector({ killers, selectedKillerId, onSelect }: KillerSe
         <button
           className="secondary-button direction-button"
           type="button"
-          onClick={() => setOptions((current) => ({
-            ...current,
-            direction: current.direction === "asc" ? "desc" : "asc"
-          }))}
+          onClick={() => onOptionsChange({ ...options, direction: options.direction === "asc" ? "desc" : "asc" })}
           aria-label={options.direction === "asc" ? "Passer au tri descendant" : "Passer au tri ascendant"}
         >
           {options.direction === "asc" ? "Croissant ↑" : "Décroissant ↓"}
@@ -88,7 +88,7 @@ export function KillerSelector({ killers, selectedKillerId, onSelect }: KillerSe
           className="secondary-button view-toggle"
           type="button"
           aria-pressed={listView}
-          onClick={() => setListView((current) => !current)}
+          onClick={() => onListViewChange(!listView)}
         >
           {listView ? "Vue en liste" : "Vue en blocs"}
         </button>
@@ -151,6 +151,7 @@ export function KillerSelector({ killers, selectedKillerId, onSelect }: KillerSe
                     </span>
                   </span>
                 </span>
+                <span className="killer-list-info" role="button" tabIndex={0} aria-label={`Afficher le pouvoir de ${killer.name.fr ?? killer.id}`} onClick={(event) => { event.stopPropagation(); onShowInfo(killer); }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onShowInfo(killer); } }}>i</span>
               </button>
             );
           })}

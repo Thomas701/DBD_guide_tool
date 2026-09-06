@@ -31,11 +31,23 @@ const logoModules = import.meta.glob(
   { eager: true, query: "?url", import: "default" }
 ) as Record<string, string>;
 
+const killerThemeModules = import.meta.glob(
+  "../../DBDImages-main/DBDImages-main/images/killer_theme/*.ogg",
+  { query: "?url", import: "default" }
+) as Record<string, () => Promise<string>>;
+
+const terrorRadiusModules = import.meta.glob(
+  "../../DBDImages-main/DBDImages-main/images/killer_terror_radius/*.ogg",
+  { query: "?url", import: "default" }
+) as Record<string, () => Promise<string>>;
+
 const perkImages = byFileName(perkModules);
 const portraitImages = byFileName(portraitModules);
 const killerPropertyImages = byFileName(killerPropertyModules);
 const killerConditionImages = byFileName(killerConditionModules);
 const logoImages = byFileName(logoModules);
+const killerThemes = byFileName(killerThemeModules);
+const terrorRadiusTracks = byFileName(terrorRadiusModules);
 export const conditionIconBackgroundUrl = Object.values(conditionBackgroundModules)[0] ?? null;
 export const appLogoUrl = logoImages.get("logo_dbd_build_analyser.png") ?? Object.values(logoModules)[0] ?? null;
 export const entityPortraitUrl = portraitImages.get("entity.png") ?? null;
@@ -49,9 +61,12 @@ const conditionImageNames: Record<string, string> = {
   inside_terror_radius: "be_in_terror_rayon.png",
   after_blind: "be_blind.png",
   after_break_action: "break_generator.png",
+  pallet_break: "palette_destruction.png",
+  wall_break: "porte_destruction.png",
   survivor_unhooked: "survivant_unhook.png",
   survivor_lost_health_state: "survivant_injured.png",
   generator_at_90_percent: "generator_70_progression.png",
+  skill_check_failed: "test_habilité.png",
   four_survivors_injured: "survivant_injured.png"
 };
 
@@ -72,7 +87,37 @@ export function killerConditionIconUrl(condition: string): string | null {
   return fileName ? killerConditionImages.get(fileName) ?? null : null;
 }
 
-function byFileName(modules: Record<string, string>): Map<string, string> {
+export function killerThemeUrl(killerId: string): Promise<string | null> {
+  return matchingAudio(killerThemes, themeAudioId(killerId), "Theme_Music.ogg");
+}
+
+export function killerTerrorRadiusUrl(killerId: string): Promise<string | null> {
+  return matchingAudio(terrorRadiusTracks, terrorAudioId(killerId), ".ogg");
+}
+
+export async function originalKillerThemeUrl(): Promise<string | null> {
+  return killerThemes.get("Original_Killer_Theme.ogg")?.() ?? null;
+}
+
+async function matchingAudio(tracks: Map<string, () => Promise<string>>, killerId: string, suffix: string): Promise<string | null> {
+  const id = normalizeAssetName(killerId);
+  const loader = [...tracks].find(([name]) => normalizeAssetName(name).includes(id) && name.endsWith(suffix))?.[1];
+  return loader ? loader() : null;
+}
+
+function terrorAudioId(killerId: string): string {
+  return ({ myers: "shape", "good-guy": "chucky", darklord: "dark_lord", ghostface: "ghost_face", onryo: "onryo", xenomorph: "xenomorph" } as Record<string, string>)[killerId] ?? killerId;
+}
+
+function themeAudioId(killerId: string): string {
+  return ({ "good-guy": "chucky", slasher: "jason", onryo: "oryo", hag: "harpie" } as Record<string, string>)[killerId] ?? killerId;
+}
+
+function normalizeAssetName(value: string): string {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/gi, "").toLowerCase();
+}
+
+function byFileName<T>(modules: Record<string, T>): Map<string, T> {
   return new Map(Object.entries(modules).map(([path, url]) => [fileName(path), url]));
 }
 

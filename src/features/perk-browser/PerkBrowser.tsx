@@ -34,8 +34,12 @@ export function PerkBrowser({ perks, killers, filters, equippedPerkIds, canEquip
       return;
     }
     const frame = window.requestAnimationFrame(() => {
-      document.querySelector<HTMLElement>(`[data-perk-id="${CSS.escape(scrollToPerkId)}"]`)
-        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      const perkCard = document.querySelector<HTMLElement>(`[data-perk-id="${CSS.escape(scrollToPerkId)}"]`);
+      const catalogPanel = perkCard?.closest<HTMLElement>(".workspace-catalog-panel");
+      if (!perkCard || !catalogPanel) return;
+      const cardBounds = perkCard.getBoundingClientRect();
+      const panelBounds = catalogPanel.getBoundingClientRect();
+      catalogPanel.scrollBy({ top: cardBounds.top - panelBounds.top - (catalogPanel.clientHeight - cardBounds.height) / 2, behavior: "smooth" });
     });
     return () => window.cancelAnimationFrame(frame);
   }, [scrollToPerkId, visiblePerks, onFiltersChange]);

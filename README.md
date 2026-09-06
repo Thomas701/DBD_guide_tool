@@ -48,7 +48,7 @@ Le Build Assistant propose cinq providers : moteur local, chat natif à copier, 
 
 ### Chat natif — copier/coller
 
-Choisissez **Chat natif · copier/coller**, saisissez une question puis cliquez sur **Copier**. Le presse-papiers reçoit les connaissances DBD consolidées, le build courant et la question ; vous pouvez les coller dans un GPT distant.
+Choisissez **Chat natif · copier/coller**, saisissez une question puis cliquez sur **Copier**. Sans serveur local, le presse-papiers reçoit le guide How to play, les constantes, les tueurs avec leurs pouvoirs et perks associées, le catalogue des perks avec leurs descriptions, le build courant et la question ; vous pouvez les coller dans un GPT distant.
 
 ### ChatGPT via Codex — recommandé
 
@@ -88,10 +88,7 @@ Si un second lancement du proxy détecte celui qui écoute déjà sur `8787`, il
 
 ## Données générées
 
-`npm run data:export` crée les deux fichiers locaux utilisés par le chat natif :
-
-- `.data/dbd-knowledge.json` : catalogue des tueurs et perks, statistiques fixes, règles du moteur, déroulement d’une partie et pouvoirs issus de `killers.txt` ;
-- `.data/current-build.json` : représentation du build courant, mise à jour automatiquement pendant l’utilisation lorsque le proxy est actif.
+Le chat natif construit désormais son contexte directement depuis les données affichées par l’application et ne génère plus de fichier de connaissances. Lorsque le proxy est actif, `.data/current-build.json` conserve une représentation du build courant pour les outils locaux.
 
 Les sorties se trouvent dans `src/data/generated/` :
 

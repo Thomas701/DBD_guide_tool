@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { killerPropertyIconUrl } from "../../app/assets.js";
+import { killerConditionIconUrl, killerPropertyIconUrl } from "../../app/assets.js";
 import type { Perk } from "../../domain/perk.js";
 import type {
   BuildCalculation,
@@ -16,7 +16,11 @@ interface BuildAnalyzerProps {
 
 const propertyIcons: Readonly<Record<string, string | null>> = {
   "killer.speed": killerPropertyIconUrl("speed.png"),
-  "killer.terror_radius": killerPropertyIconUrl("terror_rayon.png")
+  "killer.terror_radius": killerPropertyIconUrl("terror_rayon.png"),
+  "hook.transport_speed": killerConditionIconUrl("carrying_survivor"),
+  "generator.damage_time": killerConditionIconUrl("generator_damaged"),
+  "killer.pallet_break_time": killerConditionIconUrl("pallet_break"),
+  "killer.wall_break_time": killerConditionIconUrl("wall_break")
 };
 
 export function BuildAnalyzer({ calculation, perks }: BuildAnalyzerProps) {
@@ -184,7 +188,9 @@ function QualitativeRow({ effect }: { effect: EffectCalculation }) {
 }
 
 function StatIcon({ stat }: { stat: CalculatedStat }) {
-  const icon = propertyIcons[stat.key];
+  const icon = stat.key.includes("skill_check")
+    ? killerConditionIconUrl("skill_check_failed")
+    : propertyIcons[stat.key];
   if (icon) return <span className="stat-row-icon"><img src={icon} alt="" /></span>;
   return <span className="stat-row-icon fallback" aria-hidden="true">{themeSymbol(stat.theme)}</span>;
 }

@@ -4,12 +4,14 @@ import test from "node:test";
 import type { PerkEffect } from "../src/domain/effect.js";
 import type { Killer } from "../src/domain/killer.js";
 import type { Perk } from "../src/domain/perk.js";
+import type { CurrentBuildExport } from "../src/services/local-data.js";
 import { PERK_EFFECT_OVERRIDES } from "../src/data/perk-effect-overrides.js";
 import { answerBuildQuestion } from "../src/services/build-assistant.js";
 import { createAssistantProvider, normalizeServerUrl } from "../src/services/assistant-provider.js";
 import { readAppSession } from "../src/services/app-session.js";
 import { BUILD_STACKING_POLICY, calculateBuild, collectBuildConditions } from "../src/services/build-calculator.js";
 import { buildChatGPTPrompt } from "../src/services/chatgpt-prompt-builder.js";
+import { buildNativeChatPrompt } from "../src/services/native-chat-prompt.js";
 import { buildAssistantContext, richDescriptionToText } from "../src/services/openai-build-assistant.js";
 
 const killer: Killer = {
@@ -376,6 +378,38 @@ test("construit un prompt ChatGPT structuré avec contexte et historique récent
   assert.match(prompt, /=== CALCULATED DATA ===[\s\S]*Vitesse de transport/);
   assert.match(prompt, /Question précédente[\s\S]*Réponse précédente/);
   assert.equal(prompt.endsWith("Analyse mon build"), true);
+});
+
+test("construit le prompt copier/coller depuis les six sources affichées", () => {
+  const associatedPerk = perk("agitation", []);
+  associatedPerk.name = { fr: "Agitation", en: "Agitation" };
+  associatedPerk.characterId = killer.id;
+  associatedPerk.characterResolution = "resolved";
+  associatedPerk.nativeDescriptionHtml = "<p>Description native.</p>";
+  const currentBuild: CurrentBuildExport = {
+    schemaVersion: 1,
+    updatedAt: "2026-09-07T00:00:00.000Z",
+    build: { id: "build-1", name: "Build test", killerId: killer.id, perkIds: [associatedPerk.id] },
+    scenario: { conditions: { carrying_survivor: true }, perkStates: {} },
+    assistantContext: null
+  };
+
+  const prompt = buildNativeChatPrompt("Optimise mon build", currentBuild, {
+    howToPlay: "Déroulement de la partie",
+    constants: "Course : 4,00 m/s",
+    killers: [killer],
+    perks: [associatedPerk],
+    perkDescriptionOverrides: { agitation: "<p>Description locale &amp; à jour.</p>" },
+    killerPowerDescription: () => "Pouvoir de test"
+  });
+
+  assert.match(prompt, /=== 1\. HOW TO PLAY ===[\s\S]*Déroulement de la partie/);
+  assert.match(prompt, /=== 2\. CONSTANTES ===[\s\S]*4,00 m\/s/);
+  assert.match(prompt, /=== 3\. TUEURS ===[\s\S]*Tueur test \(Test Killer\)[\s\S]*Agitation[\s\S]*Pouvoir de test/);
+  assert.match(prompt, /=== 4\. PERKS ===[\s\S]*Description locale & à jour/);
+  assert.match(prompt, /=== 5\. BUILD ACTUEL ===[\s\S]*Build test/);
+  assert.equal(prompt.endsWith("=== 6. QUESTION DE L'UTILISATEUR ===\nOptimise mon build"), true);
+  assert.doesNotMatch(prompt, /FICHIER 1|FICHIER 2/);
 });
 
 test("sérialise les paragraphes, icônes et listes d’une description riche", () => {
