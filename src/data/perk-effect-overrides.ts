@@ -24,7 +24,10 @@ export const PERK_EFFECT_OVERRIDES: Readonly<Record<string, readonly PerkEffect[
     multiply("generator.skill_check_good_zone", 0.4, insideTerrorRadius),
     multiply("healing.skill_check_good_zone", 0.4, insideTerrorRadius)
   ],
-  "bloodhound": [add("tracking.blood_pool_lifetime", 4, "seconds", condition("survivor_injured"))],
+  "bloodhound": [add("tracking.blood_pool_lifetime", 4, "seconds", condition("blood_pool_present"))],
+  "predator": [add("tracking.survivor_aura_reveal_average", 10.8, "seconds", condition("chase_abandoned"))],
+  "lightborn": [add("tracking.lightborn_aura_reveal_average", 8, "seconds", condition("blind_attempted"))],
+  "tinkerer": [add("tracking.tinkerer_undetectable_average", 61, "seconds", condition("generator_at_70_percent"))],
   "thanatophobia": [
     multiply("generator.repair_time", 0.8, condition("four_survivors_injured")),
     multiply("hook.sabotage_time", 0.8, condition("four_survivors_injured")),
@@ -41,7 +44,7 @@ export const PERK_EFFECT_OVERRIDES: Readonly<Record<string, readonly PerkEffect[
     setValue("skill_check.warning_delay", 0, "percent", all(hexActive, condition("lullaby_five_tokens")))
   ],
   "bamboozle": [multiply("killer.window_vault_time", 1.15)],
-  "enduring": [multiply("killer.pallet_stun_duration", 0.5)],
+  "enduring": [multiply("killer.pallet_stun_duration", 0.5, condition("pallet_stunned"))],
   "unrelenting": [multiply("killer.missed_attack_recovery_time", 1.3)],
   "mad-grit": [
     setValue("killer.missed_attack_recovery_time", 0, "seconds", carrying),

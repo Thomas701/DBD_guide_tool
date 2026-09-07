@@ -2,11 +2,11 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type Keyboard
 import howToPlayText from "../partie_dbd.txt?raw";
 import fixedStatisticsText from "../statistiques_fixe.txt?raw";
 
-import { appLogoUrl, killerPortraitUrl, killerTerrorRadiusUrl, killerThemeUrl, originalKillerThemeUrl } from "./app/assets.js";
+import { appLogoUrl, killerPortraitUrl, killerTerrorRadiusUrl, killerThemeUrl, originalKillerThemeUrl, perkIconUrl } from "./app/assets.js";
 import { killers, perks } from "./app/catalog.js";
 import { MAX_BUILD_PERKS, type Build } from "./domain/build.js";
 import type { PerkCategory } from "./domain/category.js";
-import type { Killer } from "./domain/killer.js";
+import { KILLER_TIERS, type Killer, type KillerTier } from "./domain/killer.js";
 import type { Perk } from "./domain/perk.js";
 import { BuildAnalyzer } from "./features/build-analyzer/BuildAnalyzer.js";
 import { BuildAssistant } from "./features/build-assistant/BuildAssistant.js";
@@ -619,7 +619,7 @@ export default function App() {
       {howToPlayOpen && <HowToPlayModal onClose={() => setHowToPlayOpen(false)} />}
       {killerInfo && <KillerInfoModal killer={killerInfo} killers={killers} onClose={() => setKillerInfo(null)} />}
 
-      {activeView === "constants" ? <ConstantsView /> : <main className={`analyzer-workspace view-${activeView}`} ref={workspaceRef} style={workspaceStyle}>
+      {activeView === "constants" ? <ConstantsView /> : activeView === "tiers" ? <TierListView killers={killers} perks={catalogPerks} /> : <main className={`analyzer-workspace view-${activeView}`} ref={workspaceRef} style={workspaceStyle}>
         <aside className={`analyzer-sidebar left-sidebar${activeView === "perks" ? " perks-sidebar" : ""}`}>
           <section className={`analyzer-panel selected-loadout-panel${activeView === "perks" ? " perks-loadout-panel" : ""}`} aria-label="Tueur et perks sélectionnés">
             <SelectedKillerCard killer={selectedKiller} onChange={() => showView("killers")} onRemove={removeKiller} onTerrorRadiusStart={pauseThemeMusic} onTerrorRadiusStop={resumeThemeMusic} onShowInfo={setKillerInfo} />
@@ -782,6 +782,57 @@ function ConstantsView() {
   </main>;
 }
 
+const PERK_TIER_LIST: Record<KillerTier, readonly string[]> = {
+  "S+": ["Intervention impure", "Écho de douleur", "Sombre étreinte", "Le tour est joué", "Aucune issue", "Poursuivant meurtrier"],
+  "S-": ["Dispositif de l'homme mort", "Nulle part où se cacher", "Éruption", "Surtension", "Amis pour la vie", "Remonter le temps", "Tous les coups sont permis", "Blessures béantes"],
+  "A+": ["Mangeur d'espoir", "Réparateur", "Déboussoler", "Discordance", "Faveur de sang", "Fais-les attendre", "Vorace", "Oppression", "Repentir", "Briseur d'esprit", "Fascination", "Personne n'échappe à la mort"],
+  "A-": ["Agitation", "Tenace", "Vocation de l'infirmière", "Ruine", "Peur contagieuse", "Je vous écoute", "Poursuite furtive", "Bricolo", "Immortel", "Ténèbres révélées", "Affrontez les ténèbres", "Témoin céleste", "La Ruche", "Frayeur mortelle", "Boussole de douleur", "Lien avec la trame", "Contact languide", "Inattendu", "Arme ultime", "Brutalité rapide", "Hésitation forcée", "Effet de levier", "Flots de rage", "Contrôle des foules", "Piste de souffrance", "Fais ton choix", "Chili et Barbecue", "Trépas de Franklin", "Boucher sadique", "Regarde-les détaler"],
+  "B+": ["Force brute", "Prédateur", "Présence écrasante", "Surveillance et maltraitance", "Gardien de sang", "Intensité ardente", "Coulrophobie", "Fureur de l'esprit", "Terrain hanté", "Rancœur", "Vierge de fer", "Frissons palpitants", "Tactiques de Zanshin", "Écho sanguin", "Châtiment", "Dissolution", "Hubris", "À jamais liés", "Personne n'est libre", "Coup de tonnerre", "Pas de quartier", "Destin misérable", "Inexorable", "Limites génétiques", "Instinct d'Alien", "Apprentissage automatique", "VLAN !", "Anatomie supérieure", "Terminus", "Tempête impitoyable", "Hystérie", "Coup de grâce", "Limites cruelles", "Espions de l'ombre", "Euphorie de la chasse", "Part d'infortune", "Ombre silencieuse", "Semer la dévastation"],
+  "B-": ["Présence perturbante", "Rejeton de l'ombre", "Rejeton de la lumière", "Thanatophobie", "Surcharge", "Souviens-toi de moi", "Cran dément", "Sombre dévotion", "Ennemi juré", "Prise du dragon", "On embauche", "Frayeur fantôme", "Détraqué", "Ouverture maudite", "Que du malheur", "Arrogance ténébreuse", "Ouverture de la chasse", "Perception éveillée", "Appel de la mer", "Pénitence forcée", "Lien mortel", "Surveillance", "Sanctuaire monstrueux", "Murmure amer", "Murmures", "Éradication des faibles"],
+  "C+": ["Limier", "Stridor", "Le troisième sceau", "Berceuse de la Chasseuse", "Toucher septique", "Sous votre coupe", "Saccage", "Œil vagabond", "Avidité humaine", "Domination", "Piles incluses", "On peut jouer à deux", "K.O.", "Coup du pendu", "Inquiétant", "Pisteur", "Poigne de fer"],
+  "C-": ["Prédation", "Instinct territorial", "Projet secret", "Interrompu", "Amasseur", "Implacable", "Insidieux"],
+  "D": ["Espoir brisé"]
+};
+
+const PERK_TIER_NAME_ALIASES: Record<string, string> = {
+  "Chili et Barbecue": "chili et barbebue",
+  "Piste de souffrance": "pistre de souffrance"
+};
+
+function TierListView({ killers, perks }: { killers: readonly Killer[]; perks: readonly Perk[] }) {
+  const [kind, setKind] = useState<"killers" | "perks">("killers");
+  const perksByName = useMemo(() => new Map(perks.filter((perk) => perk.side === "killer").map((perk) => [normalizeTierListName(perk.name.fr ?? perk.name.en ?? perk.id), perk])), [perks]);
+  return <main className="tier-list-page" data-kind={kind}>
+    <aside className="tier-list-sidebar" aria-label="Type de tier list">
+      <button className={kind === "killers" ? "selected" : ""} onClick={() => setKind("killers")} type="button">Killer</button>
+      <button className={kind === "perks" ? "selected" : ""} onClick={() => setKind("perks")} type="button">Perk</button>
+    </aside>
+    <section className="tier-list-board" aria-label={kind === "killers" ? "Tier list des tueurs" : "Tier list des perks"}>
+      {KILLER_TIERS.map((tier) => {
+        const rankedKillers = kind === "killers" ? killers.filter((killer) => killer.tier === tier) : [];
+        const rankedPerks = kind === "perks" ? PERK_TIER_LIST[tier].map((name) => ({ name, perk: perksByName.get(normalizeTierListName(PERK_TIER_NAME_ALIASES[name] ?? name)) })) : [];
+        const count = kind === "killers" ? rankedKillers.length : rankedPerks.length;
+        return <section className="tier-list-row" data-tier={tier} key={tier}>
+          <header><strong>{tier}</strong><small>{count} {kind === "killers" ? `tueur${count > 1 ? "s" : ""}` : `perk${count > 1 ? "s" : ""}`}</small></header>
+          <div className="tier-list-killers" role="list">
+            {kind === "killers" ? rankedKillers.map((killer) => <TierListItem key={killer.id} name={killer.name.fr ?? killer.name.en ?? killer.id} image={killerPortraitUrl(killer)} />)
+              : rankedPerks.map(({ name, perk }) => <TierListItem key={name} name={name} image={perk ? perkIconUrl(perk) : null} perk />)}
+          </div>
+        </section>;
+      })}
+    </section>
+  </main>;
+}
+
+function TierListItem({ name, image, perk = false }: { name: string; image: string | null; perk?: boolean }) {
+  const content = image ? <img src={image} alt={name} loading="lazy" /> : <span>{name}</span>;
+  return <article className={`tier-list-killer${perk ? " tier-list-perk" : ""}`} role="listitem" title={name} data-name={perk ? name : undefined}>{perk ? <span className="tier-list-perk-icon">{content}</span> : content}</article>;
+}
+
+function normalizeTierListName(value: string): string {
+  return value.replace(/œ/g, "oe").replace(/æ/g, "ae").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/gi, "").toLowerCase();
+}
+
 function parseFixedStatistics(source: string): FixedStatisticsBlock[] {
   const blocks: FixedStatisticsBlock[] = [];
   const lines = source.replace(/\r/g, "").split("\n");
@@ -909,10 +960,10 @@ function Topbar({
         <span>Build Analyzer</span>
       </button>
       <nav className="main-navigation" aria-label="Navigation principale">
-        {(["build", "killers", "perks", "constants"] as AppView[]).map((view) => (
+        {(["build", "killers", "perks", "tiers", "constants"] as AppView[]).map((view) => (
           <button className={activeView === view ? "active" : ""} type="button" onClick={() => onViewChange(view)} aria-current={activeView === view ? "page" : undefined} key={view}>
-            <span aria-hidden="true">{view === "build" ? "⌘" : view === "killers" ? "☠" : view === "perks" ? "◇" : "≡"}</span>
-            {view === "constants" ? "Constantes" : `${view[0]?.toUpperCase()}${view.slice(1)}`}
+            <span aria-hidden="true">{view === "build" ? "⌘" : view === "killers" ? "☠" : view === "perks" ? "◇" : view === "tiers" ? "♜" : "≡"}</span>
+            {view === "constants" ? "Constantes" : view === "tiers" ? "Tiers List" : `${view[0]?.toUpperCase()}${view.slice(1)}`}
           </button>
         ))}
       </nav>

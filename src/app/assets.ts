@@ -54,13 +54,18 @@ export const entityPortraitUrl = portraitImages.get("entity.png") ?? null;
 
 const conditionImageNames: Record<string, string> = {
   not_in_chase: "stop_chase.png",
+  chase_abandoned: "stop_chase.png",
   carrying_survivor: "survivant_transport.png",
   near_completed_generator: "generator_70_progression.png",
+  generator_at_70_percent: "generator_70_progression.png",
   generator_damaged: "break_generator.png",
   survivor_injured: "survivant_injured.png",
+  blood_pool_present: "blood_marker.png",
   inside_terror_radius: "be_in_terror_rayon.png",
   after_blind: "be_blind.png",
+  blind_attempted: "be_blind.png",
   after_break_action: "break_generator.png",
+  pallet_stunned: "palette_stun.png",
   pallet_break: "palette_destruction.png",
   wall_break: "porte_destruction.png",
   survivor_unhooked: "survivant_unhook.png",

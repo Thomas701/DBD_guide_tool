@@ -157,11 +157,11 @@ export function calculateBuild({ killer, perks, scenario = EMPTY_BUILD_SCENARIO 
 }
 
 export function perkNeedsRuntimeState(perk: Perk): boolean {
-  return perk.cooldown !== null || perk.effects.some((effect) =>
+  return perk.id !== "predator" && (perk.cooldown !== null || perk.effects.some((effect) =>
     effect.cooldown != null
     || !effect.condition && effect.duration != null
     || !effect.condition && effect.interpretation === "inferred" && QUALITATIVE_OPERATIONS.has(effect.operation)
-  );
+  ));
 }
 
 export function collectBuildConditions(perks: readonly Perk[]): string[] {
@@ -195,20 +195,18 @@ function createCalculation(
   statKey: AnalyzableStatKey | null
 ): EffectCalculation {
   const conditionResult = evaluateCondition(effect.condition, scenario.conditions);
-  const needsRuntimeActivation = perk.cooldown !== null
+  const needsRuntimeActivation = perk.id !== "predator" && perk.cooldown !== null
     || effect.cooldown != null
     || !effect.condition && effect.duration != null
     || !effect.condition && effect.interpretation === "inferred" && QUALITATIVE_OPERATIONS.has(effect.operation);
-  const runtimeState = scenario.perkStates[perk.id] ?? "inactive";
+  const runtimeState = scenario.perkStates[perk.id] === "active" ? "active" : "inactive";
   const active = conditionResult.active && (!needsRuntimeActivation || runtimeState === "active");
   const presentation = statKey ? ANALYZABLE_STATS[statKey] : qualitativePresentation(effect.stat);
   const reasons = effect.interpretation === "inferred" && !effect.condition
     ? ["Effet importé sans condition structurée"]
     : [...conditionResult.reasons];
   if (needsRuntimeActivation) {
-    reasons.push(runtimeState === "active"
-      ? "Effet déclenché dans la simulation"
-      : runtimeState === "cooldown" ? "Cooldown actif" : "Déclenchement manquant");
+    reasons.push(runtimeState === "active" ? "Effet déclenché dans la simulation" : "Déclenchement manquant");
   }
   const calculation: EffectCalculation = {
     perkId: perk.id,
@@ -221,7 +219,7 @@ function createCalculation(
     interpretation: effect.interpretation,
     value: effect.value ?? null,
     unit: effect.unit ?? null,
-    status: active ? "active" : runtimeState === "cooldown" && needsRuntimeActivation ? "cooldown" : "inactive",
+    status: active ? "active" : "inactive",
     active,
     conditionActive: conditionResult.active,
     duration: effect.duration,

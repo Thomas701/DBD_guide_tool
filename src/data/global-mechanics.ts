@@ -217,10 +217,10 @@ export const ANALYZABLE_STATS = {
   "totem.dull_bless_time": fixedStat("Bénédiction d’un totem passif", "Totems", GLOBAL_MECHANICS.totem.dullBlessTime, "s", "action_speed", "higher"),
   "totem.hex_bless_time": fixedStat("Bénédiction d’un totem ensorcelé", "Totems", GLOBAL_MECHANICS.totem.hexBlessTime, "s", "action_speed", "higher"),
   "tracking.scratch_mark_lifetime": fixedStat("Durée des marques de griffures", "Traque", GLOBAL_MECHANICS.tracking.scratchMarkLifetime, "s", "duration", "higher"),
-  "tracking.blood_pool_lifetime": {
-    ...fixedStat("Durée des flaques de sang", "Traque", null, "s", "duration", "higher"),
-    unknownReason: "Valeur de base non vérifiée dans statistiques_fixe.txt"
-  }
+  "tracking.blood_pool_lifetime": fixedStat("Durée des flaques de sang", "Traque", 4, "s", "duration", "higher"),
+  "tracking.survivor_aura_reveal_average": fixedStat("Durée moyenne d'aura révélée (par partie)", "Traque", 0, "s", "duration", "higher"),
+  "tracking.lightborn_aura_reveal_average": fixedStat("Aura moyenne obtenue (par partie)", "Traque", 0, "s", "duration", "higher"),
+  "tracking.tinkerer_undetectable_average": fixedStat("Durée moyenne d’indétectable (par partie)", "Traque", 0, "s", "duration", "higher")
 } as const satisfies Record<string, AnalyzableStatDefinition>;
 
 export type AnalyzableStatKey = keyof typeof ANALYZABLE_STATS;

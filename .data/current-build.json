@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-06T22:51:17.242Z",
+  "updatedAt": "2026-09-07T21:33:58.601Z",
   "build": {
-    "id": "b7ff2dc0-f604-4ea3-94de-4df7f02af6d6",
-    "name": "l'infirmière — Build teffst 2dqzd",
-    "killerId": "nurse",
+    "id": "c153e53a-e01a-45c9-a3d1-f587be438462",
+    "name": "l'infirmière — Build test 2dqzd",
+    "killerId": "twins",
     "perkIds": [
-      "mad-grit"
+      "tinkerer"
     ]
   },
   "scenario": {
@@ -17,70 +17,47 @@
       "inside_terror_radius": true,
       "survivor_injured": true,
       "outside_terror_radius": false,
-      "perk_triggered": true,
-      "exit_gate_open": true,
-      "survivor_hooked": true,
-      "exit_gate_progress_80": true,
-      "exit_gates_powered": true,
-      "compromised_generator_completed": true,
-      "after_basic_attack": true
+      "chase_abandoned": true,
+      "pallet_stunned": true,
+      "blind_attempted": true,
+      "generator_at_70_percent": true
     },
     "perkStates": {
-      "a-nurses-calling": "active",
-      "territorial-imperative": "active",
-      "nowhere-to-hide": "active",
-      "phantom-fear": "active",
       "predator": "active",
-      "lightborn": "active"
+      "lightborn": "active",
+      "tinkerer": "active"
     }
   },
   "assistantContext": {
     "killer": {
-      "name": "l'infirmière",
-      "speed": 3.8,
+      "name": "les jumeaux",
+      "speed": 4.6,
       "terrorRadius": 32,
-      "size": "normal",
-      "tier": "S+",
+      "size": "big",
+      "tier": "B+",
       "difficulty": "nightmare"
     },
     "perks": [
       {
-        "name": "cran dément",
+        "name": "réparateur",
         "categories": [
-          "hook"
+          "generator",
+          "indetectable",
+          "aura"
         ],
         "effects": [
           {
-            "stat": "killer.missed_attack_recovery_time",
-            "operation": "set",
+            "stat": "tracking.tinkerer_undetectable_average",
+            "operation": "add",
             "interpretation": "verified",
-            "value": 0,
+            "value": 61,
             "unit": "seconds",
             "condition": {
-              "type": "carrying_survivor"
-            }
-          },
-          {
-            "stat": "hook.wiggle_paused",
-            "operation": "apply_status",
-            "interpretation": "verified",
-            "value": true,
-            "unit": "boolean",
-            "duration": 4,
-            "condition": {
-              "operator": "all",
-              "conditions": [
-                {
-                  "type": "carrying_survivor"
-                },
-                {
-                  "type": "after_basic_attack"
-                }
-              ]
+              "type": "generator_at_70_percent"
             }
           }
         ],
-        "description": "- Quand vous transportez un survivant:\n- Supprime le temps de recharge des attaques de base ratées.\n- Interrompt la progression de l'esquive du survivant transporté pendant 2 / 3 / 4 secondes à chaque fois que vous touchez avec succès un autre survivant."
+        "description": "- Une fois réparée à 70 %:\n- Déclenche une notification sonore forte pour ce générateur, révélant son emplacement.\n- Vous devenez indétectable pendant les 12 / 14 / 16 prochaines secondes.\n- Le mode Bricoleur ne peut se déclencher qu'une seule fois par générateur et par essai."
       }
     ],
     "currentState": {
@@ -91,61 +68,44 @@
         "inside_terror_radius": true,
         "survivor_injured": true,
         "outside_terror_radius": false,
-        "perk_triggered": true,
-        "exit_gate_open": true,
-        "survivor_hooked": true,
-        "exit_gate_progress_80": true,
-        "exit_gates_powered": true,
-        "compromised_generator_completed": true,
-        "after_basic_attack": true
+        "chase_abandoned": true,
+        "pallet_stunned": true,
+        "blind_attempted": true,
+        "generator_at_70_percent": true
       },
       "perkStates": {
-        "a-nurses-calling": "active",
-        "territorial-imperative": "active",
-        "nowhere-to-hide": "active",
-        "phantom-fear": "active",
         "predator": "active",
-        "lightborn": "active"
+        "lightborn": "active",
+        "tinkerer": "active"
       }
     },
     "calculatedData": {
       "affectedStats": [
         {
-          "key": "killer.missed_attack_recovery_time",
-          "label": "Récupération après attaque ratée",
-          "base": 1.5,
-          "final": 0,
-          "delta": -1.5,
-          "deltaPercent": -100,
+          "key": "tracking.tinkerer_undetectable_average",
+          "label": "Durée moyenne d’indétectable (par partie)",
+          "base": 0,
+          "final": 61,
+          "delta": 61,
+          "deltaPercent": null,
           "unit": "s",
           "effects": [
             {
-              "perk": "cran dément",
-              "operation": "set",
-              "value": 0,
+              "perk": "réparateur",
+              "operation": "add",
+              "value": 61,
               "unit": "seconds",
-              "before": 1.5,
-              "after": 0,
+              "before": 0,
+              "after": 61,
               "condition": [
-                "Condition remplie : carrying_survivor"
+                "Condition remplie : generator_at_70_percent"
               ],
               "status": "active"
             }
           ]
         }
       ],
-      "qualitativeEffects": [
-        {
-          "label": "Progression de gigotement interrompue",
-          "perk": "cran dément",
-          "condition": [
-            "Condition remplie : carrying_survivor",
-            "Condition remplie : after_basic_attack"
-          ],
-          "status": "active",
-          "duration": 4
-        }
-      ],
+      "qualitativeEffects": [],
       "unresolvedEffects": []
     }
   }

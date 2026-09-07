@@ -146,7 +146,7 @@ test("refuse une unité incompatible au lieu de modifier silencieusement la vite
   assert.match(result.unresolvedEffects[0]?.reasons.at(-1) ?? "", /Unité incompatible/);
 });
 
-test("n'applique un effet temporaire que lorsqu'il est déclenché et hors cooldown", () => {
+test("considère le cooldown comme inactif", () => {
   const temporary = perk("temporary", [{
     stat: "killer.speed",
     operation: "multiply",
@@ -172,7 +172,7 @@ test("n'applique un effet temporaire que lorsqu'il est déclenché et hors coold
   assert.equal(active.finalStats.speed, 4.83);
   assert.equal(active.activeEffects[0]?.reasons.includes("Effet déclenché dans la simulation"), true);
   assert.equal(cooldown.finalStats.speed, 4.6);
-  assert.equal(cooldown.cooldownEffects[0]?.perkId, "temporary");
+  assert.equal(cooldown.inactiveEffects[0]?.perkId, "temporary");
 });
 
 test("ne traite pas une durée et un cooldown null comme un effet temporaire", () => {
@@ -258,7 +258,8 @@ test("calcule 16 s avec +50 % de vitesse en 10.666667 s", () => {
 test("distingue une durée multipliée d'une vitesse d'action", () => {
   const result = calculateBuild({
     killer,
-    perks: [perk("enduring", [...(PERK_EFFECT_OVERRIDES.enduring ?? [])])]
+    perks: [perk("enduring", [...(PERK_EFFECT_OVERRIDES.enduring ?? [])])],
+    scenario: { conditions: { pallet_stunned: true }, perkStates: {} }
   });
 
   assert.equal(result.stats["killer.pallet_stun_duration"]?.base, 2);
@@ -307,16 +308,52 @@ test("utilise la vitesse de transport sans modifier la vitesse normale", () => {
   assert.equal(active.finalStats.terrorRadius, 44);
 });
 
-test("conserve une statistique explicitement inconnue en analyse partielle", () => {
+test("calcule la durée des flaques de sang avec Limier", () => {
   const result = calculateBuild({
     killer,
     perks: [perk("bloodhound", [...(PERK_EFFECT_OVERRIDES.bloodhound ?? [])])],
-    scenario: { conditions: { survivor_injured: true }, perkStates: {} }
+    scenario: { conditions: { blood_pool_present: true }, perkStates: {} }
   });
 
-  assert.equal(result.stats["tracking.blood_pool_lifetime"], undefined);
-  assert.equal(result.unresolvedEffects.length, 1);
-  assert.match(result.unresolvedEffects[0]?.reasons.at(-1) ?? "", /non vérifiée/);
+  assert.equal(result.stats["tracking.blood_pool_lifetime"]?.base, 4);
+  assert.equal(result.stats["tracking.blood_pool_lifetime"]?.final, 8);
+  assert.equal(result.unresolvedEffects.length, 0);
+});
+
+test("calcule Prédateur uniquement avec la poursuite abandonnée", () => {
+  const predator = perk("predator", [...(PERK_EFFECT_OVERRIDES.predator ?? [])]);
+  predator.cooldown = 40;
+  const result = calculateBuild({
+    killer,
+    perks: [predator],
+    scenario: { conditions: { chase_abandoned: true }, perkStates: {} }
+  });
+
+  assert.equal(result.stats["tracking.survivor_aura_reveal_average"]?.final, 10.8);
+  assert.equal(result.inactiveEffects.length, 0);
+});
+
+test("calcule Rejeton de la lumière avec un aveuglement", () => {
+  const lightborn = perk("lightborn", [...(PERK_EFFECT_OVERRIDES.lightborn ?? [])]);
+  const result = calculateBuild({
+    killer,
+    perks: [lightborn],
+    scenario: { conditions: { blind_attempted: true }, perkStates: {} }
+  });
+
+  assert.equal(result.stats["tracking.lightborn_aura_reveal_average"]?.final, 8);
+  assert.equal(result.inactiveEffects.length, 0);
+});
+
+test("calcule Réparateur avec un générateur à 70 %", () => {
+  const result = calculateBuild({
+    killer,
+    perks: [perk("tinkerer", [...(PERK_EFFECT_OVERRIDES.tinkerer ?? [])])],
+    scenario: { conditions: { generator_at_70_percent: true }, perkStates: {} }
+  });
+
+  assert.equal(result.stats["tracking.tinkerer_undetectable_average"]?.final, 61);
+  assert.equal(result.inactiveEffects.length, 0);
 });
 
 test("affiche un statut qualitatif et respecte sa condition", () => {
@@ -434,7 +471,7 @@ test("sélectionne les providers sans lancer de service externe", () => {
 
 test("restaure une session locale en écartant les identifiants inconnus", () => {
   const session = readAppSession(JSON.stringify({
-    activeView: "perks",
+    activeView: "tiers",
     selectedKillerId: "trapper",
     selectedPerkId: "agitation",
     equippedPerkIds: ["agitation", "missing", "agitation"],
@@ -442,7 +479,7 @@ test("restaure une session locale en écartant les identifiants inconnus", () =>
     scenario: { conditions: { carrying_survivor: true }, perkStates: { agitation: "active" } }
   }), new Set(["trapper"]), new Set(["agitation"]));
 
-  assert.equal(session.activeView, "perks");
+  assert.equal(session.activeView, "tiers");
   assert.deepEqual(session.equippedPerkIds, ["agitation"]);
   assert.equal(session.scenario.conditions.carrying_survivor, true);
 });

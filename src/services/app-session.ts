@@ -2,7 +2,7 @@ import type { BuildScenario, PerkRuntimeState, ScenarioConditionValue } from "./
 
 export const APP_SESSION_STORAGE_KEY = "dbd-build-tool.current-session";
 
-export type AppView = "build" | "killers" | "perks" | "constants";
+export type AppView = "build" | "killers" | "perks" | "constants" | "tiers";
 
 type CatalogScrollPositions = Record<"killers" | "perks", number>;
 
@@ -48,7 +48,7 @@ export function readAppSession(raw: string | null, knownKillerIds: ReadonlySet<s
       ? [...new Set(value.equippedPerkIds.filter((id): id is string => typeof id === "string" && knownPerkIds.has(id)))].slice(0, 4)
       : [];
     return {
-      activeView: value.activeView === "killers" || value.activeView === "perks" || value.activeView === "constants" ? value.activeView : "build",
+      activeView: value.activeView === "killers" || value.activeView === "perks" || value.activeView === "constants" || value.activeView === "tiers" ? value.activeView : "build",
       soundEnabled: typeof value.soundEnabled === "boolean" ? value.soundEnabled : DEFAULT_APP_SESSION.soundEnabled,
       musicVolume: clamp(value.musicVolume, DEFAULT_APP_SESSION.musicVolume, 0, 1),
       selectedKillerId: killerId,
@@ -73,7 +73,7 @@ function readScenario(value: unknown): BuildScenario {
     ? Object.fromEntries(Object.entries(value.conditions).filter((entry): entry is [string, ScenarioConditionValue] => isConditionValue(entry[1])))
     : {};
   const perkStates = isRecord(value.perkStates)
-    ? Object.fromEntries(Object.entries(value.perkStates).filter((entry): entry is [string, PerkRuntimeState] => entry[1] === "active" || entry[1] === "inactive" || entry[1] === "cooldown"))
+    ? Object.fromEntries(Object.entries(value.perkStates).flatMap(([id, state]): [string, PerkRuntimeState][] => state === "active" ? [[id, "active"]] : state === "inactive" || state === "cooldown" ? [[id, "inactive"]] : []))
     : {};
   return { conditions, perkStates };
 }

@@ -281,7 +281,7 @@
         "value": 4,
         "unit": "seconds",
         "condition": {
-          "type": "survivor_injured"
+          "type": "blood_pool_present"
         }
       }
     ],
@@ -343,20 +343,19 @@
     },
     "effects": [
       {
-        "stat": "survivor.aura",
-        "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+4[aura]"
-        },
-        "duration": 4,
-        "unit": "seconds"
+        "stat": "tracking.survivor_aura_reveal_average",
+        "operation": "add",
+        "interpretation": "verified",
+        "value": 10.8,
+        "unit": "seconds",
+        "condition": {
+          "type": "chase_abandoned"
+        }
       }
     ],
     "cooldown": 40,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 14
@@ -476,7 +475,10 @@
         "operation": "multiply",
         "interpretation": "verified",
         "value": 0.5,
-        "unit": "multiplier"
+        "unit": "multiplier",
+        "condition": {
+          "type": "pallet_stunned"
+        }
       }
     ],
     "cooldown": null,
@@ -555,20 +557,19 @@
     },
     "effects": [
       {
-        "stat": "survivor.aura",
-        "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+10[aura]"
-        },
-        "duration": 10,
-        "unit": "seconds"
+        "stat": "tracking.lightborn_aura_reveal_average",
+        "operation": "add",
+        "interpretation": "verified",
+        "value": 8,
+        "unit": "seconds",
+        "condition": {
+          "type": "blind_attempted"
+        }
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 19
@@ -630,20 +631,19 @@
     },
     "effects": [
       {
-        "stat": "killer.status.undetectable",
-        "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+16[indetectable]"
-        },
-        "duration": 16,
-        "unit": "seconds"
+        "stat": "tracking.tinkerer_undetectable_average",
+        "operation": "add",
+        "interpretation": "verified",
+        "value": 61,
+        "unit": "seconds",
+        "condition": {
+          "type": "generator_at_70_percent"
+        }
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 20
@@ -9723,7 +9723,7 @@
   {
     "id": "franklins-demise",
     "name": {
-      "fr": "Trépas de Franklin",
+      "fr": "trépas de Franklin",
       "en": "Franklin's Demise"
     },
     "side": "killer",
@@ -9734,29 +9734,7 @@
     "characterResolution": "resolved",
     "icon": "DBDImages-main/DBDImages-main/images/perks/killer/franklinsdemise.png",
     "description": {
-      "fr": {
-        "version": 1,
-        "blocks": [
-          {
-            "type": "list",
-            "ordered": false,
-            "items": [
-              [
-                {
-                  "type": "text",
-                  "value": "Les survivants touchés par votre attaque de base dévastatrice laissent tomber tout objet équipé. sur l'impact:"
-                }
-              ],
-              [
-                {
-                  "type": "text",
-                  "value": "Vous voyez les objets perdus sont révélés à une distance de 32 / 48 / 64 mètres."
-                }
-              ]
-            ]
-          }
-        ]
-      },
+      "fr": null,
       "en": null
     },
     "effects": [

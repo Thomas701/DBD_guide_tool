@@ -40,28 +40,16 @@ export function PerkConditions({ perk, scenario, onConditionChange, onPerkStateC
           );
         })}
 
-        {hasRuntimeState && (hasCooldown(perk) ? (
+        {hasRuntimeState && (
           <li>
-            <label className="runtime-condition">
+            <label className={`condition-toggle runtime-toggle${(scenario.perkStates[perk.id] ?? "inactive") === "active" ? " active" : ""}`}>
               <span className="condition-icon empty" aria-hidden="true" />
               <span><strong>{perk.name.fr ?? perk.name.en ?? perk.id}</strong><small>État de déclenchement</small></span>
-              <select value={scenario.perkStates[perk.id] ?? "inactive"} onChange={(event) => onPerkStateChange(perk.id, event.target.value as PerkRuntimeState)}>
-                <option value="inactive">Inactif</option>
-                <option value="active">Actif</option>
-                <option value="cooldown">Cooldown</option>
-              </select>
-            </label>
-          </li>
-        ) : (
-          <li>
-            <label className={`condition-toggle runtime-toggle${(scenario.perkStates[perk.id] ?? "active") === "active" ? " active" : ""}`}>
-              <span className="condition-icon empty" aria-hidden="true" />
-              <span><strong>{perk.name.fr ?? perk.name.en ?? perk.id}</strong><small>État de déclenchement</small></span>
-              <input type="checkbox" checked={(scenario.perkStates[perk.id] ?? "active") === "active"} onChange={(event) => onPerkStateChange(perk.id, event.target.checked ? "active" : "inactive")} />
+              <input type="checkbox" checked={(scenario.perkStates[perk.id] ?? "inactive") === "active"} onChange={(event) => onPerkStateChange(perk.id, event.target.checked ? "active" : "inactive")} />
               <span className="toggle-track" aria-hidden="true"><span /></span>
             </label>
           </li>
-        ))}
+        )}
       </ul>
     </div>
   );
@@ -73,6 +61,3 @@ export function conditionLabel(condition: string): string {
     : condition.replaceAll("_", " ");
 }
 
-function hasCooldown(perk: Perk): boolean {
-  return perk.cooldown !== null || perk.effects.some((effect) => effect.cooldown != null);
-}

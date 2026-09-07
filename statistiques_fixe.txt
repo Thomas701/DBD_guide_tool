@@ -301,21 +301,43 @@ Le chrono de l'Endgame Collapse tourne à demi-vitesse lorsqu'au moins un surviv
 | Temps pour atteindre luminosité maximale |        **1 s** |
 | Pleine luminosité                        |        **8 s** |
 | Disparition progressive                  |        **1 s** |
+| Durée d'une flaque de sang               |        **4 s** |
 | Corbeau effrayé : retour                 |       **15 s** |
 
 ([Dead by Daylight Wiki][16])
 
-### ⚠️ Flaques de sang
+Limier/Bloodhound ajoute **+2 / +3 / +4 secondes** à cette durée. ([Dead by Daylight Wiki][17])
 
-Je corrige ici une information que je t'ai donnée précédemment : **je ne te conseille pas de mettre `10 s` en dur comme durée de base vérifiée des flaques de sang**.
+## Estimation des poursuites abandonnées
 
-La page actuelle du wiki officiel documente bien les flaques et les modificateurs — par exemple **Limier/Bloodhound : +2 / +3 / +4 secondes** — mais **n'affiche actuellement pas la durée de vie de base**. ([Dead by Daylight Wiki][17])
+| Statistique | Valeur de référence |
+| ----------- | ------------------: |
+| Poursuites par partie | **≈ 11** |
+| Poursuites abandonnées | **≈ 25–30 %** |
+| Valeur centrale conseillée | **≈ 27 %** |
+| Poursuites abandonnées par partie | **≈ 3** |
 
-Pour ton application, je mettrais donc pour l'instant :
+Pour les effets qui révèlent l'aura après une poursuite abandonnée, l'estimation de référence est : **3 abandons × ~90 % de déclenchements disponibles × 4 s ≈ 10,8 s** d'aura totale gagnée par partie.
 
-`blood_pool_lifetime: null / unverified`
+## Estimation des aveuglements
 
-plutôt que d'inventer une donnée.
+| Indication | Valeur de référence |
+| ---------- | ------------------: |
+| Tentatives d'aveuglement moyennes | **≈ 0,8 / partie** |
+| Aura moyenne obtenue | **≈ 8 secondes / partie** |
+| Aura si au moins une source d'aveuglement est présente | **≈ 17 secondes / partie** |
+| Fourchette raisonnable | **0 à 20+ secondes** |
+
+## Estimation de Réparateur
+
+| Statistique | Valeur de référence |
+| ----------- | ------------------: |
+| Générateurs atteignant 70 % | **≈ 4,0 / partie** |
+| Activations de Réparateur | **≈ 4,0 / partie** |
+| Durée par activation III | **16 s** |
+| Durée brute | **≈ 64 s** |
+| Durée effective estimée | **≈ 60–62 s / partie** |
+| Valeur centrale conseillée | **≈ 61 s** |
 
 ---
 

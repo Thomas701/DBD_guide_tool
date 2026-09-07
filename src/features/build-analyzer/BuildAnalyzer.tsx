@@ -17,10 +17,15 @@ interface BuildAnalyzerProps {
 const propertyIcons: Readonly<Record<string, string | null>> = {
   "killer.speed": killerPropertyIconUrl("speed.png"),
   "killer.terror_radius": killerPropertyIconUrl("terror_rayon.png"),
-  "hook.transport_speed": killerConditionIconUrl("carrying_survivor"),
+  "killer.carry_speed": killerConditionIconUrl("carrying_survivor"),
   "generator.damage_time": killerConditionIconUrl("generator_damaged"),
   "killer.pallet_break_time": killerConditionIconUrl("pallet_break"),
-  "killer.wall_break_time": killerConditionIconUrl("wall_break")
+  "killer.pallet_stun_duration": killerConditionIconUrl("pallet_stunned"),
+  "killer.wall_break_time": killerConditionIconUrl("wall_break"),
+  "tracking.blood_pool_lifetime": killerConditionIconUrl("blood_pool_present"),
+  "tracking.survivor_aura_reveal_average": killerConditionIconUrl("chase_abandoned"),
+  "tracking.lightborn_aura_reveal_average": killerConditionIconUrl("blind_attempted"),
+  "tracking.tinkerer_undetectable_average": killerConditionIconUrl("generator_at_70_percent")
 };
 
 export function BuildAnalyzer({ calculation, perks }: BuildAnalyzerProps) {
@@ -135,6 +140,7 @@ function StatRow({ stat }: { stat: CalculatedStat }) {
     <details className={`stat-impact-row ${tone}`} role="row">
       <summary>
         <span className="stat-identity" role="cell">
+          <span className="stat-expand-indicator" aria-hidden="true">▸</span>
           <StatIcon stat={stat} />
           <span>
             <strong>{stat.label}</strong>
