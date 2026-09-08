@@ -1,5 +1,6 @@
 import type { Killer } from "../domain/killer.js";
 import type { Perk } from "../domain/perk.js";
+import { findBlindTestAudioFile } from "../services/blind-test.js";
 
 const perkModules = import.meta.glob(
   "../../DBDImages-main/DBDImages-main/images/perks/killer/*.png",
@@ -41,6 +42,11 @@ const terrorRadiusModules = import.meta.glob(
   { query: "?url", import: "default" }
 ) as Record<string, () => Promise<string>>;
 
+const killerBreathingModules = import.meta.glob(
+  "../../DBDImages-main/DBDImages-main/images/killer_breathing/*.ogg",
+  { query: "?url", import: "default" }
+) as Record<string, () => Promise<string>>;
+
 const perkImages = byFileName(perkModules);
 const portraitImages = byFileName(portraitModules);
 const killerPropertyImages = byFileName(killerPropertyModules);
@@ -48,6 +54,7 @@ const killerConditionImages = byFileName(killerConditionModules);
 const logoImages = byFileName(logoModules);
 const killerThemes = byFileName(killerThemeModules);
 const terrorRadiusTracks = byFileName(terrorRadiusModules);
+const killerBreathings = byFileName(killerBreathingModules);
 export const conditionIconBackgroundUrl = Object.values(conditionBackgroundModules)[0] ?? null;
 export const appLogoUrl = logoImages.get("logo_dbd_build_analyser.png") ?? Object.values(logoModules)[0] ?? null;
 export const entityPortraitUrl = portraitImages.get("entity.png") ?? null;
@@ -56,6 +63,9 @@ const conditionImageNames: Record<string, string> = {
   not_in_chase: "stop_chase.png",
   chase_abandoned: "stop_chase.png",
   carrying_survivor: "survivant_transport.png",
+  repair_generator: "fixe_generator.png",
+  sabotage_hook: "jam_hook.png",
+  cleanse_totem: "destroy_totem.png",
   near_completed_generator: "generator_70_progression.png",
   generator_at_70_percent: "generator_70_progression.png",
   generator_damaged: "break_generator.png",
@@ -93,20 +103,26 @@ export function killerConditionIconUrl(condition: string): string | null {
 }
 
 export function killerThemeUrl(killerId: string): Promise<string | null> {
-  return matchingAudio(killerThemes, themeAudioId(killerId), "Theme_Music.ogg");
+  return matchingAudio(killerThemes, `${themeAudioId(killerId)}_Theme_Music.ogg`);
 }
 
 export function killerTerrorRadiusUrl(killerId: string): Promise<string | null> {
-  return matchingAudio(terrorRadiusTracks, terrorAudioId(killerId), ".ogg");
+  return matchingAudio(terrorRadiusTracks, `TerrorRadius_${terrorAudioId(killerId)}.ogg`);
+}
+
+export async function killerBreathingUrl(killerId: string): Promise<string | null> {
+  const id = terrorAudioId(killerId);
+  return await matchingAudio(killerBreathings, `${id}_Breathing.ogg`)
+    ?? matchingAudio(killerBreathings, `${id}_Breathing_2.ogg`);
 }
 
 export async function originalKillerThemeUrl(): Promise<string | null> {
   return killerThemes.get("Original_Killer_Theme.ogg")?.() ?? null;
 }
 
-async function matchingAudio(tracks: Map<string, () => Promise<string>>, killerId: string, suffix: string): Promise<string | null> {
-  const id = normalizeAssetName(killerId);
-  const loader = [...tracks].find(([name]) => normalizeAssetName(name).includes(id) && name.endsWith(suffix))?.[1];
+async function matchingAudio(tracks: Map<string, () => Promise<string>>, expectedFileName: string): Promise<string | null> {
+  const fileName = findBlindTestAudioFile(tracks.keys(), expectedFileName);
+  const loader = fileName ? tracks.get(fileName) : null;
   return loader ? loader() : null;
 }
 
@@ -116,10 +132,6 @@ function terrorAudioId(killerId: string): string {
 
 function themeAudioId(killerId: string): string {
   return ({ "good-guy": "chucky", slasher: "jason", onryo: "oryo", hag: "harpie" } as Record<string, string>)[killerId] ?? killerId;
-}
-
-function normalizeAssetName(value: string): string {
-  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/gi, "").toLowerCase();
 }
 
 function byFileName<T>(modules: Record<string, T>): Map<string, T> {

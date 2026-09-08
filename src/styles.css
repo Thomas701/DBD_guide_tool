@@ -2573,6 +2573,53 @@ button:disabled {
 .how-to-play-content li::before { position: absolute; left: 0; color: #d54a43; content: "◆"; font-size: 0.55rem; }
 .how-to-play-content strong { color: #f0c57a; font-weight: 750; }
 .constants-page { width: min(1400px, calc(100% - 40px)); min-height: calc(100dvh - 74px); margin: 0 auto; padding: clamp(30px, 5vw, 68px) 0 52px; }
+.blind-test-hidden { display: none; }
+.blind-test-page { position: relative; min-height: calc(100dvh - 58px); box-sizing: border-box; padding: clamp(24px, 4vw, 58px) clamp(24px, 4vw, 58px) 0; color: #e8eaeb; background: radial-gradient(circle at 50% 16%, rgb(119 28 28 / 24%), transparent 38%), #0b0e10; }
+.blind-test-setup, .blind-test-complete { width: min(720px, 100%); margin: 0 auto; padding: clamp(22px, 4vw, 46px); }
+.blind-test-setup header, .blind-test-complete { text-align: center; }
+.blind-test-setup h1, .blind-test-complete h1 { margin: 5px 0 9px; font-size: clamp(2.4rem, 6vw, 4.7rem); letter-spacing: -0.06em; }
+.blind-test-setup p, .blind-test-complete p { margin: 0; color: #aab1b5; }
+.blind-test-fields { display: grid; justify-items: center; gap: 16px; margin: 34px 0 25px; }
+.blind-test-field { display: grid; width: min(360px, 100%); gap: 9px; justify-items: center; padding: 13px; color: #c8ced1; font-size: .78rem; text-align: center; }
+.blind-test-field select { width: 100%; box-sizing: border-box; padding: 9px; border: 1px solid #454e53; color: #eef0f0; background: #0a0d0f; font: inherit; }
+.blind-test-fields input[type="range"] { width: 100%; accent-color: #d85b55; }
+.blind-test-stepper { display: grid; grid-template-columns: 42px minmax(54px, 1fr) 42px; width: min(190px, 100%); align-items: center; border: 1px solid #454e53; background: #0a0d0f; }
+.blind-test-stepper button { min-height: 38px; border: 0; color: #fff1ee; background: #6b1c1c; font: inherit; font-size: 1.2rem; font-weight: 800; cursor: pointer; }
+.blind-test-stepper button:hover:not(:disabled) { background: #922a27; }
+.blind-test-stepper button:disabled { cursor: not-allowed; opacity: .4; }
+.blind-test-stepper strong { color: #f1f3f3; font-size: 1rem; }
+.blind-test-volume { position: fixed; z-index: 6; top: 70px; right: clamp(16px, 3vw, 42px); display: grid; width: min(210px, 34vw); gap: 6px; color: #c8ced1; font-size: .72rem; font-weight: 800; text-align: right; }
+.blind-test-volume input { width: 100%; margin: 0; accent-color: #d85b55; }
+.blind-test-play, .blind-test-abandon { padding: 12px 20px; border: 1px solid #c74743; color: #fff1ee; background: #6b1c1c; font: inherit; font-weight: 800; cursor: pointer; }
+.blind-test-play { display: block; margin: 0 auto; }
+.blind-test-complete .blind-test-play { margin-top: 20px; }
+.blind-test-play:hover, .blind-test-abandon:hover { background: #922a27; }
+.blind-test-play:disabled { cursor: not-allowed; opacity: .45; }
+.blind-test-muted { display: block; margin-top: 12px; color: #d98e88; }
+.blind-test-game { position: relative; display: grid; grid-template-rows: minmax(0, 42dvh) minmax(0, 1fr); min-height: calc(100dvh - 130px); }
+.blind-test-score { position: absolute; top: 0; right: 0; display: grid; justify-items: end; gap: 2px; color: #9da6ab; text-transform: uppercase; letter-spacing: .08em; font-size: .66rem; }
+.blind-test-score strong { color: #f5f6f6; font-size: 1.55rem; letter-spacing: 0; }
+.blind-test-score small { color: #d0a85c; }
+.blind-test-abandon { position: absolute; top: 0; left: 0; padding: 8px 12px; font-size: .75rem; }
+.blind-test-countdown { display: grid; grid-template-columns: minmax(0, 1fr) clamp(280px, 30vw, 510px) minmax(0, 1fr); grid-template-rows: auto auto; width: min(1160px, 100%); min-height: 0; margin: 0 auto; align-content: center; align-items: center; justify-items: center; gap: 14px 24px; }
+.blind-test-countdown > .blind-test-countdown-value { grid-column: 2; color: #f1f3f3; font-size: clamp(9rem, 26vw, 23rem); font-variant-numeric: tabular-nums; line-height: .8; text-shadow: 0 0 35px rgb(225 76 69 / 28%); }
+.blind-test-answer { display: grid; width: min(260px, 100%); gap: 9px; justify-items: center; padding: 12px; border: 1px solid #414a50; background: rgb(15 19 22 / 82%); box-shadow: 0 14px 34px rgb(0 0 0 / 24%); color: #aeb5b9; text-align: center; text-transform: uppercase; letter-spacing: .08em; font-size: .72rem; font-weight: 800; }
+.blind-test-answer-portrait { display: grid; width: 100%; aspect-ratio: 1; overflow: hidden; place-items: center; border: 1px solid #343c42; background: #080b0d; }
+.blind-test-answer-portrait img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+.blind-test-answer-portrait strong { color: #f1f3f3; font-size: clamp(4rem, 8vw, 8rem); line-height: 1; text-shadow: 0 0 28px rgb(225 76 69 / 24%); }
+.blind-test-countdown > span { grid-column: 1 / -1; color: #cdd1d2; font-size: clamp(1.1rem, 2vw, 1.6rem); }
+.blind-test-countdown.correct > .blind-test-countdown-value { color: #65e870; }
+.blind-test-countdown.incorrect > .blind-test-countdown-value { color: #f07373; }
+.blind-test-killers { display: grid; grid-template-rows: auto minmax(0, 1fr); min-width: 0; min-height: 0; overflow: hidden; border-top: 1px solid #343b40; padding-top: 14px; }
+.blind-test-killers > label { display: flex; max-width: 340px; gap: 9px; align-items: center; margin-bottom: 12px; color: #aab1b5; font-size: .75rem; }
+.blind-test-killers input { min-width: 0; flex: 1; padding: 8px 10px; border: 1px solid #454e53; color: #eef0f0; background: #0a0d0f; }
+.blind-test-killers > div { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); min-width: 0; min-height: 0; gap: 10px; overflow-x: hidden; overflow-y: auto; padding: 2px; align-content: start; }
+.blind-test-killers button { display: grid; grid-template-columns: 68px minmax(0, 1fr); min-height: 82px; align-items: center; gap: 10px; padding: 6px 10px 6px 6px; border: 1px solid #333b40; color: #d7dcdf; background: #12171a; font: inherit; font-size: .8rem; font-weight: 700; text-align: left; cursor: pointer; }
+.blind-test-killers button:hover:not(:disabled), .blind-test-killers button.selected { border-color: #d85b55; background: #421b1b; color: #fff; }
+.blind-test-killers button:disabled { cursor: default; opacity: .7; }
+.blind-test-killers button span { display: grid; width: 68px; height: 68px; overflow: hidden; place-items: center; background: #080a0c; }
+.blind-test-killers button img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+@media (min-width: 901px) { .blind-test-page, .blind-test-game { height: 100%; min-height: 0; overflow: hidden; } }
 .constants-header { display: flex; justify-content: space-between; gap: 28px; align-items: end; padding-bottom: 28px; border-bottom: 1px solid #343b40; }
 .constants-header h1 { margin: 4px 0 8px; color: #f1f2f2; font-size: clamp(2rem, 4vw, 3.4rem); line-height: 1; }
 .constants-header p { margin: 0; color: #99a1a6; }

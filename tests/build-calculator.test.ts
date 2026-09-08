@@ -9,6 +9,7 @@ import { PERK_EFFECT_OVERRIDES } from "../src/data/perk-effect-overrides.js";
 import { answerBuildQuestion } from "../src/services/build-assistant.js";
 import { createAssistantProvider, normalizeServerUrl } from "../src/services/assistant-provider.js";
 import { readAppSession } from "../src/services/app-session.js";
+import { blindTestResultComment, findBlindTestAudioFile, getBlindTestPlayback, pickWeightedBlindTestTrack } from "../src/services/blind-test.js";
 import { BUILD_STACKING_POLICY, calculateBuild, collectBuildConditions } from "../src/services/build-calculator.js";
 import { buildChatGPTPrompt } from "../src/services/chatgpt-prompt-builder.js";
 import { buildNativeChatPrompt } from "../src/services/native-chat-prompt.js";
@@ -491,6 +492,38 @@ test("conserve les perks d’une session même sans tueur sélectionné", () => 
   }), new Set(["trapper"]), new Set(["agitation"]));
 
   assert.deepEqual(session.equippedPerkIds, ["agitation"]);
+});
+
+test("pondère les pistes de BlindTest sans dépasser cinq occurrences", () => {
+  const tracks = [
+    { id: "theme:a", killerId: "a", kind: "theme" as const, url: "a" },
+    { id: "terror:b", killerId: "b", kind: "terror" as const, url: "b" }
+  ];
+  const picked = pickWeightedBlindTestTrack(tracks, { "theme:a": 3, "terror:b": 5 }, () => 0);
+
+  assert.equal(picked?.track.id, "theme:a");
+  assert.deepEqual(picked?.weights, { "theme:a": 1, "terror:b": 5 });
+});
+
+test("associe exactement la piste de terreur de l'Animatronic", () => {
+  const files = ["TerrorRadius_Animatronic.ogg", "TerrorRadius_Oni.ogg"];
+
+  assert.equal(findBlindTestAudioFile(files, "TerrorRadius_Animatronic.ogg"), "TerrorRadius_Animatronic.ogg");
+  assert.equal(findBlindTestAudioFile(files, "TerrorRadius_Oni.ogg"), "TerrorRadius_Oni.ogg");
+});
+
+test("joue une piste courte de BlindTest en boucle et garde assez de temps sur une piste longue", () => {
+  assert.deepEqual(getBlindTestPlayback(12, 20, "theme", () => 0.8), { loop: true, startTime: 0 });
+  assert.deepEqual(getBlindTestPlayback(32, 20, "terror", () => 0.5), { loop: false, startTime: 6 });
+  assert.deepEqual(getBlindTestPlayback(32, 20, "breathing", () => 0.5), { loop: false, startTime: 0 });
+});
+
+test("choisit le commentaire de résultat de BlindTest selon le score", () => {
+  assert.equal(blindTestResultComment(10, 100), "J’ai rarement vu un résultat aussi médiocre. Même le hasard aurait probablement fait mieux.");
+  assert.equal(blindTestResultComment(20, 100), "On va dire que tu étais surtout là pour l’ambiance.");
+  assert.equal(blindTestResultComment(60, 100), "La moyenne est sauvée. Ton honneur aussi, de justesse.");
+  assert.equal(blindTestResultComment(95, 100), "Presque parfait. Cette erreur va probablement te hanter plus longtemps qu’elle ne devrait.");
+  assert.equal(blindTestResultComment(100, 100), "Parfait. Soit tu es une encyclopédie musicale, soit tu as triché avec une discrétion admirable.");
 });
 
 function perk(id: string, effects: PerkEffect[]): Perk {

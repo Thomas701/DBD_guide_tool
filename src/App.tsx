@@ -12,6 +12,7 @@ import { BuildAnalyzer } from "./features/build-analyzer/BuildAnalyzer.js";
 import { BuildAssistant } from "./features/build-assistant/BuildAssistant.js";
 import { BuildEditor } from "./features/build-editor/BuildEditor.js";
 import { BuildSummary } from "./features/build-summary/BuildSummary.js";
+import { BlindTestView } from "./features/blind-test/BlindTestView.js";
 import { SelectedKillerCard } from "./features/build-workspace/SelectedKillerCard.js";
 import { KillerSelector } from "./features/killer-selector/KillerSelector.js";
 import { PerkInspectorPanel } from "./features/perk-browser/PerkInspectorPanel.js";
@@ -41,7 +42,7 @@ import { killerPowerDescription } from "./services/killer-powers.js";
 
 type TopbarMenu = "help" | "settings" | null;
 type InstallState = "available" | "unsupported" | "installed";
-type CatalogView = Extract<AppView, "killers" | "perks">;
+type CatalogView = Extract<AppView, "killers" | "perks" | "constants">;
 const DEFAULT_PANE_LAYOUT = DEFAULT_APP_SESSION.paneLayout;
 const DEFAULT_ASSISTANT_SERVER = import.meta.env.VITE_ASSISTANT_SERVER_URL
   ?? import.meta.env.VITE_OPENAI_ASSISTANT_ENDPOINT
@@ -52,6 +53,13 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
 }
 
+interface TerrorRadiusPlayback {
+  currentTime: number;
+  duration: number;
+  isPlaying: boolean;
+  volume: number;
+}
+
 export default function App() {
   const [initialSession] = useState(loadPersistedAppSession);
   const [activeView, setActiveView] = useState<AppView>(initialSession.activeView);
@@ -59,6 +67,8 @@ export default function App() {
   const [howToPlayOpen, setHowToPlayOpen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(initialSession.soundEnabled);
   const [musicVolume, setMusicVolume] = useState(initialSession.musicVolume);
+  const [blindTestRunning, setBlindTestRunning] = useState(false);
+  const [terrorRadiusPlayback, setTerrorRadiusPlayback] = useState<TerrorRadiusPlayback>({ currentTime: 0, duration: 0, isPlaying: false, volume: 0.7 });
   const [killerInfo, setKillerInfo] = useState<Killer | null>(null);
   const [selectedKillerId, setSelectedKillerId] = useState<string | null>(initialSession.selectedKillerId);
   const [selectedPerkId, setSelectedPerkId] = useState<string | null>(initialSession.selectedPerkId);
@@ -91,6 +101,8 @@ export default function App() {
   const originalThemeAudioRef = useRef<HTMLAudioElement | null>(null);
   const themePlaybackRequestRef = useRef(0);
   const terrorRadiusAudioRef = useRef<HTMLAudioElement | null>(null);
+  const terrorRadiusTrackUrlRef = useRef<string | null>(null);
+  const terrorRadiusPlaybackRequestRef = useRef(0);
   const killerCatalogRef = useRef<HTMLElement>(null);
   const perkCatalogRef = useRef<HTMLElement>(null);
   const previousViewRef = useRef<AppView | null>(null);
@@ -131,12 +143,17 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    [killerThemeAudioRef.current, originalThemeAudioRef.current, terrorRadiusAudioRef.current].forEach((audio) => {
+    [killerThemeAudioRef.current, originalThemeAudioRef.current].forEach((audio) => {
       if (!audio) return;
       audio.volume = musicVolume;
       if (!soundEnabled) audio.pause();
     });
-  }, [soundEnabled, musicVolume]);
+    const terrorRadiusAudio = terrorRadiusAudioRef.current;
+    if (terrorRadiusAudio) {
+      terrorRadiusAudio.volume = terrorRadiusPlayback.volume;
+      if (!soundEnabled) terrorRadiusAudio.pause();
+    }
+  }, [soundEnabled, musicVolume, terrorRadiusPlayback.volume]);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -322,7 +339,7 @@ export default function App() {
   function saveBuildAs(): void {
     if (!selectedKiller) return;
     try {
-      const saved = buildRepository.create({ name: buildName, killerId: selectedKiller.id, perkIds: equippedPerkIds });
+      const saved = buildRepository.create({ name: `${buildName} (copie)`, killerId: selectedKiller.id, perkIds: equippedPerkIds });
       rememberBuildConversation(saved.id, conversationKey);
       setActiveBuildId(saved.id);
       setBuildName(saved.name);
@@ -357,7 +374,10 @@ export default function App() {
     setBuildName(missingPerkCount === 0 ? build.name : `${build.name} (récupéré)`);
     setScenario(emptyScenario());
     setConversationKey(missingPerkCount === 0 ? buildConversationKey(build.id) : newConversationKey("recovered"));
+    setSelectedPerkId((current) => current && !knownPerkIds.includes(current) ? null : current);
     setActiveView("build");
+    stopTerrorRadius();
+    void playKillerTheme(killer);
     setRepositoryMessage(missingPerkCount === 0
       ? `Build « ${build.name} » chargé.`
       : `Build chargé avec ${missingPerkCount} perk absente. L’original est préservé ; sauvegardez une copie récupérée.`);
@@ -373,7 +393,11 @@ export default function App() {
       setBuildName(duplicate.name);
       setScenario(emptyScenario());
       setConversationKey(`build:${duplicate.id}`);
+      setSelectedPerkId((current) => current && !duplicate.perkIds.includes(current) ? null : current);
       setActiveView("build");
+      stopTerrorRadius();
+      const killer = killers.find((candidate) => candidate.id === duplicate.killerId);
+      if (killer) void playKillerTheme(killer);
       setRepositoryMessage(`Build dupliqué sous « ${duplicate.name} ».`);
     } catch (error) {
       setRepositoryMessage(errorMessage(error));
@@ -472,12 +496,14 @@ export default function App() {
 
   function showView(view: AppView): void {
     runUiTransition(() => {
+      if (activeView === "perks" && view !== "perks" && selectedPerkId && !equippedPerkIds.includes(selectedPerkId)) {
+        setSelectedPerkId(null);
+      }
       if (view === "constants") {
         themePlaybackRequestRef.current += 1;
-        stopTerrorRadius();
         killerThemeAudioRef.current?.pause();
         originalThemeAudioRef.current?.pause();
-      } else if (activeView === "constants" && selectedKiller) {
+      } else if (activeView === "constants" && selectedKiller && terrorRadiusAudioRef.current?.paused !== false) {
         void playKillerTheme(selectedKiller);
       }
       setActiveView(view);
@@ -492,7 +518,7 @@ export default function App() {
   }
 
   async function playKillerTheme(killer: Killer): Promise<void> {
-    if (!soundEnabled) return;
+    if (!soundEnabled || blindTestRunning) return;
     const request = ++themePlaybackRequestRef.current;
     const theme = killerThemeAudioRef.current;
     if (!theme) return;
@@ -512,7 +538,7 @@ export default function App() {
   }
 
   async function playOriginalKillerTheme(request = ++themePlaybackRequestRef.current): Promise<void> {
-    if (!soundEnabled) return;
+    if (!soundEnabled || blindTestRunning) return;
     const url = await originalKillerThemeUrl();
     if (request !== themePlaybackRequestRef.current) return;
     if (!url) return;
@@ -525,10 +551,68 @@ export default function App() {
   }
 
   function stopTerrorRadius(): void {
+    terrorRadiusPlaybackRequestRef.current += 1;
     const audio = terrorRadiusAudioRef.current;
     if (!audio) return;
     audio.pause();
     audio.currentTime = 0;
+    setTerrorRadiusPlayback((current) => ({ ...current, currentTime: 0, isPlaying: false }));
+  }
+
+  async function toggleTerrorRadius(killer: Killer): Promise<void> {
+    if (blindTestRunning || killer.terrorRadius <= 0) return;
+    const audio = terrorRadiusAudioRef.current;
+    if (!audio) return;
+    if (!audio.paused) {
+      audio.pause();
+      resumeThemeMusic();
+      return;
+    }
+
+    const request = ++terrorRadiusPlaybackRequestRef.current;
+    const url = await killerTerrorRadiusUrl(killer.id);
+    if (request !== terrorRadiusPlaybackRequestRef.current || !url) return;
+    if (terrorRadiusTrackUrlRef.current !== url) {
+      audio.src = url;
+      audio.currentTime = 0;
+      terrorRadiusTrackUrlRef.current = url;
+    }
+    audio.volume = terrorRadiusPlayback.volume;
+    audio.ontimeupdate = () => setTerrorRadiusPlayback((current) => ({ ...current, currentTime: audio.currentTime }));
+    audio.onloadedmetadata = () => setTerrorRadiusPlayback((current) => ({ ...current, duration: audio.duration }));
+    audio.onplay = () => setTerrorRadiusPlayback((current) => ({ ...current, isPlaying: true }));
+    audio.onpause = () => setTerrorRadiusPlayback((current) => ({ ...current, isPlaying: false }));
+    audio.onended = () => {
+      setTerrorRadiusPlayback((current) => ({ ...current, currentTime: 0, isPlaying: false }));
+      resumeThemeMusic();
+    };
+    pauseThemeMusic();
+    await audio.play().catch(() => resumeThemeMusic());
+  }
+
+  function seekTerrorRadius(currentTime: number): void {
+    const audio = terrorRadiusAudioRef.current;
+    if (!audio) return;
+    audio.currentTime = currentTime;
+    setTerrorRadiusPlayback((current) => ({ ...current, currentTime }));
+  }
+
+  function setTerrorRadiusVolume(volume: number): void {
+    const audio = terrorRadiusAudioRef.current;
+    if (audio) audio.volume = volume;
+    setTerrorRadiusPlayback((current) => ({ ...current, volume }));
+  }
+
+  function startBlindTestSession(): void {
+    setBlindTestRunning(true);
+    themePlaybackRequestRef.current += 1;
+    killerThemeAudioRef.current?.pause();
+    originalThemeAudioRef.current?.pause();
+    stopTerrorRadius();
+  }
+
+  function stopBlindTestSession(): void {
+    setBlindTestRunning(false);
   }
 
   function pauseThemeMusic(): void {
@@ -560,7 +644,7 @@ export default function App() {
     catalogScrollPositionsRef.current[view] = scrollTop;
   }
 
-  function restoreCatalogScroll(view: CatalogView): void {
+  function restoreCatalogScroll(view: Exclude<CatalogView, "constants">): void {
     const panel = view === "killers" ? killerCatalogRef.current : perkCatalogRef.current;
     panel?.scrollTo({ top: catalogScrollPositionsRef.current[view], behavior: "auto" });
   }
@@ -619,10 +703,11 @@ export default function App() {
       {howToPlayOpen && <HowToPlayModal onClose={() => setHowToPlayOpen(false)} />}
       {killerInfo && <KillerInfoModal killer={killerInfo} killers={killers} onClose={() => setKillerInfo(null)} />}
 
-      {activeView === "constants" ? <ConstantsView /> : activeView === "tiers" ? <TierListView killers={killers} perks={catalogPerks} /> : <main className={`analyzer-workspace view-${activeView}`} ref={workspaceRef} style={workspaceStyle}>
+      <BlindTestView active={activeView === "blindtest"} killers={killers} soundEnabled={soundEnabled} onSessionStart={startBlindTestSession} onSessionStop={stopBlindTestSession} />
+      {activeView === "blindtest" ? null : activeView === "constants" ? <ConstantsView scrollTop={catalogScrollPositionsRef.current.constants} onScroll={(scrollTop) => rememberCatalogScroll("constants", scrollTop)} /> : activeView === "tiers" ? <TierListView killers={killers} perks={catalogPerks} /> : <main className={`analyzer-workspace view-${activeView}`} ref={workspaceRef} style={workspaceStyle}>
         <aside className={`analyzer-sidebar left-sidebar${activeView === "perks" ? " perks-sidebar" : ""}`}>
           <section className={`analyzer-panel selected-loadout-panel${activeView === "perks" ? " perks-loadout-panel" : ""}`} aria-label="Tueur et perks sélectionnés">
-            <SelectedKillerCard killer={selectedKiller} onChange={() => showView("killers")} onRemove={removeKiller} onTerrorRadiusStart={pauseThemeMusic} onTerrorRadiusStop={resumeThemeMusic} onShowInfo={setKillerInfo} />
+            <SelectedKillerCard killer={selectedKiller} onChange={() => showView("killers")} onRemove={removeKiller} terrorPlayback={terrorRadiusPlayback} onTerrorRadiusToggle={() => selectedKiller && void toggleTerrorRadius(selectedKiller)} onTerrorRadiusSeek={seekTerrorRadius} onTerrorRadiusVolumeChange={setTerrorRadiusVolume} onShowInfo={setKillerInfo} />
             <div className="build-editor-scroll-region">
               <BuildEditor perks={equippedPerks} selectedPerkId={selectedPerkId} compact={activeView === "perks"} onRemove={togglePerk} onBrowse={browsePerk} scenario={scenario} onConditionChange={setScenarioCondition} onPerkStateChange={setPerkRuntimeState} />
             </div>
@@ -751,8 +836,9 @@ type FixedStatisticsBlock =
   | { type: "paragraph"; text: string }
   | { type: "table"; columns: string[]; rows: string[][] };
 
-function ConstantsView() {
+function ConstantsView({ scrollTop, onScroll }: { scrollTop: number; onScroll: (scrollTop: number) => void }) {
   const [query, setQuery] = useState("");
+  const pageRef = useRef<HTMLElement>(null);
   const blocks = useMemo(() => parseFixedStatistics(fixedStatisticsText), []);
   const normalizedQuery = query.trim().toLocaleLowerCase("fr");
   const visibleBlocks = blocks.flatMap((block) => {
@@ -764,7 +850,11 @@ function ConstantsView() {
     return block.text.toLocaleLowerCase("fr").includes(normalizedQuery) ? [block] : [];
   });
 
-  return <main className="constants-page">
+  useEffect(() => {
+    pageRef.current?.scrollTo({ top: scrollTop, behavior: "auto" });
+  }, []);
+
+  return <main className="constants-page" ref={pageRef} onScroll={(event) => onScroll(event.currentTarget.scrollTop)}>
     <header className="constants-header">
       <div><span className="eyebrow">Dead by Daylight</span><h1>Constantes</h1><p>Valeurs de référence et unités de mesure utilisées dans le jeu.</p></div>
       <label className="constants-search"><span>Rechercher</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Ex. générateur, 4,6 m/s…" autoComplete="off" /></label>
@@ -960,10 +1050,10 @@ function Topbar({
         <span>Build Analyzer</span>
       </button>
       <nav className="main-navigation" aria-label="Navigation principale">
-        {(["build", "killers", "perks", "tiers", "constants"] as AppView[]).map((view) => (
+        {(["build", "killers", "perks", "tiers", "blindtest", "constants"] as AppView[]).map((view) => (
           <button className={activeView === view ? "active" : ""} type="button" onClick={() => onViewChange(view)} aria-current={activeView === view ? "page" : undefined} key={view}>
-            <span aria-hidden="true">{view === "build" ? "⌘" : view === "killers" ? "☠" : view === "perks" ? "◇" : view === "tiers" ? "♜" : "≡"}</span>
-            {view === "constants" ? "Constantes" : view === "tiers" ? "Tiers List" : `${view[0]?.toUpperCase()}${view.slice(1)}`}
+            <span aria-hidden="true">{view === "build" ? "⌘" : view === "killers" ? "☠" : view === "perks" ? "◇" : view === "tiers" ? "♜" : view === "blindtest" ? "♪" : "≡"}</span>
+            {view === "constants" ? "Constantes" : view === "tiers" ? "Tiers List" : view === "blindtest" ? "BlindTest" : `${view[0]?.toUpperCase()}${view.slice(1)}`}
           </button>
         ))}
       </nav>

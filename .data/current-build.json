@@ -1,111 +1,189 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-07T21:33:58.601Z",
+  "updatedAt": "2026-09-08T18:24:26.851Z",
   "build": {
-    "id": "c153e53a-e01a-45c9-a3d1-f587be438462",
-    "name": "l'infirmière — Build test 2dqzd",
-    "killerId": "twins",
+    "id": "f72603d8-c204-4e9f-acfa-8429e7f7ddc2",
+    "name": "Best Dredge Build (cie)op",
+    "killerId": "dredge",
     "perkIds": [
-      "tinkerer"
+      "lethal-pursuer",
+      "barbecue-and-chilli",
+      "scourge-hook-pain-resonance",
+      "grim-embrace"
     ]
   },
   "scenario": {
     "conditions": {
       "not_in_chase": true,
-      "after_blind": true,
-      "carrying_survivor": true,
-      "inside_terror_radius": true,
-      "survivor_injured": true,
-      "outside_terror_radius": false,
-      "chase_abandoned": true,
-      "pallet_stunned": true,
-      "blind_attempted": true,
-      "generator_at_70_percent": true
+      "after_hook": true
     },
     "perkStates": {
-      "predator": "active",
-      "lightborn": "active",
-      "tinkerer": "active"
+      "lethal-pursuer": "active",
+      "barbecue-and-chilli": "active"
     }
   },
   "assistantContext": {
     "killer": {
-      "name": "les jumeaux",
+      "name": "le dragage",
       "speed": 4.6,
       "terrorRadius": 32,
       "size": "big",
-      "tier": "B+",
-      "difficulty": "nightmare"
+      "tier": "C-",
+      "difficulty": "difficult"
     },
     "perks": [
       {
-        "name": "réparateur",
+        "name": "poursuivant meurtrier",
         "categories": [
-          "generator",
-          "indetectable",
           "aura"
         ],
         "effects": [
           {
-            "stat": "tracking.tinkerer_undetectable_average",
-            "operation": "add",
+            "stat": "survivor.aura",
+            "operation": "reveal",
+            "interpretation": "inferred",
+            "source": {
+              "format": "legacy-effect",
+              "raw": "+9[aura]"
+            },
+            "duration": 9,
+            "unit": "seconds"
+          }
+        ],
+        "description": "- Au début de l'épreuve, vous voyez les auras de tous les survivants pendant 7 / 8 / 9 secondes.\n- Prolonge de +2 secondes la durée de toutes les révélations d'aura de survivant.\n- Le Poursuivant Létal bénéficie de son propre effet."
+      },
+      {
+        "name": "chili et barbebue",
+        "categories": [
+          "hook",
+          "aura"
+        ],
+        "effects": [
+          {
+            "stat": "survivor.aura",
+            "operation": "reveal",
+            "interpretation": "inferred",
+            "source": {
+              "format": "legacy-effect",
+              "raw": "+5[aura]"
+            },
+            "duration": 5,
+            "unit": "seconds"
+          }
+        ],
+        "description": "- Après avoir accroché un survivant, tous les survivants situés à au moins 60 / 50 / 40 mètres de cet hameçon voient leur aura s'activer. révélé à vous pendant 5 secondes."
+      },
+      {
+        "name": "écho de douleur",
+        "categories": [
+          "hook",
+          "generator",
+          "sound"
+        ],
+        "effects": [
+          {
+            "stat": "generator.progress",
+            "operation": "multiply",
             "interpretation": "verified",
-            "value": 61,
-            "unit": "seconds",
+            "value": 0.8,
+            "unit": "multiplier",
             "condition": {
-              "type": "generator_at_70_percent"
+              "type": "after_hook"
             }
           }
         ],
-        "description": "- Une fois réparée à 70 %:\n- Déclenche une notification sonore forte pour ce générateur, révélant son emplacement.\n- Vous devenez indétectable pendant les 12 / 14 / 16 prochaines secondes.\n- Le mode Bricoleur ne peut se déclencher qu'une seule fois par générateur et par essai."
+        "description": "- Une douleur insoutenable se propage vers l'extérieur.\n- Au début de l'épreuve, 4 crochets dans l'environnement sont transformés en crochets de fléau:\n- Vous voyez les auras Ces crochets de fléau sont mis en évidence en blanc.\n- Commencez l'essai avec 4 jetons.\n- Lorsqu'un Survivant est accroché pour la première fois à un Crochet du Fléau, Crochet du Fléau: Résonance de la Douleur consomme -1 Jeton et applique les effets suivants:\n- Provoque le générateur avec la progression la plus rapide pour exploser, l'endommageant.\n- Régresse instantanément le générateur endommagé de 10 / 15 / 20 % de sa progression totale.\n- Provoque ensuite une régression du générateur endommagé.\n- Provoque des cris chez tous les survivants réparant le générateur endommagé.\n- Cela ne déclenche pas de notification de bruit excessif.\n- Crochet du Fléau: La résonance de la douleur est désactivée pour le reste de l’épreuve une fois tous les jetons consommés."
+      },
+      {
+        "name": "sombre étreinte",
+        "categories": [
+          "hook",
+          "generator",
+          "aura",
+          "obsession"
+        ],
+        "effects": [
+          {
+            "stat": "generator.lock",
+            "operation": "block",
+            "interpretation": "verified",
+            "duration": 40,
+            "unit": "seconds",
+            "condition": {
+              "type": "after_hook"
+            }
+          }
+        ],
+        "description": "- Votre acte de servitude envers l'Entité n'est pas passé inaperçu.\n- À chaque fois qu'un survivant est accroché pour la première fois, Étreinte sinistre gagne +1 jeton et s'active lorsque vous vous trouvez à au moins 16 mètres de l'hameçon.:\n- 1 à 3 jetons: Bloque tous les générateurs pendant 6 / 8 / 10 secondes.\n- 4 jetons: Bloque tous les générateurs pendant 40 secondes et l'aura de l'obsession vous est révélé pendant 6 secondes."
       }
     ],
     "currentState": {
       "activeConditions": {
         "not_in_chase": true,
-        "after_blind": true,
-        "carrying_survivor": true,
-        "inside_terror_radius": true,
-        "survivor_injured": true,
-        "outside_terror_radius": false,
-        "chase_abandoned": true,
-        "pallet_stunned": true,
-        "blind_attempted": true,
-        "generator_at_70_percent": true
+        "after_hook": true
       },
       "perkStates": {
-        "predator": "active",
-        "lightborn": "active",
-        "tinkerer": "active"
+        "lethal-pursuer": "active",
+        "barbecue-and-chilli": "active"
       }
     },
     "calculatedData": {
       "affectedStats": [
         {
-          "key": "tracking.tinkerer_undetectable_average",
-          "label": "Durée moyenne d’indétectable (par partie)",
-          "base": 0,
-          "final": 61,
-          "delta": 61,
-          "deltaPercent": null,
-          "unit": "s",
+          "key": "generator.progress",
+          "label": "Progression ciblée (référence complète)",
+          "base": 90,
+          "final": 72,
+          "delta": -18,
+          "deltaPercent": -20,
+          "unit": "charges",
           "effects": [
             {
-              "perk": "réparateur",
-              "operation": "add",
-              "value": 61,
-              "unit": "seconds",
-              "before": 0,
-              "after": 61,
+              "perk": "écho de douleur",
+              "operation": "multiply",
+              "value": 0.8,
+              "unit": "multiplier",
+              "before": 90,
+              "after": 72,
               "condition": [
-                "Condition remplie : generator_at_70_percent"
+                "Condition remplie : after_hook"
               ],
               "status": "active"
             }
           ]
         }
       ],
-      "qualitativeEffects": [],
+      "qualitativeEffects": [
+        {
+          "label": "Aura des survivants révélée",
+          "perk": "poursuivant meurtrier",
+          "condition": [
+            "Effet importé sans condition structurée",
+            "Effet déclenché dans la simulation"
+          ],
+          "status": "active",
+          "duration": 9
+        },
+        {
+          "label": "Aura des survivants révélée",
+          "perk": "chili et barbebue",
+          "condition": [
+            "Effet importé sans condition structurée",
+            "Effet déclenché dans la simulation"
+          ],
+          "status": "active",
+          "duration": 5
+        },
+        {
+          "label": "Générateur bloqué",
+          "perk": "sombre étreinte",
+          "condition": [
+            "Condition remplie : after_hook"
+          ],
+          "status": "active",
+          "duration": 40
+        }
+      ],
       "unresolvedEffects": []
     }
   }
