@@ -50,6 +50,8 @@ Le bouton fonctionne pour une copie clonée et lancée par **`Lancer Build Analy
 
 Pour publier une mise à jour, il suffit de valider les changements puis de les pousser sur la branche `main` du dépôt GitHub. Le numéro de `package.json` est affiché dans l’interface, tandis que la disponibilité repose sur les commits afin qu’un oubli de changement de version ne bloque pas les utilisateurs.
 
+Après l’installation de cette fonctionnalité, le proxy local doit être relancé une fois afin d’exposer les routes de mise à jour. Les Paramètres indiquent explicitement ce redémarrage nécessaire au lieu d’afficher une erreur de route.
+
 ## ChatGPT Browser Integration
 
 Le Build Assistant propose cinq providers : moteur local, chat natif à copier, ChatGPT via Codex, ChatGPT via navigateur et OpenAI API. **ChatGPT via Codex** est le mode recommandé sans clé API : il utilise l’authentification officielle enregistrée par Codex CLI et ne dépend pas de l’interface web ni de ses CAPTCHA.

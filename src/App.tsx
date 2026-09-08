@@ -1129,7 +1129,7 @@ function SettingsModal({ soundEnabled, volume, onSoundEnabledChange, onVolumeCha
       <div className="settings-update">
         <div><strong>Mise à jour</strong>{versionLabel && <small>{versionLabel}</small>}</div>
         <button className="primary-button" type="button" onClick={() => { void updateApplication(); }} disabled={!canUpdate || updating}>
-          {updating ? "Mise à jour…" : updateStatus?.gitMissing ? "Installer Git et mettre à jour" : updateStatus?.available ? "Mettre à jour" : updateStatus ? updateStatus.blocked || !updateStatus.supported ? "Indisponible" : "À jour" : "Vérification…"}
+          {updating ? "Mise à jour…" : updateStatus?.gitMissing ? "Installer Git et mettre à jour" : updateStatus?.available ? "Mettre à jour" : updateStatus ? updateStatus.blocked || !updateStatus.supported ? "Indisponible" : "À jour" : updateError ? "Service à redémarrer" : "Vérification…"}
         </button>
         <p className={updateError ? "error" : ""} role="status">{updateError ?? updateStatus?.message ?? "Recherche d’une nouvelle version sur GitHub…"}</p>
       </div>

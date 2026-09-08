@@ -10,6 +10,7 @@ const apiKey = process.env.OPENAI_API_KEY;
 const model = process.env.OPENAI_MODEL ?? "gpt-5-mini";
 const browserProvider = new BrowserChatGPTProvider();
 const codexProvider = new CodexChatGPTProvider();
+const API_VERSION = 2;
 
 const server = createServer(async (request, response) => {
   const origin = request.headers.origin;
@@ -26,7 +27,7 @@ const server = createServer(async (request, response) => {
       if (url.searchParams.get("verify") === "1" && !browserProvider.snapshot().busy) {
         await browserProvider.checkSession().catch(() => undefined);
       }
-      return send(response, 200, browserProvider.snapshot());
+      return send(response, 200, { ...browserProvider.snapshot(), apiVersion: API_VERSION });
     }
     if (request.method === "GET" && url.pathname === "/api/app-update/status") {
       return send(response, 200, await getAppUpdateStatus());
