@@ -16,7 +16,7 @@
     "start:app": "node scripts/start-app.mjs",
     "assistant:install-browser": "playwright install chromium",
     "test:chatgpt-browser": "node scripts/test-chatgpt-browser.mjs",
-    "test": "npm run build:data && node --test dist/tests/import.test.js dist/tests/catalog.test.js dist/tests/build-calculator.test.js dist/tests/build-repository.test.js scripts/codex-assistant-provider.test.mjs",
+    "test": "npm run build:data && node --test dist/tests/import.test.js dist/tests/catalog.test.js dist/tests/build-calculator.test.js dist/tests/build-repository.test.js scripts/app-updater.test.mjs scripts/codex-assistant-provider.test.mjs",
     "check": "npm test && npm run import:data -- --check && npm run audit:analysis && npm run build:app"
   },
   "devDependencies": {

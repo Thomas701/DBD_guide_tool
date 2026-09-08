@@ -39,6 +39,7 @@ import { createCurrentBuildExport, syncCurrentBuildFile, updateNativePerk } from
 import { DEFAULT_KILLER_OPTIONS, type KillerListOptions } from "./services/killer-selector.js";
 import { DEFAULT_PERK_FILTERS, type PerkFilters } from "./services/perk-filter.js";
 import { killerPowerDescription } from "./services/killer-powers.js";
+import { checkAppUpdate, installAppUpdate, type AppUpdateStatus } from "./services/app-updater.js";
 
 type TopbarMenu = "help" | "settings" | null;
 type InstallState = "available" | "unsupported" | "installed";
@@ -47,6 +48,7 @@ const DEFAULT_PANE_LAYOUT = DEFAULT_APP_SESSION.paneLayout;
 const DEFAULT_ASSISTANT_SERVER = import.meta.env.VITE_ASSISTANT_SERVER_URL
   ?? import.meta.env.VITE_OPENAI_ASSISTANT_ENDPOINT
   ?? "http://127.0.0.1:8787";
+const APP_UPDATE_SERVER = import.meta.env.VITE_APP_UPDATE_SERVER_URL ?? "http://127.0.0.1:8787";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -1087,11 +1089,50 @@ function SettingsModal({ soundEnabled, volume, onSoundEnabledChange, onVolumeCha
   onVolumeChange: (volume: number) => void;
   onClose: () => void;
 }) {
+  const [updateStatus, setUpdateStatus] = useState<AppUpdateStatus | null>(null);
+  const [updateError, setUpdateError] = useState<string | null>(null);
+  const [updating, setUpdating] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    void checkAppUpdate(APP_UPDATE_SERVER)
+      .then((status) => { if (active) setUpdateStatus(status); })
+      .catch((error) => { if (active) setUpdateError(error instanceof Error ? error.message : "Vérification impossible."); });
+    return () => { active = false; };
+  }, []);
+
+  async function updateApplication(): Promise<void> {
+    if (!(updateStatus?.available || updateStatus?.gitMissing) || updating) return;
+    setUpdating(true);
+    setUpdateError(null);
+    try {
+      const status = await installAppUpdate(APP_UPDATE_SERVER);
+      setUpdateStatus(status);
+      setUpdating(false);
+      if (!status.restartRequired) window.setTimeout(() => window.location.reload(), 700);
+    } catch (error) {
+      setUpdateError(error instanceof Error ? error.message : "Mise à jour impossible.");
+      setUpdating(false);
+    }
+  }
+
+  const versionLabel = updateStatus?.currentVersion
+    ? `Installée : v${updateStatus.currentVersion} (${updateStatus.currentRevision})${updateStatus.latestVersion ? ` · GitHub : v${updateStatus.latestVersion} (${updateStatus.latestRevision})` : ""}`
+    : null;
+  const canUpdate = Boolean(updateStatus?.available || updateStatus?.gitMissing);
+
   return <div className="app-modal-backdrop" role="presentation" onMouseDown={onClose}>
     <section className="app-modal settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title" onMouseDown={(event) => event.stopPropagation()}>
       <header><h2 id="settings-title">Paramètres</h2><button type="button" onClick={onClose} aria-label="Fermer">×</button></header>
       <label className="sound-toggle"><input type="checkbox" checked={soundEnabled} onChange={(event) => onSoundEnabledChange(event.target.checked)} /><span>Activer le son</span></label>
       <label className="field"><span>Volume musique</span><input type="range" min="0" max="1" step="0.05" value={volume} disabled={!soundEnabled} onChange={(event) => onVolumeChange(Number(event.target.value))} /></label>
+      <div className="settings-update">
+        <div><strong>Mise à jour</strong>{versionLabel && <small>{versionLabel}</small>}</div>
+        <button className="primary-button" type="button" onClick={() => { void updateApplication(); }} disabled={!canUpdate || updating}>
+          {updating ? "Mise à jour…" : updateStatus?.gitMissing ? "Installer Git et mettre à jour" : updateStatus?.available ? "Mettre à jour" : updateStatus ? updateStatus.blocked || !updateStatus.supported ? "Indisponible" : "À jour" : "Vérification…"}
+        </button>
+        <p className={updateError ? "error" : ""} role="status">{updateError ?? updateStatus?.message ?? "Recherche d’une nouvelle version sur GitHub…"}</p>
+      </div>
     </section>
   </div>;
 }

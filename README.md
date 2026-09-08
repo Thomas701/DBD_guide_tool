@@ -42,6 +42,14 @@ Laissez la fenêtre du terminal ouverte tant que vous utilisez cette version loc
 
 La session courante est conservée dans le stockage local du navigateur : brouillon, tueur, perks, conditions, onglet, disposition des panneaux et historique du chat sont restaurés à la réouverture.
 
+### Mises à jour depuis GitHub
+
+Dans **Paramètres**, l’application vérifie `origin/main` et active **Mettre à jour** uniquement lorsqu’un commit plus récent est disponible sur GitHub. La mise à jour applique seulement les nouveaux fichiers avec un fast-forward Git ; `npm install` n’est relancé que si `package-lock.json` a changé. Les builds et préférences du navigateur sont conservés.
+
+Le bouton fonctionne pour une copie clonée et lancée par **`Lancer Build Analyzer.bat`**. Si Git est absent sous Windows, le même bouton propose **Installer Git et mettre à jour** et l’installe automatiquement avec `winget`. Il reste désactivé si des fichiers suivis ont été modifiés localement, si la branche courante n’est pas `main` ou si l’historique a divergé, afin de ne rien écraser. Après une mise à jour qui modifie les dépendances, fermez puis relancez le lanceur une fois.
+
+Pour publier une mise à jour, il suffit de valider les changements puis de les pousser sur la branche `main` du dépôt GitHub. Le numéro de `package.json` est affiché dans l’interface, tandis que la disponibilité repose sur les commits afin qu’un oubli de changement de version ne bloque pas les utilisateurs.
+
 ## ChatGPT Browser Integration
 
 Le Build Assistant propose cinq providers : moteur local, chat natif à copier, ChatGPT via Codex, ChatGPT via navigateur et OpenAI API. **ChatGPT via Codex** est le mode recommandé sans clé API : il utilise l’authentification officielle enregistrée par Codex CLI et ne dépend pas de l’interface web ni de ses CAPTCHA.

@@ -2562,6 +2562,12 @@ button:disabled {
 .settings-modal > .field,
 .settings-modal > .sound-toggle { display: flex; gap: 12px; align-items: center; margin: 18px; }
 .settings-modal > .field { display: grid; grid-template-columns: 1fr 2fr; }
+.settings-update { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px; align-items: center; margin: 18px; padding-top: 18px; border-top: 1px solid #30363b; }
+.settings-update > div { display: grid; gap: 4px; }
+.settings-update small { color: var(--muted); font-size: 0.67rem; }
+.settings-update > button { min-width: 126px; }
+.settings-update > p { grid-column: 1 / -1; margin: 0; color: var(--text-secondary); font-size: 0.7rem; line-height: 1.45; }
+.settings-update > p.error { color: var(--negative); }
 .app-modal.how-to-play-modal { width: min(940px, calc(100vw - 40px)); }
 .how-to-play-content { height: min(650px, calc(100vh - 150px)); padding: 30px clamp(24px, 5vw, 58px); overflow: auto; color: #cdd2d5; line-height: 1.75; background: linear-gradient(135deg, #171c20, #101315); }
 .how-to-play-intro { margin: 0 0 28px; padding: 18px 20px; border-left: 3px solid #9d3832; color: #e9ebec; background: rgb(157 56 50 / 10%); font-size: 1.03rem; font-weight: 700; }

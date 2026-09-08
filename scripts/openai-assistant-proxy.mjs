@@ -2,6 +2,7 @@ import { createServer } from "node:http";
 
 import { BrowserChatGPTProvider, BrowserProviderError } from "./chatgpt-browser-provider.mjs";
 import { CodexChatGPTProvider, CodexProviderError } from "./codex-assistant-provider.mjs";
+import { AppUpdateError, applyAppUpdate, getAppUpdateStatus } from "./app-updater.mjs";
 import { updateNativePerk, writeCurrentBuild } from "./local-data-files.mjs";
 
 const port = Number(process.env.OPENAI_ASSISTANT_PORT ?? 8787);
@@ -26,6 +27,12 @@ const server = createServer(async (request, response) => {
         await browserProvider.checkSession().catch(() => undefined);
       }
       return send(response, 200, browserProvider.snapshot());
+    }
+    if (request.method === "GET" && url.pathname === "/api/app-update/status") {
+      return send(response, 200, await getAppUpdateStatus());
+    }
+    if (request.method === "POST" && url.pathname === "/api/app-update") {
+      return send(response, 200, await applyAppUpdate());
     }
     if (request.method === "POST" && url.pathname === "/api/assistant/configure") {
       return send(response, 200, await browserProvider.configure());
@@ -114,6 +121,7 @@ async function askOpenAI(body) {
 }
 
 function sendError(response, error) {
+  if (error instanceof AppUpdateError) return send(response, error.status, { error: error.message });
   if (error instanceof HttpError) return send(response, error.status, { error: error.message });
   if (error instanceof BrowserProviderError) return send(response, browserErrorStatus(error.code), { error: error.message, code: error.code });
   if (error instanceof CodexProviderError) return send(response, codexErrorStatus(error.code), { error: error.message, code: error.code });
