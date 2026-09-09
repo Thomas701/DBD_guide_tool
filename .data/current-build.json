@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-09T01:27:49.795Z",
+  "updatedAt": "2026-09-09T01:29:20.390Z",
   "build": {
     "id": "f72603d8-c204-4e9f-acfa-8429e7f7ddc2",
     "name": "Best Dredge Build (cie)op",
-    "killerId": "dredge",
+    "killerId": "krasue",
     "perkIds": [
       "lethal-pursuer",
       "barbecue-and-chilli",
@@ -24,12 +24,12 @@
   },
   "assistantContext": {
     "killer": {
-      "name": "le dragage",
+      "name": "le krasue",
       "speed": 4.6,
       "terrorRadius": 32,
-      "size": "big",
-      "tier": "C-",
-      "difficulty": "difficult"
+      "size": "normal",
+      "tier": "B+",
+      "difficulty": "normal"
     },
     "perks": [
       {

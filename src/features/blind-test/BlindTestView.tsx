@@ -42,6 +42,7 @@ export function BlindTestView({ active, killers, soundEnabled, onSessionStart, o
   const [result, setResult] = useState<boolean | null>(null);
   const [filter, setFilter] = useState("");
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const volumeRef = useRef(volume);
   const weightsRef = useRef<Record<string, number>>({});
   const runRef = useRef<BlindTestRun | null>(null);
   const requestRef = useRef(0);
@@ -70,6 +71,7 @@ export function BlindTestView({ active, killers, soundEnabled, onSessionStart, o
   }
 
   function updateBlindTestVolume(nextVolume: number): void {
+    volumeRef.current = nextVolume;
     setVolume(nextVolume);
     if (audioRef.current) audioRef.current.volume = nextVolume;
   }
@@ -143,7 +145,7 @@ export function BlindTestView({ active, killers, soundEnabled, onSessionStart, o
     setPhase("question");
     audio.pause();
     audio.src = pick.track.url;
-    audio.volume = volume;
+    audio.volume = volumeRef.current;
     audio.currentTime = 0;
     const request = ++requestRef.current;
     await waitForMetadata(audio);
