@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { classifyRevisions, hasBlockingChanges, isGitMissing } from "./app-updater.mjs";
+import { classifyRevisions, hasBlockingChanges, isGitMissing, shouldBlockForChanges } from "./app-updater.mjs";
 
 test("classifyRevisions n’autorise que les commits distants plus récents", () => {
   assert.equal(classifyRevisions("same", "same", true, true), "same");
@@ -13,6 +13,12 @@ test("classifyRevisions n’autorise que les commits distants plus récents", ()
 test("le build courant généré ne bloque pas une mise à jour", () => {
   assert.equal(hasBlockingChanges(" M .data/current-build.json"), false);
   assert.equal(hasBlockingChanges(" M .data/current-build.json\n M src/App.tsx"), true);
+});
+
+test("les changements locaux ne bloquent que la mise à jour disponible", () => {
+  assert.equal(shouldBlockForChanges("same", true), false);
+  assert.equal(shouldBlockForChanges("behind", false), false);
+  assert.equal(shouldBlockForChanges("behind", true), true);
 });
 
 test("isGitMissing identifie l’absence de Git sans masquer les autres erreurs", () => {

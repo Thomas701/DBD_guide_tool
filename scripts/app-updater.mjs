@@ -29,7 +29,7 @@ export async function getAppUpdateStatus({ fetchRemote = true } = {}) {
     const currentVersion = await packageVersion(currentRevision);
     const latestVersion = await packageVersion(latestRevision);
 
-    if (dirty) return status(false, currentVersion, latestVersion, currentRevision, latestRevision, "Des fichiers locaux ont été modifiés. Enregistrez ou annulez ces changements avant la mise à jour.", true);
+    if (shouldBlockForChanges(relation, dirty)) return status(false, currentVersion, latestVersion, currentRevision, latestRevision, "Des fichiers locaux ont été modifiés. Enregistrez ou annulez ces changements avant la mise à jour.", true);
     if (relation === "behind") return status(true, currentVersion, latestVersion, currentRevision, latestRevision, "Une nouvelle version est disponible sur GitHub.");
     if (relation === "diverged") return status(false, currentVersion, latestVersion, currentRevision, latestRevision, "La version locale a divergé de GitHub. Une mise à jour automatique serait risquée.", true);
     return status(false, currentVersion, latestVersion, currentRevision, latestRevision, relation === "ahead" ? "Cette installation est plus récente que GitHub." : "L’application est à jour.");
@@ -75,6 +75,10 @@ export function classifyRevisions(currentRevision, latestRevision, currentIsAnce
 
 export function hasBlockingChanges(statusOutput) {
   return statusOutput.split(/\r?\n/).some((line) => line && line.slice(3).replaceAll("\\", "/") !== ".data/current-build.json");
+}
+
+export function shouldBlockForChanges(relation, dirty) {
+  return relation === "behind" && dirty;
 }
 
 export function isGitMissing(error) {
