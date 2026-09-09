@@ -62,5 +62,5 @@ function isError(value: unknown): value is { error: string } {
 
 function hasUpdaterApi(value: unknown): value is { apiVersion: number } {
   return typeof value === "object" && value !== null && "apiVersion" in value
-    && typeof value.apiVersion === "number" && value.apiVersion >= 2;
+    && typeof value.apiVersion === "number" && value.apiVersion >= 3;
 }

@@ -9,7 +9,7 @@ const assistantPort = Number(new URL(assistantBaseUrl).port || 80);
 const smokeTest = process.env.DBD_WEBAPP_SMOKE_TEST === "1";
 const children = [];
 
-const assistantState = await assistantServerState(assistantUrl);
+const assistantState = await assistantServerState(assistantUrl, await localGitRevision());
 if (assistantState === "stale") await stopStaleAssistantServer(assistantUrl, assistantPort);
 if (assistantState !== "current") children.push(startService("Build Assistant", ["run", "assistant:proxy"]));
 if (!await responds(appUrl)) children.push(startService("Interface Vite", ["run", "dev", "--", "--host", "127.0.0.1", "--port", "5173", "--strictPort"]));
@@ -78,15 +78,24 @@ async function responds(url) {
   }
 }
 
-async function assistantServerState(url) {
+async function assistantServerState(url, localRevision) {
   try {
     const response = await fetch(url, { signal: AbortSignal.timeout(1_000) });
     if (!response.ok) return "missing";
     const body = await response.json();
     if (body?.provider !== "browser") return "missing";
-    return typeof body.apiVersion === "number" && body.apiVersion >= 2 ? "current" : "stale";
+    return typeof body.apiVersion === "number" && body.apiVersion >= 3
+      && (!localRevision || body.serviceRevision === localRevision) ? "current" : "stale";
   } catch {
     return "missing";
+  }
+}
+
+async function localGitRevision() {
+  try {
+    return await runCommand("git", ["-c", `safe.directory=${root.replaceAll("\\", "/")}`, "rev-parse", "HEAD"]);
+  } catch {
+    return null;
   }
 }
 

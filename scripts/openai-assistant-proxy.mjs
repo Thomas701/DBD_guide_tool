@@ -1,3 +1,4 @@
+import { execFileSync, spawn } from "node:child_process";
 import { createServer } from "node:http";
 
 import { BrowserChatGPTProvider, BrowserProviderError } from "./chatgpt-browser-provider.mjs";
@@ -10,7 +11,8 @@ const apiKey = process.env.OPENAI_API_KEY;
 const model = process.env.OPENAI_MODEL ?? "gpt-5-mini";
 const browserProvider = new BrowserChatGPTProvider();
 const codexProvider = new CodexChatGPTProvider();
-const API_VERSION = 2;
+const API_VERSION = 3;
+const serviceRevision = readServiceRevision();
 
 const server = createServer(async (request, response) => {
   const origin = request.headers.origin;
@@ -27,7 +29,7 @@ const server = createServer(async (request, response) => {
       if (url.searchParams.get("verify") === "1" && !browserProvider.snapshot().busy) {
         await browserProvider.checkSession().catch(() => undefined);
       }
-      return send(response, 200, { ...browserProvider.snapshot(), apiVersion: API_VERSION });
+      return send(response, 200, { ...browserProvider.snapshot(), apiVersion: API_VERSION, serviceRevision });
     }
     if (request.method === "GET" && url.pathname === "/api/app-update/status") {
       return send(response, 200, await getAppUpdateStatus());
@@ -188,6 +190,16 @@ function isAllowedOrigin(origin) {
       && (url.hostname === "127.0.0.1" || url.hostname === "localhost" || url.hostname === "[::1]");
   } catch {
     return false;
+  }
+}
+
+function readServiceRevision() {
+  try {
+    return execFileSync("git", ["-c", `safe.directory=${process.cwd().replaceAll("\\", "/")}`, "rev-parse", "HEAD"], {
+      cwd: process.cwd(), encoding: "utf8", windowsHide: true, stdio: ["ignore", "pipe", "ignore"]
+    }).trim() || null;
+  } catch {
+    return null;
   }
 }
 
