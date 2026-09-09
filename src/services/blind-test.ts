@@ -12,6 +12,23 @@ export interface BlindTestPick {
   weights: Record<string, number>;
 }
 
+const breathingFileAliases: Record<string, readonly string[]> = {
+  animatronic: ["animatronics_breathing.ogg", "Animatronic_breathing.ogg"],
+  "dark-lord": ["the_dark_lord_breathing.ogg"],
+  dredge: ["dragage_breathing.ogg"],
+  "good-guy": ["good_guy_breathing.ogg"],
+  ghoul: ["goule_breathing.ogg"],
+  hag: ["Hag_Breathing.oga"],
+  houndmaster: ["houndmaster.ogg"],
+  lich: ["the_lich_breathing.ogg"],
+  "skull-merchant": ["Merchant_idle_breathing.ogg"],
+  xenomorph: ["xenomorphe_breathing.ogg"]
+};
+
+export function killerBreathingFileNames(killerId: string, audioId: string): readonly string[] {
+  return breathingFileAliases[killerId] ?? [`${audioId}_Breathing.ogg`, `${audioId}_Breathing_2.ogg`];
+}
+
 export function findBlindTestAudioFile(files: Iterable<string>, expectedFileName: string): string | null {
   const expected = normalizeAudioFileName(expectedFileName);
   return [...files].find((file) => normalizeAudioFileName(file) === expected) ?? null;

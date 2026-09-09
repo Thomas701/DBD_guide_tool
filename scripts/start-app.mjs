@@ -5,10 +5,13 @@ const npm = process.platform === "win32" ? "npm.cmd" : "npm";
 const appUrl = process.env.DBD_APP_URL ?? "http://127.0.0.1:5173";
 const assistantBaseUrl = process.env.DBD_ASSISTANT_SERVER_URL ?? "http://127.0.0.1:8787";
 const assistantUrl = new URL("/api/assistant/status", assistantBaseUrl).toString();
+const assistantPort = Number(new URL(assistantBaseUrl).port || 80);
 const smokeTest = process.env.DBD_WEBAPP_SMOKE_TEST === "1";
 const children = [];
 
-if (!await responds(assistantUrl)) children.push(startService("Build Assistant", ["run", "assistant:proxy"]));
+const assistantState = await assistantServerState(assistantUrl);
+if (assistantState === "stale") await stopStaleAssistantServer(assistantUrl, assistantPort);
+if (assistantState !== "current") children.push(startService("Build Assistant", ["run", "assistant:proxy"]));
 if (!await responds(appUrl)) children.push(startService("Interface Vite", ["run", "dev", "--", "--host", "127.0.0.1", "--port", "5173", "--strictPort"]));
 
 try {
@@ -73,6 +76,47 @@ async function responds(url) {
   } catch {
     return false;
   }
+}
+
+async function assistantServerState(url) {
+  try {
+    const response = await fetch(url, { signal: AbortSignal.timeout(1_000) });
+    if (!response.ok) return "missing";
+    const body = await response.json();
+    if (body?.provider !== "browser") return "missing";
+    return typeof body.apiVersion === "number" && body.apiVersion >= 2 ? "current" : "stale";
+  } catch {
+    return "missing";
+  }
+}
+
+async function stopStaleAssistantServer(url, port) {
+  if (process.platform !== "win32") throw new Error("Un ancien Build Assistant est actif. Fermez-le, puis relancez l’application.");
+  const output = await runCommand("netstat", ["-ano", "-p", "tcp"]);
+  const processIds = [...new Set(output.split(/\r?\n/).flatMap((line) => {
+    const columns = line.trim().split(/\s+/);
+    return columns.at(-2) === "LISTENING" && columns[1]?.endsWith(`:${port}`) ? [columns.at(-1)] : [];
+  }).filter((value) => /^\d+$/.test(value)))];
+  if (processIds.length !== 1) throw new Error("Un ancien Build Assistant utilise le port local. Fermez le terminal Build Analyzer en cours, puis relancez l’application.");
+  await runCommand("taskkill", ["/PID", processIds[0], "/T", "/F"]);
+  const deadline = Date.now() + 5_000;
+  while (Date.now() < deadline) {
+    if (!await responds(url)) return;
+    await new Promise((resolve) => setTimeout(resolve, 150));
+  }
+  throw new Error("Le précédent Build Assistant ne s’est pas arrêté. Fermez son terminal, puis relancez l’application.");
+}
+
+function runCommand(command, args) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, { cwd: root, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
+    let stdout = "";
+    let stderr = "";
+    child.stdout.on("data", (chunk) => { stdout += chunk; });
+    child.stderr.on("data", (chunk) => { stderr += chunk; });
+    child.on("error", reject);
+    child.on("close", (code) => code === 0 ? resolve(stdout) : reject(new Error(stderr.trim() || `${command} s’est arrêté avec le code ${code}.`)));
+  });
 }
 
 async function waitForSignalOrServiceExit() {

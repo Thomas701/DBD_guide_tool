@@ -1,6 +1,6 @@
 import type { Killer } from "../domain/killer.js";
 import type { Perk } from "../domain/perk.js";
-import { findBlindTestAudioFile } from "../services/blind-test.js";
+import { findBlindTestAudioFile, killerBreathingFileNames } from "../services/blind-test.js";
 
 const perkModules = import.meta.glob(
   "../../DBDImages-main/DBDImages-main/images/perks/killer/*.png",
@@ -43,7 +43,7 @@ const terrorRadiusModules = import.meta.glob(
 ) as Record<string, () => Promise<string>>;
 
 const killerBreathingModules = import.meta.glob(
-  "../../DBDImages-main/DBDImages-main/images/killer_breathing/*.ogg",
+  "../../DBDImages-main/DBDImages-main/images/killer_breathing/*.{ogg,oga}",
   { query: "?url", import: "default" }
 ) as Record<string, () => Promise<string>>;
 
@@ -112,8 +112,11 @@ export function killerTerrorRadiusUrl(killerId: string): Promise<string | null> 
 
 export async function killerBreathingUrl(killerId: string): Promise<string | null> {
   const id = terrorAudioId(killerId);
-  return await matchingAudio(killerBreathings, `${id}_Breathing.ogg`)
-    ?? matchingAudio(killerBreathings, `${id}_Breathing_2.ogg`);
+  for (const fileName of killerBreathingFileNames(killerId, id)) {
+    const url = await matchingAudio(killerBreathings, fileName);
+    if (url) return url;
+  }
+  return null;
 }
 
 export async function originalKillerThemeUrl(): Promise<string | null> {

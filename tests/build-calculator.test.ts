@@ -9,7 +9,7 @@ import { PERK_EFFECT_OVERRIDES } from "../src/data/perk-effect-overrides.js";
 import { answerBuildQuestion } from "../src/services/build-assistant.js";
 import { createAssistantProvider, normalizeServerUrl } from "../src/services/assistant-provider.js";
 import { readAppSession } from "../src/services/app-session.js";
-import { blindTestResultComment, findBlindTestAudioFile, getBlindTestPlayback, pickWeightedBlindTestTrack } from "../src/services/blind-test.js";
+import { blindTestResultComment, findBlindTestAudioFile, getBlindTestPlayback, killerBreathingFileNames, pickWeightedBlindTestTrack } from "../src/services/blind-test.js";
 import { BUILD_STACKING_POLICY, calculateBuild, collectBuildConditions } from "../src/services/build-calculator.js";
 import { buildChatGPTPrompt } from "../src/services/chatgpt-prompt-builder.js";
 import { buildNativeChatPrompt } from "../src/services/native-chat-prompt.js";
@@ -510,6 +510,15 @@ test("associe exactement la piste de terreur de l'Animatronic", () => {
 
   assert.equal(findBlindTestAudioFile(files, "TerrorRadius_Animatronic.ogg"), "TerrorRadius_Animatronic.ogg");
   assert.equal(findBlindTestAudioFile(files, "TerrorRadius_Oni.ogg"), "TerrorRadius_Oni.ogg");
+});
+
+test("associe les fichiers de respiration aux noms atypiques", () => {
+  assert.deepEqual(killerBreathingFileNames("animatronic", "animatronic"), ["animatronics_breathing.ogg", "Animatronic_breathing.ogg"]);
+  assert.deepEqual(killerBreathingFileNames("dredge", "dredge"), ["dragage_breathing.ogg"]);
+  assert.deepEqual(killerBreathingFileNames("ghoul", "ghoul"), ["goule_breathing.ogg"]);
+  assert.deepEqual(killerBreathingFileNames("skull-merchant", "skull-merchant"), ["Merchant_idle_breathing.ogg"]);
+  assert.deepEqual(killerBreathingFileNames("xenomorph", "xenomorph"), ["xenomorphe_breathing.ogg"]);
+  assert.deepEqual(killerBreathingFileNames("trapper", "trapper"), ["trapper_Breathing.ogg", "trapper_Breathing_2.ogg"]);
 });
 
 test("joue une piste courte de BlindTest en boucle et garde assez de temps sur une piste longue", () => {
