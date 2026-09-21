@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { killerPortraitUrl, killerPropertyIconUrl } from "../../app/assets.js";
 import { difficultyLabels, sizeLabels } from "../../app/labels.js";
 import type { Killer } from "../../domain/killer.js";
+import type { PerkSide } from "../../domain/perk.js";
 import {
   selectKillers,
   type KillerListOptions,
@@ -15,6 +16,7 @@ interface KillerSelectorProps {
   options: KillerListOptions;
   listView: boolean;
   filtersVisible: boolean;
+  side: PerkSide;
   onOptionsChange: (options: KillerListOptions) => void;
   onListViewChange: (listView: boolean) => void;
   onFiltersVisibleChange: (visible: boolean) => void;
@@ -29,8 +31,11 @@ const propertyIcons = {
   difficulty: killerPropertyIconUrl("difficulty.png")
 };
 
-export function KillerSelector({ killers, selectedKillerId, options, listView, filtersVisible, onOptionsChange, onListViewChange, onFiltersVisibleChange, onShowInfo, onSelect }: KillerSelectorProps) {
+export function KillerSelector({ killers, selectedKillerId, options, listView, filtersVisible, side, onOptionsChange, onListViewChange, onFiltersVisibleChange, onShowInfo, onSelect }: KillerSelectorProps) {
   const visibleKillers = useMemo(() => selectKillers(killers, options), [killers, options]);
+  const survivorMode = side === "survivor";
+  const characterLabel = survivorMode ? "survivant" : "tueur";
+  const characterLabelPlural = survivorMode ? "survivants" : "tueurs";
 
   return (
     <section className="page-shell selector-page embedded-selector-page">
@@ -46,11 +51,11 @@ export function KillerSelector({ killers, selectedKillerId, options, listView, f
           >
             ⋮
           </button>
-          <h1 id="killer-selector-title" tabIndex={-1}>Sélectionne un tueur <span className="catalog-title-count">{killers.length} tueurs</span></h1>
+          <h1 id="killer-selector-title" tabIndex={-1}>Sélectionne un {characterLabel} <span className="catalog-title-count">{killers.length} {characterLabelPlural}</span></h1>
         </div>
       </div>
 
-      <section className={`toolbar catalog-filter-toolbar${filtersVisible ? "" : " filters-hidden"}`} aria-label="Recherche et tri des tueurs" aria-hidden={!filtersVisible}>
+      <section className={`toolbar catalog-filter-toolbar${filtersVisible ? "" : " filters-hidden"}`} aria-label={`Recherche et tri des ${characterLabelPlural}`} aria-hidden={!filtersVisible}>
         <label className="field search-field">
           <span>Rechercher</span>
           <input
@@ -69,10 +74,7 @@ export function KillerSelector({ killers, selectedKillerId, options, listView, f
               sortBy: event.target.value as KillerSortKey
             })}
           >
-            <option value="tier">Tier</option>
-            <option value="difficulty">Difficulté</option>
-            <option value="speed">Vitesse</option>
-            <option value="terrorRadius">Rayon de terreur</option>
+            {!survivorMode && <><option value="tier">Tier</option><option value="difficulty">Difficulté</option><option value="speed">Vitesse</option><option value="terrorRadius">Rayon de terreur</option></>}
             <option value="name">Nom</option>
           </select>
         </label>
@@ -95,7 +97,7 @@ export function KillerSelector({ killers, selectedKillerId, options, listView, f
       </section>
 
       {visibleKillers.length > 0 ? (
-        <section className={`killer-grid${listView ? " killer-list" : ""}`} aria-label="Liste des tueurs">
+        <section className={`killer-grid${listView ? " killer-list" : ""}`} aria-label={`Liste des ${characterLabelPlural}`} data-survivor={survivorMode}>
           {visibleKillers.map((killer) => {
             const portrait = killerPortraitUrl(killer);
             const isSelected = killer.id === selectedKillerId;
@@ -113,7 +115,7 @@ export function KillerSelector({ killers, selectedKillerId, options, listView, f
                   ) : (
                     <span className="image-placeholder" aria-hidden="true">?</span>
                   )}
-                  <span className="tier-mark">{killer.tier}</span>
+                  {!survivorMode && <span className="tier-mark">{killer.tier}</span>}
                 </span>
                 <span className="killer-card-body">
                   <strong>{killer.name.fr ?? killer.name.en ?? killer.id}</strong>
@@ -151,13 +153,13 @@ export function KillerSelector({ killers, selectedKillerId, options, listView, f
                     </span>
                   </span>
                 </span>
-                <span className="killer-list-info" role="button" tabIndex={0} aria-label={`Afficher le pouvoir de ${killer.name.fr ?? killer.id}`} onClick={(event) => { event.stopPropagation(); onShowInfo(killer); }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onShowInfo(killer); } }}>i</span>
+                {!survivorMode && <span className="killer-list-info" role="button" tabIndex={0} aria-label={`Afficher le pouvoir de ${killer.name.fr ?? killer.id}`} onClick={(event) => { event.stopPropagation(); onShowInfo(killer); }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onShowInfo(killer); } }}>i</span>}
               </button>
             );
           })}
         </section>
       ) : (
-        <p className="empty-state">Aucun tueur ne correspond à cette recherche.</p>
+        <p className="empty-state">Aucun {characterLabel} ne correspond à cette recherche.</p>
       )}
     </section>
   );

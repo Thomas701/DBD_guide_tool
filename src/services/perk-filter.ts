@@ -30,11 +30,9 @@ export function filterPerks(
   killers: readonly Killer[] = []
 ): Perk[] {
   const terms = normalizeWords(filters.query).split(" ").filter(Boolean);
-  const ownerNames = new Map(killers.map((killer) => [
-    killer.id,
-    [killer.name.fr, killer.name.en].filter(Boolean).join(" ")
-  ]));
-  return perks.filter((perk) => {
+  const ownerNames = new Map(killers.map((killer) => [killer.id, [killer.name.fr, killer.name.en].filter(Boolean).join(" ")]));
+  const ownerLabels = new Map(killers.map((killer) => [killer.id, killer.name.fr ?? killer.name.en ?? killer.id]));
+  const filtered = perks.filter((perk) => {
     if (perk.side !== filters.side) return false;
 
     const names = normalizeWords([
@@ -61,4 +59,24 @@ export function filterPerks(
     if (filters.cooldown === "without" && perk.cooldown !== null) return false;
     return true;
   });
+
+  if (filters.side !== "survivor") return filtered;
+
+  return [...filtered].sort((left, right) => {
+    const leftHasOwner = left.characterId ? 0 : 1;
+    const rightHasOwner = right.characterId ? 0 : 1;
+    if (leftHasOwner !== rightHasOwner) return leftHasOwner - rightHasOwner;
+
+    const ownerOrder = (ownerLabels.get(left.characterId ?? "") ?? "").localeCompare(ownerLabels.get(right.characterId ?? "") ?? "", "fr");
+    if (ownerOrder !== 0) return ownerOrder;
+
+    const nameOrder = perkLabel(left).localeCompare(perkLabel(right), "fr");
+    if (nameOrder !== 0) return nameOrder;
+
+    return left.id.localeCompare(right.id, "fr");
+  });
+}
+
+function perkLabel(perk: Perk): string {
+  return perk.name.fr ?? perk.name.en ?? perk.id;
 }

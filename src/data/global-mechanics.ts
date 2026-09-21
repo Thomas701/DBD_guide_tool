@@ -220,7 +220,10 @@ export const ANALYZABLE_STATS = {
   "tracking.blood_pool_lifetime": fixedStat("Durée des flaques de sang", "Traque", 4, "s", "duration", "higher"),
   "tracking.survivor_aura_reveal_average": fixedStat("Durée moyenne d'aura révélée (par partie)", "Traque", 0, "s", "duration", "higher"),
   "tracking.lightborn_aura_reveal_average": fixedStat("Aura moyenne obtenue (par partie)", "Traque", 0, "s", "duration", "higher"),
-  "tracking.tinkerer_undetectable_average": fixedStat("Durée moyenne d’indétectable (par partie)", "Traque", 0, "s", "duration", "higher")
+  "tracking.tinkerer_undetectable_average": fixedStat("Durée moyenne d’indétectable (par partie)", "Traque", 0, "s", "duration", "higher"),
+  "tracking.healing_aura": fixedStat("Guérison à 32m", "Soins", 0, "", "scalar", "higher"),
+  "tracking.devour_hope_exposed": fixedStat("Être à découvert", "Effets de statut", 0, "", "scalar", "higher"),
+  "tracking.devour_hope_kill": fixedStat("Tuer le survivant", "Effets de statut", 0, "", "scalar", "higher")
 } as const satisfies Record<string, AnalyzableStatDefinition>;
 
 export type AnalyzableStatKey = keyof typeof ANALYZABLE_STATS;

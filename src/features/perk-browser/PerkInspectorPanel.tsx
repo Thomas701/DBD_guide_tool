@@ -7,7 +7,7 @@ import { RichDescription } from "../../components/RichDescription.js";
 import { RichDescriptionEditor } from "../../components/RichDescriptionEditor.js";
 import { PERK_CATEGORIES, type PerkCategory } from "../../domain/category.js";
 import type { Killer } from "../../domain/killer.js";
-import type { Perk } from "../../domain/perk.js";
+import type { Perk, PerkSide } from "../../domain/perk.js";
 
 type EditMode = "native" | "local";
 
@@ -20,6 +20,7 @@ interface PerkInspectorPanelProps {
   canEquip: boolean;
   isEquipped: boolean;
   buildIsFull: boolean;
+  side: PerkSide;
   onClose: () => void;
   onResetDescriptionOverride: (perkId: string) => void;
   onSaveDescriptionOverride: (perkId: string, html: string) => void;
@@ -39,6 +40,7 @@ export function PerkInspectorPanel({
   canEquip,
   isEquipped,
   buildIsFull,
+  side,
   onClose,
   onResetDescriptionOverride,
   onSaveDescriptionOverride,
@@ -140,7 +142,7 @@ export function PerkInspectorPanel({
         onClick={() => onTogglePerk(perk.id)}
         disabled={!canEquip || (!isEquipped && buildIsFull)}
       >
-        {!canEquip ? "Choisir un tueur" : isEquipped ? "Retirer du build" : buildIsFull ? "Build complet" : "Ajouter au build"}
+        {!canEquip ? `Choisir un ${side === "survivor" ? "survivant" : "tueur"}` : isEquipped ? "Retirer du build" : buildIsFull ? "Build complet" : "Ajouter au build"}
       </button>
 
       <div className="inspector-section-heading categories-section-heading">

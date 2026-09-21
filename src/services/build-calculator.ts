@@ -42,6 +42,7 @@ export interface EffectCalculation {
   operation: EffectOperation;
   interpretation: PerkEffect["interpretation"];
   value: number | boolean | null;
+  target: string | null;
   unit: EffectUnit | null;
   status: EffectCalculationStatus;
   active: boolean;
@@ -218,6 +219,7 @@ function createCalculation(
     operation: effect.operation,
     interpretation: effect.interpretation,
     value: effect.value ?? null,
+    target: effect.target ?? null,
     unit: effect.unit ?? null,
     status: active ? "active" : "inactive",
     active,
@@ -342,6 +344,7 @@ function expectedEffectUnit(displayUnit: string): EffectUnit | null {
 }
 
 function normalizedValue(effect: EffectCalculation): number | null {
+  if (effect.target === "infinite") return Infinity;
   if (typeof effect.value !== "number") return null;
   return effect.operation === "multiply" && effect.unit === "percent" ? 1 + effect.value / 100 : effect.value;
 }
@@ -403,6 +406,7 @@ function qualitativePresentation(stat: string): { label: string; theme: Analysis
   if (stat.includes("palette") && stat.includes("lock")) return { label: "Palettes bloquées", theme: "Poursuite" };
   if (stat.includes("window") && stat.includes("lock") || stat.includes("jump.lock")) return { label: "Fenêtres bloquées", theme: "Poursuite" };
   if (stat === "survivor.status.exposed") return { label: "Survivants exposés", theme: "Effets de statut" };
+  if (stat === "survivor.kill_available") return { label: "Tuer le survivant", theme: "Effets de statut" };
   if (stat === "survivor.status.exhausted") return { label: "Survivants épuisés", theme: "Effets de statut" };
   if (stat === "survivor.status.blindness") return { label: "Survivants aveuglés", theme: "Effets de statut" };
   if (stat === "survivor.status.hemorrhage") return { label: "Hémorragie", theme: "Effets de statut" };

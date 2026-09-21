@@ -13,7 +13,9 @@ const perks: Perk[] = [
   perk("discordance", "Discordance", ["generator", "aura"], "legion", 30),
   { ...perk("general", "General Perk", ["generator"], null, 0), characterResolution: "general" },
   { ...perk("unknown-owner", "Unknown Owner", ["generator"], null, null), characterResolution: "unresolved" },
-  { ...perk("survivor", "Survivor", ["speed"], null, null), side: "survivor" }
+  survivorPerk("survivor-self-aware", "Conscience de soi", "Self-Aware", "nea"),
+  survivorPerk("survivor-sprint-burst", "Sprint", "Sprint Burst", "meg"),
+  survivorPerk("survivor-adrenaline", "Adrénaline", "Adrenaline", "meg")
 ];
 
 test("recherche les noms FR et EN sans accents ni casse", () => {
@@ -62,6 +64,14 @@ test("filtre les cooldowns et cumule les critères sans muter l'entrée", () => 
   assert.deepEqual(perks.map((perk) => perk.id), before);
 });
 
+test("trie les perks survivant par survivant puis par nom", () => {
+  assert.deepEqual(runSurvivor({}).map((perk) => perk.id), [
+    "survivor-adrenaline",
+    "survivor-sprint-burst",
+    "survivor-self-aware"
+  ]);
+});
+
 test("recherche et trie les killers avec les rangs métier", () => {
   const killers = [
     killer("nurse", "L'infirmière", "The Nurse", "S+", "nightmare", 3.8),
@@ -94,6 +104,21 @@ function run(overrides: Partial<PerkFilters>): Perk[] {
   ]);
 }
 
+function runSurvivor(overrides: Partial<PerkFilters>): Perk[] {
+  return filterPerks(perks, {
+    side: "survivor",
+    query: "",
+    categories: [],
+    categoryMode: "any",
+    characterIds: [],
+    cooldown: "any",
+    ...overrides
+  }, [
+    killer("meg", "Meg Thomas", "Meg Thomas", "D", "easy", 4),
+    killer("nea", "Néa Karlsson", "Nea Karlsson", "D", "easy", 4)
+  ]);
+}
+
 function perk(
   id: string,
   nameEn: string | null,
@@ -114,6 +139,14 @@ function perk(
     cooldown,
     effectImportStatus: "unparsed",
     analysisReadiness: "unavailable"
+  };
+}
+
+function survivorPerk(id: string, nameFr: string, nameEn: string | null, characterId: string | null): Perk {
+  return {
+    ...perk(id, nameEn, ["speed"], characterId, null),
+    name: { fr: nameFr, en: nameEn },
+    side: "survivor"
   };
 }
 

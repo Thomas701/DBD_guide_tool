@@ -14,6 +14,8 @@ npm run import:data
 npm run check
 ```
 
+L’onglet **Statistique** vérifie d’abord silencieusement `stats.deadbydaylight.com/statistics/` avec le profil Chrome persistant. Une fenêtre Google Chrome ne s’ouvre que si une connexion manuelle est nécessaire ; la session reste enregistrée dans `.data/dbd-statistics-chrome-profile/`. Ce profil est distinct du Chrome habituel : une connexion déjà active dans le navigateur par défaut n’est pas partagée. Le lien **Source** de l’application ouvre donc la page dans le Chrome contrôlé. Dès que la page Statistiques est atteinte, l’application récupère et affiche les trois valeurs de « General Stats ».
+
 - `npm run dev` lance l’application React avec Vite.
 - `npm run build` compile la couche de données et l’application de production.
 - `npm test` compile TypeScript puis exécute les tests unitaires et d’intégration.

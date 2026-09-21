@@ -3,12 +3,12 @@ import type { Perk } from "../domain/perk.js";
 import { findBlindTestAudioFile, killerBreathingFileNames } from "../services/blind-test.js";
 
 const perkModules = import.meta.glob(
-  "../../DBDImages-main/DBDImages-main/images/perks/killer/*.png",
+  "../../DBDImages-main/DBDImages-main/images/perks/{killer,survivor}/*.png",
   { eager: true, query: "?url", import: "default" }
 ) as Record<string, string>;
 
 const portraitModules = import.meta.glob(
-  "../../DBDImages-main/DBDImages-main/images/characters/killer/*.png",
+  "../../DBDImages-main/DBDImages-main/images/characters/{killer,survivor}/*.png",
   { eager: true, query: "?url", import: "default" }
 ) as Record<string, string>;
 
@@ -82,7 +82,18 @@ const conditionImageNames: Record<string, string> = {
   survivor_lost_health_state: "survivant_injured.png",
   generator_at_90_percent: "generator_70_progression.png",
   skill_check_failed: "test_habilité.png",
-  four_survivors_injured: "survivant_injured.png"
+  four_survivors_injured: "survivant_injured.png",
+  healing_within_32m: "care_32.png",
+  totem_active: "totem.png",
+  hex_active: "totem.png",
+  devour_hope_2_tokens: "jeton_2.png",
+  devour_hope_3_tokens: "jeton_3.png",
+  devour_hope_5_tokens: "jeton_5.png",
+  "sound.grunt_volume": "respiration.png",
+  "sound.breathing_volume": "respiration.png",
+  "survivor.status.exposed": "one_shot.png",
+  "survivor.kill_available": "kill_survivant.png",
+  "generator.regression_rate": "ruine.png"
 };
 
 export function perkIconUrl(perk: Perk): string | null {

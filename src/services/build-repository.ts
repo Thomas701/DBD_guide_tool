@@ -48,6 +48,7 @@ export class LocalBuildRepository {
     const draft: BuildDraft = {
       name: changes.name ?? current.name,
       killerId: changes.killerId ?? current.killerId,
+      side: changes.side ?? current.side,
       perkIds: changes.perkIds ?? current.perkIds,
     };
     assertValidDraft(draft);
@@ -56,6 +57,7 @@ export class LocalBuildRepository {
       ...current,
       name: draft.name.trim(),
       killerId: draft.killerId,
+      side: draft.side ?? "killer",
       perkIds: [...draft.perkIds],
       updatedAt: this.timestamp(),
     };
@@ -70,7 +72,7 @@ export class LocalBuildRepository {
     if (!source) throw new Error(`Build introuvable: ${id}`);
 
     const duplicate = this.newBuild(
-      { name, killerId: source.killerId, perkIds: source.perkIds },
+      { name, killerId: source.killerId, side: source.side, perkIds: source.perkIds },
       builds,
     );
     this.write([...builds, duplicate]);
@@ -100,6 +102,7 @@ export class LocalBuildRepository {
       id,
       name: draft.name.trim(),
       killerId: draft.killerId,
+      side: draft.side ?? "killer",
       perkIds: [...draft.perkIds],
       createdAt: timestamp,
       updatedAt: timestamp,
@@ -161,6 +164,7 @@ function readStoredBuild(value: unknown): Build {
     id: build.id,
     name: build.name,
     killerId: build.killerId,
+    side: build.side === "survivor" ? "survivor" : "killer",
     perkIds: [...build.perkIds] as string[],
     createdAt: build.createdAt,
     updatedAt: build.updatedAt,

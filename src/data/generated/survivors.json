@@ -1,0 +1,410 @@
+[
+  {
+    "id": "dwight",
+    "name": {
+      "fr": "Dwight Fairfield",
+      "en": "Dwight Fairfield"
+    },
+    "portrait": "dwightfairfield.png"
+  },
+  {
+    "id": "meg",
+    "name": {
+      "fr": "Meg Thomas",
+      "en": "Meg Thomas"
+    },
+    "portrait": "megthomas.png"
+  },
+  {
+    "id": "claudette",
+    "name": {
+      "fr": "Claudette Morel",
+      "en": "Claudette Morel"
+    },
+    "portrait": "claudettemorel.png"
+  },
+  {
+    "id": "jake",
+    "name": {
+      "fr": "Jake Park",
+      "en": "Jake Park"
+    },
+    "portrait": "jakepark.png"
+  },
+  {
+    "id": "nea",
+    "name": {
+      "fr": "Nea Karlsson",
+      "en": "Nea Karlsson"
+    },
+    "portrait": "neakarlsson.png"
+  },
+  {
+    "id": "laurie",
+    "name": {
+      "fr": "Laurie Strode",
+      "en": "Laurie Strode"
+    },
+    "portrait": "lauriestrode.png"
+  },
+  {
+    "id": "ace",
+    "name": {
+      "fr": "Ace Visconti",
+      "en": "Ace Visconti"
+    },
+    "portrait": "acevisconti.png"
+  },
+  {
+    "id": "bill",
+    "name": {
+      "fr": "William Bill Overbeck",
+      "en": "William Bill Overbeck"
+    },
+    "portrait": "billoverbeck.png"
+  },
+  {
+    "id": "feng",
+    "name": {
+      "fr": "Feng Min",
+      "en": "Feng Min"
+    },
+    "portrait": "fengmin.png"
+  },
+  {
+    "id": "david",
+    "name": {
+      "fr": "David King",
+      "en": "David King"
+    },
+    "portrait": "davidking.png"
+  },
+  {
+    "id": "quentin",
+    "name": {
+      "fr": "Quentin Smith",
+      "en": "Quentin Smith"
+    },
+    "portrait": "quentinsmith.png"
+  },
+  {
+    "id": "tapp",
+    "name": {
+      "fr": "David Tapp",
+      "en": "David Tapp"
+    },
+    "portrait": "davidtapp.png"
+  },
+  {
+    "id": "kate",
+    "name": {
+      "fr": "Kate Denson",
+      "en": "Kate Denson"
+    },
+    "portrait": "katedenson.png"
+  },
+  {
+    "id": "adam",
+    "name": {
+      "fr": "Adam Francis",
+      "en": "Adam Francis"
+    },
+    "portrait": "adamfrancis.png"
+  },
+  {
+    "id": "jeff",
+    "name": {
+      "fr": "Jeff Johansen",
+      "en": "Jeff Johansen"
+    },
+    "portrait": "jeffjohansen.png"
+  },
+  {
+    "id": "jane",
+    "name": {
+      "fr": "Jane Romero",
+      "en": "Jane Romero"
+    },
+    "portrait": "janeromero.png"
+  },
+  {
+    "id": "ash",
+    "name": {
+      "fr": "Ashley J. Williams",
+      "en": "Ashley J. Williams"
+    },
+    "portrait": "ashleyjwilliams.png"
+  },
+  {
+    "id": "nancy",
+    "name": {
+      "fr": "Nancy Wheeler",
+      "en": "Nancy Wheeler"
+    },
+    "portrait": "nancywheeler.png"
+  },
+  {
+    "id": "steve",
+    "name": {
+      "fr": "Steve Harrington",
+      "en": "Steve Harrington"
+    },
+    "portrait": "steveharrington.png"
+  },
+  {
+    "id": "yui",
+    "name": {
+      "fr": "Yui Kimura",
+      "en": "Yui Kimura"
+    },
+    "portrait": "yuikimura.png"
+  },
+  {
+    "id": "zarina",
+    "name": {
+      "fr": "Zarina Kassir",
+      "en": "Zarina Kassir"
+    },
+    "portrait": "zarinakassir.png"
+  },
+  {
+    "id": "cheryl",
+    "name": {
+      "fr": "Cheryl Mason",
+      "en": "Cheryl Mason"
+    },
+    "portrait": "cherylmason.png"
+  },
+  {
+    "id": "felix",
+    "name": {
+      "fr": "Felix Richter",
+      "en": "Felix Richter"
+    },
+    "portrait": "felixrichter.png"
+  },
+  {
+    "id": "elodie",
+    "name": {
+      "fr": "Élodie Rakoto",
+      "en": "Élodie Rakoto"
+    },
+    "portrait": "elodierakoto.png"
+  },
+  {
+    "id": "yun-jin",
+    "name": {
+      "fr": "Yun-Jin Lee",
+      "en": "Yun-Jin Lee"
+    },
+    "portrait": "yunjinlee.png"
+  },
+  {
+    "id": "leon",
+    "name": {
+      "fr": "Leon S. Kennedy",
+      "en": "Leon S. Kennedy"
+    },
+    "portrait": "leonscottkennedy.png"
+  },
+  {
+    "id": "jill",
+    "name": {
+      "fr": "Jill Valentine",
+      "en": "Jill Valentine"
+    },
+    "portrait": "jillvalentine.png"
+  },
+  {
+    "id": "mikaela",
+    "name": {
+      "fr": "Mikaela Reid",
+      "en": "Mikaela Reid"
+    },
+    "portrait": "mikaelareid.png"
+  },
+  {
+    "id": "jonah",
+    "name": {
+      "fr": "Jonah Vasquez",
+      "en": "Jonah Vasquez"
+    },
+    "portrait": "jonahvasquez.png"
+  },
+  {
+    "id": "yoichi",
+    "name": {
+      "fr": "Yoichi Asakawa",
+      "en": "Yoichi Asakawa"
+    },
+    "portrait": "yoichiasakawa.png"
+  },
+  {
+    "id": "haddie",
+    "name": {
+      "fr": "Haddie Kaur",
+      "en": "Haddie Kaur"
+    },
+    "portrait": "haddiekaur.png"
+  },
+  {
+    "id": "ada",
+    "name": {
+      "fr": "Ada Wong",
+      "en": "Ada Wong"
+    },
+    "portrait": "adawong.png"
+  },
+  {
+    "id": "rebecca",
+    "name": {
+      "fr": "Rebecca Chambers",
+      "en": "Rebecca Chambers"
+    },
+    "portrait": "rebeccachambers.png"
+  },
+  {
+    "id": "vittorio",
+    "name": {
+      "fr": "Vittorio Toscano",
+      "en": "Vittorio Toscano"
+    },
+    "portrait": "vittoriotoscano.png"
+  },
+  {
+    "id": "thalia",
+    "name": {
+      "fr": "Thalita Lyra",
+      "en": "Thalita Lyra"
+    },
+    "portrait": "thalitalyra.png"
+  },
+  {
+    "id": "gabriel",
+    "name": {
+      "fr": "Gabriel Soma",
+      "en": "Gabriel Soma"
+    },
+    "portrait": "gabrielsoma.png"
+  },
+  {
+    "id": "nicolas",
+    "name": {
+      "fr": "Nicolas Cage",
+      "en": "Nicolas Cage"
+    },
+    "portrait": "nicolascage.png"
+  },
+  {
+    "id": "ellen",
+    "name": {
+      "fr": "Ellen Ripley",
+      "en": "Ellen Ripley"
+    },
+    "portrait": "ellenripley.png"
+  },
+  {
+    "id": "alan",
+    "name": {
+      "fr": "Alan Wake",
+      "en": "Alan Wake"
+    },
+    "portrait": "alanwake.png"
+  },
+  {
+    "id": "sable",
+    "name": {
+      "fr": "Sable Ward",
+      "en": "Sable Ward"
+    },
+    "portrait": "sableward.png"
+  },
+  {
+    "id": "aestri",
+    "name": {
+      "fr": "Aestri Yazar",
+      "en": "Aestri Yazar"
+    },
+    "portrait": "aestribaermar.png"
+  },
+  {
+    "id": "lara",
+    "name": {
+      "fr": "Lara Croft",
+      "en": "Lara Croft"
+    },
+    "portrait": "laracroft.png"
+  },
+  {
+    "id": "trevor",
+    "name": {
+      "fr": "Trevor Belmont",
+      "en": "Trevor Belmont"
+    },
+    "portrait": "trevorbelmont.png"
+  },
+  {
+    "id": "taurie",
+    "name": {
+      "fr": "Taurie Cain",
+      "en": "Taurie Cain"
+    },
+    "portrait": "tauriecain.png"
+  },
+  {
+    "id": "orela",
+    "name": {
+      "fr": "Orela Rose",
+      "en": "Orela Rose"
+    },
+    "portrait": "orelarose.png"
+  },
+  {
+    "id": "veena",
+    "name": {
+      "fr": "Vee Boonyasak",
+      "en": "Vee Boonyasak"
+    },
+    "portrait": "veeboonyasak.png"
+  },
+  {
+    "id": "rick",
+    "name": {
+      "fr": "Rick Grimes",
+      "en": "Rick Grimes"
+    },
+    "portrait": "rickgrimes.png"
+  },
+  {
+    "id": "michonne",
+    "name": {
+      "fr": "Michonne Grimes",
+      "en": "Michonne Grimes"
+    },
+    "portrait": "michonnegrimes.png"
+  },
+  {
+    "id": "eleven",
+    "name": {
+      "fr": "Eleven",
+      "en": "Eleven"
+    },
+    "portrait": "eleven.png"
+  },
+  {
+    "id": "dustin",
+    "name": {
+      "fr": "Dustin Henderson",
+      "en": "Dustin Henderson"
+    },
+    "portrait": "dustinhenderson.png"
+  },
+  {
+    "id": "renato",
+    "name": {
+      "fr": "Renato Lyra",
+      "en": "Renato Lyra"
+    },
+    "portrait": "renatolyra.png"
+  }
+]

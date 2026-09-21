@@ -1,189 +1,183 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-09T01:29:20.390Z",
+  "updatedAt": "2026-09-21T01:17:13.027Z",
   "build": {
-    "id": "f72603d8-c204-4e9f-acfa-8429e7f7ddc2",
-    "name": "Best Dredge Build (cie)op",
-    "killerId": "krasue",
+    "id": "a251693f-31c6-4c42-887e-330c05ed0665",
+    "name": "Build générateur down",
+    "killerId": "dredge",
     "perkIds": [
-      "lethal-pursuer",
-      "barbecue-and-chilli",
-      "scourge-hook-pain-resonance",
-      "grim-embrace"
+      "help-wanted",
+      "hex-ruin",
+      "scourge-hook-monstrous-shrine"
     ]
   },
   "scenario": {
     "conditions": {
       "not_in_chase": true,
-      "after_hook": true
+      "compromised_generator_completed": true,
+      "hex_active": true,
+      "survivor_hooked": true
     },
-    "perkStates": {
-      "lethal-pursuer": "active",
-      "barbecue-and-chilli": "active"
-    }
+    "perkStates": {}
   },
   "assistantContext": {
     "killer": {
-      "name": "le krasue",
+      "name": "le dragage",
       "speed": 4.6,
       "terrorRadius": 32,
-      "size": "normal",
-      "tier": "B+",
-      "difficulty": "normal"
+      "size": "big",
+      "tier": "C-",
+      "difficulty": "difficult"
     },
     "perks": [
       {
-        "name": "poursuivant meurtrier",
+        "name": "on embauche",
         "categories": [
-          "aura"
-        ],
-        "effects": [
-          {
-            "stat": "survivor.aura",
-            "operation": "reveal",
-            "interpretation": "inferred",
-            "source": {
-              "format": "legacy-effect",
-              "raw": "+9[aura]"
-            },
-            "duration": 9,
-            "unit": "seconds"
-          }
-        ],
-        "description": "- Au début de l'épreuve, vous voyez les auras de tous les survivants pendant 7 / 8 / 9 secondes.\n- Prolonge de +2 secondes la durée de toutes les révélations d'aura de survivant.\n- Le Poursuivant Létal bénéficie de son propre effet."
-      },
-      {
-        "name": "chili et barbebue",
-        "categories": [
-          "hook",
-          "aura"
-        ],
-        "effects": [
-          {
-            "stat": "survivor.aura",
-            "operation": "reveal",
-            "interpretation": "inferred",
-            "source": {
-              "format": "legacy-effect",
-              "raw": "+5[aura]"
-            },
-            "duration": 5,
-            "unit": "seconds"
-          }
-        ],
-        "description": "- Après avoir accroché un survivant, tous les survivants situés à au moins 60 / 50 / 40 mètres de cet hameçon voient leur aura s'activer. révélé à vous pendant 5 secondes."
-      },
-      {
-        "name": "écho de douleur",
-        "categories": [
-          "hook",
           "generator",
-          "sound"
+          "chase",
+          "destruction",
+          "speed"
         ],
         "effects": [
           {
-            "stat": "generator.progress",
+            "stat": "killer.successful_attack_recovery_time",
             "operation": "multiply",
             "interpretation": "verified",
-            "value": 0.8,
+            "value": 1.25,
             "unit": "multiplier",
             "condition": {
-              "type": "after_hook"
-            }
+              "type": "compromised_generator_completed"
+            },
+            "duration": 60,
+            "calculationMode": "action_speed"
           }
         ],
-        "description": "- Une douleur insoutenable se propage vers l'extérieur.\n- Au début de l'épreuve, 4 crochets dans l'environnement sont transformés en crochets de fléau:\n- Vous voyez les auras Ces crochets de fléau sont mis en évidence en blanc.\n- Commencez l'essai avec 4 jetons.\n- Lorsqu'un Survivant est accroché pour la première fois à un Crochet du Fléau, Crochet du Fléau: Résonance de la Douleur consomme -1 Jeton et applique les effets suivants:\n- Provoque le générateur avec la progression la plus rapide pour exploser, l'endommageant.\n- Régresse instantanément le générateur endommagé de 10 / 15 / 20 % de sa progression totale.\n- Provoque ensuite une régression du générateur endommagé.\n- Provoque des cris chez tous les survivants réparant le générateur endommagé.\n- Cela ne déclenche pas de notification de bruit excessif.\n- Crochet du Fléau: La résonance de la douleur est désactivée pour le reste de l’épreuve une fois tous les jetons consommés."
+        "description": "- Après avoir effectué l'action Générateur de dégâts:\n- Les causes de ce générateur devenir un générateur compromis.\n- Une fois le générateur compromis terminé, vous bénéficiez de l'effet suivant pendant 40 / 50 / 60 secondes:\n- Augmente la vitesse de récupération des attaques de base réussies de +25 %."
       },
       {
-        "name": "sombre étreinte",
+        "name": "ruine",
         "categories": [
-          "hook",
-          "generator",
-          "aura",
-          "obsession"
+          "totem",
+          "generator"
         ],
         "effects": [
           {
-            "stat": "generator.lock",
-            "operation": "block",
+            "stat": "generator.regression_rate",
+            "operation": "multiply",
             "interpretation": "verified",
-            "duration": 40,
-            "unit": "seconds",
+            "value": 1.5,
+            "unit": "multiplier",
             "condition": {
-              "type": "after_hook"
+              "type": "hex_active"
             }
           }
         ],
-        "description": "- Votre acte de servitude envers l'Entité n'est pas passé inaperçu.\n- À chaque fois qu'un survivant est accroché pour la première fois, Étreinte sinistre gagne +1 jeton et s'active lorsque vous vous trouvez à au moins 16 mètres de l'hameçon.:\n- 1 à 3 jetons: Bloque tous les générateurs pendant 6 / 8 / 10 secondes.\n- 4 jetons: Bloque tous les générateurs pendant 40 secondes et l'aura de l'obsession vous est révélé pendant 6 secondes."
+        "description": "- \"Un sort qui affecte la progression de la réparation du générateur de tous les survivants.\".\n- Tous les générateurs Les appareils non actuellement en réparation subissent l'effet suivant:\n- Les amène à régresser automatiquement à 100 / 125 / 150 % du taux de régression par défaut.\n- Les effets de la malédiction persistent jusqu'à ce que le totem de la malédiction soit béni ou purifié par un survivant, le désactivant pour le reste de l'épreuve."
+      },
+      {
+        "name": "sanctuaire monstrueux",
+        "categories": [
+          "hook",
+          "speed",
+          "generator"
+        ],
+        "effects": [
+          {
+            "stat": "hook.phase_duration",
+            "operation": "multiply",
+            "interpretation": "verified",
+            "value": 1.2,
+            "unit": "multiplier",
+            "condition": {
+              "type": "survivor_hooked"
+            }
+          }
+        ],
+        "description": "- Au début du procès, les 4 crochets situés à l'intérieur du sous-sol et 4 crochets supplémentaires situés sur l'ensemble du terrain d'essai sont tous transformés en crochets de fléau:\n- Vous voyez les crochets de Scourge sont mis en évidence en blanc.\n- Lorsque vous vous trouvez à plus de 24 mètres d'un Survivant accroché à un Crochet du Fléau, l'effet suivant s'applique:\n- Accélère leur processus de sacrifice de 10 / 15 / 20 %."
       }
     ],
     "currentState": {
       "activeConditions": {
         "not_in_chase": true,
-        "after_hook": true
+        "compromised_generator_completed": true,
+        "hex_active": true,
+        "survivor_hooked": true
       },
-      "perkStates": {
-        "lethal-pursuer": "active",
-        "barbecue-and-chilli": "active"
-      }
+      "perkStates": {}
     },
     "calculatedData": {
       "affectedStats": [
         {
-          "key": "generator.progress",
-          "label": "Progression ciblée (référence complète)",
-          "base": 90,
-          "final": 72,
-          "delta": -18,
-          "deltaPercent": -20,
-          "unit": "charges",
+          "key": "generator.regression_rate",
+          "label": "Régression passive d’un générateur",
+          "base": 0.25,
+          "final": 0.375,
+          "delta": 0.125,
+          "deltaPercent": 50,
+          "unit": "charges/s",
           "effects": [
             {
-              "perk": "écho de douleur",
+              "perk": "ruine",
               "operation": "multiply",
-              "value": 0.8,
+              "value": 1.5,
               "unit": "multiplier",
-              "before": 90,
-              "after": 72,
+              "before": 0.25,
+              "after": 0.375,
               "condition": [
-                "Condition remplie : after_hook"
+                "Condition remplie : hex_active"
+              ],
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "key": "hook.phase_duration",
+          "label": "Durée d’une phase de crochet",
+          "base": 70,
+          "final": 58.333333,
+          "delta": -11.666667,
+          "deltaPercent": -16.666667,
+          "unit": "s",
+          "effects": [
+            {
+              "perk": "sanctuaire monstrueux",
+              "operation": "multiply",
+              "value": 1.2,
+              "unit": "multiplier",
+              "before": 70,
+              "after": 58.333333,
+              "condition": [
+                "Condition remplie : survivor_hooked"
+              ],
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "key": "killer.successful_attack_recovery_time",
+          "label": "Récupération après attaque réussie",
+          "base": 2.7,
+          "final": 2.16,
+          "delta": -0.54,
+          "deltaPercent": -20,
+          "unit": "s",
+          "effects": [
+            {
+              "perk": "on embauche",
+              "operation": "multiply",
+              "value": 1.25,
+              "unit": "multiplier",
+              "before": 2.7,
+              "after": 2.16,
+              "condition": [
+                "Condition remplie : compromised_generator_completed"
               ],
               "status": "active"
             }
           ]
         }
       ],
-      "qualitativeEffects": [
-        {
-          "label": "Aura des survivants révélée",
-          "perk": "poursuivant meurtrier",
-          "condition": [
-            "Effet importé sans condition structurée",
-            "Effet déclenché dans la simulation"
-          ],
-          "status": "active",
-          "duration": 9
-        },
-        {
-          "label": "Aura des survivants révélée",
-          "perk": "chili et barbebue",
-          "condition": [
-            "Effet importé sans condition structurée",
-            "Effet déclenché dans la simulation"
-          ],
-          "status": "active",
-          "duration": 5
-        },
-        {
-          "label": "Générateur bloqué",
-          "perk": "sombre étreinte",
-          "condition": [
-            "Condition remplie : after_hook"
-          ],
-          "status": "active",
-          "duration": 40
-        }
-      ],
+      "qualitativeEffects": [],
       "unresolvedEffects": []
     }
   }

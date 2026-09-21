@@ -1,4 +1,4 @@
-import { killerById, perkById } from "../../app/catalog.js";
+import { killerById, perkById, survivorById } from "../../app/catalog.js";
 import type { Build } from "../../domain/build.js";
 
 interface SavedBuildsProps {
@@ -121,11 +121,11 @@ function formatDate(value: string): string {
 }
 
 function buildSummary(build: Build): string {
-  const killer = killerById.get(build.killerId);
-  const killerName = killer?.name.fr ?? killer?.name.en ?? build.killerId;
+  const character = (build.side === "survivor" ? survivorById : killerById).get(build.killerId);
+  const characterName = character?.name.fr ?? character?.name.en ?? build.killerId;
   const perkNames = build.perkIds.map((id) => {
     const perk = perkById.get(id);
     return perk?.name.fr ?? perk?.name.en ?? `[${id}]`;
   });
-  return `${killerName} · ${perkNames.length > 0 ? perkNames.join(", ") : "aucune perk"}`;
+  return `${characterName} · ${perkNames.length > 0 ? perkNames.join(", ") : "aucune perk"}`;
 }

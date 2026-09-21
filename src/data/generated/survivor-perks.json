@@ -1,0 +1,2688 @@
+[
+  {
+    "id": "survivor-ace-in-the-hole",
+    "side": "survivor",
+    "name": {
+      "fr": "Atout dans la Manche",
+      "en": "Ace in the Hole"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "aceinthehole.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-adrenaline",
+    "side": "survivor",
+    "name": {
+      "fr": "Adrénaline",
+      "en": "Adrenaline"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "adrenaline.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-aftercare",
+    "side": "survivor",
+    "name": {
+      "fr": "Suivi des Soins",
+      "en": "Aftercare"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "aftercare.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-alert",
+    "side": "survivor",
+    "name": {
+      "fr": "Vigilant",
+      "en": "Alert"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "alert.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-any-means-necessary",
+    "side": "survivor",
+    "name": {
+      "fr": "Par tous les Moyens",
+      "en": "Any Means Necessary"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "anymeansnecessary.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-apocalyptic-ingenuity",
+    "side": "survivor",
+    "name": {
+      "fr": "Ingéniosité Apocalyptique",
+      "en": "Apocalyptic Ingenuity"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "apocalypticingenuity.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-appraisal",
+    "side": "survivor",
+    "name": {
+      "fr": "Estimation",
+      "en": "Appraisal"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "appraisal.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-autodidact",
+    "side": "survivor",
+    "name": {
+      "fr": "Autodidacte",
+      "en": "Autodidact"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "autodidact.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-babysitter",
+    "side": "survivor",
+    "name": {
+      "fr": "Gardien",
+      "en": "Babysitter"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "babysitter.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-background-player",
+    "side": "survivor",
+    "name": {
+      "fr": "Joueur arrière",
+      "en": "Background Player"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "backgroundplayer.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-bada-bada-boom",
+    "side": "survivor",
+    "name": {
+      "fr": "Bada Bada Boum",
+      "en": "Bada Bada Boom"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "badabadaboom.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-balanced-landing",
+    "side": "survivor",
+    "name": {
+      "fr": "Atterrissage équilibré",
+      "en": "Balanced Landing"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "balancedlanding.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-bardic-inspiration",
+    "side": "survivor",
+    "name": {
+      "fr": "Inspiration Bardique",
+      "en": "Bardic Inspiration"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "bardicinspiration.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-better-than-new",
+    "side": "survivor",
+    "name": {
+      "fr": "Mieux que neuf",
+      "en": "Better than New"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "betterthannew.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed",
+    "nativeDescriptionHtml": "<p><span>Lorsque vous complétez une action de Soins sur un autre Survivant, il bénéficie de l'effet suivant jusqu'à ce qu'il soit à nouveau </span><span class=\"description-term\">blessé</span><span> :</span></p><ul><li>Augmente ses <span class=\"description-term\">vitesse</span><span style=\"color: rgb(241, 108, 101);\"><strong>s</strong></span> d'Action pour Soigner, Déverrouiller des Coffres, Purifier, et Bénir des <span class=\"description-term\">Totems</span> de <span class=\"description-value\">50%</span>.</li></ul>"
+  },
+  {
+    "id": "survivor-better-together",
+    "side": "survivor",
+    "name": {
+      "fr": "Conscience situationelle",
+      "en": "Better Together"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "bettertogether.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-bite-the-bullet",
+    "side": "survivor",
+    "name": {
+      "fr": "Serrer les dents",
+      "en": "Bite the Bullet"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "bitethebullet.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-blast-mine",
+    "side": "survivor",
+    "name": {
+      "fr": "Mine explosive",
+      "en": "Blast Mine"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "blastmine.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-blood-pact",
+    "side": "survivor",
+    "name": {
+      "fr": "Pacte de sang",
+      "en": "Blood Pact"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "bloodpact.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-blood-rush",
+    "side": "survivor",
+    "name": {
+      "fr": "Coup de collier",
+      "en": "Blood Rush"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "bloodrush.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-boil-over",
+    "side": "survivor",
+    "name": {
+      "fr": "Effusion",
+      "en": "Boil Over"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "boilover.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-bond",
+    "side": "survivor",
+    "name": {
+      "fr": "Lien",
+      "en": "Bond"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "bond.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-boon-circle-of-healing",
+    "side": "survivor",
+    "name": {
+      "fr": "Bénédiction : Cercle de Soins",
+      "en": "Boon: Circle of Healing"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "booncircleofhealing.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-boon-dark-theory",
+    "side": "survivor",
+    "name": {
+      "fr": "Bénédiction : Théorie Ténébreuse",
+      "en": "Boon: Dark Theory"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "boondarktheory.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-boon-exponential",
+    "side": "survivor",
+    "name": {
+      "fr": "Bénédiction : Exponentiel",
+      "en": "Boon: Exponential"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "boonexponential.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-boon-illumination",
+    "side": "survivor",
+    "name": {
+      "fr": "Illumination",
+      "en": "Boon: Illumination"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "boonillumination.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-boon-shadow-step",
+    "side": "survivor",
+    "name": {
+      "fr": "Bénédiction : Marche de l’Ombre",
+      "en": "Boon: Shadow Step"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "boonshadowstep.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-borrowed-time",
+    "side": "survivor",
+    "name": {
+      "fr": "Sursis",
+      "en": "Borrowed Time"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "borrowedtime.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-botany-knowledge",
+    "side": "survivor",
+    "name": {
+      "fr": "Connaissances en botanique",
+      "en": "Botany Knowledge"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "botanyknowledge.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-breakdown",
+    "side": "survivor",
+    "name": {
+      "fr": "Effondrement",
+      "en": "Breakdown"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "breakdown.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-breakout",
+    "side": "survivor",
+    "name": {
+      "fr": "Évasion",
+      "en": "Breakout"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "breakout.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-buckle-up",
+    "side": "survivor",
+    "name": {
+      "fr": "Accrochez-vous",
+      "en": "Buckle Up"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "buckleup.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-built-to-last",
+    "side": "survivor",
+    "name": {
+      "fr": "Conçu pour durer",
+      "en": "Built to Last"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "builttolast.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-calm-spirit",
+    "side": "survivor",
+    "name": {
+      "fr": "Esprit calme",
+      "en": "Calm Spirit"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "calmspirit.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-camaraderie",
+    "side": "survivor",
+    "name": {
+      "fr": "Affinités",
+      "en": "Camaraderie"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "camaraderie.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-champion-of-light",
+    "side": "survivor",
+    "name": {
+      "fr": "Champion de la Lumière",
+      "en": "Champion of Light"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "championoflight.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-change-of-plan",
+    "side": "survivor",
+    "name": {
+      "fr": "Changement de Plan",
+      "en": "Change of Plan"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "changeofplan.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-chemical-trap",
+    "side": "survivor",
+    "name": {
+      "fr": "Piège chiminique",
+      "en": "Chemical Trap"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "chemicaltrap.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-clairvoyance",
+    "side": "survivor",
+    "name": {
+      "fr": "Clairvoyance",
+      "en": "Clairvoyance"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "clairvoyance.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-clean-break",
+    "side": "survivor",
+    "name": {
+      "fr": "Rupture Nette",
+      "en": "Clean Break"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "cleanbreak.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-come-and-get-me",
+    "side": "survivor",
+    "name": {
+      "fr": "Viens Me Chercher !",
+      "en": "Come and Get Me!"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "comeandgetme.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-conviction",
+    "side": "survivor",
+    "name": {
+      "fr": "Conviction",
+      "en": "Conviction"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "conviction.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-corrective-action",
+    "side": "survivor",
+    "name": {
+      "fr": "Mesure de correction",
+      "en": "Corrective Action"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "correctiveaction.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-counterforce",
+    "side": "survivor",
+    "name": {
+      "fr": "Contre-Force",
+      "en": "Counterforce"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "counterforce.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-cut-loose",
+    "side": "survivor",
+    "name": {
+      "fr": "Hors de contrôle",
+      "en": "Cut Loose"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "cutloose.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-dance-with-me",
+    "side": "survivor",
+    "name": {
+      "fr": "Danse avec moi",
+      "en": "Dance With Me"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "dancewithme.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-dark-sense",
+    "side": "survivor",
+    "name": {
+      "fr": "Sentiment obscur",
+      "en": "Dark Sense"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "darksense.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-dead-hard",
+    "side": "survivor",
+    "characterId": "david",
+    "name": {
+      "fr": "Dur à cuire",
+      "en": "Dead Hard"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "deadhard.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-deadline",
+    "side": "survivor",
+    "name": {
+      "fr": "Échéance",
+      "en": "Deadline"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "deadline.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-deception",
+    "side": "survivor",
+    "name": {
+      "fr": "Supercherie",
+      "en": "Deception"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "deception.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-decisive-strike",
+    "side": "survivor",
+    "characterId": "laurie",
+    "name": {
+      "fr": "Frappe décisive",
+      "en": "Decisive Strike"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "decisivestrike.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-deja-vu",
+    "side": "survivor",
+    "name": {
+      "fr": "Déjà-Vu",
+      "en": "Deja Vu"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "dejavu.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-deliverance",
+    "side": "survivor",
+    "name": {
+      "fr": "Libération",
+      "en": "Deliverance"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "deliverance.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-desperate-measures",
+    "side": "survivor",
+    "name": {
+      "fr": "Mesures désespérées",
+      "en": "Desperate Measures"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "desperatemeasures.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-detective-s-hunch",
+    "side": "survivor",
+    "characterId": "tapp",
+    "name": {
+      "fr": "Intuition de l'inspecteur",
+      "en": "Detective's Hunch"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "detectiveshunch.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-distortion",
+    "side": "survivor",
+    "name": {
+      "fr": "Distorsion",
+      "en": "Distortion"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "distortion.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-diversion",
+    "side": "survivor",
+    "name": {
+      "fr": "Diversion",
+      "en": "Diversion"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "diversion.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-do-no-harm",
+    "side": "survivor",
+    "name": {
+      "fr": "Ne Pas Nuire",
+      "en": "Do No Harm"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "donoharm.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-dramaturgy",
+    "side": "survivor",
+    "name": {
+      "fr": "Dramaturgie",
+      "en": "Dramaturgy"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "dramaturgy.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-duty-of-care",
+    "side": "survivor",
+    "name": {
+      "fr": "Devoir de Vigilance",
+      "en": "Duty of Care"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "dutyofcare.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-empathic-connection",
+    "side": "survivor",
+    "name": {
+      "fr": "Connexion empathique",
+      "en": "Empathic Connection"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "empathicconnection.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-empathy",
+    "side": "survivor",
+    "name": {
+      "fr": "Empathie",
+      "en": "Empathy"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "empathy.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-extrasensory-perception",
+    "side": "survivor",
+    "characterId": "eleven",
+    "name": {
+      "fr": "Perception Extrasensorielle",
+      "en": "Extrasensory Perception"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "extrasensoryperception.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-exultation",
+    "side": "survivor",
+    "name": {
+      "fr": "Exultation",
+      "en": "Exultation"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "exultation.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-eyes-of-belmont",
+    "side": "survivor",
+    "name": {
+      "fr": "Yeux de Belmont",
+      "en": "Eyes of Belmont"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "eyesofbelmont.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-fast-track",
+    "side": "survivor",
+    "name": {
+      "fr": "Voie rapide",
+      "en": "Fast Track"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "fasttrack.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-finesse",
+    "side": "survivor",
+    "name": {
+      "fr": "Finesse",
+      "en": "Finesse"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "finesse.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-fixated",
+    "side": "survivor",
+    "name": {
+      "fr": "Conscience de soi",
+      "en": "Fixated"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "fixated.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-flashbang",
+    "side": "survivor",
+    "name": {
+      "fr": "Grenade aveuglante",
+      "en": "Flashbang"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "flashbang.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-flip-flop",
+    "side": "survivor",
+    "name": {
+      "fr": "À la revoyure",
+      "en": "Flip-Flop"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "flipflop.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-fogwise",
+    "side": "survivor",
+    "name": {
+      "fr": "Débrouillard",
+      "en": "Fogwise"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "fogwise.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-for-the-people",
+    "side": "survivor",
+    "name": {
+      "fr": "Pour le Peuple",
+      "en": "For the People"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "forthepeople.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-friendly-competition",
+    "side": "survivor",
+    "name": {
+      "fr": "Compétition amicale",
+      "en": "Friendly Competition"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "friendlycompetition.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-ghost-notes",
+    "side": "survivor",
+    "name": {
+      "fr": "Étouffements",
+      "en": "Ghost Notes"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "ghostnotes.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-hardened",
+    "side": "survivor",
+    "name": {
+      "fr": "Endurcie",
+      "en": "Hardened"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "hardened.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-head-on",
+    "side": "survivor",
+    "name": {
+      "fr": "De front",
+      "en": "Head On"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "headon.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-hope",
+    "side": "survivor",
+    "name": {
+      "fr": "Espoir",
+      "en": "Hope"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "hope.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-hyperfocus",
+    "side": "survivor",
+    "name": {
+      "fr": "Hyperconcentration",
+      "en": "Hyperfocus"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "hyperfocus.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-inner-focus",
+    "side": "survivor",
+    "name": {
+      "fr": "Cencentration intérieure",
+      "en": "Inner Focus"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "innerfocus.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-inner-strength",
+    "side": "survivor",
+    "name": {
+      "fr": "Guérison interne",
+      "en": "Inner Strength"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "innerstrength.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-invocation-treacherous-crows",
+    "side": "survivor",
+    "name": {
+      "fr": "Invocation : Corbeaux Traîtres",
+      "en": "Invocation: Treacherous Crows"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "invocationtreacherouscrows.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-invocation-weaving-spiders",
+    "side": "survivor",
+    "name": {
+      "fr": "Araignées Tisseuses",
+      "en": "Invocation: Weaving Spiders"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "invocationweavingspiders.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-iron-will",
+    "side": "survivor",
+    "name": {
+      "fr": "Volonté de fer",
+      "en": "Iron Will"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "ironwill.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-kindred",
+    "side": "survivor",
+    "name": {
+      "fr": "Parenté",
+      "en": "Kindred"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "kindred.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-last-stand",
+    "side": "survivor",
+    "name": {
+      "fr": "Baroud d'Honneur",
+      "en": "Last Stand"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "laststand.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-leader",
+    "side": "survivor",
+    "name": {
+      "fr": "Meneur",
+      "en": "Leader"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "leader.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-left-behind",
+    "side": "survivor",
+    "name": {
+      "fr": "Abandonné",
+      "en": "Left Behind"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "leftbehind.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-light-footed",
+    "side": "survivor",
+    "name": {
+      "fr": "Á pas de chat",
+      "en": "Light-Footed"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "lightfooted.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-lightweight",
+    "side": "survivor",
+    "name": {
+      "fr": "Poids plume",
+      "en": "Lightweight"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "lightweight.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-lithe",
+    "side": "survivor",
+    "name": {
+      "fr": "Souple",
+      "en": "Lithe"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "lithe.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-low-profile",
+    "side": "survivor",
+    "name": {
+      "fr": "Profil bas",
+      "en": "Low Profile"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "lowprofile.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-lucky-break",
+    "side": "survivor",
+    "name": {
+      "fr": "Coup de Chance",
+      "en": "Lucky Break"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "luckybreak.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-lucky-star",
+    "side": "survivor",
+    "name": {
+      "fr": "Bonne étoile",
+      "en": "Lucky Star"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "luckystar.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-made-for-this",
+    "side": "survivor",
+    "name": {
+      "fr": "Fait pour ça",
+      "en": "Made for This"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "madeforthis.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-mettle-of-man",
+    "side": "survivor",
+    "name": {
+      "fr": "Force de caractère",
+      "en": "Mettle of Man"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "mettleofman.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-mirrored-illusion",
+    "side": "survivor",
+    "name": {
+      "fr": "Illusion du Miroir",
+      "en": "Mirrored Illusion"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "mirroredillusion.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-moment-of-glory",
+    "side": "survivor",
+    "name": {
+      "fr": "Moment de Gloire",
+      "en": "Moment of Glory"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "momentofglory.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-no-mither",
+    "side": "survivor",
+    "characterId": "david",
+    "name": {
+      "fr": "Même pas mal",
+      "en": "No Mither"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "nomither.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-no-one-left-behind",
+    "side": "survivor",
+    "name": {
+      "fr": "On n'abandonne personne",
+      "en": "No One Left Behind"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "nooneleftbehind.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-object-of-obsession",
+    "side": "survivor",
+    "characterId": "laurie",
+    "name": {
+      "fr": "Obsession de l’Objet",
+      "en": "Object of Obsession"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "objectofobsession.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-off-the-record",
+    "side": "survivor",
+    "name": {
+      "fr": "Confidentiel",
+      "en": "Off the Record"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "offtherecord.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-one-two-three-four",
+    "side": "survivor",
+    "name": {
+      "fr": "Un-Deux-Trois-Quatre !",
+      "en": "One-Two-Three-Four!"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "onetwothreefour.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-open-handed",
+    "side": "survivor",
+    "name": {
+      "fr": "Le coeur sur la main",
+      "en": "Open-Handed"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "openhanded.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-overcome",
+    "side": "survivor",
+    "name": {
+      "fr": "Surmonter",
+      "en": "Overcome"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "overcome.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-overzealous",
+    "side": "survivor",
+    "name": {
+      "fr": "Excés de Zéle",
+      "en": "Overzealous"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "overzealous.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-parental-guidance",
+    "side": "survivor",
+    "name": {
+      "fr": "Conseils parentaux",
+      "en": "Parental Guidance"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "parentalguidance.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-pharmacy",
+    "side": "survivor",
+    "name": {
+      "fr": "Pharmacie",
+      "en": "Pharmacy"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "pharmacy.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-plot-twist",
+    "side": "survivor",
+    "name": {
+      "fr": "Rebondissement",
+      "en": "Plot Twist"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "plottwist.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-plunderer-s-instinct",
+    "side": "survivor",
+    "name": {
+      "fr": "Instinct de pillard",
+      "en": "Plunderer's Instinct"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "plunderersinstinct.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-poised",
+    "side": "survivor",
+    "name": {
+      "fr": "Assurance",
+      "en": "Poised"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "poised.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-potential-energy",
+    "side": "survivor",
+    "name": {
+      "fr": "Énergie potentielle",
+      "en": "Potential Energy"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "potentialenergy.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-power-struggle",
+    "side": "survivor",
+    "name": {
+      "fr": "Bras de fer",
+      "en": "Power Struggle"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "powerstruggle.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-premonition",
+    "side": "survivor",
+    "name": {
+      "fr": "Prémonition",
+      "en": "Premonition"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "premonition.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-prove-thyself",
+    "side": "survivor",
+    "name": {
+      "fr": "Fais tes preuves",
+      "en": "Prove Thyself"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "provethyself.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-quick-and-quiet",
+    "side": "survivor",
+    "name": {
+      "fr": "Rapide et Silencieux",
+      "en": "Quick & Quiet"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "quickandquiet.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-quick-gambit",
+    "side": "survivor",
+    "name": {
+      "fr": "Gambit prompt",
+      "en": "Quick Gambit"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "quickgambit.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-rapid-response",
+    "side": "survivor",
+    "name": {
+      "fr": "Réaction Rapide",
+      "en": "Rapid Response"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "rapidresponse.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-reactive-healing",
+    "side": "survivor",
+    "name": {
+      "fr": "Guérison réactive",
+      "en": "Reactive Healing"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "reactivehealing.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-reassurance",
+    "side": "survivor",
+    "name": {
+      "fr": "Réconfort",
+      "en": "Reassurance"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "reassurance.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-red-herring",
+    "side": "survivor",
+    "name": {
+      "fr": "Leurre",
+      "en": "Red Herring"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "redherring.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-repressed-alliance",
+    "side": "survivor",
+    "name": {
+      "fr": "Alliance inhibeé",
+      "en": "Repressed Alliance"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "repressedalliance.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed",
+    "nativeDescriptionHtml": "<p><br></p><p>Après avoir réparé des <span class=\"description-term\">Générateurs</span> pour un total de <span class=\"description-value\">55/50/45 secondes</span>, Alliance Refoulée s'active :</p><ul><li>Appuyer sur la Touche de Capacité Active fait appel à L'<span class=\"description-term\">Entité</span> pour bloquer le <span class=\"description-term\">Générateur</span> que vous êtes en train de réparer pendant <span class=\"description-value\">30 secondes</span>, après quoi Alliance Refoulée se désactive.</li><li>L'<span class=\"description-term\">Aura</span> du <span class=\"description-term\">Générateur</span> bloqué est révélée en blanc à tous les Survivants.</li></ul><ul><li>Alliance Refoulée peut uniquement être activée lorsqu'aucun autre Survivant ne répare le <span class=\"description-term\">Générateur</span>.</li></ul>"
+  },
+  {
+    "id": "survivor-residual-manifest",
+    "side": "survivor",
+    "name": {
+      "fr": "Manifeste résiduel",
+      "en": "Residual Manifest"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "residualmanifest.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-resilience",
+    "side": "survivor",
+    "name": {
+      "fr": "Résistance",
+      "en": "Resilience"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "resilience.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-resurgence",
+    "side": "survivor",
+    "name": {
+      "fr": "Renaissance",
+      "en": "Resurgence"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "resurgence.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-road-life",
+    "side": "survivor",
+    "name": {
+      "fr": "Vie sur la Route",
+      "en": "Road Life"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "roadlife.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-rookie-spirit",
+    "side": "survivor",
+    "name": {
+      "fr": "Détermination du bleu",
+      "en": "Rookie Spirit"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "rookiespirit.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-saboteur",
+    "side": "survivor",
+    "name": {
+      "fr": "Saboteur",
+      "en": "Saboteur"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "saboteur.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-scavenger",
+    "side": "survivor",
+    "name": {
+      "fr": "Récupérateur",
+      "en": "Scavenger"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "scavenger.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-scene-partner",
+    "side": "survivor",
+    "name": {
+      "fr": "Partenaire de scène",
+      "en": "Scene Partner"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "scenepartner.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-second-wind",
+    "side": "survivor",
+    "name": {
+      "fr": "Renouvellement",
+      "en": "Second Wind"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "secondwind.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-self-care",
+    "side": "survivor",
+    "name": {
+      "fr": "Auto-traitement",
+      "en": "Self-Care"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "selfcare.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-self-preservation",
+    "side": "survivor",
+    "name": {
+      "fr": "Instinct de survie",
+      "en": "Self-Preservation"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "selfpreservation.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-shoulder-the-burden",
+    "side": "survivor",
+    "name": {
+      "fr": "Endosse le Fardeau",
+      "en": "Shoulder the Burden"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "shouldertheburden.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-slippery-meat",
+    "side": "survivor",
+    "name": {
+      "fr": "Viande glissante",
+      "en": "Slippery Meat"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "slipperymeat.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-small-game",
+    "side": "survivor",
+    "name": {
+      "fr": "Petit gibier",
+      "en": "Small Game"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "smallgame.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-smash-hit",
+    "side": "survivor",
+    "name": {
+      "fr": "Succès écrasant",
+      "en": "Smash Hit"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "smashhit.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-sole-survivor",
+    "side": "survivor",
+    "characterId": "laurie",
+    "name": {
+      "fr": "Unique Survivant",
+      "en": "Sole Survivor"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "solesurvivor.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-solidarity",
+    "side": "survivor",
+    "name": {
+      "fr": "Solidarité",
+      "en": "Solidarity"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "solidarity.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-soul-guard",
+    "side": "survivor",
+    "name": {
+      "fr": "Protection de l'âme",
+      "en": "Soul Guard"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "soulguard.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-specialist",
+    "side": "survivor",
+    "name": {
+      "fr": "Spécialiste",
+      "en": "Specialist"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "specialist.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-spine-chill",
+    "side": "survivor",
+    "name": {
+      "fr": "Frisson",
+      "en": "Spine Chill"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "spinechill.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-sprint-burst",
+    "side": "survivor",
+    "name": {
+      "fr": "Course effrénée",
+      "en": "Sprint Burst"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "sprintburst.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-stake-out",
+    "side": "survivor",
+    "characterId": "tapp",
+    "name": {
+      "fr": "En planque",
+      "en": "Stake Out"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "stakeout.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-still-sight",
+    "side": "survivor",
+    "name": {
+      "fr": "Vision Immobile",
+      "en": "Still Sight"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "stillsight.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-streetwise",
+    "side": "survivor",
+    "name": {
+      "fr": "Débrouillardise",
+      "en": "Streetwise"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "streetwise.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-strength-in-shadows",
+    "side": "survivor",
+    "name": {
+      "fr": "Force dans les Ombres",
+      "en": "Strength in Shadows"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "strengthinshadows.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-teamwork-collective-stealth",
+    "side": "survivor",
+    "name": {
+      "fr": "Discrétion collective",
+      "en": "Teamwork: Collective Stealth"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "teamworkcollectivestealth.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-teamwork-full-circuit",
+    "side": "survivor",
+    "name": {
+      "fr": "Circuit Complet",
+      "en": "Teamwork: Full Circuit"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "teamworkfullcircuit.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-teamwork-power-of-two",
+    "side": "survivor",
+    "name": {
+      "fr": "Pouvoir des deux",
+      "en": "Teamwork: Power of Two"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "teamworkpoweroftwo.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-teamwork-soft-spoken",
+    "side": "survivor",
+    "characterId": "eleven",
+    "name": {
+      "fr": "Voix Douce",
+      "en": "Teamwork: Soft-Spoken"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "teamworksoftspoken.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-teamwork-throw-down",
+    "side": "survivor",
+    "name": {
+      "fr": "Contrecarrer",
+      "en": "Teamwork: Throw Down"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "teamworkthrowdown.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-teamwork-toughen-up",
+    "side": "survivor",
+    "name": {
+      "fr": "S'Endurcir",
+      "en": "Teamwork: Toughen Up"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "teamworktoughenup.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-technician",
+    "side": "survivor",
+    "name": {
+      "fr": "Technicien",
+      "en": "Technician"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "technician.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-tenacity",
+    "side": "survivor",
+    "characterId": "tapp",
+    "name": {
+      "fr": "Ténacité",
+      "en": "Tenacity"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "tenacity.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-this-is-not-happening",
+    "side": "survivor",
+    "name": {
+      "fr": "Ce n'est pas en train d'arriver",
+      "en": "This Is Not Happening"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "thisisnothappening.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-troubleshooter",
+    "side": "survivor",
+    "name": {
+      "fr": "Expert",
+      "en": "Troubleshooter"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "troubleshooter.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-unbreakable",
+    "side": "survivor",
+    "name": {
+      "fr": "Indefectible",
+      "en": "Unbreakable"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "unbreakable.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-up-the-ante",
+    "side": "survivor",
+    "name": {
+      "fr": "Augmenter la mise",
+      "en": "Up the Ante"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "uptheante.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-urban-evasion",
+    "side": "survivor",
+    "name": {
+      "fr": "Évasion urbaine",
+      "en": "Urban Evasion"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "urbanevasion.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-vigil",
+    "side": "survivor",
+    "name": {
+      "fr": "Vigilant",
+      "en": "Vigil"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "vigil.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-visionary",
+    "side": "survivor",
+    "name": {
+      "fr": "Visionnaire",
+      "en": "Visionary"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "visionary.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-wake-up",
+    "side": "survivor",
+    "name": {
+      "fr": "Debout!",
+      "en": "Wake Up!"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "wakeup.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-we-ll-make-it",
+    "side": "survivor",
+    "name": {
+      "fr": "Nous y arriverons",
+      "en": "We'll Make It"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "wellmakeit.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-we-re-gonna-live-forever",
+    "side": "survivor",
+    "characterId": "david",
+    "name": {
+      "fr": "Nous vivrons éternellement",
+      "en": "We're Gonna Live Forever"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "weregonnaliveforever.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-we-see-you",
+    "side": "survivor",
+    "characterId": "eleven",
+    "name": {
+      "fr": "Nous Te Voyons",
+      "en": "We See You"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "weseeyou.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-wicked",
+    "side": "survivor",
+    "name": {
+      "fr": "Méchanceté",
+      "en": "Wicked"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "wicked.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-windows-of-opportunity",
+    "side": "survivor",
+    "name": {
+      "fr": "Parfaite occasion",
+      "en": "Windows of Opportunity"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "windowsofopportunity.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  },
+  {
+    "id": "survivor-wiretap",
+    "side": "survivor",
+    "name": {
+      "fr": "Micro caché",
+      "en": "Wiretap"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "wiretap.png",
+    "categories": [],
+    "effects": [],
+    "effectImportStatus": "unparsed"
+  }
+]

@@ -83,6 +83,10 @@ export const conditionLabels: Record<KnownConditionType, string> = {
   after_killer_vault: "Après votre franchissement",
   compromised_generator_completed: "Générateur compromis terminé",
   survivor_within_32m: "Survivant à moins de 32 m",
+  healing_within_32m: "Guérison à 32m",
+  devour_hope_2_tokens: "2 jetons",
+  devour_hope_3_tokens: "3 jetons",
+  devour_hope_5_tokens: "5 jetons",
   forever_entwined_max_tokens: "À jamais liés au maximum de jetons",
   exit_gate_progress_80: "Porte à au moins 80 %",
   perk_triggered: "Perk déclenchée"

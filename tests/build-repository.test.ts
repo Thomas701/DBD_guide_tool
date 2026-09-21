@@ -48,6 +48,7 @@ test("le repository crée, modifie, duplique et supprime sans changer les identi
     id: "build-1",
     name: "Ghost Face — Aura",
     killerId: "ghost-face",
+    side: "killer",
     perkIds: ["nurses-calling", "lethal-pursuer"],
     createdAt: "2026-01-01T10:00:00.000Z",
     updatedAt: "2026-01-01T10:00:00.000Z",
@@ -90,6 +91,13 @@ test("le repository refuse les builds incomplets, dupliqués ou trop grands", ()
     /invalid_perk_id/,
   );
   assert.deepEqual(builds.list(), []);
+});
+
+test("le repository conserve le rôle Survivant d’un build", () => {
+  const { repository: builds } = repository();
+  const build = builds.create({ name: "Meg — fuite", killerId: "meg", side: "survivor", perkIds: ["survivor-adrenaline"] });
+  assert.equal(build.side, "survivor");
+  assert.equal(builds.list()[0]?.side, "survivor");
 });
 
 test("le repository signale un localStorage corrompu sans l'écraser", () => {

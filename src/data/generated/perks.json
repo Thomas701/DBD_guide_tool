@@ -794,21 +794,20 @@
     },
     "effects": [
       {
-        "stat": "survivor.aura",
-        "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "infinite[aura]"
-        },
-        "value": true,
+        "stat": "tracking.healing_aura",
+        "operation": "set",
+        "interpretation": "verified",
+        "value": 0,
         "unit": "boolean",
-        "duration": null
+        "target": "infinite",
+        "condition": {
+          "type": "healing_within_32m"
+        }
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 24
@@ -967,31 +966,40 @@
       {
         "stat": "killer.speed",
         "operation": "multiply",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+5%[speed(10sec)]"
-        },
-        "duration": 10,
+        "interpretation": "verified",
         "value": 1.05,
-        "unit": "multiplier"
+        "unit": "multiplier",
+        "condition": {
+          "type": "devour_hope_2_tokens"
+        },
+        "duration": 10
       },
       {
-        "stat": "survivor.status.exposed",
-        "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "infinite[be_one_shot]"
-        },
-        "value": true,
+        "stat": "tracking.devour_hope_exposed",
+        "operation": "set",
+        "interpretation": "verified",
+        "value": 0,
         "unit": "boolean",
-        "duration": null
+        "target": "infinite",
+        "condition": {
+          "type": "devour_hope_3_tokens"
+        }
+      },
+      {
+        "stat": "tracking.devour_hope_kill",
+        "operation": "set",
+        "interpretation": "verified",
+        "value": 0,
+        "unit": "boolean",
+        "target": "infinite",
+        "condition": {
+          "type": "devour_hope_5_tokens"
+        }
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 28
@@ -1863,7 +1871,7 @@
       "file": "source.txt",
       "line": 44
     },
-    "nativeDescriptionHtml": "<p>Pour chaque <span style=\"color: rgb(241, 108, 101);\"><strong>générateur</strong></span> complété, vous gagnez <span class=\"description-value\">1 jeton</span> , jusqu'à <span class=\"description-value\">5 jetons</span> maximum.</p><p>La vitesse de vos actions est augmentée de <span class=\"description-value\">4/5/6%</span> par <span class=\"description-value\">jeton</span>, jusqu'à un maximum de <span class=\"description-value\">20/25/30%</span><span>.</span></p><p>Les actions:</p><ul><li><strong>Ramasser/déposer</strong> un <span style=\"color: rgb(121, 199, 255);\"><strong>survivant</strong></span></li><li><strong>Détruire </strong>les <span style=\"color: rgb(241, 108, 101);\"><strong>palettes </strong></span>et les <span style=\"color: rgb(241, 108, 101);\"><strong>murs destructibles</strong></span></li><li><strong>Endommager</strong> un <span style=\"color: rgb(241, 108, 101);\"><strong>générateur</strong></span></li><li><strong>Passer</strong> par les <span style=\"color: rgb(241, 108, 101);\"><strong>fenêtres</strong></span></li></ul><p><br></p>"
+    "nativeDescriptionHtml": "<p>Pour chaque <span style=\"color: rgb(241, 108, 101);\"><strong>générateur</strong></span> complété, vous gagnez <span class=\"description-value\">1 jeton</span> , jusqu'à <span class=\"description-value\">5 jetons</span> maximum.</p><p>La vitesse de vos actions est augmentée de <span class=\"description-value\">8%</span> par <span class=\"description-value\">jeton</span>, jusqu'à un maximum de <span class=\"description-value\">40%</span><span>.</span></p><p>Les actions:</p><ul><li><strong>Ramasser/déposer</strong> un <span style=\"color: rgb(121, 199, 255);\"><strong>survivant</strong></span></li><li><strong>Détruire </strong>les <span style=\"color: rgb(241, 108, 101);\"><strong>palettes </strong></span>et les <span style=\"color: rgb(241, 108, 101);\"><strong>murs destructibles</strong></span></li><li><strong>Endommager</strong> un <span style=\"color: rgb(241, 108, 101);\"><strong>générateur</strong></span></li><li><strong>Passer</strong> par les <span style=\"color: rgb(241, 108, 101);\"><strong>fenêtres</strong></span></li></ul><p><br></p>"
   },
   {
     "id": "remember-me",
@@ -3474,7 +3482,7 @@
       "file": "source.txt",
       "line": 80
     },
-    "nativeDescriptionHtml": "<p><span>Dès que vous accrochez un survivant:</span><br></p><ul><li>Le premier survivant à cesser de réparer son&nbsp;<span class=\"description-term\">générateur</span>&nbsp;le bloque pendant <span class=\"description-value\">25 / 30 / 35 secondes</span>.</li><li>Le <span class=\"description-term\">générateur</span> bloqué est mis en évidence en blanc.</li></ul><p><span><span style=\"color: rgb(241, 108, 101);\"><strong>Temps de recharge</strong></span>: <span class=\"description-value\">35 secondes</span></span></p>"
+    "nativeDescriptionHtml": "<p><span>Dès que vous accrochez un survivant:</span><br></p><ul><li>Le premier survivant à cesser de réparer son&nbsp;<span class=\"description-term\">générateur</span>&nbsp;pendant au moins 2 secondes bloque son <span style=\"color: rgb(241, 108, 101);\"><strong>générateur </strong></span>pendant <span class=\"description-value\">40 secondes</span>.</li><li>Le <span class=\"description-term\">générateur</span> bloqué est mis en évidence en blanc.</li></ul><p><span><span style=\"color: rgb(241, 108, 101);\"><strong>Temps de recharge</strong></span>: <span class=\"description-value\">40 secondes</span></span></p>"
   },
   {
     "id": "hex-retribution",
@@ -3855,7 +3863,7 @@
       "file": "source.txt",
       "line": 86
     },
-    "nativeDescriptionHtml": "<p>Allume un <span style=\"color: rgb(241, 108, 101);\"><strong>totem </strong></span>en début de partie qui provoque l'effet suivant (tant qu'il n'est pas détruit) :<br></p><ul><li>Dès que vous blessez un survivant, toutes les&nbsp;<span style=\"color: rgb(241, 108, 101);\"><strong>palettes </strong></span>debout dans un rayon de <span class=\"description-value\">32 mètres</span> autour de lui sont bloquées pendant <span class=\"description-value\">15 secondes</span>.</li></ul>"
+    "nativeDescriptionHtml": "<p>Allume un <span style=\"color: rgb(241, 108, 101);\"><strong>totem </strong></span>en début de partie qui provoque l'effet suivant (tant qu'il n'est pas détruit) :<br></p><ul><li>Dès que vous blessez un survivant avec une attaque de base, toutes les&nbsp;<span style=\"color: rgb(241, 108, 101);\"><strong>palettes </strong></span>debout dans un rayon de <span class=\"description-value\">32 mètres</span> autour de lui sont bloquées pendant <span class=\"description-value\">15 secondes</span>.</li></ul>"
   },
   {
     "id": "dissolution",
@@ -3929,7 +3937,7 @@
       "file": "source.txt",
       "line": 89
     },
-    "nativeDescriptionHtml": "<p><span>Après </span><span class=\"description-value\">3 secondes</span><span> de blessure infligée à un survivant, pendant les&nbsp;</span><span class=\"description-value\">12 / 16 / 20 prochaines secondes</span><span>:</span><br></p><ul><li>La prochaine fois qu'un survivant franchit une&nbsp;<span class=\"description-term\">palette</span> en courant dans votre <span class=\"description-term\">rayon de terreur</span>, la palette se détruit instantanément.</li></ul>"
+    "nativeDescriptionHtml": "<p><span>Après </span><span class=\"description-value\">3 secondes</span><span> de blessure infligée à un survivant, pendant les&nbsp;</span><span class=\"description-value\">15 prochaines secondes</span><span>:</span><br></p><ul><li>La prochaine fois qu'un survivant franchit une&nbsp;<span class=\"description-term\">palette</span> en courant dans votre <span class=\"description-term\">rayon de terreur</span>, la palette se détruit instantanément.</li></ul>"
   },
   {
     "id": "darkness-revealed",
@@ -4303,7 +4311,9 @@
     "side": "killer",
     "categories": [
       "generator",
-      "chase"
+      "chase",
+      "destruction",
+      "speed"
     ],
     "characterId": "animatronic",
     "characterResolution": "resolved",
@@ -4367,7 +4377,7 @@
       "file": "source.txt",
       "line": 99
     },
-    "nativeDescriptionHtml": "<p><span>Dès que vous endommagez un&nbsp;</span><span class=\"description-term\">générateur</span><span>&nbsp;, ce dernier devient un </span><span class=\"description-term\">générateur</span><span> compromis (il ne peut y avoir qu'une seul générateur compromis à la fois).</span><br></p><ul><li>Une fois le <span class=\"description-term\">générateur</span> compromis terminé par les survivants, vos recharges d'attaques de base réussis sont <span class=\"description-value\">25%</span> plus courte&nbsp;<span class=\"description-value\">40 / 50 / 60 secondes</span>:</li></ul>"
+    "nativeDescriptionHtml": "<p><span>Dès que vous endommagez un&nbsp;</span><span class=\"description-term\">générateur</span><span>&nbsp;, ce dernier devient un </span><span class=\"description-term\">générateur</span><span> compromis (il peut y avoir jusqu'à <span class=\"description-value\">3 </span><span style=\"color: rgb(241, 108, 101);\"><strong>générateur </strong></span>compromis à la fois).</span><br></p><p><span>Une fois le </span><span class=\"description-term\">générateur</span><span> compromis terminé par les survivants :</span><br></p><ul><li>Vos recharges d'attaques de base réussis sont <span class=\"description-value\">25%</span> plus courte pendant&nbsp;<span class=\"description-value\">120 secondes</span></li><li>Les <span style=\"color: rgb(241, 108, 101);\"><strong>générateurs </strong></span>qui ne sont pas en cours de réparation régressent à une vitesse de <span class=\"description-value\">150%</span> pendant <span class=\"description-value\">120 secondes</span></li><li>Les autres générateurs cessent d'être compromis</li></ul>"
   },
   {
     "id": "phantom-fear",
@@ -5147,7 +5157,8 @@
     "categories": [
       "hook",
       "sound",
-      "be_one_shot"
+      "be_one_shot",
+      "speed"
     ],
     "characterId": "krasue",
     "characterResolution": "resolved",
@@ -5210,7 +5221,7 @@
       "file": "source.txt",
       "line": 119
     },
-    "nativeDescriptionHtml": "<p><span>La première fois que vous accrochez chaque survivant, vous gagnez&nbsp;</span><span class=\"description-value\">+1 Jeton</span><span>, jusqu'à un maximum de </span><span class=\"description-value\">4 Jetons</span><span>:</span><br></p><ul><li>Lorsque vous avez&nbsp;<span class=\"description-value\">4 Jetons</span>&nbsp;, tous les survivants hurlent et sont <span style=\"color: rgb(241, 108, 101);\"><strong>à découvert</strong></span> pendant <span class=\"description-value\">60 secondes</span></li></ul>"
+    "nativeDescriptionHtml": "<p><span>La première fois que vous accrochez chaque survivant, vous gagnez&nbsp;</span><span class=\"description-value\">+1 Jeton</span><span>, jusqu'à un maximum de </span><span class=\"description-value\">4 Jetons</span><span>:</span><br></p><ul><li><span>Pour chaque jeton, vous gagnez <span class=\"description-value\">4%</span> de rapidité pendant que vous transportez un survivant.</span></li><li>Lorsque vous avez&nbsp;<span class=\"description-value\">4 Jetons</span>&nbsp;, tous les survivants hurlent et sont <span style=\"color: rgb(241, 108, 101);\"><strong>à découvert</strong></span> pendant <span class=\"description-value\">90 secondes</span></li></ul>"
   },
   {
     "id": "wandering-eye",
@@ -5463,7 +5474,7 @@
       "file": "source.txt",
       "line": 124
     },
-    "nativeDescriptionHtml": "<p><span>Après avoir blessé des survivants </span><span class=\"description-value\">8</span><span> fois au total avec des attaques de base, un </span><span class=\"description-term\">Totem</span><span>&nbsp;aléatoire s'embrase</span><span>&nbsp;et maudit tous les survivants (tant que le totem n'est pas détruit):</span><br></p><ul><li>Les survivants touchés par une attaque de base subissent un malus de <span class=\"description-value\">-5 %</span> de <span style=\"color: rgb(241, 108, 101);\"><strong>vitesse</strong></span>&nbsp;pendant <span class=\"description-value\">10 / 12,5 / 15 secondes</span>.</li></ul>"
+    "nativeDescriptionHtml": "<p><span>Après avoir blessé des survivants </span><span class=\"description-value\">4</span><span> fois au total avec des attaques de base, un </span><span class=\"description-term\">Totem</span><span>&nbsp;aléatoire s'embrase</span><span>&nbsp;et maudit tous les survivants (tant que le totem n'est pas détruit):</span><br></p><p><span>Les survivants touchés par une attaque de base subissent pendant <span class=\"description-value\">15 secondes</span> :</span><br></p><ul><li>&nbsp;un malus de <span class=\"description-value\">-5 %</span> de <span style=\"color: rgb(241, 108, 101);\"><strong>vitesse</strong></span>&nbsp;</li><li>Il franchissent les <span style=\"color: rgb(241, 108, 101);\"><strong>fenêtres </strong></span><span class=\"description-value\">10% </span>plus lentement</li></ul>"
   },
   {
     "id": "forever-entwined",
@@ -5941,7 +5952,8 @@
     "side": "killer",
     "categories": [
       "totem",
-      "action"
+      "action",
+      "aura"
     ],
     "characterId": "dark-lord",
     "characterResolution": "resolved",
@@ -6004,7 +6016,7 @@
       "file": "source.txt",
       "line": 136
     },
-    "nativeDescriptionHtml": "<p><span>La première fois que chaque coffre et chaque </span><span class=\"description-term\">Totem</span><span> sont déverrouillés/bénis par un survivant:</span><br></p><ul><li>Le coffre/totem est bloqué pendant <span class=\"description-value\">8 / 12 / 16 secondes</span>.</li><li>L'<span class=\"description-term\">aura</span>&nbsp;de l'accessoire bloqué vous est révélée en blanc.</li></ul>"
+    "nativeDescriptionHtml": "<p><span>La première fois que chaque&nbsp;</span><span class=\"description-term\">Totem</span><span> sont purifiés/bénis par un survivant:</span><br></p><ul><li>Le totem est bloqué pendant <span class=\"description-value\">25 secondes</span>.</li><li>Le survivant hurle</li><li>vous voyez son <span style=\"color: rgb(241, 108, 101);\"><strong>aura </strong></span>pendant <span class=\"description-value\">5 secondes</span></li></ul>"
   },
   {
     "id": "weave-attunement",
@@ -6197,7 +6209,7 @@
       "file": "source.txt",
       "line": 141
     },
-    "nativeDescriptionHtml": "<ul><li>Vous franchissez <span style=\"color: rgb(241, 108, 101);\"><strong>les points de saut</strong></span> <span class=\"description-value\">25%</span> plus vite.</li><li>Si vous vous faites <span style=\"color: rgb(241, 108, 101);\"><strong>aveugler </strong></span>ou <span style=\"color: rgb(241, 108, 101);\"><strong>étourdir</strong></span> par une <span style=\"color: rgb(241, 108, 101);\"><strong>palette</strong></span>, le temps nécessaire pour reprendre vos esprits est augmenté de <span class=\"description-value\">15%</span></li></ul>"
+    "nativeDescriptionHtml": "<ul><li>Vous franchissez <span style=\"color: rgb(241, 108, 101);\"><strong>les points de saut</strong></span> <span class=\"description-value\">25%</span> plus vite.</li><li>La récupération de votre attaque de base est <span class=\"description-value\">25%</span> plus rapide&nbsp;</li><li>Si vous vous faites <span style=\"color: rgb(241, 108, 101);\"><strong>aveugler </strong></span>ou <span style=\"color: rgb(241, 108, 101);\"><strong>étourdir</strong></span> par une <span style=\"color: rgb(241, 108, 101);\"><strong>palette</strong></span>, le temps nécessaire pour reprendre vos esprits est augmenté de <span class=\"description-value\">25%</span></li></ul>"
   },
   {
     "id": "unbound",
@@ -6274,7 +6286,7 @@
       "file": "source.txt",
       "line": 144
     },
-    "nativeDescriptionHtml": "<p><span>Lorsqu'un survivant est </span><span class=\"description-term\">blessé</span><span>&nbsp;, pendant les&nbsp;</span><span class=\"description-value\">24 / 27 / 30 secondes&nbsp;</span><span>qui suivent :</span><br></p><ul><li>Dès que vous franchissez un point de saut, vous gagnez&nbsp;<span class=\"description-value\">+7 %</span> de <span style=\"color: rgb(241, 108, 101);\"><strong>vitesse&nbsp;</strong></span>pendant <span class=\"description-value\">10 secondes</span>.</li></ul><p><span>Cet effet ne peut pas se cumuler avec lui-même.</span></p>"
+    "nativeDescriptionHtml": "<p><span>Lorsqu'un survivant est </span><span class=\"description-term\">blessé</span><span>&nbsp;, pendant les&nbsp;</span><span class=\"description-value\">24 / 27 / 30 secondes&nbsp;</span><span>qui suivent :</span><br></p><ul><li>Dès que vous franchissez un point de saut, vous gagnez&nbsp;<span class=\"description-value\">+5 %</span> de <span style=\"color: rgb(241, 108, 101);\"><strong>vitesse&nbsp;</strong></span>pendant <span class=\"description-value\">25 secondes</span>.</li></ul><p><span>Cet effet ne peut pas se cumuler avec lui-même.</span></p>"
   },
   {
     "id": "unforeseen",
@@ -6367,10 +6379,9 @@
     },
     "side": "killer",
     "categories": [
-      "hability_test",
       "generator",
       "destruction",
-      "recharge"
+      "hook"
     ],
     "characterId": "unknown",
     "characterResolution": "resolved",
@@ -6466,7 +6477,7 @@
       "file": "source.txt",
       "line": 146
     },
-    "nativeDescriptionHtml": "<ul><li>Dès qu'un survivant rate un test d'habilité standard, vous gagnez <span class=\"description-value\">3 jetons</span>, jusqu'à <span class=\"description-value\">30 jetons</span> au maximum.</li></ul><p><span>Dès que vous endommagez un <span style=\"color: rgb(241, 108, 101);\"><strong>générateur</strong></span>, vous dépensez tous les jetons. Pour chaque jeton dépensé :</span><br></p><ul><li>Le <span class=\"description-term\">générateur</span> endommagé perd&nbsp;<span class=\"description-value\">-1 %</span>&nbsp;de sa progression totale par jeton, jusqu'à un maximum de <span class=\"description-value\">18 / 24 / 30 %</span>.</li><li>Le <span class=\"description-term\">générateur</span> endommagé est bloqué pendant <span class=\"description-value\">1 seconde</span> par jeton, jusqu'à un maximum de <span class=\"description-value\">18 / 24 / 30 secondes</span>.</li><li>Lorsque le&nbsp;<span class=\"description-term\">générateur</span> endommagé est débloqué, il se met à régresser.</li></ul><p><span class=\"description-term\">Temps de recharge</span><span> de </span><span class=\"description-value\">60 secondes</span><span>.</span></p>"
+    "nativeDescriptionHtml": "<ul><li>Dès que vous accrochez un survivant, vous gagnez <span class=\"description-value\">1 jetons</span>, jusqu'à <span class=\"description-value\">3 jetons</span> au maximum.</li></ul><p><span>Dès que vous endommagez un <span style=\"color: rgb(241, 108, 101);\"><strong>générateur</strong></span>, vous dépensez tous les jetons. Pour chaque jeton dépensé :</span><br></p><ul><li>Le <span class=\"description-term\">générateur</span> endommagé perd&nbsp;<span class=\"description-value\">-10 %</span>&nbsp;de sa progression totale par jeton, jusqu'à un maximum de <span class=\"description-value\">30 %</span>.</li><li>Le <span class=\"description-term\">générateur</span> endommagé est bloqué pendant <span class=\"description-value\">10 seconde</span> par jeton, jusqu'à un maximum de <span class=\"description-value\">30 secondes</span>.</li></ul>"
   },
   {
     "id": "hex-two-can-play",
@@ -7163,7 +7174,7 @@
       "file": "source.txt",
       "line": 161
     },
-    "nativeDescriptionHtml": "<p><span>Lorsque vous endommagez un&nbsp;</span><span class=\"description-term\">générateur</span><span>, ce dernier devient compromis :</span><br></p><ul><li>Lorsque ce <span style=\"color: rgb(241, 108, 101);\"><strong>générateur </strong></span>est réparé entièrement:</li><li>Vous gagnez <span class=\"description-value\">8%</span> de <span style=\"color: rgb(121, 199, 255);\"><strong>rapidité </strong></span>pendant <span class=\"description-value\">60 secondes</span>.</li><li>Vous gagnez <span style=\"color: rgb(241, 108, 101);\"><strong>Indétectable </strong></span>pendant <span class=\"description-value\">60 secondes</span>.</li></ul><p>Il ne peut y avoir qu'un seul <span style=\"color: rgb(241, 108, 101);\"><strong>générateur </strong></span>compromis à la fois.</p>"
+    "nativeDescriptionHtml": "<p><span>Lorsque vous endommagez un&nbsp;</span><span class=\"description-term\">générateur</span><span>, ce dernier devient compromis :</span><br></p><p><span>Lorsque ce </span><span style=\"color: rgb(241, 108, 101);\"><strong>générateur </strong></span><span>est réparé entièrement:</span><br></p><ul><li>Vous gagnez <span class=\"description-value\">10%</span> de <span style=\"color: rgb(121, 199, 255);\"><strong>rapidité </strong></span>pendant <span class=\"description-value\">60 secondes</span>.</li><li>Vous gagnez <span style=\"color: rgb(241, 108, 101);\"><strong>Indétectable </strong></span>pendant <span class=\"description-value\">60 secondes</span>.</li><li>Les autres générateurs cessent d'être compromis</li></ul><p>Il peut y avoir jusqu'à <span class=\"description-value\">3&nbsp;</span><span style=\"color: rgb(241, 108, 101);\"><strong>générateurs&nbsp;</strong></span>compromis à la fois.</p>"
   },
   {
     "id": "game-afoot",
@@ -7457,7 +7468,7 @@
       "file": "source.txt",
       "line": 169
     },
-    "nativeDescriptionHtml": "<p><span>Chaque fois qu'un Survivant franchit un point de saut en courant à moins de </span><span class=\"description-value\">12 mètres</span><span> de votre position:</span><br></p><ul><li>Vous franchissez le prochain point de saut&nbsp;<span class=\"description-value\">30 / 35 / 40 %</span>&nbsp;plus vite.</li></ul><p><span class=\"description-term\">Temps de recharge</span><span> est de </span><span class=\"description-value\">25 secondes</span><span>.</span></p>"
+    "nativeDescriptionHtml": "<p><span>Chaque fois qu'un Survivant franchit un point de saut en courant à moins de </span><span class=\"description-value\">12 mètres</span><span> de votre position:</span><br></p><ul><li>Dans les <span class=\"description-value\">10sec</span> qui suivent, vous franchirez le prochain point de saut&nbsp;<span class=\"description-value\">30 / 35 / 40 %</span>&nbsp;plus vite.</li></ul><p><span class=\"description-term\">Temps de recharge</span><span> est de </span><span class=\"description-value\">20 secondes</span><span>.</span></p>"
   },
   {
     "id": "awakened-awareness",
@@ -9718,7 +9729,7 @@
       "file": "source.txt",
       "line": 216
     },
-    "nativeDescriptionHtml": "<p>Dès qu'une survivant renverse une <span style=\"color: rgb(241, 108, 101);\"><strong>palette</strong></span>, pendant les <span class=\"description-value\">6 secondes</span> qui suivent, s'il s'éloigne à plus de<span class=\"description-value\"> 6 mètres</span> de cette <span style=\"color: rgb(241, 108, 101);\"><strong>palette </strong></span>:</p><p><ul><li>il est <span class=\"description-value\">5%</span> moins rapide pendant <span class=\"description-value\">5 secondes</span></li></ul></p>"
+    "nativeDescriptionHtml": "<p>Dès qu'une survivant renverse une <span style=\"color: rgb(241, 108, 101);\"><strong>palette</strong></span>, pendant les <span class=\"description-value\">6 secondes</span> qui suivent, s'il s'éloigne à plus de<span class=\"description-value\">&nbsp;10 mètres</span> de cette <span style=\"color: rgb(241, 108, 101);\"><strong>palette </strong></span>:</p><ul><li>il est <span class=\"description-value\">20%</span> moins rapide pendant <span class=\"description-value\">5 secondes</span></li></ul>"
   },
   {
     "id": "franklins-demise",
@@ -9993,7 +10004,8 @@
     "side": "killer",
     "categories": [
       "hook",
-      "speed"
+      "speed",
+      "generator"
     ],
     "characterId": null,
     "characterResolution": "general",
@@ -10055,7 +10067,7 @@
       "file": "source.txt",
       "line": 222
     },
-    "nativeDescriptionHtml": "<p><span>Au début de la partie, les </span><span class=\"description-value\">4</span><span> </span><span class=\"description-term\">crochets</span><span> situés à l'intérieur de la cave et </span><span class=\"description-value\">4</span><span> </span><span class=\"description-term\">crochets</span><span> supplémentaires aléatoires se transforment en </span><span class=\"description-term\">crochets flagellateurs</span><br></p><ul><li>Vous voyez les <span class=\"description-term\">crochets&nbsp;</span><span style=\"color: rgb(241, 108, 101); font-weight: 800;\">flagellateurs</span>&nbsp;sont mis en évidence en blanc.</li></ul><p><span>Lorsque vous vous trouvez à plus de </span><span class=\"description-value\">24 mètres</span><span> d'un survivant accroché à un </span><span class=\"description-term\">Crochet&nbsp;</span><span style=\"color: rgb(241, 108, 101); font-weight: 800;\">flagellateurs</span><span>&nbsp;:</span><br></p><ul><li>Le survivant est sacrifié&nbsp;&nbsp;<span class=\"description-value\">10 / 15 / 20 %</span>&nbsp;plus vite</li></ul>"
+    "nativeDescriptionHtml": "<p><span>Au début de la partie, les </span><span class=\"description-value\">4</span><span> </span><span class=\"description-term\">crochets</span><span> situés à l'intérieur de la cave et </span><span class=\"description-value\">4</span><span> </span><span class=\"description-term\">crochets</span><span> supplémentaires aléatoires&nbsp; et les crochets de la cave se transforment en </span><span class=\"description-term\">crochets flagellateurs</span><br></p><ul><li>Vous voyez les <span class=\"description-term\">crochets&nbsp;</span><span style=\"color: rgb(241, 108, 101); font-weight: 800;\">flagellateurs</span>&nbsp;sont mis en évidence en blanc.</li></ul><p><span>Lorsque vous vous trouvez à plus de </span><span class=\"description-value\">24 mètres</span><span> d'un survivant accroché à un </span><span class=\"description-term\">Crochet&nbsp;</span><span style=\"color: rgb(241, 108, 101); font-weight: 800;\">flagellateurs</span><span>&nbsp;:</span><br></p><ul><li>tout générateur qui n'est pas en train d'être réparé régresse à une vitesse de <span class=\"description-value\">200%</span></li></ul>"
   },
   {
     "id": "spies-from-the-shadows",
@@ -10124,7 +10136,7 @@
       "file": "source.txt",
       "line": 223
     },
-    "nativeDescriptionHtml": "<p><span>Chaque fois qu'un survivant surprend un corbeau à moins de </span><span class=\"description-value\">20 / 28 / 36 mètres</span><span> de votre position :</span><br></p><ul><li>Vous alerte grâce à une notification sonore unique en forme de corbeau.</li></ul><p><span>Temps de recharge :&nbsp;&nbsp;</span><span class=\"description-value\">5 secondes</span><span>&nbsp;</span></p>"
+    "nativeDescriptionHtml": "<p><span>Chaque fois qu'un survivant surprend un corbeau à moins de </span><span class=\"description-value\">40 mètres</span><span> de votre position :</span><br></p><ul><li>Vous alerte grâce à une notification sonore unique en forme de corbeau.</li></ul><p><span>Temps de recharge :&nbsp;&nbsp;</span><span class=\"description-value\">3 secondes</span><span>&nbsp;</span></p>"
   },
   {
     "id": "shattered-hope",
@@ -10205,7 +10217,7 @@
       "file": "source.txt",
       "line": 224
     },
-    "nativeDescriptionHtml": "<p><span>Si vous détruisez un </span><span class=\"description-term\">totem</span><span> de bénédiction:<br><ul><li><span>&nbsp;Vous voyez les </span><span class=\"description-term\">auras</span><span> de tous les survivants se trouvant dans le rayon de bénédiction du totem pendant&nbsp;</span><span class=\"description-value\">6 / 7 / 8 secondes</span><span>.</span></li><li><span>Le <span style=\"color: rgb(241, 108, 101);\"><strong>totem</strong></span> se détruit</span></li></ul></span></p>"
+    "nativeDescriptionHtml": "<p><span>Si vous détruisez un </span><span class=\"description-term\">totem</span><span> de bénédiction ou dès qu'un totem est bénis, purifié ou détruit :<br></span></p><ul><li><span>&nbsp;Vous voyez les </span><span class=\"description-term\">auras</span><span> des totems de bénédiction pendant <span class=\"description-value\">20 secondes</span></span></li><li><span>Tous les <span style=\"color: rgb(241, 108, 101);\"><strong>totems </strong></span>sont bloqués pendant <span class=\"description-value\">20 secondes</span></span></li></ul>"
   },
   {
     "id": "keep-them-waiting",
@@ -10331,7 +10343,7 @@
       "file": "source.txt",
       "line": 226
     },
-    "nativeDescriptionHtml": "<ul><li><span>Réduit le </span><span class=\"description-term\">temps de recharge</span><span> des attaques manquées de </span><span class=\"description-value\">20 / 25 / 30 %</span><span>.</span></li></ul>"
+    "nativeDescriptionHtml": "<ul><li><span>Réduit le </span><span class=\"description-term\">temps de recharge</span><span> des attaques manquées de </span><span class=\"description-value\">40 %</span><span>.</span></li><li><span>Réduit le <span style=\"color: rgb(241, 108, 101);\"><strong>temps de recharge</strong></span> des attaques réussies de <span class=\"description-value\">10%</span>.</span></li></ul>"
   },
   {
     "id": "distressing",
@@ -10341,7 +10353,9 @@
     },
     "side": "killer",
     "categories": [
-      "terror_rayon"
+      "terror_rayon",
+      "speed",
+      "generator"
     ],
     "characterId": null,
     "characterResolution": "general",
@@ -10385,7 +10399,8 @@
     "provenance": {
       "file": "source.txt",
       "line": 227
-    }
+    },
+    "nativeDescriptionHtml": "<ul><li>Augmente votre <span class=\"description-term\">rayon de terreur</span> de <span class=\"description-value\">20 / 25 / 30 %</span>.</li><li>Les survivants dans votre<span style=\"color: rgb(241, 108, 101);\"><strong> rayon de terreur </strong></span>réparent <span class=\"description-value\">8%</span> plus lentement</li></ul>"
   },
   {
     "id": "insidious",
@@ -10459,7 +10474,7 @@
       "file": "source.txt",
       "line": 228
     },
-    "nativeDescriptionHtml": "<ul><li>Après être resté immobile pendant <span class=\"description-value\">3 / 2 / 1 seconde</span>(s), vous devenez <span class=\"description-term\">indétectable</span><span>.</span></li><li>Insidieux se désactive dès que vous recommencez à bouger.</li></ul>"
+    "nativeDescriptionHtml": "<ul><li>Après être resté immobile pendant <span class=\"description-value\">2 seconde</span>(s), vous devenez <span class=\"description-term\">indétectable</span><span>.</span></li><li>Dès que vous agissez, cet effet prend fin au bout de <span class=\"description-value\">8 secondes.</span></li></ul>"
   },
   {
     "id": "bitter-murmur",
@@ -10550,7 +10565,7 @@
       "file": "source.txt",
       "line": 229
     },
-    "nativeDescriptionHtml": "<p><span>Dès qu'un </span><span style=\"color: rgb(241, 108, 101);\"><strong>générateur </strong></span><span>est terminé :</span><br></p><ul><li>&nbsp;vous voyez les survivants situés à moins de <span class=\"description-value\">16 mètres</span> de ce <span class=\"description-term\">générateur</span> pendant <span class=\"description-value\">5 secondes</span>.</li></ul><p><span>Une fois tous les&nbsp;</span><span class=\"description-term\">générateurs</span><span>&nbsp;sont terminés:</span><br></p><ul><li>Vous voyez les <span class=\"description-term\">auras</span> de tous les survivants pendant <span class=\"description-value\">5 / 7 / 10 secondes</span>.</li></ul>"
+    "nativeDescriptionHtml": "<p><span>Dès qu'un </span><span style=\"color: rgb(241, 108, 101);\"><strong>générateur </strong></span><span>est terminé :</span><br></p><ul><li>&nbsp;vous voyez les survivants situés à moins de <span class=\"description-value\">20 mètres</span> de ce <span class=\"description-term\">générateur</span> pendant <span class=\"description-value\">8 secondes</span>.</li></ul><p><span>Une fois tous les&nbsp;</span><span class=\"description-term\">générateurs</span><span>&nbsp;sont terminés:</span><br></p><ul><li>Vous voyez les <span class=\"description-term\">auras</span> de tous les survivants pendant <span class=\"description-value\">14 secondes</span>.</li></ul>"
   },
   {
     "id": "whispers",
@@ -10611,7 +10626,7 @@
       "file": "source.txt",
       "line": 230
     },
-    "nativeDescriptionHtml": "<p><span>Dès qu'un Survivant se trouve à moins de </span><span class=\"description-value\">48 / 40 / 32 mètres</span><span> de votre position:</span><br></p><ul><li>Vous permet d'entendre les murmures de l'<span class=\"description-term\">Entité</span><span>, indiquant la présence d'un survivant.</span></li></ul>"
+    "nativeDescriptionHtml": "<p><span>Dès qu'un Survivant se trouve à moins de </span><span class=\"description-value\">24 mètres</span><span> de votre position:</span><br></p><ul><li>Vous permet d'entendre les murmures de l'<span class=\"description-term\">Entité</span><span>, indiquant la présence d'un survivant.</span></li></ul><p>En étant à plus de <span class=\"description-value\">24 mètres</span> d'un survivant:</p><p><ul><li>vous gagnez <span class=\"description-value\">5%</span> de <span style=\"color: rgb(121, 199, 255);\"><strong>rapidité</strong></span></li></ul></p>"
   },
   {
     "id": "deerstalker",
@@ -10691,7 +10706,7 @@
       "file": "source.txt",
       "line": 231
     },
-    "nativeDescriptionHtml": "<ul><li>Si un survivant voit votre <span style=\"color: rgb(241, 108, 101);\"><strong>aura</strong></span>, vous voyez la sienne</li><li>Toutes les <span class=\"description-value\">30 secondes</span>, le survivant qui a été le moins poursuivi de la partie voit votre <span style=\"color: rgb(241, 108, 101);\"><strong>aura </strong></span>pendant <span class=\"description-value\">3 secondes.</span></li></ul>"
+    "nativeDescriptionHtml": "<ul><li>Si un survivant voit votre <span style=\"color: rgb(241, 108, 101);\"><strong>aura</strong></span>, vous voyez la sienne</li><li>Toutes les <span class=\"description-value\">30 secondes</span>, le survivant qui a été le moins poursuivi de la partie voit votre <span style=\"color: rgb(241, 108, 101);\"><strong>aura </strong></span>pendant <span class=\"description-value\">4 secondes.</span></li></ul>"
   },
   {
     "id": "iron-grasp",
@@ -10868,7 +10883,8 @@
     "side": "killer",
     "categories": [
       "totem",
-      "action"
+      "action",
+      "hook"
     ],
     "characterId": null,
     "characterResolution": "general",
@@ -10897,7 +10913,7 @@
       "file": "source.txt",
       "line": 234
     },
-    "nativeDescriptionHtml": "<p>En début de partie, un <strong><span style=\"color: rgb(241, 108, 101);\">totem </span></strong>s'embrase et confère les effets suivant (tant qu'il n'est pas détruit) :</p><p><ul><li>Pour chaque <span style=\"color: rgb(241, 108, 101);\"><strong>totem </strong></span>passif et ensorcelé encore debout, vous avez 1 jeton</li><li><span style=\"color: rgb(241, 108, 101);\"><strong>Pour chaque jeton</strong></span>, les survivants bénissent et purifient les totems <span class=\"description-value\">10%</span> plus lentement</li></ul></p>"
+    "nativeDescriptionHtml": "<p>La première fois qu'un survivant est accroché, un <strong><span style=\"color: rgb(241, 108, 101);\">totem </span></strong>s'embrase et confère les effets suivant (tant qu'il n'est pas détruit) :</p><ul><li>Lorsque vous accrochez un survivant, cela bloque tous les <span style=\"color: rgb(241, 108, 101);\"><strong>totems ensorcelés</strong></span> pendant <span class=\"description-value\">8 secondes</span> pour chaque <span style=\"color: rgb(241, 108, 101);\"><strong>totem ensorcelé</strong></span> allumé.</li></ul>"
   },
   {
     "id": "hex-fortunes-fool",

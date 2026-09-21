@@ -40,6 +40,10 @@ export const KNOWN_CONDITIONS = [
   "after_killer_vault",
   "compromised_generator_completed",
   "survivor_within_32m",
+  "healing_within_32m",
+  "devour_hope_2_tokens",
+  "devour_hope_3_tokens",
+  "devour_hope_5_tokens",
   "forever_entwined_max_tokens",
   "exit_gate_progress_80",
   "perk_triggered"

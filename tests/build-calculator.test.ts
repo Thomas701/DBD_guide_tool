@@ -357,6 +357,32 @@ test("calcule Réparateur avec un générateur à 70 %", () => {
   assert.equal(result.inactiveEffects.length, 0);
 });
 
+test("calcule Vocation de l’infirmière comme une révélation infinie à 32 m", () => {
+  const result = calculateBuild({
+    killer,
+    perks: [perk("a-nurses-calling", [...(PERK_EFFECT_OVERRIDES["a-nurses-calling"] ?? [])])],
+    scenario: { conditions: { healing_within_32m: true }, perkStates: {} }
+  });
+
+  assert.equal(result.stats["tracking.healing_aura"]?.base, 0);
+  assert.equal(result.stats["tracking.healing_aura"]?.final, Infinity);
+  assert.equal(result.stats["tracking.healing_aura"]?.delta, Infinity);
+});
+
+test("applique les paliers de Mangeur d’espoir", () => {
+  const perkEffects = [...(PERK_EFFECT_OVERRIDES["hex-devour-hope"] ?? [])];
+  const result = calculateBuild({
+    killer,
+    perks: [perk("hex-devour-hope", perkEffects)],
+    scenario: { conditions: { devour_hope_2_tokens: true, devour_hope_3_tokens: true, devour_hope_5_tokens: true }, perkStates: {} }
+  });
+
+  assert.equal(result.stats["killer.speed"]?.final, 4.83);
+  assert.equal(result.stats["tracking.devour_hope_exposed"]?.final, Infinity);
+  assert.equal(result.stats["tracking.devour_hope_kill"]?.final, Infinity);
+  assert.equal(result.qualitativeEffects.length, 0);
+});
+
 test("affiche un statut qualitatif et respecte sa condition", () => {
   const terminus = perk("terminus", [...(PERK_EFFECT_OVERRIDES.terminus ?? [])]);
   const inactive = calculateBuild({ killer, perks: [terminus] });

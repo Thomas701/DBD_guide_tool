@@ -1,13 +1,15 @@
 import type { BuildScenario, PerkRuntimeState, ScenarioConditionValue } from "./build-calculator.js";
+import type { PerkSide } from "../domain/perk.js";
 
 export const APP_SESSION_STORAGE_KEY = "dbd-build-tool.current-session";
 
-export type AppView = "build" | "killers" | "perks" | "constants" | "tiers" | "blindtest";
+export type AppView = "build" | "killers" | "perks" | "constants" | "tiers" | "blindtest" | "statistics";
 
 type CatalogScrollPositions = Record<"killers" | "perks" | "constants", number>;
 
 export interface AppSession {
   activeView: AppView;
+  side: PerkSide;
   soundEnabled: boolean;
   musicVolume: number;
   selectedKillerId: string | null;
@@ -24,6 +26,7 @@ export interface AppSession {
 
 export const DEFAULT_APP_SESSION: AppSession = {
   activeView: "build",
+  side: "killer",
   soundEnabled: true,
   musicVolume: 0.35,
   selectedKillerId: null,
@@ -48,7 +51,8 @@ export function readAppSession(raw: string | null, knownKillerIds: ReadonlySet<s
       ? [...new Set(value.equippedPerkIds.filter((id): id is string => typeof id === "string" && knownPerkIds.has(id)))].slice(0, 4)
       : [];
     return {
-      activeView: value.activeView === "killers" || value.activeView === "perks" || value.activeView === "constants" || value.activeView === "tiers" || value.activeView === "blindtest" ? value.activeView : "build",
+      activeView: value.activeView === "killers" || value.activeView === "perks" || value.activeView === "constants" || value.activeView === "tiers" || value.activeView === "blindtest" || value.activeView === "statistics" ? value.activeView : "build",
+      side: value.side === "survivor" ? "survivor" : "killer",
       soundEnabled: typeof value.soundEnabled === "boolean" ? value.soundEnabled : DEFAULT_APP_SESSION.soundEnabled,
       musicVolume: clamp(value.musicVolume, DEFAULT_APP_SESSION.musicVolume, 0, 1),
       selectedKillerId: killerId,

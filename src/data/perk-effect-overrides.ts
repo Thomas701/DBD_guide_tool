@@ -28,6 +28,20 @@ export const PERK_EFFECT_OVERRIDES: Readonly<Record<string, readonly PerkEffect[
   "predator": [add("tracking.survivor_aura_reveal_average", 10.8, "seconds", condition("chase_abandoned"))],
   "lightborn": [add("tracking.lightborn_aura_reveal_average", 8, "seconds", condition("blind_attempted"))],
   "tinkerer": [add("tracking.tinkerer_undetectable_average", 61, "seconds", condition("generator_at_70_percent"))],
+  "hex-devour-hope": [
+    multiply("killer.speed", 1.05, condition("devour_hope_2_tokens"), 10),
+    infiniteStat("tracking.devour_hope_exposed", condition("devour_hope_3_tokens")),
+    infiniteStat("tracking.devour_hope_kill", condition("devour_hope_5_tokens"))
+  ],
+  "a-nurses-calling": [{
+    stat: "tracking.healing_aura",
+    operation: "set",
+    interpretation: "verified",
+    value: 0,
+    unit: "boolean",
+    target: "infinite",
+    condition: condition("healing_within_32m")
+  }],
   "thanatophobia": [
     multiply("generator.repair_time", 0.8, condition("four_survivors_injured")),
     multiply("hook.sabotage_time", 0.8, condition("four_survivors_injured")),
@@ -136,7 +150,7 @@ export const PERK_EFFECT_OVERRIDES: Readonly<Record<string, readonly PerkEffect[
     multiply("generator.regression_rate", 1.5, generatorDamaged, 90),
     reveal("generator.aura", 90, generatorDamaged)
   ],
-  "hex-ruin": [multiply("generator.regression_rate", 1.5, hexActive)],
+  "hex-ruin": [multiply("generator.regression_rate", 1.5, condition("totem_active"))],
   "overcharge": [
     add("generator.damage_penalty", 4, "percentage_points", generatorDamaged),
     multiply("generator.regression_rate", 1.3, generatorDamaged, 30)
@@ -235,6 +249,10 @@ function setValue(
   duration?: number | null
 ): PerkEffect {
   return effect(stat, "set", value, unit, conditionValue, duration);
+}
+
+function infiniteStat(stat: string, conditionValue: EffectCondition): PerkEffect {
+  return { stat, operation: "set", interpretation: "verified", value: 0, unit: "boolean", target: "infinite", condition: conditionValue };
 }
 
 function status(stat: string, duration: number | null, conditionValue?: EffectCondition): PerkEffect {

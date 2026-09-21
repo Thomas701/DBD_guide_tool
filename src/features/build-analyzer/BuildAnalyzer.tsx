@@ -29,7 +29,13 @@ const propertyIcons: Readonly<Record<string, string | null>> = {
   "tracking.blood_pool_lifetime": killerConditionIconUrl("blood_pool_present"),
   "tracking.survivor_aura_reveal_average": killerConditionIconUrl("chase_abandoned"),
   "tracking.lightborn_aura_reveal_average": killerConditionIconUrl("blind_attempted"),
-  "tracking.tinkerer_undetectable_average": killerConditionIconUrl("generator_at_70_percent")
+  "tracking.tinkerer_undetectable_average": killerConditionIconUrl("generator_at_70_percent"),
+  "tracking.healing_aura": killerConditionIconUrl("healing_within_32m"),
+  "tracking.devour_hope_exposed": killerConditionIconUrl("survivor.status.exposed"),
+  "tracking.devour_hope_kill": killerConditionIconUrl("survivor.kill_available"),
+  "generator.regression_rate": killerConditionIconUrl("generator.regression_rate"),
+  "sound.grunt_volume": killerConditionIconUrl("sound.grunt_volume"),
+  "sound.breathing_volume": killerConditionIconUrl("sound.breathing_volume")
 };
 
 export function BuildAnalyzer({ calculation, perks }: BuildAnalyzerProps) {
@@ -106,7 +112,7 @@ function ImpactChart({ stats }: { stats: readonly CalculatedStat[] }) {
   return (
     <div className="impact-chart" role="tabpanel" aria-label="Statistiques affectées par le build sous forme de graphique">
       {stats.map((stat) => {
-        const maximum = Math.max(Math.abs(stat.base), Math.abs(stat.final), 1);
+        const maximum = Number.isFinite(stat.final) ? Math.max(Math.abs(stat.base), Math.abs(stat.final), 1) : 1;
         return (
           <article className="impact-chart-row" key={stat.key}>
             <header>
@@ -126,7 +132,7 @@ function ChartBar({ label, value, unit, maximum, modified = false }: { label: st
   return (
     <div className={`impact-chart-bar${modified ? " modified" : ""}`}>
       <span>{label}</span>
-      <span className="impact-chart-track"><span style={{ width: `${Math.max(4, Math.abs(value) / maximum * 100)}%` }} /></span>
+      <span className="impact-chart-track"><span style={{ width: `${value === Infinity ? 100 : Math.max(4, Math.abs(value) / maximum * 100)}%` }} /></span>
       <strong>{formatValue(value, unit)}</strong>
     </div>
   );
@@ -183,9 +189,10 @@ function StatRow({ stat }: { stat: CalculatedStat }) {
 
 function QualitativeRow({ effect }: { effect: EffectCalculation }) {
   const active = effect.status === "active";
+  const icon = killerConditionIconUrl(effect.stat);
   return (
     <article className={`qualitative-impact-row ${effect.status}`}>
-      <span className="qualitative-symbol" aria-hidden="true">◇</span>
+      <span className="qualitative-symbol" aria-hidden="true">{icon ? <img src={icon} alt="" /> : "◇"}</span>
       <span>
         <strong>{effect.statLabel}</strong>
         <small>{effect.perkName} · {qualitativeLabel(effect)}</small>
@@ -216,6 +223,7 @@ function themeSymbol(theme: string): string {
 }
 
 function deltaPrimary(stat: CalculatedStat, conditional: boolean): string {
+  if (stat.delta === Infinity) return "infinit";
   if (stat.delta === 0) return conditional ? "Inactive" : "—";
   if (stat.mode === "points") return `${signed(stat.delta)} pts`;
   if (stat.deltaPercent !== null) return `${signed(stat.deltaPercent)} %`;
@@ -223,6 +231,7 @@ function deltaPrimary(stat: CalculatedStat, conditional: boolean): string {
 }
 
 function deltaSecondary(stat: CalculatedStat): string {
+  if (stat.delta === Infinity) return "infinite";
   if (stat.delta === 0) return "Valeur de base";
   const amount = `${formatNumber(Math.abs(stat.delta))} ${stat.unit}`;
   if (stat.benefit === null) return amount;
@@ -231,6 +240,7 @@ function deltaSecondary(stat: CalculatedStat): string {
 
 function effectLabel(effect: EffectCalculation, stat: CalculatedStat): string {
   const confidence = effect.interpretation === "inferred" ? " · donnée inférée" : "";
+  if (effect.target === "infinite") return `Valeur infinie${confidence}`;
   if (effect.operation === "set") return `Remplacement par ${formatValue(Number(effect.value), stat.unit)}${confidence}`;
   if (effect.operation === "add") {
     const suffix = effect.unit === "percentage_points" ? " points" : ` ${stat.unit}`;
@@ -243,6 +253,7 @@ function effectLabel(effect: EffectCalculation, stat: CalculatedStat): string {
 }
 
 function effectFormula(effect: EffectCalculation, stat: CalculatedStat): string {
+  if (effect.target === "infinite") return `${formatNumber(effect.before ?? stat.base)} → infinite`;
   const before = formatNumber(effect.before ?? stat.base);
   const after = formatNumber(effect.after ?? stat.final);
   if (effect.operation === "multiply") {
@@ -270,6 +281,7 @@ function multiplier(effect: EffectCalculation): number {
 }
 
 function formatValue(value: number, unit: string): string {
+  if (value === Infinity) return "infinite";
   return `${formatNumber(value)} ${unit}`;
 }
 

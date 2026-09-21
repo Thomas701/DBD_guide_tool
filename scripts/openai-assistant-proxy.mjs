@@ -1,18 +1,21 @@
-import { execFileSync, spawn } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { createServer } from "node:http";
 
 import { BrowserChatGPTProvider, BrowserProviderError } from "./chatgpt-browser-provider.mjs";
+import { DbdStatisticsError, DbdStatisticsProvider } from "./dbd-statistics-provider.mjs";
 import { CodexChatGPTProvider, CodexProviderError } from "./codex-assistant-provider.mjs";
 import { AppUpdateError, applyAppUpdate, getAppUpdateStatus } from "./app-updater.mjs";
-import { updateNativePerk, writeCurrentBuild } from "./local-data-files.mjs";
+import { readStatisticsSnapshot, syncStatisticsSnapshot, updateNativePerk, writeCurrentBuild } from "./local-data-files.mjs";
 
 const port = Number(process.env.OPENAI_ASSISTANT_PORT ?? 8787);
 const apiKey = process.env.OPENAI_API_KEY;
 const model = process.env.OPENAI_MODEL ?? "gpt-5-mini";
 const browserProvider = new BrowserChatGPTProvider();
 const codexProvider = new CodexChatGPTProvider();
-const API_VERSION = 3;
+const dbdStatisticsProvider = new DbdStatisticsProvider();
+const API_VERSION = 13;
 const serviceRevision = readServiceRevision();
+let statisticsSyncPromise = null;
 
 const server = createServer(async (request, response) => {
   const origin = request.headers.origin;
@@ -60,6 +63,20 @@ const server = createServer(async (request, response) => {
         throw new HttpError(400, "Modification native de perk invalide.");
       }
       return send(response, 200, { perk: await updateNativePerk(body.perkId, body.changes) });
+    }
+    if (request.method === "GET" && url.pathname === "/api/statistics/cache") {
+      return send(response, 200, await readStatisticsSnapshot());
+    }
+    if (request.method === "GET" && url.pathname === "/api/statistics/status") {
+      return send(response, 200, dbdStatisticsProvider.status());
+    }
+    if (request.method === "POST" && url.pathname === "/api/statistics/connect") {
+      return send(response, 200, await connectStatistics());
+    }
+    if (request.method === "POST" && url.pathname === "/api/statistics/show-page") {
+      const body = await readJson(request);
+      if (!isRecord(body) || typeof body.url !== "string") throw new HttpError(400, "URL Statistiques invalide.");
+      return send(response, 200, await dbdStatisticsProvider.showPage(body.url));
     }
     if (request.method === "POST" && url.pathname === "/api/assistant/message") {
       const body = await readJson(request);
@@ -127,8 +144,23 @@ function sendError(response, error) {
   if (error instanceof AppUpdateError) return send(response, error.status, { error: error.message });
   if (error instanceof HttpError) return send(response, error.status, { error: error.message });
   if (error instanceof BrowserProviderError) return send(response, browserErrorStatus(error.code), { error: error.message, code: error.code });
+  if (error instanceof DbdStatisticsError) return send(response, statisticsErrorStatus(error.code), { error: error.message, code: error.code });
   if (error instanceof CodexProviderError) return send(response, codexErrorStatus(error.code), { error: error.message, code: error.code });
   return send(response, 500, { error: error instanceof Error ? error.message : "Erreur serveur inconnue." });
+}
+
+async function connectStatistics() {
+  if (!statisticsSyncPromise) {
+    statisticsSyncPromise = (async () => {
+      try {
+        const current = await readStatisticsSnapshot();
+        return await syncStatisticsSnapshot(await dbdStatisticsProvider.connect({ knownMatchIds: current.matchHistory.map((entry) => entry.id) }));
+      } finally {
+        statisticsSyncPromise = null;
+      }
+    })();
+  }
+  return statisticsSyncPromise;
 }
 
 function codexErrorStatus(code) {
@@ -136,6 +168,14 @@ function codexErrorStatus(code) {
   if (code === "BUSY") return 409;
   if (code === "TIMEOUT") return 504;
   if (code === "CODEX_NOT_FOUND" || code === "CODEX_ACCESS_DENIED") return 503;
+  return 502;
+}
+
+function statisticsErrorStatus(code) {
+  if (code === "INVALID_URL") return 400;
+  if (code === "BUSY") return 409;
+  if (code === "LOGIN_TIMEOUT") return 504;
+  if (code === "BROWSER_NOT_FOUND" || code === "BROWSER_START_FAILED" || code === "BROWSER_STOP_FAILED" || code === "STATISTICS_UNAVAILABLE") return 503;
   return 502;
 }
 

@@ -4,6 +4,7 @@ export interface Build {
   id: string;
   name: string;
   killerId: string;
+  side: "killer" | "survivor";
   perkIds: string[];
   createdAt: string;
   updatedAt: string;
@@ -14,6 +15,7 @@ export type BuildPerkValidationError = "too_many_perks" | "duplicate_perks";
 export interface BuildDraft {
   name: string;
   killerId: string;
+  side?: "killer" | "survivor";
   perkIds: readonly string[];
 }
 

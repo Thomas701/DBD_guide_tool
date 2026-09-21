@@ -84,7 +84,7 @@ async function assistantServerState(url, localRevision) {
     if (!response.ok) return "missing";
     const body = await response.json();
     if (body?.provider !== "browser") return "missing";
-    return typeof body.apiVersion === "number" && body.apiVersion >= 3
+    return typeof body.apiVersion === "number" && body.apiVersion >= 13
       && (!localRevision || body.serviceRevision === localRevision) ? "current" : "stale";
   } catch {
     return "missing";
