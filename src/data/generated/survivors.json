@@ -386,7 +386,7 @@
   {
     "id": "eleven",
     "name": {
-      "fr": "Eleven",
+      "fr": "Onze",
       "en": "Eleven"
     },
     "portrait": "eleven.png"
@@ -406,5 +406,29 @@
       "en": "Renato Lyra"
     },
     "portrait": "renatolyra.png"
+  },
+  {
+    "id": "aurora",
+    "name": {
+      "fr": "Aurora Stardotter",
+      "en": "Aurora Stardotter"
+    },
+    "portrait": "aurorastardotter.png"
+  },
+  {
+    "id": "shane",
+    "name": {
+      "fr": "Shane Wiigwaas",
+      "en": "Shane Wiigwaas"
+    },
+    "portrait": "shanewiigwaas.png"
+  },
+  {
+    "id": "kwon",
+    "name": {
+      "fr": "Kwon Tae-young",
+      "en": "Kwon Tae-young"
+    },
+    "portrait": "kwontaeyoung.png"
   }
 ]

@@ -5,7 +5,33 @@ import { join } from "node:path";
 import test from "node:test";
 import { buildMatchHistoryEntryId } from "./match-history-id.mjs";
 
-import { readStatisticsSnapshot, syncStatisticsSnapshot, updateNativePerk } from "./local-data-files.mjs";
+import { deleteMatchHistoryEntry, mergeMatchHistoryEntries, readStatisticsSnapshot, syncStatisticsSnapshot, updateMatchHistoryEntry, updateNativePerk } from "./local-data-files.mjs";
+
+test("une nouvelle installation initialise un historique vide sans fichier local préalable", async () => {
+  const workspace = await mkdtemp(join(tmpdir(), "dbd-first-install-"));
+  const previousWorkingDirectory = process.cwd();
+  try {
+    process.chdir(workspace);
+    const snapshot = await readStatisticsSnapshot();
+    assert.deepEqual(snapshot.matchHistory, []);
+    assert.equal(snapshot.statistics, null);
+    assert.equal(snapshot.importedCount, 0);
+    assert.deepEqual((await readStatisticsSnapshot()).matchHistory, []);
+  } finally {
+    process.chdir(previousWorkingDirectory);
+    await rm(workspace, { recursive: true, force: true });
+  }
+});
+
+test("la correction d’un mode spécial ne crée pas de doublon et résiste à une carte partielle", () => {
+  const initial = matchHistoryEntry("normal");
+  const corrected = { ...initial, queueLabel: "Lights Out" };
+  const merged = mergeMatchHistoryEntries([initial], [corrected]);
+  assert.equal(merged.length, 1);
+  assert.equal(merged[0].id, buildMatchHistoryEntryId(initial));
+  assert.equal(merged[0].queueLabel, "Lights Out");
+  assert.equal(mergeMatchHistoryEntries(merged, [initial])[0].queueLabel, "Lights Out");
+});
 
 test("met à jour une perk survivant dans les données locales", async () => {
   const workspace = await mkdtemp(join(tmpdir(), "dbd-build-tool-"));
@@ -56,6 +82,30 @@ test("met à jour une perk survivant dans les données locales", async () => {
   }
 });
 
+test("une modification native conserve les effets, le cooldown et la précision de l’analyse survivant", async () => {
+  const workspace = await mkdtemp(join(tmpdir(), "dbd-build-tool-"));
+  const previousWorkingDirectory = process.cwd();
+  try {
+    await seedWorkspace(workspace);
+    const path = join(workspace, "src/data/generated/survivor-perks.json");
+    const [perk] = JSON.parse(await readFile(path, "utf8"));
+    const effects = [{ stat: "survivor.run_speed", operation: "multiply", value: 1.5, unit: "multiplier", interpretation: "inferred" }];
+    await writeFile(path, JSON.stringify([{ ...perk, effects, cooldown: 30, effectImportStatus: "parsed", analysisReadiness: "partial" }]));
+    process.chdir(workspace);
+    const updated = await updateNativePerk(perk.id, { categories: ["speed"] });
+    assert.deepEqual(updated.effects, effects);
+    assert.equal(updated.cooldown, 30);
+    assert.equal(updated.analysisReadiness, "partial");
+    const [stored] = JSON.parse(await readFile(path, "utf8"));
+    assert.deepEqual(stored.effects, effects);
+    assert.equal(stored.cooldown, 30);
+    assert.equal(stored.effectImportStatus, "parsed");
+  } finally {
+    process.chdir(previousWorkingDirectory);
+    await rm(workspace, { recursive: true, force: true });
+  }
+});
+
 test("fusionne l'historique local des parties sans doublons", async () => {
   const workspace = await mkdtemp(join(tmpdir(), "dbd-build-tool-"));
   const previousWorkingDirectory = process.cwd();
@@ -100,7 +150,7 @@ test("fusionne l'historique local des parties sans doublons", async () => {
     assert.equal(stored.importedCount, 0);
     assert.equal(stored.matchHistory.length, 2);
 
-    const enriched = matchHistoryEntry("old-id", { participants: [{ imageUrl: "portrait", score: 12, survivalTimeLabel: "9:01", perkIconUrls: ["perk"], equipmentIconUrls: ["item", "addon"] }] });
+    const enriched = matchHistoryEntry("old-id", { survivalTimeLabel: "7:30", emblemIconUrls: ["emblem"], emblemIconLabels: ["Chaser - Gold"], participants: [{ imageUrl: "portrait", score: 12, survivalTimeLabel: "9:01", perkIconUrls: ["perk"], equipmentIconUrls: ["item", "addon"], emblemIconUrls: ["participant-emblem"] }] });
     const shallow = matchHistoryEntry("different-id", { participants: [{ imageUrl: "portrait", score: 12 }] });
     await writeFile(join(workspace, ".data/dbd-statistics.json"), JSON.stringify({ matchHistory: [enriched, shallow] }));
     const cleaned = await readStatisticsSnapshot();
@@ -115,6 +165,35 @@ test("fusionne l'historique local des parties sans doublons", async () => {
     assert.equal(repeated.matchHistory[0].participants[0].survivalTimeLabel, "9:01");
     assert.deepEqual(repeated.matchHistory[0].participants[0].perkIconUrls, ["perk"]);
     assert.deepEqual(repeated.matchHistory[0].participants[0].equipmentIconUrls, ["item", "addon"]);
+    assert.equal(repeated.matchHistory[0].survivalTimeLabel, "7:30");
+    assert.deepEqual(repeated.matchHistory[0].emblemIconUrls, ["emblem"]);
+    assert.deepEqual(repeated.matchHistory[0].emblemIconLabels, ["Chaser - Gold"]);
+    assert.deepEqual(repeated.matchHistory[0].participants[0].emblemIconUrls, ["participant-emblem"]);
+  } finally {
+    process.chdir(previousWorkingDirectory);
+    await rm(workspace, { recursive: true, force: true });
+  }
+});
+
+test("conserve les corrections et suppressions après synchronisation et complète les autres détails", async () => {
+  const workspace = await mkdtemp(join(tmpdir(), "dbd-build-tool-"));
+  const previousWorkingDirectory = process.cwd();
+  try {
+    await seedWorkspace(workspace);
+    process.chdir(workspace);
+    const base = matchHistoryEntry("old", { participants: [{ imageUrl: "portrait", score: 12 }] });
+    const first = await syncStatisticsSnapshot({ matchHistory: [base] });
+    const id = first.matchHistory[0].id;
+    await updateMatchHistoryEntry(id, { ...first.matchHistory[0], resultLabel: "Corrigé" });
+    const enriched = matchHistoryEntry("new", { participants: [{ imageUrl: "portrait", score: 12, perkIconUrls: ["perk"], equipmentIconUrls: ["item"] }] });
+    const second = await syncStatisticsSnapshot({ matchHistory: [enriched] });
+    assert.equal(second.matchHistory[0].resultLabel, "Corrigé");
+    assert.deepEqual(second.matchHistory[0].participants[0].perkIconUrls, ["perk"]);
+    const deleted = await deleteMatchHistoryEntry(id);
+    assert.equal(deleted.matchHistory.length, 0);
+    const repeated = await syncStatisticsSnapshot({ matchHistory: [enriched] });
+    assert.equal(repeated.matchHistory.length, 0);
+    assert.equal((await readStatisticsSnapshot()).matchHistory.length, 0);
   } finally {
     process.chdir(previousWorkingDirectory);
     await rm(workspace, { recursive: true, force: true });

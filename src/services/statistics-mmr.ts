@@ -2,7 +2,7 @@ import type { MatchHistoryEntry } from "./statistics.js";
 
 export const INITIAL_MMR = 600;
 
-export type MmrMode = "1v4-survivor" | "2v8-survivor" | "1v4-killer" | "2v8-killer";
+export type MmrMode = "1v4-survivor" | "2v8-survivor" | "1v4-killer" | "2v8-killer" | "lights-out-survivor" | "lights-out-killer";
 
 export interface MmrEvent {
   matchId: string;
@@ -19,10 +19,10 @@ export function calculateMmrHistory(matches: readonly MatchHistoryEntry[]): MmrE
   const ratings = new Map<string, number>();
   return matches
     .map((match, index) => ({ match, index, at: match.playedAt ?? match.importedAt }))
-    .filter(({ match }) => match.role !== "unknown")
+    .filter(({ match }) => match.role !== "unknown" && mmrModeForMatch(match) !== null)
     .sort((left, right) => left.at.localeCompare(right.at) || left.index - right.index)
     .map(({ match, at }) => {
-      const mode = mmrModeForMatch(match);
+      const mode = mmrModeForMatch(match)!;
       const killerName = match.role === "killer" ? match.characterName : null;
       const key = killerName ? `${mode}:${killerName.toLocaleLowerCase("fr")}` : mode;
       const before = ratings.get(key) ?? INITIAL_MMR;
@@ -33,8 +33,10 @@ export function calculateMmrHistory(matches: readonly MatchHistoryEntry[]): MmrE
     });
 }
 
-export function mmrModeForMatch(match: MatchHistoryEntry): MmrMode {
-  const queue = match.queueLabel === "2v8" ? "2v8" : "1v4";
+export function mmrModeForMatch(match: MatchHistoryEntry): MmrMode | null {
+  const lightsOut = /^lights?\s*out$/i.test(match.queueLabel ?? "") || /\bLights Out\b/i.test(match.resultLabel ?? "");
+  if (match.queueLabel && !["1v4", "2v8"].includes(match.queueLabel) && !lightsOut) return null;
+  const queue = lightsOut ? "lights-out" : match.queueLabel === "2v8" ? "2v8" : "1v4";
   return `${queue}-${match.role === "killer" ? "killer" : "survivor"}`;
 }
 
@@ -42,7 +44,7 @@ function mmrChange(match: MatchHistoryEntry): { delta: number; reason: string } 
   if (match.role === "killer") {
     const deaths = match.participants.filter((participant) => participant.role === "survivor" && isDead(participant.resultLabel)).length;
     const delta = deaths >= 3 ? 9 : deaths === 2 ? 0 : -9;
-    return { delta, reason: `${deaths} mort${deaths > 1 ? "s" : ""}` };
+    return { delta, reason: `${deaths} kill${deaths > 1 ? "s" : ""}` };
   }
 
   const peers = match.participants.filter((participant) => participant.role === "survivor" && participant.score !== null);

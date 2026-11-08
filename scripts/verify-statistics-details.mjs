@@ -16,7 +16,7 @@ try {
   await page.route("https://assets.live.bhvraccount.com/**", route => route.abort());
   const base = "https://assets.live.bhvraccount.com/";
   const entry = {
-    characterName: "The Dredge", durationLabel: "9:01",
+    role: "survivor", characterName: "Dwight", durationLabel: "9:01",
     participants: [0, 1].map(index => ({ imageUrl: `${base}characters/survivors/Dwight.png`, score: 100 + index })),
   };
   await page.setContent('<style>@keyframes moving { from { transform: translateX(0); } to { transform: translateX(100px); } } button { animation: moving .15s infinite alternate; }</style><button data-cy="killer-match-card-btn">Match</button>');
@@ -24,7 +24,7 @@ try {
     document.querySelector("button").onclick = () => {
       const modal = document.createElement("div");
       modal.dataset.cy = "modal";
-      modal.innerHTML = '<button data-cy="modal-close-btn">Close</button><div data-cy="Duration-card"><span class="text-neutral-text-xlight grow text-start text-lg font-bold">9:01</span></div><div data-cy="Players-card"></div>';
+      modal.innerHTML = '<button data-cy="modal-close-btn">Close</button><div data-cy="Duration-card"><span class="text-neutral-text-xlight grow text-start text-lg font-bold">5:15</span></div><div data-cy="Players-card"></div>';
       modal.querySelector("button").onclick = () => modal.remove();
       entry.participants.forEach((participant, index) => {
         const button = document.createElement("button");
@@ -52,6 +52,7 @@ try {
     };
   }, { entry, base });
   const result = await readMatchDetailsFromPage(page, 0, entry);
+  assert.equal(result.survivalTimeLabel, "5:15", "Personal duration is read independently from match duration");
   assert.deepEqual(result.participants.map(participant => participant.survivalTimeLabel), ["9:01", "7:34"]);
   assert.deepEqual(result.participants.map(participant => participant.perkIconUrls), [[`${base}perks/Participant0.png`], [`${base}perks/Participant1.png`]]);
   assert.equal(await page.locator('[data-cy="modal"]').count(), 0);

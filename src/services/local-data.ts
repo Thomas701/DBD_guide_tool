@@ -1,5 +1,5 @@
 import type { Killer } from "../domain/killer.js";
-import type { Perk } from "../domain/perk.js";
+import type { Perk, PerkSide } from "../domain/perk.js";
 import type { PerkCategory } from "../domain/category.js";
 import type { BuildCalculation, BuildScenario } from "./build-calculator.js";
 import { buildAssistantContext, type AssistantBuildContext } from "./openai-build-assistant.js";
@@ -8,7 +8,7 @@ import { normalizeServerUrl } from "./assistant-provider.js";
 export interface CurrentBuildExport {
   schemaVersion: 1;
   updatedAt: string;
-  build: { id: string | null; name: string; killerId: string | null; perkIds: string[] };
+  build: { id: string | null; name: string; killerId: string | null; perkIds: string[]; side?: PerkSide };
   scenario: BuildScenario;
   assistantContext: AssistantBuildContext | null;
 }
@@ -20,6 +20,8 @@ export function createCurrentBuildExport(input: {
   perks: readonly Perk[];
   scenario: BuildScenario;
   calculation: BuildCalculation | null;
+  side?: PerkSide;
+  perkDescriptionOverrides?: Readonly<Record<string, string>>;
 }): CurrentBuildExport {
   return {
     schemaVersion: 1,
@@ -27,12 +29,13 @@ export function createCurrentBuildExport(input: {
     build: {
       id: input.activeBuildId,
       name: input.buildName,
+      ...(input.side === undefined ? {} : { side: input.side }),
       killerId: input.killer?.id ?? null,
       perkIds: input.perks.map((perk) => perk.id)
     },
     scenario: input.scenario,
     assistantContext: input.killer && input.calculation
-      ? buildAssistantContext({ killer: input.killer, perks: input.perks, scenario: input.scenario, calculation: input.calculation })
+      ? buildAssistantContext({ ...input, killer: input.killer, calculation: input.calculation })
       : null
   };
 }

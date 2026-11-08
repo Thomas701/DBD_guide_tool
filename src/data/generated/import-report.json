@@ -878,13 +878,6 @@
         "reason": "aucune description liée par correspondance normalisée exacte"
       },
       {
-        "perkId": "franklins-demise",
-        "name": "trépas de Franklin",
-        "line": 217,
-        "raw": null,
-        "reason": "aucune description liée par correspondance normalisée exacte"
-      },
-      {
         "perkId": "hex-thrill-of-the-hunt",
         "name": "euphorie de la chasse",
         "line": 234,
@@ -934,12 +927,6 @@
         "descriptionId": "description-source-0386",
         "name": "Mettre le feu",
         "line": 386,
-        "reason": "aucune perk liée par correspondance normalisée exacte"
-      },
-      {
-        "descriptionId": "description-source-0427",
-        "name": "La mort de Franklin",
-        "line": 427,
         "reason": "aucune perk liée par correspondance normalisée exacte"
       },
       {

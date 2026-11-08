@@ -3,13 +3,13 @@ export { buildMatchHistoryEntryId } from "./match-history-id.mjs";
 import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { execFile, spawn } from "node:child_process";
-import { dirname, relative, resolve } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
+import { homedir } from "node:os";
 
 import { chromium } from "playwright";
 
 const STATISTICS_URL = "https://stats.deadbydaylight.com/statistics/";
 const MATCH_HISTORY_URL = "https://stats.deadbydaylight.com/match-history/";
-const CHROME_PATH = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 const MATCH_HISTORY_HTML_EXAMPLE_FILE = resolve(process.cwd(), ".data/examples/match-history-page.example.html");
 const MATCH_DETAIL_HTML_EXAMPLE_FILE = resolve(process.cwd(), ".data/examples/match-history-detail.example.html");
 
@@ -21,9 +21,22 @@ export class DbdStatisticsError extends Error {
   }
 }
 
+export function statisticsBrowserExecutable() {
+  const candidates = process.platform === "win32"
+    ? [process.env.ProgramFiles ?? "C:\\Program Files", process.env["ProgramFiles(x86)"], process.env.LOCALAPPDATA].filter(Boolean).map(root => join(root, "Google", "Chrome", "Application", "chrome.exe"))
+    : process.platform === "darwin"
+      ? ["/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", join(homedir(), "Applications/Google Chrome.app/Contents/MacOS/Google Chrome")]
+      : ["/usr/bin/google-chrome", "/usr/bin/google-chrome-stable", "/opt/google/chrome/chrome"];
+  const executable = candidates.find(path => existsSync(path));
+  if (!executable) throw new DbdStatisticsError("BROWSER_NOT_FOUND", "Google Chrome est nécessaire à la connexion Behaviour. Relancez « Lancer Build Analyzer.bat » sous Windows pour l’installer, ou installez Google Chrome depuis google.com/chrome.");
+  return executable;
+}
+
 export class DbdStatisticsProvider {
   #browser = null;
   #currentSync = null;
+  #currentShowPage = null;
+  #loginOpening = null;
   #port = 9333;
   #profilePath = resolve(process.cwd(), ".data/dbd-statistics-chrome-profile");
   #status = createStatisticsSyncStatus();
@@ -33,8 +46,9 @@ export class DbdStatisticsProvider {
       this.#pushLog("Synchronisation déjà en cours. Réutilisation de la tâche existante.");
       return this.#currentSync;
     }
-    if (!existsSync(CHROME_PATH)) {
-      const error = new DbdStatisticsError("BROWSER_NOT_FOUND", "Google Chrome est introuvable sur cet ordinateur.");
+    try {
+      statisticsBrowserExecutable();
+    } catch (error) {
       this.#fail(error.message);
       throw error;
     }
@@ -65,11 +79,18 @@ export class DbdStatisticsProvider {
   async showPage(targetUrl) {
     const matcher = isStatisticsUrl(targetUrl) ? isStatisticsUrl : isMatchHistoryUrl(targetUrl) ? isMatchHistoryUrl : null;
     if (!matcher) throw new DbdStatisticsError("INVALID_URL", "Cette page ne fait pas partie du site Statistiques DBD autorisé.");
-    if (!this.#currentSync && await this.#chromeIsHeadless()) await this.#closeBrowser();
-    if (!await this.#chromeIsRunning()) {
-      this.#openChrome(false);
-      await this.#waitForChrome();
+    if (this.#currentSync) {
+      if (this.#status.phase === "waiting_for_login" && this.#browser?.isConnected()) await this.#startLoginIfNeeded(this.#browser);
+      return { url: targetUrl };
     }
+    if (this.#currentShowPage) return this.#currentShowPage;
+    this.#currentShowPage = this.#showPage(targetUrl, matcher).finally(() => { this.#currentShowPage = null; });
+    return this.#currentShowPage;
+  }
+
+  async #showPage(targetUrl, matcher) {
+    if (!this.#currentSync && await this.#chromeIsHeadless()) await this.#closeBrowser();
+    await this.#ensureChrome(false);
     const browser = await this.#getBrowser();
     const page = await this.#openTrackedPage(browser, targetUrl, matcher, true);
     if (!await this.#startLoginIfNeeded(browser)) await page.bringToFront().catch(() => undefined);
@@ -80,46 +101,36 @@ export class DbdStatisticsProvider {
     await mkdir(this.#profilePath, { recursive: true });
     this.#update("preparing", "Profil local prêt. Vérification de la session Chrome.");
 
-    if (!await this.#chromeIsRunning()) {
-      this.#update("starting_browser", "Aucune session Chrome compatible détectée. Démarrage d’une lecture rapide en arrière-plan.");
-      this.#openChrome(true);
-      await this.#waitForChrome();
-      const backgroundBrowser = await this.#getBrowser();
-      const snapshot = await this.#waitForStatistics(backgroundBrowser, 15_000, options);
-      const loginRequired = await this.#loginIsRequired(backgroundBrowser);
-      await this.#closeBrowser();
-      if (snapshot) return snapshot;
-      if (!loginRequired) throw new DbdStatisticsError("STATISTICS_UNAVAILABLE", "La page Statistiques ne répond pas correctement. Aucune reconnexion manuelle n’est nécessaire.");
-      this.#pushLog("Aucune session exploitable trouvée en arrière-plan. Passage en mode interactif.");
-    } else {
+    if (this.#currentShowPage) await this.#currentShowPage;
+    this.#update("starting_browser", "Vérification de la session et lecture en arrière-plan.");
+    await this.#ensureChrome(true);
+    try {
+      let browser = await this.#getBrowser();
       const headless = await this.#chromeIsHeadless();
-      this.#update("reusing_browser", "Session Chrome détectée. Tentative de lecture immédiate.");
-      const browser = await this.#getBrowser();
-      const snapshot = await this.#waitForStatistics(browser, 2_000, options);
-      if (snapshot) {
-        if (headless) await this.#closeBrowser();
-        return snapshot;
-      }
-      this.#pushLog("La session Chrome existante n’exposait pas encore les statistiques attendues.");
-      if (headless) {
-        const loginRequired = await this.#loginIsRequired(browser);
-        this.#pushLog("La session Chrome existante est invisible. Arrêt avant ouverture du mode interactif.");
-        await this.#closeBrowser();
-        if (!loginRequired) throw new DbdStatisticsError("STATISTICS_UNAVAILABLE", "La page Statistiques ne répond pas correctement. Aucune reconnexion manuelle n’est nécessaire.");
-      }
-    }
+      const snapshot = await this.#waitForStatistics(browser, headless ? 15_000 : 10 * 60_000, options, !headless);
+      if (snapshot) return snapshot;
+      if (!await this.#loginIsRequired(browser)) throw new DbdStatisticsError("STATISTICS_UNAVAILABLE", "La page Statistiques ne répond pas correctement. Aucune reconnexion manuelle n’est nécessaire.");
+      if (!headless) throw new DbdStatisticsError("LOGIN_TIMEOUT", "Connexion non détectée. Connectez-vous dans la fenêtre Chrome ouverte.");
 
-    this.#update("waiting_for_login", "Ouverture d’une fenêtre Chrome. Connectez-vous puis laissez la page Statistiques affichée.");
-    this.#openChrome(false);
+      await this.#closeBrowser();
+      this.#update("waiting_for_login", "Connexion requise. Réutilisation d’une seule fenêtre Chrome dédiée.");
+      await this.#ensureChrome(false);
+      browser = await this.#getBrowser();
+      const connected = await this.#waitForStatistics(browser, 10 * 60_000, options, true);
+      if (connected) return connected;
+      throw new DbdStatisticsError("LOGIN_TIMEOUT", "Connexion non détectée. Connectez-vous dans la fenêtre Chrome ouverte.");
+    } finally {
+      if (await this.#chromeIsHeadless()) await this.#closeBrowser();
+    }
+  }
+
+  async #ensureChrome(headless) {
+    if (!await this.#chromeIsRunning()) this.#openChrome(headless);
     await this.#waitForChrome();
-    const browser = await this.#getBrowser();
-    const snapshot = await this.#waitForStatistics(browser, 10 * 60_000, options, true);
-    if (snapshot) return snapshot;
-    throw new DbdStatisticsError("LOGIN_TIMEOUT", "Connexion non détectée. Connectez-vous dans la fenêtre Chrome ouverte et laissez la page Statistiques affichée.");
   }
 
   #openChrome(headless) {
-    const process = spawn(CHROME_PATH, [
+    const process = spawn(statisticsBrowserExecutable(), [
       `--remote-debugging-port=${this.#port}`,
       "--remote-debugging-address=127.0.0.1",
       `--user-data-dir=${this.#profilePath}`,
@@ -168,9 +179,10 @@ export class DbdStatisticsProvider {
     if (this.#browser?.isConnected()) return this.#browser;
     try {
       this.#pushLog("Connexion au navigateur via le port CDP local.");
-      this.#browser = await chromium.connectOverCDP(`http://127.0.0.1:${this.#port}`);
-      this.#browser.on("disconnected", () => { this.#browser = null; });
-      return this.#browser;
+      const browser = await chromium.connectOverCDP(`http://127.0.0.1:${this.#port}`);
+      this.#browser = browser;
+      browser.on("disconnected", () => { if (this.#browser === browser) this.#browser = null; });
+      return browser;
     } catch (error) {
       throw new DbdStatisticsError("BROWSER_CONNECTION_FAILED", error instanceof Error ? error.message : String(error));
     }
@@ -179,7 +191,11 @@ export class DbdStatisticsProvider {
   async #closeBrowser() {
     const browser = this.#browser;
     this.#browser = null;
-    if (browser?.isConnected()) await browser.close().catch(() => undefined);
+    if (browser?.isConnected()) {
+      const session = await browser.newBrowserCDPSession().catch(() => null);
+      await session?.send("Browser.close").catch(() => undefined);
+      await browser.close().catch(() => undefined);
+    }
     let deadline = Date.now() + 1_500;
     while (Date.now() < deadline && await this.#chromeIsRunning()) {
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -190,7 +206,7 @@ export class DbdStatisticsProvider {
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
     if (await this.#chromeIsRunning()) {
-      throw new DbdStatisticsError("BROWSER_STOP_FAILED", "Le Chrome invisible n’a pas pu être arrêté avant l’ouverture de la fenêtre de connexion.");
+      throw new DbdStatisticsError("BROWSER_STOP_FAILED", "La session Chrome dédiée n’a pas pu être arrêtée pour changer de mode de lecture.");
     }
   }
 
@@ -204,6 +220,12 @@ export class DbdStatisticsProvider {
     while (Date.now() < deadline) {
       const statistics = await this.#readGeneralStatistics(browser);
       if (statistics) {
+        if (interactive) {
+          this.#update("preparing", "Connexion détectée. Fermeture de la fenêtre et poursuite en arrière-plan.");
+          await this.#closeBrowser();
+          await this.#ensureChrome(true);
+          browser = await this.#getBrowser();
+        }
         this.#update("reading_history", "Statistiques générales détectées. Lecture de l’historique des parties.");
         // The login deadline must not shorten the time allowed for history hydration.
         const matchHistory = await this.#readMatchHistory(browser, 15_000, options);
@@ -236,6 +258,12 @@ export class DbdStatisticsProvider {
   }
 
   async #startLoginIfNeeded(browser) {
+    if (this.#loginOpening) return this.#loginOpening;
+    this.#loginOpening = this.#openLogin(browser).finally(() => { this.#loginOpening = null; });
+    return this.#loginOpening;
+  }
+
+  async #openLogin(browser) {
     const pages = browser.contexts().flatMap((context) => context.pages()).slice().reverse();
     const accountPage = pages.find((page) => page.url().startsWith("https://account.bhvr.com/"));
     if (accountPage) {
@@ -263,7 +291,8 @@ export class DbdStatisticsProvider {
         if (!isStatisticsSiteUrl(page.url()) || isStatisticsUrl(page.url())) continue;
         if (await page.locator("body").getAttribute("data-auth").catch(() => null) !== "true") continue;
         this.#pushLog("Session connectée détectée. Ouverture de la page Statistiques.");
-        await page.goto(STATISTICS_URL, { waitUntil: "domcontentloaded" }).catch(() => undefined);
+        const statisticsPage = browser.contexts().flatMap(context => context.pages()).find(candidate => isStatisticsUrl(candidate.url())) ?? page;
+        await statisticsPage.goto(STATISTICS_URL, { waitUntil: "domcontentloaded" }).catch(() => undefined);
         return true;
       }
     }
@@ -300,13 +329,14 @@ export class DbdStatisticsProvider {
     let lastButtonCount = -1;
     let stableBottomIterations = 0;
     const knownMatchIds = new Set(Array.isArray(options.knownMatchIds) ? options.knownMatchIds.filter((value) => typeof value === "string" && value) : []);
+    const incompleteMatchIds = new Set(Array.isArray(options.incompleteMatchIds) ? options.incompleteMatchIds.filter((value) => typeof value === "string" && value) : []);
     let reachedKnownMatch = false;
     while (Date.now() < deadline) {
       const html = await page.content().catch(() => "");
       const buttonCount = countMatchHistoryButtonsFromHtml(html);
       const importedAt = new Date();
       const matchHistory = extractMatchHistoryEntriesFromHtml(html, page.url(), importedAt);
-      const newHistory = takeMatchesUntilKnown(matchHistory, knownMatchIds);
+      const { selected, newHistory, pendingFound } = selectMatchesForEnrichment(matchHistory, knownMatchIds, incompleteMatchIds);
       if (!savedExample && buttonCount > 0) {
         await saveMatchHistoryHtmlExample(html).catch(() => undefined);
         this.#pushLog(`Snapshot HTML enregistré dans ${relative(process.cwd(), MATCH_HISTORY_HTML_EXAMPLE_FILE).replaceAll("\\", "/")}.`);
@@ -316,25 +346,25 @@ export class DbdStatisticsProvider {
         this.#pushLog(`${buttonCount} bouton(s) d’historique détecté(s) dans le DOM.`);
         lastButtonCount = buttonCount;
       }
-      if (newHistory.entries.length > bestHistory.length) {
-        bestHistory = newHistory.entries;
-        this.#pushLog(`Extraction HTML: ${matchHistory.length} carte(s) normalisée(s), ${bestHistory.length} nouvelle(s).`);
+      if (selected.length > bestHistory.length) {
+        bestHistory = selected;
+        this.#pushLog(`Extraction HTML: ${matchHistory.length} carte(s) normalisée(s), ${bestHistory.length} à détailler.`);
       }
-      if (newHistory.reachedKnownMatch) {
+      if (newHistory.reachedKnownMatch && pendingFound) {
         if (matchHistory.length < buttonCount) {
           await delay(350);
           continue;
         }
-        bestHistory = newHistory.entries;
+        bestHistory = selected;
         reachedKnownMatch = true;
-        this.#pushLog("Match déjà présent détecté. Arrêt de la lecture de l’historique.");
+        this.#pushLog("Match déjà présent détecté et anciennes parties incomplètes retrouvées. Arrêt de la lecture de l’historique.");
         break;
       }
-      if (bestHistory.length > 0) {
+      if (bestHistory.length > 0 || newHistory.reachedKnownMatch) {
         const scrollState = await scrollMatchHistoryPage(page);
         if (scrollState.atBottom) stableBottomIterations += 1;
         else stableBottomIterations = 0;
-        if (stableBottomIterations >= 2 && bestHistory.length >= buttonCount) {
+        if (stableBottomIterations >= 2 && matchHistory.length >= buttonCount) {
           break;
         }
         await delay(350);
@@ -350,7 +380,7 @@ export class DbdStatisticsProvider {
       await delay(350);
     }
     if (bestHistory.length > 0) {
-      this.#pushLog(`Historique détecté: ${bestHistory.length} nouvelle(s) partie(s)${reachedKnownMatch ? " avant la première partie déjà en base" : ""}.`);
+      this.#pushLog(`Historique détecté: ${bestHistory.length} partie(s) à détailler.`);
       return await this.#enrichNewMatchHistory(page, bestHistory);
     }
     if (reachedKnownMatch) return [];
@@ -366,14 +396,14 @@ export class DbdStatisticsProvider {
     await closeMatchDetailModal(page).catch(() => undefined);
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: "auto" })).catch(() => undefined);
     const detailed = [];
-    for (const [index, entry] of entries.entries()) {
+    for (const { index, entry } of entries) {
       this.#update("reading_details", `Lecture détaillée du match ${entry.playedAtLabel ?? entry.characterName}.`);
       try {
         detailed.push(await readMatchDetailsFromPage(page, index, entry, this.#pushLog.bind(this)));
       } catch (error) {
         // Keep the new card; missing participant equipment is retried on the next sync.
         detailed.push(entry);
-        this.#pushLog(`Match enregistré. Détails à compléter lors de la prochaine synchronisation: ${String(error.message ?? error).split("\n")[0].replace(/\x1b\[[0-9;]*m/g, "")}`);
+        this.#pushLog(`Match enregistré. Nouvelle tentative possible si la partie reste en ligne: ${String(error.message ?? error).split("\n")[0].replace(/\x1b\[[0-9;]*m/g, "")}`);
         await closeMatchDetailModal(page).catch(() => undefined);
       }
     }
@@ -383,8 +413,10 @@ export class DbdStatisticsProvider {
 
   async #openTrackedPage(browser, targetUrl, matcher, reuseSitePage = false) {
     const pages = browser.contexts().flatMap((context) => context.pages());
-    const trackedPage = pages.find((page) => matcher(page.url()));
+    const trackedPages = pages.filter((page) => matcher(page.url()));
+    const trackedPage = trackedPages[0];
     if (trackedPage) {
+      await Promise.all(trackedPages.slice(1).map(page => page.close().catch(() => undefined)));
       this.#pushLog(`Page réutilisée: ${trackedPage.url()}`);
       if (!reuseSitePage) await trackedPage.reload({ waitUntil: "domcontentloaded" }).catch(() => undefined);
       return trackedPage;
@@ -482,13 +514,20 @@ export function takeMatchesUntilKnown(entries, knownMatchIds) {
   };
 }
 
+export function selectMatchesForEnrichment(entries, knownMatchIds, incompleteMatchIds) {
+  const newHistory = takeMatchesUntilKnown(entries, knownMatchIds);
+  const selected = entries.flatMap((entry, index) => index < newHistory.entries.length || incompleteMatchIds.has(entry.id) ? [{ entry, index }] : []);
+  const foundIds = new Set(entries.map((entry) => entry.id));
+  return { selected, newHistory, pendingFound: [...incompleteMatchIds].every((id) => foundIds.has(id)) };
+}
+
 export function normalizeMatchHistoryCard(rawCard, sourceUrl, referenceDate = new Date()) {
   if (!isRecord(rawCard)) return null;
   const textLines = uniqueStrings(Array.isArray(rawCard.textLines) ? rawCard.textLines : []);
   const characterName = findCharacterName(textLines);
   const playedAtLabel = textLines.find(isDateLabel) ?? null;
   const durationLabel = textLines.find(isDurationLabel) ?? null;
-  const queueLabel = textLines.find((line) => /^\d+v\d+$/i.test(line)) ?? null;
+  const queueLabel = textLines.find((line) => /^(?:\d+v\d+|Lights Out)$/i.test(line)) ?? null;
   const resultLabel = textLines.find(isResultLabel) ?? null;
   const primaryScoreLine = findPrimaryScoreLine(textLines);
   const scoreLines = textLines.filter(isScoreLine);
@@ -677,8 +716,10 @@ function parseMatchHistoryButtonHtml(buttonHtml, sourceUrl, referenceDate) {
   const durationLabel = extractDataCyText(buttonHtml, "match-duration") ?? lastMatch(textContent, MATCH_DURATION_PATTERN);
   const mapName = extractDataCyText(buttonHtml, "match-map") ?? null;
   const scoreLabel = extractScoreLabel(buttonHtml, textContent);
-  const resultLabel = extractResultLabel(textContent, characterName, scoreLabel);
-  const queueLabel = firstMatch(textContent, /\b\d+v\d+\b/g);
+  const queueLabel = extractDataCyText(buttonHtml, "match-mode")
+    ?? extractTextByClassFragment(buttonHtml, ["font-sans inline-block overflow-hidden text-ellipsis whitespace-nowrap"])
+    ?? firstMatch(textContent, /\b(?:\d+v\d+|Lights Out)\b/g);
+  const resultLabel = extractResultLabel(queueLabel ? textContent.replaceAll(queueLabel, " ") : textContent, characterName, scoreLabel);
   const imageAssets = extractImageAssets(buttonHtml);
   const imageUrls = imageAssets.map((asset) => asset.url);
   const characterImageUrls = imageUrls.filter(isCharacterAssetUrl);
@@ -916,6 +957,10 @@ export async function readMatchDetailsFromPage(page, index, entry, pushLog = () 
   if (modalHtml.trim()) await saveMatchDetailHtmlExample(modalHtml).catch(() => undefined);
 
   const participants = entry.participants.map((participant) => ({ ...participant }));
+  const mainEmblems = extractEmblemsFromHtml(modalHtml);
+  const survivalTimeLabel = entry.role === "survivor"
+    ? extractDurationLabel(await detailRoot.locator(DURATION_VALUE_SELECTOR).first().innerText().catch(() => ""))
+    : entry.survivalTimeLabel;
   const playerButtons = detailRoot.locator(PLAYER_BUTTON_SELECTOR);
   const playerCount = await playerButtons.count().catch(() => 0);
   if (playerCount > 0) pushLog(`Détail du match: ${playerCount} joueur(s) interactif(s) détecté(s).`);
@@ -926,21 +971,32 @@ export async function readMatchDetailsFromPage(page, index, entry, pushLog = () 
     const buttonHtml = await playerButton.evaluate((node) => node.outerHTML);
     const imageUrl = extractImageUrls(buttonHtml).find(isCharacterAssetUrl);
     const score = parseDisplayNumber((await playerButton.innerText()).trim());
-    const participantIndex = participants.findIndex((participant, i) => !used.has(i) && participant.imageUrl === imageUrl && participant.score === score);
+    let participantIndex = participants.findIndex((participant, i) => !used.has(i) && participant.imageUrl === imageUrl && participant.score === score);
+    if (participantIndex < 0) participantIndex = participants.findIndex((participant, i) => !used.has(i) && participant.imageUrl === imageUrl);
     if (participantIndex < 0) continue;
     used.add(participantIndex);
-    await clickMatchHistoryButton(playerButton);
-    const duration = detailRoot.locator(DURATION_VALUE_SELECTOR).nth(1);
-    await duration.waitFor({ state: "visible", timeout: 10_000 });
-    const survivalTimeLabel = extractDurationLabel(await duration.innerText());
-    const selectedHtml = await detailRoot.locator('[data-cy$="-match-details"]').last().evaluate(node => node.outerHTML);
-    participants[participantIndex] = { ...participants[participantIndex], survivalTimeLabel, ...extractParticipantLoadoutFromHtml(selectedHtml) };
-    await clickMatchHistoryButton(detailRoot.locator('[data-cy="back-btn"]'));
-    await duration.waitFor({ state: "detached", timeout: 10_000 });
+    try {
+      await clickMatchHistoryButton(playerButton);
+      const duration = detailRoot.locator(DURATION_VALUE_SELECTOR).nth(1);
+      await duration.waitFor({ state: "visible", timeout: 10_000 });
+      const survivalTimeLabel = extractDurationLabel(await duration.innerText());
+      const selectedHtml = await detailRoot.locator('[data-cy$="-match-details"]').last().evaluate(node => node.outerHTML);
+      participants[participantIndex] = { ...participants[participantIndex], survivalTimeLabel, ...extractParticipantLoadoutFromHtml(selectedHtml), ...extractEmblemsFromHtml(selectedHtml) };
+      await clickMatchHistoryButton(detailRoot.locator('[data-cy="back-btn"]'));
+      await duration.waitFor({ state: "detached", timeout: 10_000 });
+    } catch (error) {
+      pushLog(`Équipement d’un participant indisponible: ${String(error.message ?? error).split("\n")[0]}`);
+      await clickMatchHistoryButton(detailRoot.locator('[data-cy="back-btn"]')).catch(() => undefined);
+    }
   }
 
   await closeMatchDetailModal(page).catch(() => undefined);
-  return { ...entry, participants };
+  return { ...entry, survivalTimeLabel, ...mainEmblems, participants };
+}
+
+export function extractEmblemsFromHtml(html) {
+  const emblems = extractImageAssets(html).filter(asset => /assets\.live\.bhvraccount\.com\/emblems\//i.test(asset.url)).slice(0, 4);
+  return { emblemIconUrls: emblems.map(asset => asset.url), emblemIconLabels: emblems.map(asset => asset.label) };
 }
 
 export function extractParticipantLoadoutFromHtml(html) {

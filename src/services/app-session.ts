@@ -7,11 +7,7 @@ export type AppView = "build" | "killers" | "perks" | "constants" | "tiers" | "b
 
 type CatalogScrollPositions = Record<"killers" | "perks" | "constants", number>;
 
-export interface AppSession {
-  activeView: AppView;
-  side: PerkSide;
-  soundEnabled: boolean;
-  musicVolume: number;
+export interface BuildSession {
   selectedKillerId: string | null;
   selectedPerkId: string | null;
   equippedPerkIds: string[];
@@ -19,6 +15,14 @@ export interface AppSession {
   buildName: string;
   conversationKey: string;
   scenario: BuildScenario;
+}
+
+export interface AppSession extends BuildSession {
+  activeView: AppView;
+  side: PerkSide;
+  soundEnabled: boolean;
+  musicVolume: number;
+  buildSessions: Record<PerkSide, BuildSession>;
   paneLayout: { left: number; right: number; center: number };
   sidebarLayout: { killer: number; perks: number; rightTop: number };
   catalogScrollPositions: CatalogScrollPositions;
@@ -36,6 +40,7 @@ export const DEFAULT_APP_SESSION: AppSession = {
   buildName: "",
   conversationKey: "empty-build",
   scenario: { conditions: { not_in_chase: true }, perkStates: {} },
+  buildSessions: { killer: emptyBuildSession(), survivor: emptyBuildSession() },
   paneLayout: { left: 19, right: 25, center: 52 },
   sidebarLayout: { killer: 198, perks: 286, rightTop: 276 },
   catalogScrollPositions: { killers: 0, perks: 0, constants: 0 }
@@ -46,22 +51,21 @@ export function readAppSession(raw: string | null, knownKillerIds: ReadonlySet<s
   try {
     const value: unknown = JSON.parse(raw);
     if (!isRecord(value)) return cloneDefault();
-    const killerId = knownId(value.selectedKillerId, knownKillerIds);
-    const equippedPerkIds = Array.isArray(value.equippedPerkIds)
-      ? [...new Set(value.equippedPerkIds.filter((id): id is string => typeof id === "string" && knownPerkIds.has(id)))].slice(0, 4)
-      : [];
+    const side = value.side === "survivor" ? "survivor" : "killer";
+    const current = readBuildSession(value, knownKillerIds, knownPerkIds);
+    const stored = isRecord(value.buildSessions) ? value.buildSessions : {};
+    const buildSessions = {
+      killer: readBuildSession(stored.killer, knownKillerIds, knownPerkIds),
+      survivor: readBuildSession(stored.survivor, knownKillerIds, knownPerkIds),
+      [side]: current
+    };
     return {
+      ...current,
       activeView: value.activeView === "killers" || value.activeView === "perks" || value.activeView === "constants" || value.activeView === "tiers" || value.activeView === "blindtest" || value.activeView === "statistics" ? value.activeView : "build",
-      side: value.side === "survivor" ? "survivor" : "killer",
+      side,
       soundEnabled: typeof value.soundEnabled === "boolean" ? value.soundEnabled : DEFAULT_APP_SESSION.soundEnabled,
       musicVolume: clamp(value.musicVolume, DEFAULT_APP_SESSION.musicVolume, 0, 1),
-      selectedKillerId: killerId,
-      selectedPerkId: knownId(value.selectedPerkId, knownPerkIds),
-      equippedPerkIds,
-      activeBuildId: nullableString(value.activeBuildId),
-      buildName: typeof value.buildName === "string" ? value.buildName.slice(0, 80) : "",
-      conversationKey: typeof value.conversationKey === "string" && value.conversationKey ? value.conversationKey : "empty-build",
-      scenario: readScenario(value.scenario),
+      buildSessions,
       paneLayout: readNumberLayout(value.paneLayout, DEFAULT_APP_SESSION.paneLayout),
       sidebarLayout: readNumberLayout(value.sidebarLayout, DEFAULT_APP_SESSION.sidebarLayout),
       catalogScrollPositions: readNumberLayout(value.catalogScrollPositions, DEFAULT_APP_SESSION.catalogScrollPositions)
@@ -69,6 +73,24 @@ export function readAppSession(raw: string | null, knownKillerIds: ReadonlySet<s
   } catch {
     return cloneDefault();
   }
+}
+
+function readBuildSession(value: unknown, knownKillerIds: ReadonlySet<string>, knownPerkIds: ReadonlySet<string>): BuildSession {
+  if (!isRecord(value)) return emptyBuildSession();
+  return {
+    selectedKillerId: knownId(value.selectedKillerId, knownKillerIds),
+    selectedPerkId: knownId(value.selectedPerkId, knownPerkIds),
+    equippedPerkIds: Array.isArray(value.equippedPerkIds)
+      ? [...new Set(value.equippedPerkIds.filter((id): id is string => typeof id === "string" && knownPerkIds.has(id)))].slice(0, 4) : [],
+    activeBuildId: nullableString(value.activeBuildId),
+    buildName: typeof value.buildName === "string" ? value.buildName.slice(0, 80) : "",
+    conversationKey: typeof value.conversationKey === "string" && value.conversationKey ? value.conversationKey : "empty-build",
+    scenario: readScenario(value.scenario)
+  };
+}
+
+function emptyBuildSession(): BuildSession {
+  return { selectedKillerId: null, selectedPerkId: null, equippedPerkIds: [], activeBuildId: null, buildName: "", conversationKey: "empty-build", scenario: { conditions: { not_in_chase: true }, perkStates: {} } };
 }
 
 function readScenario(value: unknown): BuildScenario {
@@ -114,6 +136,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function cloneDefault(): AppSession {
   return {
     ...DEFAULT_APP_SESSION,
+    buildSessions: { killer: emptyBuildSession(), survivor: emptyBuildSession() },
     equippedPerkIds: [],
     scenario: { conditions: { ...DEFAULT_APP_SESSION.scenario.conditions }, perkStates: {} },
     paneLayout: { ...DEFAULT_APP_SESSION.paneLayout },

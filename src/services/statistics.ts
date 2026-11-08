@@ -8,6 +8,8 @@ export interface StatisticsOverview {
 }
 
 export interface MatchHistoryParticipant {
+  emblemIconUrls?: string[] | undefined;
+  emblemIconLabels?: (string | null)[] | undefined;
   perkIconUrls?: string[] | undefined;
   perkIconLabels?: (string | null)[] | undefined;
   equipmentIconUrls?: string[] | undefined;
@@ -22,6 +24,9 @@ export interface MatchHistoryParticipant {
 }
 
 export interface MatchHistoryEntry {
+  survivalTimeLabel?: string | null | undefined;
+  emblemIconUrls?: string[] | undefined;
+  emblemIconLabels?: (string | null)[] | undefined;
   id: string;
   role: "killer" | "survivor" | "unknown";
   characterName: string;
@@ -77,6 +82,18 @@ export async function readStatisticsStatus(serverUrl: string): Promise<Statistic
 
 export async function syncStatisticsSnapshot(serverUrl: string): Promise<StatisticsSnapshot> {
   return requestSnapshot(serverUrl, "/api/statistics/connect", { method: "POST" });
+}
+
+export async function updateMatchHistoryEntry(serverUrl: string, id: string, changes: MatchHistoryEntry): Promise<StatisticsSnapshot> {
+  return requestSnapshot(serverUrl, "/api/statistics/match", {
+    method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, changes })
+  });
+}
+
+export async function deleteMatchHistoryEntry(serverUrl: string, id: string): Promise<StatisticsSnapshot> {
+  return requestSnapshot(serverUrl, "/api/statistics/match", {
+    method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id })
+  });
 }
 
 export async function showStatisticsPage(serverUrl: string, url: string): Promise<void> {
@@ -177,6 +194,9 @@ function readMatchHistoryEntry(value: unknown): MatchHistoryEntry | null {
     id,
     role: value.role === "killer" || value.role === "survivor" ? value.role : "unknown",
     characterName,
+    survivalTimeLabel: textOrNull(value.survivalTimeLabel),
+    emblemIconUrls: textArray(value.emblemIconUrls),
+    emblemIconLabels: nullableTextArray(value.emblemIconLabels),
     resultLabel: textOrNull(value.resultLabel),
     score: numericOrNull(value.score),
     characterImageUrl: textOrNull(value.characterImageUrl),
@@ -195,7 +215,7 @@ function readMatchHistoryEntry(value: unknown): MatchHistoryEntry | null {
     playedAt: isoOrNull(value.playedAt),
     playedAtLabel: textOrNull(value.playedAtLabel),
     durationLabel: textOrNull(value.durationLabel),
-    queueLabel: textOrNull(value.queueLabel),
+    queueLabel: textOrNull(value.queueLabel) ?? (/\bLights Out\b/i.test(String(value.resultLabel ?? "")) ? "Lights Out" : null),
     sourceUrl,
     importedAt
   };
@@ -204,6 +224,8 @@ function readMatchHistoryEntry(value: unknown): MatchHistoryEntry | null {
 function readParticipant(value: unknown): MatchHistoryParticipant | null {
   if (!isRecord(value)) return null;
   return {
+    emblemIconUrls: textArray(value.emblemIconUrls),
+    emblemIconLabels: nullableTextArray(value.emblemIconLabels),
     name: textOrNull(value.name),
     role: value.role === "killer" || value.role === "survivor" ? value.role : "unknown",
     imageUrl: textOrNull(value.imageUrl),

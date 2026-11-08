@@ -1,48 +1,66 @@
 import { spawn } from "node:child_process";
+import { setTimeout as delay } from "node:timers/promises";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { resolve } from "node:path";
 
-const root = process.cwd();
-const npm = process.platform === "win32" ? "npm.cmd" : "npm";
-const appUrl = process.env.DBD_APP_URL ?? "http://127.0.0.1:5173";
-const assistantBaseUrl = process.env.DBD_ASSISTANT_SERVER_URL ?? "http://127.0.0.1:8787";
-const assistantUrl = new URL("/api/assistant/status", assistantBaseUrl).toString();
-const assistantPort = Number(new URL(assistantBaseUrl).port || 80);
-const smokeTest = process.env.DBD_WEBAPP_SMOKE_TEST === "1";
-const children = [];
+const root = resolve(fileURLToPath(new URL("../", import.meta.url)));
 
-const assistantState = await assistantServerState(assistantUrl, await localGitRevision());
-if (assistantState === "stale") await stopStaleAssistantServer(assistantUrl, assistantPort);
-if (assistantState !== "current") children.push(startService("Build Assistant", ["run", "assistant:proxy"]));
-if (!await responds(appUrl)) children.push(startService("Interface Vite", ["run", "dev", "--", "--host", "127.0.0.1", "--port", "5173", "--strictPort"]));
-
-try {
-  await Promise.all([waitFor(appUrl, 45_000), waitFor(assistantUrl, 45_000)]);
-  if (!smokeTest) openBrowser(appUrl);
-  console.log(`\nBuild Analyzer prêt : ${appUrl}`);
-  if (smokeTest) {
-    console.log("Vérification de démarrage terminée.");
-  } else {
-    console.log("Laissez cette fenêtre ouverte. Appuyez sur Ctrl+C pour arrêter l’application.\n");
-    await waitForSignalOrServiceExit();
+async function main() {
+  const appUrl = new URL(process.env.DBD_APP_URL ?? "http://127.0.0.1:5173");
+  const assistantBaseUrl = new URL(process.env.DBD_ASSISTANT_SERVER_URL ?? "http://127.0.0.1:8787");
+  for (const url of [appUrl, assistantBaseUrl]) {
+    if (url.protocol !== "http:" || !["127.0.0.1", "localhost"].includes(url.hostname) || url.username || url.password) throw new Error("Les serveurs de l’application doivent utiliser une adresse HTTP locale.");
   }
-} finally {
-  for (const child of children) {
-    if (!child.killed) child.kill();
+  const assistantUrl = new URL("/api/assistant/status", assistantBaseUrl).toString();
+  const assistantPort = Number(assistantBaseUrl.port || 80);
+  const smokeTest = process.env.DBD_WEBAPP_SMOKE_TEST === "1";
+  const controller = new AbortController();
+  const stop = () => controller.abort();
+  process.once("SIGINT", stop);
+  process.once("SIGTERM", stop);
+  const services = [
+    { label: "Build Assistant", args: ["scripts/openai-assistant-proxy.mjs"], env: { OPENAI_ASSISTANT_PORT: String(assistantPort) }, ready: async () => (await assistantServerState(assistantUrl, null)) === "current" },
+    { label: "Interface Vite", args: ["node_modules/vite/bin/vite.js", "--host", "127.0.0.1", "--port", appUrl.port || "80", "--strictPort"], env: { VITE_ASSISTANT_SERVER_URL: assistantBaseUrl.origin, VITE_APP_UPDATE_SERVER_URL: assistantBaseUrl.origin }, ready: async () => {
+      const response = await fetch(appUrl, { signal: AbortSignal.timeout(1_000) });
+      return response.ok && (await response.text()).includes("<title>DBD Build Tool</title>");
+    } }
+  ];
+  let startup = [];
+  try {
+    const assistantState = await assistantServerState(assistantUrl, await localGitRevision());
+    if (assistantState === "stale") await stopStaleAssistantServer(assistantUrl, assistantPort);
+    startup = services.map((service) => ensureService(service, controller.signal));
+    await Promise.all(startup);
+    if (controller.signal.aborted) return;
+    if (!smokeTest) openBrowser(appUrl.href);
+    console.log(`\nBuild Analyzer prêt : ${appUrl.href}`);
+    if (smokeTest) console.log("Vérification de démarrage terminée.");
+    else {
+      console.log("Laissez cette fenêtre ouverte. Les serveurs sont surveillés ; Ctrl+C arrête l’application.\n");
+      await superviseServices(services, controller.signal);
+    }
+  } finally {
+    controller.abort();
+    await Promise.allSettled(startup);
+    await Promise.all(services.map(stopService));
+    process.removeListener("SIGINT", stop);
+    process.removeListener("SIGTERM", stop);
   }
 }
 
-function startService(label, args) {
-  const command = process.platform === "win32" ? process.env.ComSpec ?? "cmd.exe" : npm;
-  const commandArgs = process.platform === "win32" ? ["/d", "/s", "/c", npm, ...args] : args;
+function startService(service) {
+  const { label, args } = service;
   const outputTail = [];
-  const child = spawn(command, commandArgs, {
+  const child = spawn(process.execPath, args, {
     cwd: root,
-    env: process.env,
+    env: { ...process.env, ...service.env },
     stdio: ["ignore", "pipe", "pipe"],
     windowsHide: true
   });
   captureOutput(child.stdout, outputTail, label);
   captureOutput(child.stderr, outputTail, label);
-  return Object.assign(child, { label, outputTail });
+  child.on("error", (error) => { child.spawnError = error; });
+  service.child = Object.assign(child, { label, outputTail });
 }
 
 function captureOutput(stream, outputTail, label) {
@@ -58,15 +76,68 @@ function captureOutput(stream, outputTail, label) {
   });
 }
 
-async function waitFor(url, timeout) {
+async function isReady(service) {
+  try { return await service.ready(); } catch { return false; }
+}
+
+export async function ensureService(service, signal, timeout = 45_000) {
+  if (await isReady(service) || signal.aborted) return;
+  startService(service);
+  await waitForService(service, signal, timeout);
+}
+
+async function waitForService(service, signal, timeout) {
   const deadline = Date.now() + timeout;
-  while (Date.now() < deadline) {
-    if (await responds(url)) return;
-    await new Promise((resolve) => setTimeout(resolve, 350));
+  while (!signal.aborted && Date.now() < deadline) {
+    if (await isReady(service)) return;
+    const child = service.child;
+    if (child.spawnError || child.exitCode !== null || child.signalCode !== null) {
+      throw serviceError(service, child.spawnError?.message ?? `arrêt inattendu (code ${child.exitCode ?? child.signalCode})`);
+    }
+    await delay(250, undefined, { signal }).catch(() => {});
   }
-  const details = children.flatMap((child) => child.outputTail ?? []);
-  const suffix = details.length > 0 ? `\n\nDernières lignes utiles :\n${details.join("\n")}` : "";
-  throw new Error(`Délai dépassé pendant le démarrage de ${url}${suffix}`);
+  if (!signal.aborted) throw serviceError(service, "délai de démarrage dépassé");
+}
+
+function serviceError(service, message) {
+  const details = service.child?.outputTail?.join("\n") ?? "";
+  return new Error(`${service.label} : ${message}.${details ? `\nDernières lignes utiles :\n${details}` : ""}`);
+}
+
+export async function superviseServices(services, signal, interval = 2_000) {
+  while (!signal.aborted) {
+    await delay(interval, undefined, { signal }).catch(() => {});
+    if (signal.aborted) return;
+    for (const service of services) {
+      if (await isReady(service)) { service.failures = 0; continue; }
+      const child = service.child;
+      const alive = child && !child.spawnError && child.exitCode === null && child.signalCode === null;
+      service.failures = (service.failures ?? 0) + 1;
+      if ((!child || alive) && service.failures < 3) continue;
+      service.restarts = (service.restarts ?? []).filter((time) => Date.now() - time < 60_000);
+      if (service.restarts.length >= 3) throw serviceError(service, "arrêts répétés, relance automatique interrompue");
+      service.restarts.push(Date.now());
+      console.warn(`${service.label} ne répond plus. Relance automatique…`);
+      await stopService(service);
+      if (signal.aborted) return;
+      startService(service);
+      await waitForService(service, signal, 45_000);
+      service.failures = 0;
+      if (!signal.aborted) console.log(`${service.label} rétabli sur la même adresse.`);
+    }
+  }
+}
+
+export async function stopService(service) {
+  const child = service.child;
+  if (!child || child.spawnError || child.exitCode !== null || child.signalCode !== null) return;
+  const stopped = new Promise((resolve) => child.once("close", resolve));
+  if (process.platform === "win32") {
+    await runCommand("taskkill", ["/PID", String(child.pid), "/T", "/F"]).catch((error) => {
+      if (child.exitCode === null && child.signalCode === null) throw error;
+    });
+  } else child.kill();
+  await stopped;
 }
 
 async function responds(url) {
@@ -84,7 +155,7 @@ async function assistantServerState(url, localRevision) {
     if (!response.ok) return "missing";
     const body = await response.json();
     if (body?.provider !== "browser") return "missing";
-    return typeof body.apiVersion === "number" && body.apiVersion >= 13
+    return typeof body.apiVersion === "number" && body.apiVersion >= 18
       && (!localRevision || body.serviceRevision === localRevision) ? "current" : "stale";
   } catch {
     return "missing";
@@ -128,17 +199,13 @@ function runCommand(command, args) {
   });
 }
 
-async function waitForSignalOrServiceExit() {
-  await new Promise((resolve) => {
-    process.once("SIGINT", resolve);
-    process.once("SIGTERM", resolve);
-    for (const child of children) child.once("exit", (code) => { if (code) resolve(); });
-  });
-}
-
 function openBrowser(url) {
   const [command, args] = process.platform === "win32"
     ? [process.env.ComSpec ?? "cmd.exe", ["/d", "/s", "/c", "start", "", url]]
     : process.platform === "darwin" ? ["open", [url]] : ["xdg-open", [url]];
   spawn(command, args, { detached: true, stdio: "ignore", windowsHide: true }).unref();
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  main().catch((error) => { console.error(`\nImpossible de maintenir Build Analyzer en cours d’exécution :\n${error.message}`); process.exitCode = 1; });
 }

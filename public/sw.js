@@ -1,4 +1,5 @@
-const CACHE_NAME = "dbd-build-tool-v1";
+const CACHE_VERSION = new URL(self.location.href).searchParams.get("v") ?? "v1";
+const CACHE_NAME = `dbd-build-tool-${CACHE_VERSION}`;
 const APP_SHELL = [
   "./",
   "./index.html",

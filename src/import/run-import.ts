@@ -1,9 +1,13 @@
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
-import { PERK_CATEGORIES, type PerkCategory } from "../domain/category.js";
+import { KILLER_PERK_CATEGORIES, KILLER_PERK_CATEGORY_SET, type PerkCategory } from "../domain/category.js";
 import { importData } from "./import-data.js";
 import type { ImportBundle } from "./types.js";
+import { perkCooldown } from "../services/perk-cooldown.js";
+import { SURVIVOR_PERK_EFFECTS } from "../data/survivor-perk-effects.js";
+import type { Perk } from "../domain/perk.js";
+import type { RichDescription } from "../domain/rich-description.js";
 
 const SOURCE_FILE = "source.txt";
 const DESCRIPTION_FILE = "description_categories.txt";
@@ -35,9 +39,19 @@ async function main(): Promise<void> {
     portraitDirectory: PORTRAIT_DIRECTORY
   });
   applyNativeOverrides(bundle.perks, JSON.parse(nativeOverridesText) as unknown);
+  bundle.perks.forEach((perk) => { perk.cooldown = perkCooldown(perk); });
+  const survivorPerks = JSON.parse(await readFile(resolve(workspace, OUTPUT_DIRECTORY, "survivor-perks.json"), "utf8")) as Perk[];
+  const survivorDescriptions = JSON.parse(await readFile(resolve(workspace, OUTPUT_DIRECTORY, "survivor-perk-descriptions.json"), "utf8")) as Record<string, RichDescription>;
+  for (const perk of survivorPerks) {
+    perk.effects = [...(SURVIVOR_PERK_EFFECTS[perk.id] ?? [])];
+    perk.effectImportStatus = perk.effects.length ? "parsed" : "unparsed";
+    perk.analysisReadiness = !perk.effects.length ? "unavailable" : perk.effects.some((effect) => effect.interpretation === "inferred") ? "partial" : "ready";
+    perk.cooldown = perkCooldown({ ...perk, description: { fr: survivorDescriptions[perk.id] ?? null, en: null } });
+  }
   const outputs = new Map<string, string>([
-    ["categories.json", serialize(PERK_CATEGORIES)],
+    ["categories.json", serialize(KILLER_PERK_CATEGORIES)],
     ["perks.json", serialize(bundle.perks)],
+    ["survivor-perks.json", serialize(survivorPerks)],
     ["killers.json", serialize(bundle.killers)],
     ["descriptions.json", serialize(bundle.descriptions)],
     ["import-report.json", serialize(bundle.report)]
@@ -49,7 +63,7 @@ async function main(): Promise<void> {
     for (const [fileName, expected] of outputs) {
       try {
         const current = await readFile(resolve(outputDirectory, fileName), "utf8");
-        if (current !== expected) stale.push(fileName);
+        if (current.replace(/\r\n/g, "\n") !== expected) stale.push(fileName);
       } catch {
         stale.push(fileName);
       }
@@ -84,7 +98,7 @@ function applyNativeOverrides(perks: ImportBundle["perks"], value: unknown): voi
     const nativeDescriptionHtml = (override as Record<string, unknown>).nativeDescriptionHtml;
     const categories = (override as Record<string, unknown>).categories;
     if (typeof nativeDescriptionHtml === "string" && nativeDescriptionHtml.trim()) perk.nativeDescriptionHtml = nativeDescriptionHtml.trim();
-    if (Array.isArray(categories) && categories.every((category) => typeof category === "string" && PERK_CATEGORIES.includes(category as PerkCategory))) {
+    if (Array.isArray(categories) && categories.every((category) => typeof category === "string" && KILLER_PERK_CATEGORY_SET.has(category))) {
       perk.categories = [...new Set(categories)] as PerkCategory[];
     }
   }

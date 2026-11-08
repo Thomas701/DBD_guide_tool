@@ -1,8 +1,12 @@
 import { readFile } from "node:fs/promises";
 import assert from "node:assert/strict";
 import test from "node:test";
+import childProcess from "node:child_process";
+import fs from "node:fs";
+import { syncBuiltinESMExports } from "node:module";
+import { chromium } from "playwright";
 
-import { buildMatchHistoryEntryId, DbdStatisticsProvider, extractParticipantLoadoutFromHtml, extractMatchHistoryEntriesFromHtml, isMatchHistoryUrl, isStatisticsUrl, listeningProcessIds, normalizeMatchHistoryCard, parseMatchDateLabel, takeMatchesUntilKnown } from "./dbd-statistics-provider.mjs";
+import { buildMatchHistoryEntryId, DbdStatisticsProvider, extractEmblemsFromHtml, extractParticipantLoadoutFromHtml, extractMatchHistoryEntriesFromHtml, isMatchHistoryUrl, isStatisticsUrl, listeningProcessIds, normalizeMatchHistoryCard, parseMatchDateLabel, selectMatchesForEnrichment, statisticsBrowserExecutable, takeMatchesUntilKnown } from "./dbd-statistics-provider.mjs";
 
 test("reconnaît uniquement une page de statistiques DBD", () => {
   assert.equal(isStatisticsUrl("https://stats.deadbydaylight.com/statistics/"), true);
@@ -19,6 +23,122 @@ test("reconnaît uniquement une page d'historique des parties DBD", () => {
 test("refuse d'ouvrir une page extérieure dans le Chrome contrôlé", async () => {
   await assert.rejects(new DbdStatisticsProvider().showPage("https://example.com/"), { code: "INVALID_URL" });
 });
+
+test("détecte Chrome à un emplacement utilisateur ou système", t => {
+  t.mock.method(fs, "existsSync", path => /chrome(?:\.exe)?$/i.test(path) && (process.platform !== "win32" || path.startsWith(process.env.LOCALAPPDATA ?? "")));
+  syncBuiltinESMExports();
+  t.after(() => { t.mock.restoreAll(); syncBuiltinESMExports(); });
+  assert.match(statisticsBrowserExecutable(), /chrome(?:\.exe)?$/i);
+});
+
+test("explique comment préparer le navigateur sur une machine vierge", t => {
+  t.mock.method(fs, "existsSync", path => path === chromium.executablePath());
+  syncBuiltinESMExports();
+  t.after(() => { t.mock.restoreAll(); syncBuiltinESMExports(); });
+  assert.throws(statisticsBrowserExecutable, { code: "BROWSER_NOT_FOUND", message: /Google Chrome est nécessaire/ });
+});
+
+test("ferme la connexion interactive puis lit en arrière-plan, même avec plusieurs demandes", async (t) => {
+  const state = mockStatisticsChrome(t);
+  const provider = new DbdStatisticsProvider();
+  const [first, second] = await Promise.all([provider.connect(), provider.connect()]);
+  assert.deepEqual(first, second);
+  assert.equal(state.loginClicks, 1);
+  assert.deepEqual(state.launches, [true, false, true], "une seule fenêtre visible pour se connecter");
+  assert.deepEqual(state.historyModes, [true], "aucune lecture d’historique dans la fenêtre visible");
+  assert.equal(state.running, false, "la session dédiée se ferme après la lecture");
+  assert.equal(provider.status().phase, "success");
+  assert.ok(provider.status().logs.some(log => log.message.includes("Fermeture de la fenêtre")));
+  await provider.connect();
+  assert.deepEqual(state.launches, [true, false, true, true], "la synchronisation suivante reste invisible");
+});
+
+test("réutilise une fenêtre déjà connectée et nettoie ses onglets en double", async (t) => {
+  const state = mockStatisticsChrome(t, { visible: true, authenticated: true, duplicate: true });
+  const provider = new DbdStatisticsProvider();
+  await provider.connect();
+  assert.deepEqual(state.launches, [true], "ne rouvre aucune fenêtre visible");
+  assert.equal(state.duplicateClosed, 1);
+  assert.deepEqual(state.historyModes, [true]);
+  assert.equal(state.running, false);
+});
+
+test("plusieurs clics d’ouverture réutilisent la même fenêtre et la même page", async (t) => {
+  const state = mockStatisticsChrome(t, { authenticated: true });
+  const provider = new DbdStatisticsProvider();
+  const url = "https://stats.deadbydaylight.com/match-history/";
+  await Promise.all([provider.showPage(url), provider.showPage(url), provider.showPage(url)]);
+  assert.deepEqual(state.launches, [false]);
+  assert.equal(state.pages.filter(page => page.url() === url).length, 1);
+  await provider.connect();
+  assert.equal(state.running, false);
+});
+
+test("une erreur de lecture arrête aussi le navigateur en arrière-plan", async (t) => {
+  const state = mockStatisticsChrome(t, { authenticated: true, readError: true });
+  const provider = new DbdStatisticsProvider();
+  await assert.rejects(provider.connect(), /Lecture interrompue/);
+  assert.equal(state.running, false);
+  assert.deepEqual(state.launches, [true]);
+  assert.equal(provider.status().phase, "error");
+});
+
+function mockStatisticsChrome(t, { visible = false, authenticated = false, duplicate = false, readError = false } = {}) {
+  const state = { running: visible, headless: !visible, authenticated, launches: [], historyModes: [], pages: [], loginClicks: 0, duplicateClosed: 0, browser: null };
+  let now = Date.now();
+  t.mock.method(Date, "now", () => now);
+  const originalExists = fs.existsSync;
+  t.mock.method(fs, "existsSync", path => /chrome(?:\.exe)?$/i.test(String(path)) || originalExists(path));
+  t.mock.method(globalThis, "fetch", async url => {
+    assert.equal(String(url), "http://127.0.0.1:9333/json/version");
+    return { ok: state.running, json: async () => ({ "User-Agent": state.headless ? "HeadlessChrome/" : "Chrome/" }) };
+  });
+  const makePage = initialUrl => {
+    let url = initialUrl;
+    const page = {
+      url: () => url,
+      goto: async target => { url = target; }, reload: async () => {}, bringToFront: async () => {},
+      close: async () => { state.pages = state.pages.filter(candidate => candidate !== page); state.duplicateClosed++; },
+      setViewportSize: async () => {}, waitForLoadState: async () => {},
+      content: async () => { state.historyModes.push(state.headless); now += 16_000; return ""; },
+      evaluate: async () => ({ atBottom: true }),
+      locator: selector => ({
+        isVisible: async () => isStatisticsUrl(url) && (selector.includes("General-Stats") ? state.authenticated : selector.includes("login-btn") && !state.authenticated),
+        locator: name => ({ innerText: async () => { if (readError) throw new Error("Lecture interrompue"); return name.includes("hours") ? "10 hrs" : "50"; } }),
+        getAttribute: async () => state.authenticated ? "true" : "false",
+        evaluate: async () => { state.loginClicks++; state.authenticated = true; },
+      }),
+    };
+    state.pages.push(page);
+    return page;
+  };
+  const makeBrowser = () => {
+    state.pages = [];
+    makePage("https://stats.deadbydaylight.com/statistics/");
+    if (duplicate) makePage("https://stats.deadbydaylight.com/statistics/");
+    const context = { pages: () => state.pages, newPage: async () => makePage("about:blank") };
+    let disconnected = () => {};
+    const browser = { isConnected: () => state.running && state.browser === browser, contexts: () => [context],
+      on: (_event, callback) => { disconnected = callback; },
+      newBrowserCDPSession: async () => ({ send: async command => { assert.equal(command, "Browser.close"); state.running = false; } }),
+      close: async () => { state.running = false; disconnected(); },
+    };
+    state.browser = browser;
+    return browser;
+  };
+  if (visible) makeBrowser();
+  t.mock.method(childProcess, "spawn", (_command, args) => {
+    state.headless = args.includes("--headless=new");
+    state.launches.push(state.headless);
+    state.running = true;
+    makeBrowser();
+    return { unref() {} };
+  });
+  t.mock.method(chromium, "connectOverCDP", async () => state.browser);
+  syncBuiltinESMExports();
+  t.after(() => { t.mock.restoreAll(); syncBuiltinESMExports(); });
+  return state;
+}
 
 test("identifie uniquement le processus Windows qui écoute sur le port CDP", () => {
   const output = [
@@ -39,6 +159,15 @@ test("arrête l'historique au premier match déjà présent", () => {
     entries,
     reachedKnownMatch: false
   });
+});
+
+test("reprend un ancien match incomplet au-delà du premier match connu", () => {
+  const entries = [{ id: "new" }, { id: "known" }, { id: "incomplete" }, { id: "older" }];
+  const firstPage = selectMatchesForEnrichment(entries.slice(0, 2), new Set(["known", "incomplete"]), new Set(["incomplete"]));
+  assert.equal(firstPage.pendingFound, false);
+  const result = selectMatchesForEnrichment(entries, new Set(["known", "incomplete"]), new Set(["incomplete"]));
+  assert.equal(result.pendingFound, true);
+  assert.deepEqual(result.selected.map(({ entry, index }) => [entry.id, index]), [["new", 0], ["incomplete", 2]]);
 });
 
 test("normalise une carte killer d'historique en entrée structurée", () => {
@@ -148,6 +277,16 @@ test("n'importe pas une carte encore incomplète pendant le chargement", () => {
   assert.equal(extractMatchHistoryEntriesFromHtml(complete, url).length, 1);
 });
 
+test("conserve le badge des modes spéciaux et nettoie le résultat de la partie", () => {
+  const card = mode => `<button data-cy="killer-match-card-btn"><span class="font-sans inline-block overflow-hidden text-ellipsis whitespace-nowrap">${mode}</span><h3 class="font-sans text-left text-md font-bold text-neutral-text-xlight">The Dredge</h3><span>Brutal Killer</span><span>Score</span><span>25,758</span><span data-cy="match-date">Nov 7, 5:04 PM</span><span data-cy="match-map">Greenville Square</span><span data-cy="match-duration">8:15</span></button>`;
+  for (const mode of ["Lights Out", "Autre mode"]) {
+    const [entry] = extractMatchHistoryEntriesFromHtml(card(mode), "https://stats.deadbydaylight.com/match-history/", new Date("2026-11-07T20:00:00Z"));
+    assert.equal(entry.queueLabel, mode);
+    assert.equal(entry.resultLabel, "Brutal Killer");
+    assert.equal(buildMatchHistoryEntryId({ ...entry, queueLabel: null }), entry.id, "la correction du mode ne duplique pas une carte déjà importée");
+  }
+});
+
 test("extrait l'équipement du participant sans inclure portraits et résultats", () => {
   const base = "https://assets.live.bhvraccount.com/";
   const assets = ["characters/survivors/Dwight.png", "perks/Bond.png", "perks/ProveThyself.png", "items/Medkit.png", "add-ons/Bandages.png", "offerings/Cake.png", "characterClasses/Medic.png", "stats/VE_Escaped.png"];
@@ -159,6 +298,16 @@ test("extrait l'équipement du participant sans inclure portraits et résultats"
     equipmentIconUrls: assets.slice(3, 7).map(path => base + path),
     equipmentIconLabels: labels.slice(3, 7),
   });
+});
+
+test("extrait les quatre emblèmes sans inclure l'équipement", () => {
+  const base = "https://assets.live.bhvraccount.com/";
+  const html = ["Emblem_Killer_Chaser_3.png", "Emblem_Killer_Devout_4.png", "Emblem_Killer_Gatekeeper_2.png", "Emblem_Killer_Malicious_1.png", "items/Item_Slasher.png"]
+    .map((path, index) => `<img src="${path.startsWith("Emblem") ? `${base}emblems/${path}` : `${base}${path}`}" alt="emblem ${index}">`).join("");
+  const result = extractEmblemsFromHtml(html);
+  assert.equal(result.emblemIconUrls.length, 4);
+  assert.equal(result.emblemIconLabels.length, 4);
+  assert.ok(result.emblemIconUrls.every(url => url.includes("/emblems/")));
 });
 
 test("l'identité reste stable après enrichissement et distingue les années", async () => {

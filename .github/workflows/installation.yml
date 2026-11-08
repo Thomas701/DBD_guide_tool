@@ -1,0 +1,50 @@
+name: Installation depuis un clone neuf
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  installation:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            node: "20"
+          - os: windows-latest
+            node: "lts/*"
+          - os: ubuntu-latest
+            node: "20"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - name: Préparer avec le lanceur Windows
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: call "Lancer Build Analyzer.bat" -PrepareOnly
+      - name: Installer les dépendances sous Linux
+        if: runner.os == 'Linux'
+        run: npm ci --include=dev --include=optional --no-audit --no-fund
+      - name: Simuler un Windows sans Node.js ni Chrome
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: ./scripts/verify-bootstrap.ps1
+      - name: Installer Chromium pour les tests sous Linux
+        if: runner.os == 'Linux'
+        run: npx playwright install --with-deps chromium
+      - name: Vérifier les tests, les données et la compilation
+        run: npm run check
+      - name: Vérifier le parcours dans le navigateur
+        run: npm run test:workspace
+      - name: Vérifier le lancement complet
+        run: npm run test:installation

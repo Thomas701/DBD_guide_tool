@@ -101,8 +101,11 @@ async function packageVersion(revision) {
 }
 
 async function installDependencies() {
-  const npm = process.platform === "win32" ? "npm.cmd" : "npm";
-  await run(npm, ["install", "--include=dev", "--no-audit", "--no-fund"], 300_000);
+  if (process.platform === "win32") {
+    await run(process.env.ComSpec ?? "cmd.exe", ["/d", "/s", "/c", "npm.cmd ci --include=dev --include=optional --no-audit --no-fund"], 300_000);
+  } else {
+    await run("npm", ["ci", "--include=dev", "--include=optional", "--no-audit", "--no-fund"], 300_000);
+  }
   const lockFile = path.join(repositoryRoot, "package-lock.json");
   const stampFile = path.join(repositoryRoot, "node_modules", ".dbd-package-lock.sha256");
   const hash = createHash("sha256").update(await readFile(lockFile)).digest("hex").toUpperCase();

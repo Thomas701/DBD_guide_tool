@@ -4,8 +4,9 @@ import { killerPortraitUrl, perkIconUrl } from "../../app/assets.js";
 import { perkOwner } from "../../app/catalog.js";
 import { categoryLabels } from "../../app/labels.js";
 import { RichDescription } from "../../components/RichDescription.js";
+import { PerkStatusDefinitions } from "../../components/PerkStatusDefinitions.js";
 import { RichDescriptionEditor } from "../../components/RichDescriptionEditor.js";
-import { PERK_CATEGORIES, type PerkCategory } from "../../domain/category.js";
+import { perkCategoriesFor, type PerkCategory } from "../../domain/category.js";
 import type { Killer } from "../../domain/killer.js";
 import type { Perk, PerkSide } from "../../domain/perk.js";
 
@@ -164,7 +165,7 @@ export function PerkInspectorPanel({
         <div className="category-editor">
           <EditModeToggle mode={editMode} onChange={changeEditMode} />
           <div className="category-editor-options">
-            {PERK_CATEGORIES.map((category) => (
+            {perkCategoriesFor(side).map((category) => (
               <label key={category}>
                 <input type="checkbox" checked={draftCategories.includes(category)} onChange={(event) => toggleDraftCategory(category, event.target.checked)} />
                 <span>{categoryLabels[category]}</span>
@@ -225,6 +226,7 @@ export function PerkInspectorPanel({
           <RichDescription description={selectedDescription} editableHtml={displayedDescriptionHtml} />
         </div>
       )}
+      {!isEditingDescription && <PerkStatusDefinitions perk={perk} descriptionHtml={displayedDescriptionHtml} />}
     </section>
   );
 }

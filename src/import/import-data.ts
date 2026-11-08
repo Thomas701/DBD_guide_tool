@@ -6,7 +6,7 @@ import {
   type KillerAlias,
   type PerkAlias
 } from "../data/catalog-aliases.js";
-import { PERK_CATEGORY_SET, type PerkCategory } from "../domain/category.js";
+import { KILLER_PERK_CATEGORY_SET, type PerkCategory } from "../domain/category.js";
 import {
   KILLER_DIFFICULTIES,
   KILLER_SIZES,
@@ -546,7 +546,7 @@ function parseCategories(
         "survivant_transport normalisé en hook"
       ));
     }
-    if (!PERK_CATEGORY_SET.has(normalized)) {
+    if (!KILLER_PERK_CATEGORY_SET.has(normalized)) {
       errors.push(issue(
         "category_unknown",
         "error",

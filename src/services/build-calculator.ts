@@ -8,7 +8,7 @@ import {
 import type { ConditionParameter, EffectCondition } from "../domain/condition.js";
 import type { EffectCalculationMode, EffectOperation, EffectUnit, PerkEffect } from "../domain/effect.js";
 import type { Killer } from "../domain/killer.js";
-import type { Perk } from "../domain/perk.js";
+import type { Perk, PerkSide } from "../domain/perk.js";
 
 export type ScenarioConditionValue = boolean | Readonly<Record<string, ConditionParameter>>;
 export type PerkRuntimeState = "inactive" | "active" | "cooldown";
@@ -33,6 +33,8 @@ export interface StatDelta {
 }
 
 export interface EffectCalculation {
+  detail: string | null;
+  range: number | null;
   perkId: string;
   perkName: string;
   stat: string;
@@ -83,13 +85,14 @@ export interface BuildCalculation {
   cooldownEffects: EffectCalculation[];
   unresolvedEffects: EffectCalculation[];
   explanations: string[];
-  stackingPolicy: "mixed_operations_unresolved";
+  stackingPolicy: "diminishing_returns_mixed_operations_unresolved";
 }
 
 export interface CalculateBuildInput {
   killer: Killer;
   perks: readonly Perk[];
   scenario?: BuildScenario;
+  side?: PerkSide;
 }
 
 const NUMERIC_OPERATIONS = new Set<EffectOperation>(["set", "add", "multiply"]);
@@ -118,18 +121,31 @@ const LEGACY_STAT_TARGETS: Readonly<Record<string, readonly AnalyzableStatKey[]>
   "action.totem": ["totem.dull_cleanse_time", "totem.hex_cleanse_time", "totem.dull_bless_time", "totem.hex_bless_time"]
 };
 
-export const BUILD_STACKING_POLICY = "mixed_operations_unresolved" as const;
+export const BUILD_STACKING_POLICY = "diminishing_returns_mixed_operations_unresolved" as const;
 
-export function calculateBuild({ killer, perks, scenario = EMPTY_BUILD_SCENARIO }: CalculateBuildInput): BuildCalculation {
+export function calculateBuild({ killer, perks, scenario = EMPTY_BUILD_SCENARIO, side = perks[0]?.side ?? "killer" }: CalculateBuildInput): BuildCalculation {
   const effects = perks.flatMap((perk) => perk.effects.flatMap((effect) => createCalculations(perk, effect, scenario)));
+  if (perks.some((perk) => perk.id === "lethal-pursuer")) {
+    effects.filter((effect) => effect.stat === "survivor.aura" && effect.operation === "reveal" && effect.duration != null)
+      .forEach((effect) => { effect.duration = effect.duration! + 2; effect.reasons.push("Poursuivant meurtrier : +2 s de révélation d’aura temporisée"); });
+  }
+  if (perks.some((perk) => perk.id === "survivor-eyes-of-belmont")) {
+    effects.filter((effect) => effect.stat === "killer.aura" && effect.operation === "reveal" && effect.duration != null)
+      .forEach((effect) => { effect.duration = effect.duration! + 2; effect.reasons.push("Yeux de Belmont : +2 s de révélation d’aura temporisée du tueur"); });
+  }
+  if (perks.some((perk) => perk.id === "survivor-open-handed")) {
+    effects.filter((effect) => effect.range != null && effect.operation === "reveal")
+      .forEach((effect) => { effect.range = effect.range! + 16; effect.reasons.push("Main tendue : +16 m de portée d’aura compatible"); });
+  }
   const numericStats = Object.fromEntries(
     [...new Set(effects.flatMap((effect) => effect.statKey ? [effect.statKey] : []))]
       .flatMap((key) => {
-        const stat = calculateStat(key, killer, effects);
+        const stat = calculateStat(key, killer, effects, side);
         return stat ? [[key, stat] as const] : [];
       })
   ) as Record<string, CalculatedStat>;
-  const speed = numericStats["killer.speed"] ?? emptyStat("killer.speed", killer);
+  const speedKey = side === "survivor" ? "survivor.run_speed" : "killer.speed";
+  const speed = numericStats[speedKey] ?? emptyStat(speedKey, killer);
   const terrorRadius = numericStats["killer.terror_radius"] ?? emptyStat("killer.terror_radius", killer);
   const affectedStats = Object.values(numericStats)
     .sort((left, right) => left.theme.localeCompare(right.theme, "fr") || left.label.localeCompare(right.label, "fr"));
@@ -158,11 +174,11 @@ export function calculateBuild({ killer, perks, scenario = EMPTY_BUILD_SCENARIO 
 }
 
 export function perkNeedsRuntimeState(perk: Perk): boolean {
-  return perk.id !== "predator" && (perk.cooldown !== null || perk.effects.some((effect) =>
+  return perk.cooldown !== null || perk.effects.some((effect) =>
     effect.cooldown != null
     || !effect.condition && effect.duration != null
     || !effect.condition && effect.interpretation === "inferred" && QUALITATIVE_OPERATIONS.has(effect.operation)
-  ));
+  );
 }
 
 export function collectBuildConditions(perks: readonly Perk[]): string[] {
@@ -196,10 +212,10 @@ function createCalculation(
   statKey: AnalyzableStatKey | null
 ): EffectCalculation {
   const conditionResult = evaluateCondition(effect.condition, scenario.conditions);
-  const needsRuntimeActivation = perk.id !== "predator" && perk.cooldown !== null
+  const needsRuntimeActivation = !effect.runtimeIndependent && (perk.cooldown !== null
     || effect.cooldown != null
     || !effect.condition && effect.duration != null
-    || !effect.condition && effect.interpretation === "inferred" && QUALITATIVE_OPERATIONS.has(effect.operation);
+    || !effect.condition && effect.interpretation === "inferred" && QUALITATIVE_OPERATIONS.has(effect.operation));
   const runtimeState = scenario.perkStates[perk.id] === "active" ? "active" : "inactive";
   const active = conditionResult.active && (!needsRuntimeActivation || runtimeState === "active");
   const presentation = statKey ? ANALYZABLE_STATS[statKey] : qualitativePresentation(effect.stat);
@@ -210,11 +226,13 @@ function createCalculation(
     reasons.push(runtimeState === "active" ? "Effet déclenché dans la simulation" : "Déclenchement manquant");
   }
   const calculation: EffectCalculation = {
+    detail: effect.detail ?? null,
+    range: effect.range ?? null,
     perkId: perk.id,
     perkName: perk.name.fr ?? perk.name.en ?? perk.id,
     stat: effect.stat,
     statKey,
-    statLabel: presentation.label,
+    statLabel: effect.label ?? presentation.label,
     theme: presentation.theme,
     operation: effect.operation,
     interpretation: effect.interpretation,
@@ -243,7 +261,7 @@ function createCalculation(
   return calculation;
 }
 
-function calculateStat(key: AnalyzableStatKey, killer: Killer, effects: EffectCalculation[]): CalculatedStat | null {
+function calculateStat(key: AnalyzableStatKey, killer: Killer, effects: EffectCalculation[], side: PerkSide): CalculatedStat | null {
   const definition = ANALYZABLE_STATS[key];
   const base = resolveBase(definition, killer);
   if (base === null) return null;
@@ -261,7 +279,31 @@ function calculateStat(key: AnalyzableStatKey, killer: Killer, effects: EffectCa
   }
   let current = round(base);
   const ordered = applicable.filter((effect) => effect.status === "active");
+  const multipliers = ordered.filter((effect) => effect.operation === "multiply");
+  if (multipliers.length > 1) {
+    const modes = new Set(multipliers.map((effect) => effect.calculationMode ?? definition.mode));
+    const signs = new Set(multipliers.map((effect) => Math.sign((normalizedValue(effect) ?? 1) - 1)));
+    if (modes.size > 1 || signs.size > 1 || new Set(multipliers.map((effect) => effect.perkId)).size !== multipliers.length) {
+      multipliers.forEach((effect) => unresolved(effect, "Cumul de contextes ou de modes différents : activez une seule situation à la fois"));
+    } else {
+      const weights = [1, .5, .25, .125];
+      const ranked = [...multipliers].sort((a, b) => Math.abs((normalizedValue(b) ?? 1) - 1) - Math.abs((normalizedValue(a) ?? 1) - 1) || a.perkId.localeCompare(b.perkId));
+      const factor = 1 + ranked.reduce((sum, effect, index) => {
+        const weight = weights[index] ?? .05;
+        effect.reasons.push(`Rendements décroissants : ${weight * 100} % du modificateur (règle 9.6)`);
+        return sum + ((normalizedValue(effect) ?? 1) - 1) * weight;
+      }, 0);
+      if (factor <= 0) multipliers.forEach((effect) => unresolved(effect, "Le cumul dépasse les limites de vitesse prises en charge"));
+      else {
+        const mode = multipliers[0]!.calculationMode ?? definition.mode;
+        const final = round(mode === "action_speed" ? base / factor : base * factor);
+        multipliers.forEach((effect) => { effect.before = base; effect.after = final; });
+        current = final;
+      }
+    }
+  }
   for (const effect of ordered) {
+    if (effect.status !== "active" || multipliers.length > 1 && effect.operation === "multiply") continue;
     const value = normalizedValue(effect);
     if (value === null) continue;
     effect.before = current;
@@ -285,7 +327,7 @@ function calculateStat(key: AnalyzableStatKey, killer: Killer, effects: EffectCa
     final,
     delta,
     deltaPercent: base === 0 ? null : round(delta / base * 100),
-    benefit: definition.benefit === "neutral" ? null : round(definition.benefit === "higher" ? delta : -delta),
+    benefit: definition.benefit === "neutral" ? null : round((definition.benefit === "higher" ? delta : -delta) * (side === "survivor" ? -1 : 1)),
     effects: [...ordered, ...related.filter((effect) => !applied.has(effect))]
   };
 }
@@ -389,6 +431,8 @@ function parametersMatch(
 }
 
 function qualitativePresentation(stat: string): { label: string; theme: AnalysisTheme } {
+  if (stat === "survivor.mechanic") return { label: "Effet de la compétence", theme: "Effets de statut" };
+  if (stat === "killer.aura") return { label: "Aura du tueur", theme: "Traque" };
   if (stat === "killer.status.undetectable") return { label: "Indétectable", theme: "Traque" };
   if (stat === "tracking.whispers") return { label: "Murmures de présence à moins de 32 m", theme: "Traque" };
   if (stat === "item.forced_drop") return { label: "Objet forcé à terre", theme: "Traque" };
@@ -412,8 +456,15 @@ function qualitativePresentation(stat: string): { label: string; theme: Analysis
   if (stat === "survivor.status.hemorrhage") return { label: "Hémorragie", theme: "Effets de statut" };
   if (stat === "survivor.status.mangled") return { label: "Mutilé", theme: "Effets de statut" };
   if (stat === "survivor.status.broken") return { label: "Brisé", theme: "Effets de statut" };
+  if (stat === "survivor.status.oblivious") return { label: "Inconscient", theme: "Effets de statut" };
+  if (stat === "totem.lock") return { label: "Totems bloqués", theme: "Totems" };
   if (stat.startsWith("survivor.status")) return { label: stat.split(".").at(-1)?.replaceAll("_", " ") ?? stat, theme: "Effets de statut" };
   if (stat.startsWith("sound")) return { label: "Information sonore", theme: "Traque" };
+  if (stat.startsWith("hook")) return { label: stat.replaceAll("_", " "), theme: "Hook / Transport" };
+  if (stat.startsWith("totem")) return { label: stat.replaceAll("_", " "), theme: "Totems" };
+  if (stat.startsWith("chase")) return { label: stat.replaceAll("_", " "), theme: "Poursuite" };
+  if (stat.startsWith("healing")) return { label: stat.replaceAll("_", " "), theme: "Soins" };
+  if (stat.startsWith("generator")) return { label: stat.replaceAll("_", " "), theme: "Générateurs" };
   return { label: stat.replaceAll("_", " "), theme: "Traque" };
 }
 

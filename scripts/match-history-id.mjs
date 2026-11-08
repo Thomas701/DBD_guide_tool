@@ -8,7 +8,8 @@ export function buildMatchHistoryEntryId(entry) {
     score: entry.score,
     playedAt: entry.playedAt ?? entry.playedAtLabel,
     durationLabel: entry.durationLabel,
-    queueLabel: entry.queueLabel ?? "1v4",
+    // A newly detected modifier must keep the identity of its previously imported 1v4 card.
+    queueLabel: entry.queueLabel === "2v8" ? "2v8" : "1v4",
     mapName: entry.mapName,
   })).digest("hex");
 }

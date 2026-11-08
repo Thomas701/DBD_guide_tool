@@ -1,7 +1,9 @@
 import { killerById, perkById, survivorById } from "../../app/catalog.js";
 import type { Build } from "../../domain/build.js";
+import type { PerkSide } from "../../domain/perk.js";
 
 interface SavedBuildsProps {
+  side: PerkSide;
   builds: readonly Build[];
   activeBuildId: string | null;
   buildName: string;
@@ -19,6 +21,7 @@ interface SavedBuildsProps {
 }
 
 interface SavedBuildLauncherProps {
+  side: PerkSide;
   builds: readonly Build[];
   message: string | null;
   canResetStorage: boolean;
@@ -26,7 +29,8 @@ interface SavedBuildLauncherProps {
   onResetStorage: () => void;
 }
 
-export function SavedBuildLauncher({ builds, message, canResetStorage, onLoad, onResetStorage }: SavedBuildLauncherProps) {
+export function SavedBuildLauncher({ builds: allBuilds, side, message, canResetStorage, onLoad, onResetStorage }: SavedBuildLauncherProps) {
+  const builds = allBuilds.filter((build) => build.side === side);
   if (builds.length === 0 && !message && !canResetStorage) return null;
   return (
     <section className="page-shell saved-launcher" aria-labelledby="saved-launcher-title">
@@ -45,7 +49,8 @@ export function SavedBuildLauncher({ builds, message, canResetStorage, onLoad, o
 }
 
 export function SavedBuilds({
-  builds,
+  builds: allBuilds,
+  side,
   activeBuildId,
   buildName,
   buildNamePlaceholder,
@@ -60,6 +65,7 @@ export function SavedBuilds({
   onDelete,
   onResetStorage
 }: SavedBuildsProps) {
+  const builds = allBuilds.filter((build) => build.side === side);
   return (
     <div className="build-manager-content" aria-labelledby="saved-builds-title">
       <div className="compact-section-heading">

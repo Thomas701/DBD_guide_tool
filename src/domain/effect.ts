@@ -27,6 +27,10 @@ export type EffectInterpretation = "verified" | "inferred";
 export type EffectCalculationMode = "action_speed" | "scalar" | "duration" | "points";
 
 export interface PerkEffect {
+  label?: string;
+  detail?: string;
+  range?: number;
+  runtimeIndependent?: boolean;
   stat: string;
   operation: EffectOperation;
   interpretation: EffectInterpretation;

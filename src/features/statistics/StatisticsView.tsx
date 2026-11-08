@@ -1,19 +1,23 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
+  deleteMatchHistoryEntry,
   readStatisticsSnapshot,
   readStatisticsStatus,
   showStatisticsPage,
   syncStatisticsSnapshot,
+  updateMatchHistoryEntry,
   type MatchHistoryEntry,
   type MatchHistoryParticipant,
   type StatisticsSnapshot,
   type StatisticsStatus,
 } from "../../services/statistics.js";
 import { calculateMmrHistory, INITIAL_MMR, isMvpMatch, type MmrEvent, type MmrMode } from "../../services/statistics-mmr.js";
+import { StatisticsOverview } from "./StatisticsOverview.js";
+import { statisticsImage } from "./StatisticsRankings.js";
 
 type StatisticsTab = "overview" | "mmr" | "history";
-type QueueFilter = "all" | "1v4" | "2v8";
+type QueueFilter = string;
 type RoleFilter = "all" | "killer" | "survivor";
 type MmrRange = "7d" | "30d" | "90d" | "all";
 
@@ -37,6 +41,8 @@ export function StatisticsView({ serverUrl, nextSyncAt }: { serverUrl: string; n
   const [mmrRange, setMmrRange] = useState<MmrRange>("30d");
   const [mmrKiller, setMmrKiller] = useState("");
   const [historyPage, setHistoryPage] = useState(1);
+  const [editingMatch, setEditingMatch] = useState<MatchHistoryEntry | null>(null);
+  const [savingMatch, setSavingMatch] = useState(false);
   const pollingTimer = useRef<number | null>(null);
   const autoRefreshTimer = useRef<number | null>(null);
   const mounted = useRef(true);
@@ -175,7 +181,7 @@ export function StatisticsView({ serverUrl, nextSyncAt }: { serverUrl: string; n
         void showStatisticsPage(serverUrl, sourceUrl).catch((cause) => setError(cause instanceof Error ? cause.message : "Impossible d’ouvrir la page Statistiques."));
       }}>{shortSourceLabel(tab)}</a> <span>(Chrome contrôlé)</span></div>}
 
-      {tab === "overview" && <OverviewPanel statistics={statistics} historyCount={matchHistory.length} syncing={syncing} />}
+      {tab === "overview" && <StatisticsOverview matches={matchHistory} syncing={syncing} />}
       {tab === "mmr" && <MmrPanel
         events={mmrEvents}
         mode={mmrMode}
@@ -200,6 +206,7 @@ export function StatisticsView({ serverUrl, nextSyncAt }: { serverUrl: string; n
             maps={mapOptions}
             killers={killerOptions}
             survivors={survivorOptions}
+            queues={[...new Set(matchHistory.map(match => match.queueLabel).filter((value): value is string => Boolean(value)))]}
             page={currentPage}
             pageCount={pageCount}
             onQueueFilterChange={setQueueFilter}
@@ -208,7 +215,10 @@ export function StatisticsView({ serverUrl, nextSyncAt }: { serverUrl: string; n
             onKillerFiltersChange={setKillerFilters}
             onSurvivorFiltersChange={setSurvivorFilters}
             onPageChange={setHistoryPage}
+            onEdit={setEditingMatch}
+            onDelete={(match) => void removeMatch(match)}
           />}
+      {editingMatch && <MatchEditDialog match={editingMatch} saving={savingMatch} onClose={() => setEditingMatch(null)} onSave={(changes) => void saveMatch(changes)} />}
     </section>
   </main>;
 
@@ -217,6 +227,29 @@ export function StatisticsView({ serverUrl, nextSyncAt }: { serverUrl: string; n
     if (!mounted.current) return nextStatus;
     setStatus(nextStatus);
     return nextStatus;
+  }
+
+  async function saveMatch(changes: MatchHistoryEntry): Promise<void> {
+    setSavingMatch(true);
+    setError(null);
+    try {
+      setSnapshot(await updateMatchHistoryEntry(serverUrl, changes.id, changes));
+      setEditingMatch(null);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Impossible de modifier la partie.");
+    } finally {
+      setSavingMatch(false);
+    }
+  }
+
+  async function removeMatch(match: MatchHistoryEntry): Promise<void> {
+    if (!window.confirm(`Supprimer définitivement la partie de ${match.characterName} du ${match.playedAtLabel ?? "date inconnue"} ?`)) return;
+    setError(null);
+    try {
+      setSnapshot(await deleteMatchHistoryEntry(serverUrl, match.id));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Impossible de supprimer la partie.");
+    }
   }
 
   function startPolling(): void {
@@ -274,20 +307,6 @@ function StatisticsSyncCountdown({ nextSyncAt, syncing }: { nextSyncAt: number |
   return <span className="statistics-sync-countdown" role="timer" aria-label="Prochaine synchronisation automatique">{syncing ? "Synchronisation en cours" : <>Prochaine synchronisation <strong>{nextSyncAt === null ? "—" : remaining}</strong></>}</span>;
 }
 
-function OverviewPanel({ statistics, historyCount, syncing }: { statistics: StatisticsSnapshot["statistics"]; historyCount: number; syncing: boolean }) {
-  if (!statistics) {
-    return <p className="statistics-empty">{syncing
-      ? "Synchronisation en cours. Les statistiques générales apparaîtront ici dès que la lecture sera terminée."
-      : `Aucune statistique générale disponible pour le moment. L’historique local contient actuellement ${historyCount} partie${historyCount > 1 ? "s" : ""}.`}</p>;
-  }
-
-  return <div className="statistics-grid" aria-label="Statistiques générales">
-    <article className="statistics-card"><span>Total hours played in matches</span><strong>{statistics.hoursPlayed}</strong></article>
-    <article className="statistics-card"><span>Total matches played</span><strong>{statistics.matchesPlayed}</strong></article>
-    <article className="statistics-card"><span>Total Bloodpoints earned</span><strong>{statistics.bloodpointsEarned}</strong></article>
-  </div>;
-}
-
 function HistoryPanel({
   matches,
   mmrByMatchId,
@@ -303,6 +322,7 @@ function HistoryPanel({
   maps,
   killers,
   survivors,
+  queues,
   page,
   pageCount,
   onQueueFilterChange,
@@ -311,6 +331,8 @@ function HistoryPanel({
   onKillerFiltersChange,
   onSurvivorFiltersChange,
   onPageChange,
+  onEdit,
+  onDelete,
 }: {
   matches: readonly MatchHistoryEntry[];
   mmrByMatchId: ReadonlyMap<string, MmrEvent>;
@@ -326,6 +348,7 @@ function HistoryPanel({
   maps: readonly string[];
   killers: readonly string[];
   survivors: readonly string[];
+  queues: readonly string[];
   page: number;
   pageCount: number;
   onQueueFilterChange: (value: QueueFilter) => void;
@@ -334,6 +357,8 @@ function HistoryPanel({
   onKillerFiltersChange: (value: string[]) => void;
   onSurvivorFiltersChange: (value: string[]) => void;
   onPageChange: (value: number) => void;
+  onEdit: (match: MatchHistoryEntry) => void;
+  onDelete: (match: MatchHistoryEntry) => void;
 }) {
   return <section className="statistics-history-section" aria-label="Historique des parties">
     <div className="statistics-history-toolbar">
@@ -344,6 +369,7 @@ function HistoryPanel({
             <option value="all">Tous</option>
             <option value="1v4">1vs4</option>
             <option value="2v8">2vs8</option>
+            {queues.filter(value => value !== "1v4" && value !== "2v8").map(value => <option key={value} value={value}>{value}</option>)}
           </select>
         </label>
         <label className="statistics-filter-field">
@@ -378,7 +404,7 @@ function HistoryPanel({
       : <>
           <PaginationControls page={page} pageCount={pageCount} onPageChange={onPageChange} />
           <div className="statistics-history-list">
-            {matches.map((match) => <MatchHistoryCard match={match} mmr={mmrByMatchId.get(match.id)} key={match.id} />)}
+            {matches.map((match) => <MatchHistoryCard match={match} mmr={mmrByMatchId.get(match.id)} onEdit={onEdit} onDelete={onDelete} key={match.id} />)}
           </div>
           <PaginationControls page={page} pageCount={pageCount} onPageChange={onPageChange} />
         </>}
@@ -394,7 +420,7 @@ function PaginationControls({ page, pageCount, onPageChange }: { page: number; p
   </div>;
 }
 
-function MatchHistoryCard({ match, mmr }: { match: MatchHistoryEntry; mmr: MmrEvent | undefined }) {
+function MatchHistoryCard({ match, mmr, onEdit, onDelete }: { match: MatchHistoryEntry; mmr: MmrEvent | undefined; onEdit: (match: MatchHistoryEntry) => void; onDelete: (match: MatchHistoryEntry) => void }) {
   const [selected, setSelected] = useState<{ match: MatchHistoryEntry; available: boolean } | null>(null);
   const loadout = classifyLoadout(match);
   const survivorResultIconUrl = match.role === "survivor" ? survivorOutcomeIconUrl(match.resultLabel) : null;
@@ -403,14 +429,14 @@ function MatchHistoryCard({ match, mmr }: { match: MatchHistoryEntry; mmr: MmrEv
   return <article className={`statistics-match-card role-${match.role}`}>
     <button type="button" className="statistics-match-identity" aria-label={`Voir l’équipement de ${match.characterName}`} onClick={() => setSelected({ match, available: true })}>
       <div className="statistics-match-portrait">
-        {match.characterImageUrl ? <img src={match.characterImageUrl} alt={match.characterName} loading="lazy" /> : <span>{initial(match.characterName)}</span>}
+        {match.characterImageUrl ? <img src={statisticsImage(match.characterImageUrl, match.characterName) ?? undefined} alt={match.characterName} loading="lazy" /> : <span>{initial(match.characterName)}</span>}
         {match.resultLabel && <span className={`statistics-match-result${survivorResultIconUrl ? " with-icon" : ""}`}>{survivorResultIconUrl ? <><img src={survivorResultIconUrl} alt={match.resultLabel} loading="lazy" /><span className="sr-only">{match.resultLabel}</span></> : match.resultLabel}</span>}
       </div>
       <div className="statistics-match-copy">
         <div className="statistics-match-name-row"><strong>{match.characterName}</strong>{mvp && <span className="statistics-mvp-badge" title={match.role === "killer" ? "Tous les survivants ont été éliminés" : "Meilleur score survivant"}>★ MVP</span>}</div>
         <span className="statistics-match-score-label">Score</span>
         <span className="statistics-match-score">{formatScore(match.score)}</span>
-        <span className="statistics-match-role">{roleLabel(match.role)}</span>
+        <span className="statistics-match-role">{match.queueLabel ? `${match.queueLabel} · ` : ""}{roleLabel(match.role)}</span>
         {mmr && <span className={`statistics-match-mmr ${mmr.delta > 0 ? "positive" : mmr.delta < 0 ? "negative" : "neutral"}`} title={mmr.reason}>
           {formatMmrDelta(mmr.delta)} MMR · {mmr.before} → {mmr.after}
         </span>}
@@ -428,7 +454,7 @@ function MatchHistoryCard({ match, mmr }: { match: MatchHistoryEntry; mmr: MmrEv
 
     <div className="statistics-match-map">
       <div className="statistics-map-thumb">
-        {match.mapImageUrl ? <img src={match.mapImageUrl} alt={match.mapName ?? "Carte"} loading="lazy" /> : <span>{initial(match.mapName ?? "?")}</span>}
+        {match.mapImageUrl ? <img src={statisticsImage(match.mapImageUrl, match.mapName ?? "Carte") ?? undefined} alt={match.mapName ?? "Carte"} loading="lazy" /> : <span>{initial(match.mapName ?? "?")}</span>}
       </div>
       <span className="statistics-map-name">{match.mapName ?? "Carte inconnue"}</span>
     </div>
@@ -437,9 +463,59 @@ function MatchHistoryCard({ match, mmr }: { match: MatchHistoryEntry; mmr: MmrEv
       <time dateTime={match.playedAt ?? undefined}>{match.playedAtLabel ?? "Date inconnue"}</time>
       <strong className="statistics-match-duration">{match.durationLabel ?? "--:--"}</strong>
       <span className="statistics-match-source">Ajouté le {formatTimestamp(match.importedAt)}</span>
+      <div className="statistics-match-actions">
+        <button type="button" className="statistics-action edit" title="Modifier la partie" onClick={() => onEdit(match)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5 4 4M4 20l4-1L20 7a2.8 2.8 0 0 0-4-4L4 15Z" /></svg><span>Modifier</span></button>
+        <button type="button" className="statistics-action delete" title="Supprimer la partie" onClick={() => onDelete(match)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v5M14 11v5" /></svg><span>Supprimer</span></button>
+      </div>
     </div>
     {selected && <ParticipantDetails match={selected.match} available={selected.available} onClose={() => setSelected(null)} />}
   </article>;
+}
+
+function MatchEditDialog({ match, saving, onClose, onSave }: { match: MatchHistoryEntry; saving: boolean; onClose: () => void; onSave: (value: MatchHistoryEntry) => void }) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const [draft, setDraft] = useState<MatchHistoryEntry>(match);
+  useEffect(() => { dialog.current?.showModal(); }, []);
+  const change = (values: Partial<MatchHistoryEntry>) => setDraft((current) => ({ ...current, ...values }));
+  const changeParticipant = (index: number, values: Partial<MatchHistoryParticipant>) => setDraft((current) => ({
+    ...current,
+    participants: current.participants.map((participant, participantIndex) => participantIndex === index ? { ...participant, ...values } : participant)
+  }));
+  const lines = (value: string) => value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  return <dialog ref={dialog} className="statistics-player-dialog statistics-edit-dialog" aria-labelledby="statistics-edit-title" onClose={onClose} onClick={(event) => { if (event.target === event.currentTarget) dialog.current?.close(); }}>
+    <form className="statistics-edit-form" onSubmit={(event) => { event.preventDefault(); onSave(draft); }}>
+      <header className="statistics-player-header"><h2 id="statistics-edit-title">Modifier la partie</h2><button type="button" className="secondary-button" onClick={() => dialog.current?.close()} aria-label="Fermer">✕</button></header>
+      <div className="statistics-edit-grid">
+        <label>Personnage<input required value={draft.characterName} onChange={(event) => change({ characterName: event.target.value })} /></label>
+        <label>Camp<select value={draft.role} onChange={(event) => change({ role: event.target.value as MatchHistoryEntry["role"] })}><option value="killer">Tueur</option><option value="survivor">Survivant</option><option value="unknown">Inconnu</option></select></label>
+        <label>Résultat<input value={draft.resultLabel ?? ""} onChange={(event) => change({ resultLabel: event.target.value || null })} /></label>
+        <label>Score<input type="number" min="0" value={draft.score ?? ""} onChange={(event) => change({ score: event.target.value ? Number(event.target.value) : null })} /></label>
+        <label>Carte<input value={draft.mapName ?? ""} onChange={(event) => change({ mapName: event.target.value || null })} /></label>
+        <label>Image de la carte (URL)<input type="url" value={draft.mapImageUrl ?? ""} onChange={(event) => change({ mapImageUrl: event.target.value || null })} /></label>
+        <label>Portrait du personnage (URL)<input type="url" value={draft.characterImageUrl ?? ""} onChange={(event) => change({ characterImageUrl: event.target.value || null })} /></label>
+        <label>Mode<input value={draft.queueLabel ?? ""} onChange={(event) => change({ queueLabel: event.target.value || null })} /></label>
+        <label>Date affichée<input value={draft.playedAtLabel ?? ""} onChange={(event) => change({ playedAtLabel: event.target.value || null })} /></label>
+        <label>Durée<input value={draft.durationLabel ?? ""} onChange={(event) => change({ durationLabel: event.target.value || null })} /></label>
+        <label>Date et heure<input type="datetime-local" value={draft.playedAt ? new Date(new Date(draft.playedAt).getTime() - new Date(draft.playedAt).getTimezoneOffset() * 60_000).toISOString().slice(0, 16) : ""} onChange={(event) => change({ playedAt: event.target.value ? new Date(event.target.value).toISOString() : null, playedAtLabel: event.target.value ? new Date(event.target.value).toLocaleString("fr-FR") : null })} /></label>
+        <label>Perks du joueur (une URL par ligne)<textarea value={draft.perkIconUrls.join("\n")} onChange={(event) => change({ perkIconUrls: lines(event.target.value), perkIconLabels: [] })} /></label>
+        <label>Équipement du joueur (une URL par ligne)<textarea value={draft.equipmentIconUrls.join("\n")} onChange={(event) => change({ equipmentIconUrls: lines(event.target.value), equipmentIconLabels: [] })} /></label>
+      </div>
+      {draft.participants.map((participant, index) => <fieldset key={index} className="statistics-edit-participant">
+        <legend>Participant {index + 1}</legend>
+        <div className="statistics-edit-grid">
+          <label>Nom<input value={participant.name ?? ""} onChange={(event) => changeParticipant(index, { name: event.target.value || null })} /></label>
+          <label>Camp<select value={participant.role} onChange={(event) => changeParticipant(index, { role: event.target.value as MatchHistoryParticipant["role"] })}><option value="killer">Tueur</option><option value="survivor">Survivant</option><option value="unknown">Inconnu</option></select></label>
+          <label>Portrait (URL)<input type="url" value={participant.imageUrl ?? ""} onChange={(event) => changeParticipant(index, { imageUrl: event.target.value || null })} /></label>
+          <label>Résultat<input value={participant.resultLabel ?? ""} onChange={(event) => changeParticipant(index, { resultLabel: event.target.value || null })} /></label>
+          <label>Score<input type="number" min="0" value={participant.score ?? ""} onChange={(event) => changeParticipant(index, { score: event.target.value ? Number(event.target.value) : null })} /></label>
+          <label>Temps de survie<input value={participant.survivalTimeLabel ?? ""} onChange={(event) => changeParticipant(index, { survivalTimeLabel: event.target.value || null })} /></label>
+          <label>Perks (une URL par ligne)<textarea value={(participant.perkIconUrls ?? []).join("\n")} onChange={(event) => changeParticipant(index, { perkIconUrls: lines(event.target.value), perkIconLabels: [] })} /></label>
+          <label>Équipement (une URL par ligne)<textarea value={(participant.equipmentIconUrls ?? []).join("\n")} onChange={(event) => changeParticipant(index, { equipmentIconUrls: lines(event.target.value), equipmentIconLabels: [] })} /></label>
+        </div>
+      </fieldset>)}
+      <div className="statistics-edit-actions"><button type="button" className="secondary-button" onClick={() => dialog.current?.close()}>Annuler</button><button type="submit" disabled={saving}>{saving ? "Enregistrement…" : "Enregistrer"}</button></div>
+    </form>
+  </dialog>;
 }
 
 function ParticipantDetails({ match, available, onClose }: { match: MatchHistoryEntry; available: boolean; onClose: () => void }) {
@@ -457,7 +533,7 @@ function ParticipantDetails({ match, available, onClose }: { match: MatchHistory
         <button className="secondary-button" type="button" onClick={() => dialog.current?.close()} aria-label="Fermer les détails">✕</button>
       </header>
       <p className="statistics-player-context">{match.mapName} · {match.playedAtLabel}</p>
-      {available ? <MatchLoadout match={match} loadout={classifyLoadout(match)} /> : <p className="statistics-sync-note">L’équipement de ce participant sera récupéré lors de la prochaine synchronisation.</p>}
+      {available ? <MatchLoadout match={match} loadout={classifyLoadout(match)} /> : <p className="statistics-sync-note">Équipement non récupéré. La synchronisation tentera à nouveau de lire cette partie si elle reste disponible dans l’historique en ligne. Vous pouvez aussi compléter la partie avec « Modifier ».</p>}
     </div>
   </dialog>;
 }
@@ -505,11 +581,13 @@ function MmrPanel({
       <div className="statistics-mmr-filters">
         <label className="statistics-filter-field">
           <span>Mode de jeu</span>
-          <select value={mode} onChange={(event) => onModeChange(event.target.value as MmrMode)}>
+          <select aria-label="Mode de jeu" value={mode} onChange={(event) => onModeChange(event.target.value as MmrMode)}>
             <option value="1v4-survivor">1vs4 survivant</option>
             <option value="2v8-survivor">2vs8 survivant</option>
             <option value="1v4-killer">1vs4 tueur</option>
             <option value="2v8-killer">2vs8 tueur</option>
+            <option value="lights-out-survivor">Lights Out survivant</option>
+            <option value="lights-out-killer">Lights Out tueur</option>
           </select>
         </label>
         {mode.endsWith("killer") && <label className="statistics-filter-field">
@@ -660,7 +738,7 @@ function ParticipantCard({ participant, onClick }: { participant: MatchHistoryPa
 
   return <button type="button" className="statistics-participant-card" onClick={onClick} aria-label={`Voir l’équipement de ${participant.name ?? "ce participant"}`} data-tone={participantTone(statusLabel)} title={participant.name ?? undefined}>
     <div className="statistics-participant-portrait">
-      {participant.imageUrl ? <img src={participant.imageUrl} alt={participant.name ?? statusLabel} loading="lazy" /> : <span>?</span>}
+      {participant.imageUrl ? <img src={statisticsImage(participant.imageUrl, participant.name ?? statusLabel) ?? undefined} alt={participant.name ?? statusLabel} loading="lazy" /> : <span>?</span>}
     </div>
     {participant.name && <span className="statistics-participant-name">{participant.name}</span>}
     <span className="statistics-participant-score">{participant.valueLabel ?? formatScore(participant.score)}</span>
@@ -670,11 +748,16 @@ function ParticipantCard({ participant, onClick }: { participant: MatchHistoryPa
 }
 
 function IconTile({ iconUrl, label, perk = false }: { iconUrl: string; label: string; perk?: boolean }) {
-  return <span className={`statistics-loadout-icon${perk ? " perk" : ""}`} title={label} data-label={label} aria-label={label}>{iconUrl ? <img src={iconUrl} alt="" loading="lazy" /> : <span>?</span>}</span>;
+  return <span className={`statistics-loadout-icon${perk ? " perk" : ""}`} title={label} data-label={label} aria-label={label}>{iconUrl ? <img src={statisticsImage(iconUrl, label) ?? undefined} alt="" loading="lazy" /> : <span>?</span>}</span>;
 }
 
 function SyncStatusPanel({ status, syncing }: { status: StatisticsStatus | null; syncing: boolean }) {
   const logs = status?.logs ?? [];
+  const logList = useRef<HTMLOListElement>(null);
+  const latest = logs.at(-1);
+  useEffect(() => {
+    if (logList.current) logList.current.scrollTop = logList.current.scrollHeight;
+  }, [logs.length, latest?.at, latest?.message]);
   return <section className={`statistics-sync-panel${syncing ? " active" : ""}`} aria-label="État de la synchronisation des statistiques">
     <div className="statistics-sync-header">
       <strong>{syncing ? "Synchronisation en cours" : status?.phase === "error" ? "Dernière synchronisation en erreur" : "État de la synchronisation"}</strong>
@@ -682,7 +765,7 @@ function SyncStatusPanel({ status, syncing }: { status: StatisticsStatus | null;
     </div>
     <p className="statistics-sync-message">{status?.message ?? "Aucune synchronisation des statistiques en cours."}</p>
     {status?.startedAt && <p className="statistics-sync-meta">Démarrée le {formatTimestamp(status.startedAt)}{status.finishedAt ? ` · Terminée le ${formatTimestamp(status.finishedAt)}` : ""}</p>}
-    {logs.length > 0 && <ol className="statistics-sync-log">{logs.map((entry) => <li key={`${entry.at}-${entry.message}`}><time dateTime={entry.at}>{formatTime(entry.at)}</time><span>{entry.message}</span></li>)}</ol>}
+    {logs.length > 0 && <ol className="statistics-sync-log" ref={logList} aria-live="polite">{logs.map((entry) => <li key={`${entry.at}-${entry.message}`}><time dateTime={entry.at}>{formatTime(entry.at)}</time><span>{entry.message}</span></li>)}</ol>}
   </section>;
 }
 
@@ -729,7 +812,7 @@ function labelFromAssetUrl(url: string): string {
 
 function matchesQueueFilter(match: MatchHistoryEntry, filter: QueueFilter): boolean {
   if (filter === "all") return true;
-  return filter === "2v8" ? match.queueLabel === "2v8" : match.queueLabel !== "2v8";
+  return (match.queueLabel ?? "1v4") === filter;
 }
 
 function matchesRoleFilter(match: MatchHistoryEntry, filter: RoleFilter): boolean {
@@ -814,7 +897,7 @@ function formatMmrDateTime(value: number): string {
 }
 
 function mmrModeLabel(mode: MmrMode): string {
-  return mode.replace("1v4", "1vs4").replace("2v8", "2vs8").replace("survivor", "survivant").replace("killer", "tueur");
+  return mode.replace("lights-out", "Lights Out").replace("1v4", "1vs4").replace("2v8", "2vs8").replace("survivor", "survivant").replace("killer", "tueur");
 }
 
 function shortSourceLabel(tab: StatisticsTab): string {

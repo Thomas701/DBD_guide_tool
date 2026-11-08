@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
 import { categoryLabels } from "../../app/labels.js";
-import { PERK_CATEGORIES, type PerkCategory } from "../../domain/category.js";
+import { perkCategoriesFor, type PerkCategory } from "../../domain/category.js";
 import type { Killer } from "../../domain/killer.js";
 import type { PerkSide } from "../../domain/perk.js";
 import { DEFAULT_PERK_FILTERS, type CategoryMatchMode, type CooldownFilter, type PerkFilters } from "../../services/perk-filter.js";
@@ -32,9 +32,11 @@ export function PerkFiltersPanel({ characters, side, filters, detailsOpen, onCha
     <details className="category-filter" open={detailsOpen.categories} onToggle={(event) => onDetailsOpenChange("categories", event.currentTarget.open)}><summary>Catégories{filters.categories.length > 0 ? ` (${filters.categories.length})` : ""}</summary><fieldset className="segmented-field"><div className="category-match-control"><div className="segmented-control">
       {(["any", "all"] as CategoryMatchMode[]).map((mode) => <label key={mode}><input type="radio" name="category-mode" value={mode} checked={filters.categoryMode === mode} onChange={() => update((current) => ({ ...current, categoryMode: mode }))} /><span>{mode === "any" ? "Au moins une" : "Toutes"}</span></label>)}
     </div><span className="filter-help" tabIndex={0} aria-label="Aide sur la correspondance des catégories">?<span role="tooltip">Choisissez si une perk doit correspondre à une seule catégorie cochée ou à toutes.</span></span></div></fieldset>
-    <div className="category-options" role="group" aria-label="Catégories de perks">{SORTED_PERK_CATEGORIES.map((category) => <label key={category}><input type="checkbox" checked={filters.categories.includes(category)} onChange={(event) => toggleCategory(category, event.target.checked)} /><span>{categoryLabels[category]}</span></label>)}</div></details>
-    <label className="field"><span>Cooldown</span><select value={filters.cooldown} onChange={(event) => update((current) => ({ ...current, cooldown: event.target.value as CooldownFilter }))}><option value="any">Tous</option><option value="with">Avec cooldown</option><option value="without">Sans cooldown</option></select></label>
+    <div className="category-options" role="group" aria-label="Catégories de perks">{sortedCategories(side).map((category) => <label key={category}><input type="checkbox" checked={filters.categories.includes(category)} onChange={(event) => toggleCategory(category, event.target.checked)} /><span>{categoryLabels[category]}</span></label>)}</div></details>
+    <label className="field"><span>Cooldown</span><select aria-label="Cooldown" value={filters.cooldown} onChange={(event) => update((current) => ({ ...current, cooldown: event.target.value as CooldownFilter }))}><option value="any">Tous</option><option value="with">Avec cooldown</option><option value="without">Sans cooldown</option></select></label>
   </aside>;
 }
 
-const SORTED_PERK_CATEGORIES = [...PERK_CATEGORIES].sort((left, right) => categoryLabels[left].localeCompare(categoryLabels[right], "fr"));
+function sortedCategories(side: PerkSide): PerkCategory[] {
+  return [...perkCategoriesFor(side)].sort((left, right) => categoryLabels[left].localeCompare(categoryLabels[right], "fr"));
+}

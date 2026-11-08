@@ -34,11 +34,12 @@ export interface AssistantBuildContext {
   };
 }
 
-export function buildAssistantContext({ killer, perks, scenario, calculation }: {
+export function buildAssistantContext({ killer, perks, scenario, calculation, perkDescriptionOverrides = {} }: {
   killer: Killer;
   perks: readonly Perk[];
   scenario: BuildScenario;
   calculation: BuildCalculation;
+  perkDescriptionOverrides?: Readonly<Record<string, string>>;
 }): AssistantBuildContext {
   return {
     killer: {
@@ -53,7 +54,7 @@ export function buildAssistantContext({ killer, perks, scenario, calculation }: 
       name: perk.name.fr ?? perk.name.en ?? perk.id,
       categories: perk.categories,
       effects: perk.effects,
-      description: richDescriptionToText(perk.description.fr ?? perk.description.en)
+      description: perkDescriptionToText(perk, perkDescriptionOverrides[perk.id])
     })),
     currentState: {
       activeConditions: scenario.conditions,
@@ -122,6 +123,24 @@ export function richDescriptionToText(description: RichDescription | null): stri
     }
     return inlineText(block.children);
   }).filter(Boolean).join("\n\n");
+}
+
+export function perkDescriptionToText(perk: Perk, localOverride?: string): string {
+  const html = localOverride ?? perk.nativeDescriptionHtml;
+  return html?.trim() ? html
+    .replace(/<br\s*\/?\s*>/gi, "\n")
+    .replace(/<li(?:\s[^>]*)?>/gi, "- ")
+    .replace(/<\/(?:p|div|li|ul|ol|blockquote|h[1-6])>/gi, "\n")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;|&#160;/gi, " ")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&amp;/gi, "&")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim() : richDescriptionToText(perk.description.fr ?? perk.description.en);
 }
 
 function inlineText(nodes: readonly RichInlineNode[]): string {

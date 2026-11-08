@@ -9155,6 +9155,350 @@
         ]
       }
     ]
+  },
+  "survivor-fruits-of-your-labor": {
+    "version": 1,
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Chaque générateur terminé vous accorde 1 jeton. Lorsque vous terminez vous-même la réparation d’un générateur, pour chaque jeton :"
+          }
+        ]
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "items": [
+          [
+            {
+              "type": "text",
+              "value": "Vous gagnez 5 % de Rapidité pendant 2 secondes."
+            }
+          ],
+          [
+            {
+              "type": "text",
+              "value": "Vous gagnez 10 / 15 / 20 % de progression de soin."
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "survivor-salvations-cry": {
+    "version": 1,
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Lorsque le Tueur commence à vous poursuivre :"
+          }
+        ]
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "items": [
+          [
+            {
+              "type": "text",
+              "value": "Vous voyez l’aura des autres Survivants pendant 1 / 2 / 3 secondes."
+            }
+          ],
+          [
+            {
+              "type": "text",
+              "value": "Les Survivants qui ne sont pas poursuivis voient votre aura pendant 5 secondes."
+            }
+          ],
+          [
+            {
+              "type": "text",
+              "value": "Ces mêmes Survivants voient aussi l’aura du Tueur pendant 5 secondes."
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "survivor-boon-steadfast": {
+    "version": 1,
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Bénissez un Totem passif ou ensorcelé pour créer un Totem de Bénédiction. Dans un rayon de 24 mètres autour de ce Totem :"
+          }
+        ]
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "items": [
+          [
+            {
+              "type": "text",
+              "value": "Les générateurs régressent 50 % plus lentement."
+            }
+          ],
+          [
+            {
+              "type": "text",
+              "value": "Les Survivants réparent ces générateurs 8 / 9 / 10 % plus vite."
+            }
+          ],
+          [
+            {
+              "type": "text",
+              "value": "Les Survivants à portée voient l’aura des générateurs affectés."
+            }
+          ]
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Un seul Totem peut porter vos Bénédictions à la fois. Leurs effets sont réunis sur ce Totem ; plusieurs exemplaires d’Inébranlable ne se cumulent pas."
+          }
+        ]
+      }
+    ]
+  },
+  "survivor-wide-open-throttle": {
+    "version": 1,
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Lorsque vous franchissez rapidement une palette renversée :"
+          }
+        ]
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "items": [
+          [
+            {
+              "type": "text",
+              "value": "Vous gagnez 10 / 12,5 / 15 % de Rapidité pendant 3 secondes."
+            }
+          ],
+          [
+            {
+              "type": "text",
+              "value": "La palette se redresse et reste bloquée pendant 60 secondes."
+            }
+          ],
+          [
+            {
+              "type": "text",
+              "value": "Tous les Survivants voient l’aura de cette palette pendant son blocage."
+            }
+          ]
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Temps de recharge : 60 secondes."
+          }
+        ]
+      }
+    ]
+  },
+  "survivor-lend-a-hand": {
+    "version": 1,
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Après avoir béni ou purifié un Totem, activez cette compétence pendant que vous soignez un autre Survivant pour lui accorder 2 / 3 / 4 charges de soin permanentes."
+          }
+        ]
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "items": [
+          [
+            {
+              "type": "text",
+              "value": "Chaque autre Survivant ne peut bénéficier de cet effet qu’une seule fois par Épreuve."
+            }
+          ],
+          [
+            {
+              "type": "text",
+              "value": "Pour utiliser de nouveau la compétence sur un autre Survivant, vous devez bénir ou purifier un nouveau Totem."
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "survivor-cross-examination": {
+    "version": 1,
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Tant que vous êtes dans le rayon de terreur du Tueur sans être poursuivi :"
+          }
+        ]
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "items": [
+          [
+            {
+              "type": "text",
+              "value": "Le Tueur laisse des marques de lumière que vous pouvez voir pendant 10 secondes."
+            }
+          ],
+          [
+            {
+              "type": "text",
+              "value": "Vous bénéficiez de l’effet de statut Insaisissable (Elusive) tant que vous vous trouvez sur ces marques."
+            }
+          ],
+          [
+            {
+              "type": "text",
+              "value": "Cet effet persiste 3 / 4 / 5 secondes après avoir quitté les marques."
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "survivor-flow-state": {
+    "version": 1,
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Chaque générateur terminé vous accorde 1 jeton, jusqu’à un maximum de 5. Pour chaque jeton :"
+          }
+        ]
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "items": [
+          [
+            {
+              "type": "text",
+              "value": "Vous bénissez et purifiez les Totems 13 / 14 / 15 % plus vite."
+            }
+          ],
+          [
+            {
+              "type": "text",
+              "value": "Vous soignez les Survivants 13 / 14 / 15 % plus vite."
+            }
+          ],
+          [
+            {
+              "type": "text",
+              "value": "Vous décrochez les Survivants 13 / 14 / 15 % plus vite."
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "survivor-a-place-for-us": {
+    "version": 1,
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Pendant que vous soignez un autre Survivant, vous bénéficiez tous les deux de l’effet de statut Insaisissable (Elusive)."
+          }
+        ]
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "items": [
+          [
+            {
+              "type": "text",
+              "value": "Lorsque vous terminez de soigner l’Obsession, vous conservez tous les deux Insaisissable pendant 20 / 25 / 30 secondes."
+            }
+          ],
+          [
+            {
+              "type": "text",
+              "value": "Votre probabilité de devenir l’Obsession au début de l’Épreuve est réduite."
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "survivor-five-moves-ahead": {
+    "version": 1,
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Tant que vous êtes dans le rayon de terreur du Tueur ou qu’il vous poursuit :"
+          }
+        ]
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "items": [
+          [
+            {
+              "type": "text",
+              "value": "Vous voyez l’aura des 5 palettes les plus proches."
+            }
+          ],
+          [
+            {
+              "type": "text",
+              "value": "Après avoir renversé une palette, vous pouvez recommencer à vous déplacer 50 % plus tôt."
+            }
+          ]
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Renverser une palette lorsque cette compétence est active déclenche une recharge de 40 / 35 / 30 secondes."
+          }
+        ]
+      }
+    ]
   }
 }
-

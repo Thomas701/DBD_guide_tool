@@ -1,166 +1,139 @@
-import type { BuildCalculation, BuildScenario } from "./build-calculator.js";
-import type { Killer } from "../domain/killer.js";
-import type { Perk } from "../domain/perk.js";
-import { answerBuildQuestion } from "./build-assistant.js";
+import { parseAssistantResponse, type AssistantResponse } from "./assistant-actions.js";
 import { buildChatGPTPrompt } from "./chatgpt-prompt-builder.js";
 import type { AssistantBuildContext, AssistantHistoryItem } from "./openai-build-assistant.js";
 
-export const ASSISTANT_PROVIDER_IDS = ["local", "clipboard", "codex", "openai", "browser"] as const;
+export const ASSISTANT_PROVIDER_IDS = ["clipboard", "codex", "openai"] as const;
 export const ASSISTANT_SERVER_STORAGE_KEY = "dbd-build-tool.openai-assistant-endpoint";
+export const ASSISTANT_PROVIDER_STORAGE_KEY = "dbd-build-tool.assistant-provider";
 export type AssistantProviderId = (typeof ASSISTANT_PROVIDER_IDS)[number];
-export type AssistantActivity = "idle" | "preparing_context" | "starting_browser" | "checking_session" | "sending_prompt" | "waiting_response" | "extracting_response" | "completed" | "error";
 
 export interface AssistantRequest {
   message: string;
-  context: AssistantBuildContext;
+  context: AssistantBuildContext | null;
   history: readonly AssistantHistoryItem[];
-  localContext: { killer: Killer; perks: readonly Perk[]; scenario: BuildScenario; calculation: BuildCalculation };
+  prompt?: string;
 }
-
 export interface AssistantProvider {
   readonly id: AssistantProviderId;
-  send(request: AssistantRequest, signal?: AbortSignal): Promise<string>;
+  send(request: AssistantRequest, signal?: AbortSignal): Promise<AssistantResponse>;
 }
-
-export interface BrowserProviderStatus {
-  provider: "browser";
-  connected: boolean;
-  configured: boolean;
-  busy: boolean;
-  state: AssistantActivity;
-  error?: string;
-}
-
 export interface CodexProviderStatus {
   provider: "codex";
   installed: boolean;
   connected: boolean;
   detail: string;
+  loginPending: boolean;
+  loginUrl: string | null;
+  account: { email: string | null; plan: string | null } | null;
+  models: { id: string; name: string; isDefault: boolean }[];
+  selectedModel: string | null;
+  quotas: CodexQuota[];
+  quotaDetail: string | null;
 }
-
-export class LocalAnalysisProvider implements AssistantProvider {
-  readonly id = "local" as const;
-  async send(request: AssistantRequest): Promise<string> {
-    return answerBuildQuestion(request.message, request.localContext);
-  }
+export interface CodexQuota {
+  id: string;
+  name: string;
+  windows: { remainingPercent: number | null; durationMinutes: number | null; resetsAt: number | null }[];
 }
-
-export class OpenAIAPIProvider implements AssistantProvider {
-  readonly id = "openai" as const;
-  constructor(private readonly serverUrl: string) {}
-  send(request: AssistantRequest, signal?: AbortSignal): Promise<string> {
-    return sendHttpRequest(this.serverUrl, this.id, request, signal);
-  }
-}
-
-export class BrowserChatGPTProvider implements AssistantProvider {
-  readonly id = "browser" as const;
-  constructor(private readonly serverUrl: string) {}
-  send(request: AssistantRequest, signal?: AbortSignal): Promise<string> {
-    return sendHttpRequest(this.serverUrl, this.id, request, signal);
-  }
-}
-
-export class CodexChatGPTProvider implements AssistantProvider {
-  readonly id = "codex" as const;
-  constructor(private readonly serverUrl: string) {}
-  send(request: AssistantRequest, signal?: AbortSignal): Promise<string> {
-    return sendHttpRequest(this.serverUrl, this.id, request, signal);
-  }
-}
+export interface OpenAIProviderStatus { provider: "openai"; connected: boolean; model: string }
 
 export function createAssistantProvider(id: AssistantProviderId, serverUrl: string): AssistantProvider {
-  if (id === "openai") return new OpenAIAPIProvider(serverUrl);
-  if (id === "browser") return new BrowserChatGPTProvider(serverUrl);
-  if (id === "codex") return new CodexChatGPTProvider(serverUrl);
-  if (id === "clipboard") return { id, send: async () => { throw new Error("Le chat natif doit être copié depuis l’interface."); } };
-  return new LocalAnalysisProvider();
+  return {
+    id,
+    async send(request, signal) {
+      if (id === "clipboard") throw new Error("Le prompt doit être copié depuis l’interface.");
+      const payload = await requestJson(`${normalizeServerUrl(serverUrl)}/api/assistant/message`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          provider: id,
+          message: request.message,
+          context: request.context,
+          history: request.history.slice(-20),
+          prompt: request.prompt ?? (request.context ? buildChatGPTPrompt(request.message, request.context, request.history) : request.message),
+          actionMode: true
+        }),
+        signal: signal ?? null
+      });
+      return parseAssistantResponse(payload);
+    }
+  };
 }
 
-export async function configureBrowserProvider(serverUrl: string): Promise<BrowserProviderStatus> {
-  return requestStatus(`${normalizeServerUrl(serverUrl)}/api/assistant/configure`, { method: "POST" });
+export async function getCodexProviderStatus(serverUrl: string, refresh = false): Promise<CodexProviderStatus> {
+  return codexStatus(await requestJson(`${normalizeServerUrl(serverUrl)}/api/assistant/codex/status${refresh ? "?refresh=1" : ""}`));
 }
-
-export async function getBrowserProviderStatus(serverUrl: string, verify = false): Promise<BrowserProviderStatus> {
-  return requestStatus(`${normalizeServerUrl(serverUrl)}/api/assistant/status${verify ? "?verify=1" : ""}`);
+export async function connectCodexProvider(serverUrl: string): Promise<CodexProviderStatus> {
+  return codexStatus(await requestJson(`${normalizeServerUrl(serverUrl)}/api/assistant/codex/login`, { method: "POST" }));
 }
-
-export async function cancelBrowserProvider(serverUrl: string): Promise<void> {
-  const response = await assistantFetch(`${normalizeServerUrl(serverUrl)}/api/assistant/cancel`, { method: "POST" });
-  if (!response.ok) throw new Error(await errorFromResponse(response));
+export async function cancelCodexLogin(serverUrl: string): Promise<CodexProviderStatus> {
+  return codexStatus(await requestJson(`${normalizeServerUrl(serverUrl)}/api/assistant/codex/login`, { method: "DELETE" }));
 }
-
-export async function getCodexProviderStatus(serverUrl: string): Promise<CodexProviderStatus> {
-  const response = await assistantFetch(`${normalizeServerUrl(serverUrl)}/api/assistant/codex/status`);
-  const payload: unknown = await response.json().catch(() => null);
-  if (!response.ok || !isCodexStatus(payload)) throw new Error(isError(payload) ? payload.error : "Statut Codex indisponible.");
-  return payload;
+export async function disconnectCodexProvider(serverUrl: string): Promise<CodexProviderStatus> {
+  return codexStatus(await requestJson(`${normalizeServerUrl(serverUrl)}/api/assistant/codex/logout`, { method: "POST" }));
+}
+export async function selectCodexModel(serverUrl: string, model: string): Promise<CodexProviderStatus> {
+  return codexStatus(await requestJson(`${normalizeServerUrl(serverUrl)}/api/assistant/codex/model`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model })
+  }));
+}
+export async function getOpenAIProviderStatus(serverUrl: string): Promise<OpenAIProviderStatus> {
+  return openaiStatus(await requestJson(`${normalizeServerUrl(serverUrl)}/api/assistant/openai/status`));
+}
+export async function connectOpenAIProvider(serverUrl: string, apiKey: string, model: string): Promise<OpenAIProviderStatus> {
+  const url = new URL(normalizeServerUrl(serverUrl));
+  if (!["http:", "https:"].includes(url.protocol) || !["localhost", "127.0.0.1", "[::1]"].includes(url.hostname) || url.username || url.password) {
+    throw new Error("La clé API doit être confiée au serveur local de l’application.");
+  }
+  return openaiStatus(await requestJson(`${url.toString().replace(/\/$/, "")}/api/assistant/openai/connect`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ apiKey, model })
+  }));
+}
+export async function disconnectOpenAIProvider(serverUrl: string): Promise<OpenAIProviderStatus> {
+  return openaiStatus(await requestJson(`${normalizeServerUrl(serverUrl)}/api/assistant/openai/connect`, { method: "DELETE" }));
 }
 
 export function normalizeServerUrl(value: string): string {
   return value.trim().replace(/\/(?:api\/build-assistant|api\/assistant\/message)\/?$/, "").replace(/\/$/, "");
 }
 
-async function sendHttpRequest(serverUrl: string, provider: "openai" | "browser" | "codex", request: AssistantRequest, signal?: AbortSignal): Promise<string> {
-  const response = await assistantFetch(`${normalizeServerUrl(serverUrl)}/api/assistant/message`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      provider,
-      message: request.message,
-      context: request.context,
-      history: request.history.slice(-8),
-      prompt: provider === "browser" || provider === "codex" ? buildChatGPTPrompt(request.message, request.context, request.history) : undefined
-    }),
-    signal: signal ?? null
-  });
+async function requestJson(url: string, init?: RequestInit): Promise<unknown> {
+  let response: Response;
+  try { response = await fetch(url, init); }
+  catch (error) {
+    if (error instanceof Error && error.name === "AbortError") throw error;
+    throw new Error(`Build Assistant inaccessible sur ${new URL(url).origin}. Fermez puis relancez l’application avec son lanceur.`);
+  }
   const payload: unknown = await response.json().catch(() => null);
-  if (!response.ok || !isAnswer(payload)) throw new Error(isError(payload) ? payload.error : "Le provider n’a pas renvoyé de réponse exploitable.");
-  return payload.answer;
-}
-
-async function requestStatus(url: string, init?: RequestInit): Promise<BrowserProviderStatus> {
-  const response = await assistantFetch(url, init);
-  const payload: unknown = await response.json().catch(() => null);
-  if (!response.ok || !isBrowserStatus(payload)) throw new Error(isError(payload) ? payload.error : "Statut ChatGPT Browser indisponible.");
+  if (!response.ok) throw new Error(isRecord(payload) && typeof payload.error === "string" ? payload.error : `Erreur HTTP ${response.status}`);
   return payload;
 }
-
-async function assistantFetch(url: string, init?: RequestInit): Promise<Response> {
-  try {
-    return await fetch(url, init);
-  } catch (error) {
-    if (error instanceof DOMException && error.name === "AbortError") throw error;
-    throw new Error(`Proxy Build Assistant inaccessible sur ${new URL(url).origin}. Lancez \`npm run assistant:proxy\` dans un terminal et laissez-le ouvert.`);
+function codexStatus(value: unknown): CodexProviderStatus {
+  if (!isRecord(value) || value.provider !== "codex" || typeof value.installed !== "boolean" || typeof value.connected !== "boolean" || typeof value.detail !== "string" || !Array.isArray(value.models) || !Array.isArray(value.quotas)) {
+    throw new Error("Statut Codex invalide. Redémarrez le serveur de l’application.");
   }
+  let loginUrl: string | null = null;
+  if (typeof value.loginUrl === "string") {
+    try { const url = new URL(value.loginUrl); if (url.origin === "https://auth.openai.com" && !url.username && !url.password) loginUrl = url.toString(); } catch { /* Un lien de connexion mal formé est ignoré. */ }
+  }
+  const models = value.models.flatMap((entry: unknown) => isRecord(entry) && typeof entry.id === "string" && typeof entry.name === "string" ? [{ id: entry.id, name: entry.name, isDefault: entry.isDefault === true }] : []);
+  const quotas: CodexQuota[] = value.quotas.flatMap((entry: unknown) => isRecord(entry) && typeof entry.id === "string" && typeof entry.name === "string" && Array.isArray(entry.windows) ? [{
+    id: entry.id, name: entry.name,
+    windows: entry.windows.flatMap((window: unknown) => isRecord(window) ? [{
+      remainingPercent: typeof window.remainingPercent === "number" && Number.isFinite(window.remainingPercent) && window.remainingPercent >= 0 && window.remainingPercent <= 100 ? window.remainingPercent : null,
+      durationMinutes: positiveFinite(window.durationMinutes), resetsAt: positiveFinite(window.resetsAt)
+    }] : [])
+  }] : []);
+  return {
+    provider: "codex", installed: value.installed, connected: value.connected, detail: value.detail, loginPending: value.loginPending === true, loginUrl,
+    account: value.connected && isRecord(value.account) ? { email: typeof value.account.email === "string" ? value.account.email : null, plan: typeof value.account.plan === "string" ? value.account.plan : null } : null,
+    models, selectedModel: typeof value.selectedModel === "string" && models.some((entry) => entry.id === value.selectedModel) ? value.selectedModel : null,
+    quotas: value.connected ? quotas : [], quotaDetail: typeof value.quotaDetail === "string" ? value.quotaDetail : null
+  };
 }
-
-async function errorFromResponse(response: Response): Promise<string> {
-  const payload: unknown = await response.json().catch(() => null);
-  return isError(payload) ? payload.error : `Erreur HTTP ${response.status}`;
+function positiveFinite(value: unknown): number | null { return typeof value === "number" && Number.isFinite(value) && value > 0 ? value : null; }
+function openaiStatus(value: unknown): OpenAIProviderStatus {
+  if (!isRecord(value) || value.provider !== "openai" || typeof value.connected !== "boolean" || typeof value.model !== "string") throw new Error("Statut API invalide. Redémarrez le serveur de l’application.");
+  return { provider: "openai", connected: value.connected, model: value.model };
 }
-
-function isAnswer(value: unknown): value is { answer: string } {
-  return typeof value === "object" && value !== null && "answer" in value && typeof value.answer === "string";
-}
-
-function isError(value: unknown): value is { error: string } {
-  return typeof value === "object" && value !== null && "error" in value && typeof value.error === "string";
-}
-
-function isBrowserStatus(value: unknown): value is BrowserProviderStatus {
-  return typeof value === "object" && value !== null
-    && "provider" in value && value.provider === "browser"
-    && "connected" in value && typeof value.connected === "boolean"
-    && "configured" in value && typeof value.configured === "boolean"
-    && "busy" in value && typeof value.busy === "boolean"
-    && "state" in value && typeof value.state === "string";
-}
-
-function isCodexStatus(value: unknown): value is CodexProviderStatus {
-  return typeof value === "object" && value !== null
-    && "provider" in value && value.provider === "codex"
-    && "installed" in value && typeof value.installed === "boolean"
-    && "connected" in value && typeof value.connected === "boolean"
-    && "detail" in value && typeof value.detail === "string";
-}
+function isRecord(value: unknown): value is Record<string, unknown> { return typeof value === "object" && value !== null && !Array.isArray(value); }

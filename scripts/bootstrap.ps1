@@ -3,6 +3,7 @@ param([switch]$PrepareOnly)
 $ErrorActionPreference = "Stop"
 
 function Show-LauncherError([string]$Message) {
+  if ($PrepareOnly) { [Console]::Error.WriteLine($Message); return }
   try {
     Add-Type -AssemblyName PresentationFramework -ErrorAction Stop
     [System.Windows.MessageBox]::Show($Message, "Build Analyzer", "OK", "Error") | Out-Null
@@ -56,14 +57,21 @@ try {
   $requiredFiles = @(
     "node_modules\vite\bin\vite.js",
     "node_modules\typescript\bin\tsc",
-    "node_modules\playwright\package.json"
+    "node_modules\playwright\package.json",
+    "node_modules\@openai\codex\bin\codex.js"
   )
   $dependenciesMissing = $requiredFiles.Where({ -not (Test-Path (Join-Path $projectRoot $_)) }).Count -gt 0
+  if (-not $dependenciesMissing) {
+    & $node --input-type=module -e "import { existsSync } from 'node:fs'; import { codexExecutable } from './scripts/codex-assistant-provider.mjs'; try { process.exit(existsSync(codexExecutable()) ? 0 : 1); } catch { process.exit(1); }"
+    $dependenciesMissing = $LASTEXITCODE -ne 0
+  }
 
   if ($dependenciesMissing -or $installedHash -ne $lockHash) {
     Write-Host "Installation des dependances du projet..." -ForegroundColor Cyan
-    & $npm install --include=dev --no-audit --no-fund
+    & $npm ci --include=dev --include=optional --no-audit --no-fund
     if ($LASTEXITCODE -ne 0) { throw "L'installation des dependances a echoue (code $LASTEXITCODE)." }
+    & $node --input-type=module -e "import { existsSync } from 'node:fs'; import { codexExecutable } from './scripts/codex-assistant-provider.mjs'; try { process.exit(existsSync(codexExecutable()) ? 0 : 1); } catch { process.exit(1); }"
+    if ($LASTEXITCODE -ne 0) { throw "Le moteur Codex est absent apres l'installation. Utilisez Node.js 64 bits (x64 ou ARM64) et autorisez les dependances optionnelles npm." }
     Set-Content -Path $stampFile -Value $lockHash -Encoding ASCII
   }
 
@@ -72,6 +80,19 @@ try {
     Write-Host "Installation du navigateur Chromium..." -ForegroundColor Cyan
     & $npx playwright install chromium
     if ($LASTEXITCODE -ne 0) { throw "L'installation de Chromium a echoue (code $LASTEXITCODE)." }
+  }
+
+  & $node --input-type=module -e "import { statisticsBrowserExecutable } from './scripts/dbd-statistics-provider.mjs'; try { statisticsBrowserExecutable(); } catch { process.exit(1); }"
+  if ($LASTEXITCODE -ne 0) {
+    $winget = Get-Command winget.exe -ErrorAction SilentlyContinue
+    if (-not $winget) {
+      throw "Google Chrome est necessaire aux statistiques. Installez-le depuis https://www.google.com/chrome/ puis relancez ce fichier."
+    }
+    Write-Host "Installation de Google Chrome pour la connexion aux statistiques..." -ForegroundColor Cyan
+    & $winget.Source install --id Google.Chrome --exact --silent --accept-package-agreements --accept-source-agreements
+    if ($LASTEXITCODE -ne 0) { throw "L'installation de Google Chrome a echoue (code $LASTEXITCODE). Installez-le depuis https://www.google.com/chrome/ puis relancez ce fichier." }
+    & $node --input-type=module -e "import { statisticsBrowserExecutable } from './scripts/dbd-statistics-provider.mjs'; try { statisticsBrowserExecutable(); } catch { process.exit(1); }"
+    if ($LASTEXITCODE -ne 0) { throw "Google Chrome reste introuvable apres installation. Relancez le fichier .bat." }
   }
 
   if ($PrepareOnly) {

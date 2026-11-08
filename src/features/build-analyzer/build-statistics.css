@@ -1,0 +1,36 @@
+.build-statistics { --bs-accent: #72d8cb; container-type: inline-size; display: grid; gap: 16px; padding: 8px 14px 16px; color: #e2e7e9; }
+.build-statistics.killer { --bs-accent: #f18e81; }
+.bs-heading { display: flex; align-items: start; justify-content: space-between; gap: 16px; }
+.bs-eyebrow { font-size: .62rem; font-weight: 700; letter-spacing: .18em; color: var(--bs-accent); }
+.bs-heading h3 { margin: 5px 0 7px; font-size: 1.35rem; letter-spacing: -.03em; }
+.bs-heading p, .bs-card > p, .bs-message p { margin: 0; color: #9ca9b1; font-size: .75rem; line-height: 1.6; }
+.bs-heading label { display: grid; flex-shrink: 0; gap: 5px; color: #9ca9b1; font-size: .65rem; }
+.bs-heading select { max-width: 160px; padding: 7px; border: 1px solid #344148; border-radius: 7px; background: #111a20; color: #e2e7e9; font: inherit; }
+.bs-perks { display: flex; flex-wrap: wrap; gap: 7px; }
+.bs-perks > span { display: flex; flex: 1 1 120px; align-items: center; gap: 7px; min-width: 0; padding: 6px 9px; border: 1px solid #323943; border-radius: 8px; background: linear-gradient(120deg, #35224166, #141b20); font-size: .67rem; }
+.bs-perks img { width: 34px; height: 34px; object-fit: contain; }
+.bs-kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+.bs-metric { display: grid; align-content: start; gap: 7px; padding: 16px; border: 1px solid #2e3a40; border-radius: 11px; background: linear-gradient(145deg, #1c2931, #11191e); }
+.bs-metric > span { font-size: .7rem; color: #b2bec5; }
+.bs-metric > strong { font-size: clamp(1.3rem, 2vw, 2rem); line-height: 1.1; font-variant-numeric: tabular-nums; letter-spacing: -.04em; }
+.bs-metric.accent { border-color: color-mix(in srgb, var(--bs-accent) 40%, #27343b); }
+.bs-metric.accent > strong { color: var(--bs-accent); }
+.bs-metric small, .bs-card small, .bs-updated { color: #8f9da5; font-size: .65rem; line-height: 1.5; }
+.bs-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.bs-card { min-width: 0; padding: 16px; border: 1px solid #2b363d; border-radius: 11px; background: #11191e; }
+.bs-card h4 { margin: 0 0 10px; font-size: .82rem; }
+.bs-card > p { margin-bottom: 14px; font-size: .67rem; }
+.bs-distribution { display: grid; gap: 12px; margin: 12px 0; }
+.bs-distribution > div { display: grid; grid-template-columns: 72px minmax(20px, 1fr) 24px; align-items: center; gap: 8px; font-size: .68rem; }
+.bs-distribution strong { text-align: right; font-variant-numeric: tabular-nums; }
+.bs-track { height: 7px; overflow: hidden; border-radius: 10px; background: #263039; }
+.bs-track i { display: block; height: 100%; background: #8595a1; border-radius: inherit; }
+.good .bs-track i { background: #72d8cb; }.bad .bs-track i { background: #e5867b; }.draw .bs-track i { background: #d7bb79; }
+.bs-card dl { display: grid; gap: 0; margin: 0 0 10px; }
+.bs-card dl > div, .bs-maps > div { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #283239; }
+.bs-card dt { color: #aebcc4; font-size: .7rem; }.bs-card dd { margin: 0; text-align: right; font-size: .75rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.bs-maps > div:last-child { border-bottom: 0; padding-bottom: 0; }.bs-maps strong { font-size: .75rem; }.bs-maps small { display: block; margin-top: 4px; }.bs-maps b { flex-shrink: 0; text-align: right; color: var(--bs-accent); font-size: 1rem; }.bs-maps b small { font-weight: 400; }
+.bs-message { padding: 22px; border: 1px dashed #43515b; border-radius: 10px; text-align: center; font-size: .8rem; }.bs-message p { margin-top: 8px; }.bs-message button { margin-top: 12px; padding: 7px 13px; border: 1px solid #455660; border-radius: 7px; background: #23323a; color: #e2e7e9; cursor: pointer; }.bs-updated { margin: 0; text-align: right; }
+@media (max-width: 1100px) { .bs-columns { grid-template-columns: minmax(0, 1fr); }.bs-heading { flex-wrap: wrap; } }
+@container (min-width: 760px) { .bs-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }.bs-metric { padding: 14px; }.bs-metric > strong { font-size: 1.55rem; } }
+@media (max-width: 450px) { .bs-kpis { grid-template-columns: minmax(0, 1fr); } }

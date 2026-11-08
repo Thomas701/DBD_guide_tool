@@ -5,7 +5,7 @@ import {
   collectBuildConditions
 } from "../dist/src/services/build-calculator.js";
 
-const perks = JSON.parse(fs.readFileSync(new URL("../src/data/generated/perks.json", import.meta.url), "utf8"));
+const perks = ["perks.json", "survivor-perks.json"].flatMap((file) => JSON.parse(fs.readFileSync(new URL(`../src/data/generated/${file}`, import.meta.url), "utf8")));
 const killer = {
   id: "audit",
   name: { fr: "Audit", en: "Audit" },
@@ -45,7 +45,9 @@ for (const perk of perks) {
     calculations: calculations.length,
     numeric: result.affectedStats.length,
     qualitative: result.qualitativeEffects.length,
-    unresolved: result.unresolvedEffects.length
+    unresolved: result.unresolvedEffects.length,
+    estimated: result.affectedStats.some((stat) => stat.approximate) || perk.effects.some((effect) => effect.interpretation === "inferred"),
+    side: perk.side
   });
 }
 
@@ -53,6 +55,7 @@ const summary = {
   perks: rows.length,
   withoutEffects: rows.filter((row) => row.effects === 0).length,
   fullyExplained: rows.filter((row) => row.effects > 0 && row.unresolved === 0).length,
+  withEstimates: rows.filter((row) => row.estimated).length,
   partial: rows.filter((row) => row.unresolved > 0 && (row.numeric > 0 || row.qualitative > 0)).length,
   unresolvedOnly: rows.filter((row) => row.effects > 0 && row.unresolved > 0 && row.numeric === 0 && row.qualitative === 0).length,
   accountingMismatch: rows.filter((row) => row.effects > 0 && row.calculations < row.effects).length
@@ -60,6 +63,7 @@ const summary = {
 
 console.log("Audit Build Analyzer");
 console.table(summary);
+console.table(["killer", "survivor"].map((side) => ({ side, perks: rows.filter((row) => row.side === side).length, withoutEffects: rows.filter((row) => row.side === side && !row.effects).length, unresolved: rows.filter((row) => row.side === side && row.unresolved).length, estimated: rows.filter((row) => row.side === side && row.estimated).length })));
 printRows("Perks sans effet structuré", rows.filter((row) => row.effects === 0));
 printRows("Analyses partielles ou non résolues", rows.filter((row) => row.unresolved > 0));
 console.log("\nRaisons non résolues");

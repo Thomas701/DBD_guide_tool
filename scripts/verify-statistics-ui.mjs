@@ -15,6 +15,7 @@ try {
   snapshot.matchHistory = extractMatchHistoryEntriesFromHtml(await readFile("html_history_match_example.txt", "utf8"), "https://stats.deadbydaylight.com/match-history/", new Date("2026-09-17T21:00:00Z"));
   // Use a different participant loadout to catch accidentally showing the main player's perks.
   snapshot.matchHistory[0].participants[0].perkIconUrls = [snapshot.matchHistory[0].perkIconUrls.at(-1)];
+  snapshot.matchHistory[0].participants[0].perkIconLabels = [snapshot.matchHistory[0].perkIconLabels.at(-1)];
   snapshot.matchHistory[0].participants[0].equipmentIconUrls = [];
   snapshot.matchHistory = [
     ...snapshot.matchHistory,
@@ -53,7 +54,7 @@ try {
   await dialog.waitFor();
   const participant = snapshot.matchHistory[0].participants[0];
   assert.equal(await dialog.locator(".statistics-loadout-icon.perk").count(), 1);
-  assert.deepEqual(await dialog.locator(".statistics-loadout-icon.perk img").evaluateAll(nodes => nodes.map(node => node.getAttribute("src"))), participant.perkIconUrls);
+  assert.deepEqual(await dialog.locator(".statistics-loadout-icon.perk img").evaluateAll(nodes => nodes.map(node => node.getAttribute("src"))), [await cards.first().locator(".statistics-loadout-icon.perk img").last().getAttribute("src")]);
   await page.keyboard.press("Escape");
   assert.equal(await page.getByRole("dialog").count(), 0);
   await page.getByRole("button", { name: "Page suivante", exact: true }).first().click();

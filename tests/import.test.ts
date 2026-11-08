@@ -261,11 +261,15 @@ test("l'import complet produit les métriques auditées sans perdre les lignes s
   ), true);
   assert.equal(bundle.perks.filter((perk) => perk.icon !== null).length, 145);
   assert.equal(bundle.perks.filter((perk) => perk.description.fr !== null).length, 136);
+  const franklin = bundle.perks.find((perk) => perk.id === "franklins-demise");
+  assert.match(JSON.stringify(franklin?.description.fr), /32 \/ 48 \/ 64/);
+  assert.equal(bundle.report.unresolvedDescriptions.perks.some((perk) => perk.perkId === "franklins-demise"), false);
+  assert.deepEqual(bundle.perks.find((perk) => perk.id === "hex-ruin")?.effects[0]?.condition, { type: "hex_active" });
   assert.equal(bundle.killers.filter((killer) => killer.portrait !== null).length, 42);
   assert.equal(bundle.report.unresolvedIcons.length, 0);
   assert.equal(bundle.report.unusedIcons.length, 0);
   assert.equal(bundle.report.unresolvedKillerPortraits.length, 0);
-  assert.equal(bundle.report.unusedKillerPortraits.length, 2);
+  assert.deepEqual(bundle.report.unusedKillerPortraits, ["cenobite.png", "entity.png", "myers.png", "shape.png"]);
   assert.equal(bundle.report.incompleteTranslations.perkNamesEn, 0);
   assert.equal(bundle.report.incompleteTranslations.killerNamesEn, 0);
   assert.equal(bundle.report.unparsedEffects.some((entry) => entry.token.includes("+x")), true);

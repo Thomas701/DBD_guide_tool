@@ -9,7 +9,7 @@ if (!root) throw new Error("Élément #root introuvable");
 
 if (import.meta.env.PROD && "serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    void navigator.serviceWorker.register("./sw.js").catch(() => undefined);
+    void navigator.serviceWorker.register(`./sw.js?v=${encodeURIComponent(__APP_BUILD_ID__)}`).catch(() => undefined);
   }, { once: true });
 }
 

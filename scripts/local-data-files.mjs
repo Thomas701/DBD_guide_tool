@@ -18,11 +18,11 @@ export async function readStatisticsSnapshot() {
   if (JSON.stringify(stored?.matchHistory) !== JSON.stringify(snapshot.matchHistory)) {
     await writeJson(statisticsSnapshotFile(), snapshot);
   }
-  return { ...snapshot, importedCount: 0, fetchedCount: 0 };
+  return { ...snapshot, matchHistory: visibleMatchHistory(snapshot), importedCount: 0, fetchedCount: 0 };
 }
 
 export async function syncStatisticsSnapshot(snapshot) {
-  const current = await readStatisticsSnapshot();
+  const current = normalizeStatisticsSnapshot(await readJson(statisticsSnapshotFile()).catch(() => null));
   const incoming = normalizeStatisticsSnapshot(snapshot);
   const currentIds = new Set(current.matchHistory.map((entry) => entry.id));
   const importedCount = mergeMatchHistoryEntries([], incoming.matchHistory).reduce((count, entry) => count + (currentIds.has(entry.id) ? 0 : 1), 0);
@@ -30,10 +30,48 @@ export async function syncStatisticsSnapshot(snapshot) {
     schemaVersion: 1,
     updatedAt: new Date().toISOString(),
     statistics: incoming.statistics ?? current.statistics,
-    matchHistory: mergeMatchHistoryEntries(current.matchHistory, incoming.matchHistory)
+    matchHistory: mergeMatchHistoryEntries(current.matchHistory, incoming.matchHistory),
+    deletedMatchIds: current.deletedMatchIds,
+    matchEdits: current.matchEdits
   };
   await writeJson(statisticsSnapshotFile(), next);
-  return { ...next, importedCount, fetchedCount: incoming.matchHistory.length };
+  return { ...next, matchHistory: visibleMatchHistory(next), importedCount, fetchedCount: incoming.matchHistory.length };
+}
+
+export async function updateMatchHistoryEntry(id, changes) {
+  const current = normalizeStatisticsSnapshot(await readJson(statisticsSnapshotFile()).catch(() => null));
+  const entry = current.matchHistory.find((match) => match.id === id);
+  if (!entry || !isRecord(changes)) throw new TypeError("Partie introuvable ou modification invalide.");
+  const edited = readMatchHistoryEntry({ ...entry, ...changes, id });
+  if (!edited) throw new TypeError("Modification de partie invalide.");
+  const patch = Object.fromEntries(Object.entries(edited).filter(([key, value]) => key !== "id" && key !== "participants" && JSON.stringify(value) !== JSON.stringify(entry[key])));
+  patch.participants = edited.participants.map((participant, index) => Object.fromEntries(
+    Object.entries(participant).filter(([key, value]) => JSON.stringify(value) !== JSON.stringify(entry.participants[index]?.[key]))
+  ));
+  current.matchEdits[id] = patch;
+  await writeJson(statisticsSnapshotFile(), current);
+  return { ...current, matchHistory: visibleMatchHistory(current), importedCount: 0, fetchedCount: 0 };
+}
+
+export async function deleteMatchHistoryEntry(id) {
+  const current = normalizeStatisticsSnapshot(await readJson(statisticsSnapshotFile()).catch(() => null));
+  if (!current.matchHistory.some((match) => match.id === id)) throw new TypeError("Partie introuvable.");
+  current.deletedMatchIds = [...new Set([...current.deletedMatchIds, id])];
+  delete current.matchEdits[id];
+  await writeJson(statisticsSnapshotFile(), current);
+  return { ...current, matchHistory: visibleMatchHistory(current), importedCount: 0, fetchedCount: 0 };
+}
+
+function visibleMatchHistory(snapshot) {
+  const deleted = new Set(snapshot.deletedMatchIds);
+  return snapshot.matchHistory.filter((entry) => !deleted.has(entry.id)).map((entry) => {
+    const patch = snapshot.matchEdits[entry.id];
+    if (!patch) return entry;
+    return {
+      ...entry, ...patch, id: entry.id,
+      participants: entry.participants.map((participant, index) => ({ ...participant, ...patch.participants?.[index] }))
+    };
+  }).sort(compareMatchHistoryEntries);
 }
 
 export async function updateNativePerk(perkId, changes) {
@@ -135,8 +173,8 @@ function hydrateSurvivorPerk(perk, survivorOwners, survivorDescriptions) {
       fr: isRecord(survivorDescriptions[perk.id]) ? survivorDescriptions[perk.id] : null,
       en: null
     },
-    cooldown: null,
-    analysisReadiness: "unavailable"
+    cooldown: perk.cooldown ?? null,
+    analysisReadiness: Array.isArray(perk.effects) && perk.effects.length ? perk.analysisReadiness ?? "ready" : "unavailable"
   };
 }
 
@@ -150,6 +188,10 @@ export function mergeMatchHistoryEntries(existingEntries, incomingEntries) {
     const previous = merged.get(entry.id);
     merged.set(entry.id, previous ? {
       ...entry,
+      queueLabel: entry.queueLabel ?? previous.queueLabel,
+      survivalTimeLabel: entry.survivalTimeLabel ?? previous.survivalTimeLabel,
+      emblemIconUrls: entry.emblemIconUrls ?? previous.emblemIconUrls,
+      emblemIconLabels: entry.emblemIconLabels ?? previous.emblemIconLabels,
       importedAt: previous.importedAt < entry.importedAt ? previous.importedAt : entry.importedAt,
       participants: entry.participants.map((participant, index) => {
         const old = previous.participants[index];
@@ -162,13 +204,16 @@ export function mergeMatchHistoryEntries(existingEntries, incomingEntries) {
 
 function normalizeStatisticsSnapshot(value) {
   if (!isRecord(value)) {
-    return { schemaVersion: 1, updatedAt: null, statistics: null, matchHistory: [] };
+    return { schemaVersion: 1, updatedAt: null, statistics: null, matchHistory: [], deletedMatchIds: [], matchEdits: {} };
   }
+  const matchEdits = isRecord(value.matchEdits) ? value.matchEdits : {};
   return {
     schemaVersion: 1,
     updatedAt: normalizeIsoString(value.updatedAt),
     statistics: readStatisticsOverview(value.statistics),
-    matchHistory: normalizeMatchHistoryEntryArray(value.matchHistory)
+    matchHistory: normalizeMatchHistoryEntryArray(value.matchHistory),
+    deletedMatchIds: normalizeStringArray(value.deletedMatchIds),
+    matchEdits
   };
 }
 
@@ -203,6 +248,9 @@ function readMatchHistoryEntry(value) {
     id,
     role: value.role === "killer" || value.role === "survivor" ? value.role : "unknown",
     characterName,
+    survivalTimeLabel: normalizeString(value.survivalTimeLabel),
+    emblemIconUrls: Array.isArray(value.emblemIconUrls) ? normalizeStringArray(value.emblemIconUrls).slice(0, 4) : undefined,
+    emblemIconLabels: Array.isArray(value.emblemIconLabels) ? normalizeNullableStringArray(value.emblemIconLabels).slice(0, 4) : undefined,
     resultLabel: normalizeString(value.resultLabel),
     score: finiteNumberOrNull(value.score),
     characterImageUrl: normalizeString(value.characterImageUrl),
@@ -221,7 +269,7 @@ function readMatchHistoryEntry(value) {
     playedAt: normalizeIsoString(value.playedAt),
     playedAtLabel: normalizeString(value.playedAtLabel),
     durationLabel: normalizeString(value.durationLabel),
-    queueLabel: normalizeString(value.queueLabel),
+    queueLabel: normalizeString(value.queueLabel) ?? (/\bLights Out\b/i.test(value.resultLabel ?? "") ? "Lights Out" : null),
     sourceUrl,
     importedAt
   };
@@ -230,6 +278,8 @@ function readMatchHistoryEntry(value) {
 function readMatchHistoryParticipant(value) {
   if (!isRecord(value)) return null;
   return {
+    emblemIconUrls: Array.isArray(value.emblemIconUrls) ? normalizeStringArray(value.emblemIconUrls).slice(0, 4) : undefined,
+    emblemIconLabels: Array.isArray(value.emblemIconLabels) ? normalizeNullableStringArray(value.emblemIconLabels).slice(0, 4) : undefined,
     name: normalizeString(value.name),
     role: value.role === "killer" || value.role === "survivor" ? value.role : "unknown",
     imageUrl: normalizeString(value.imageUrl),

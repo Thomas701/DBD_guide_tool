@@ -4,9 +4,12 @@ import survivorsJson from "../data/generated/survivors.json";
 import survivorPerksJson from "../data/generated/survivor-perks.json";
 import survivorPerkDescriptions from "../data/generated/survivor-perk-descriptions.json";
 import survivorPerkOwners from "../data/generated/survivor-perk-owners.json";
+import { SURVIVOR_PERK_CATEGORIES_BY_ID } from "../data/survivor-perk-categories.js";
+import { SURVIVOR_PERK_EFFECTS } from "../data/survivor-perk-effects.js";
 import type { Killer } from "../domain/killer.js";
 import type { Perk } from "../domain/perk.js";
 import type { RichDescription } from "../domain/rich-description.js";
+import { perkCooldown } from "../services/perk-cooldown.js";
 
 const additionalKillers: Killer[] = [
   { id: "myers", name: { fr: "la forme", en: "The Shape" }, portrait: "DBDImages-main/DBDImages-main/images/characters/killer/myers.png", speed: 4.2, terrorRadius: 32, size: "big", tier: "C+", difficulty: "easy" },
@@ -28,13 +31,15 @@ export const perks: Perk[] = [
   ...(perksJson as Perk[]),
   ...((survivorPerksJson as unknown as Array<Partial<Perk>>).map((perk) => ({
     ...perk,
+    categories: [...(SURVIVOR_PERK_CATEGORIES_BY_ID[perk.id ?? ""] ?? [])],
     characterId: survivorOwners[perk.id ?? ""] ?? null,
     characterResolution: survivorOwners[perk.id ?? ""] ? "resolved" : "general",
     description: { fr: survivorDescriptions[perk.id ?? ""] ?? null, en: null },
-    cooldown: null,
-    analysisReadiness: "unavailable"
+    effects: [...(SURVIVOR_PERK_EFFECTS[perk.id ?? ""] ?? [])],
+    effectImportStatus: SURVIVOR_PERK_EFFECTS[perk.id ?? ""] ? "parsed" : "unparsed",
+    analysisReadiness: !SURVIVOR_PERK_EFFECTS[perk.id ?? ""] ? "unavailable" : SURVIVOR_PERK_EFFECTS[perk.id ?? ""]!.some((effect) => effect.interpretation === "inferred") ? "partial" : "ready"
   } as Perk)))
-];
+].map((perk) => ({ ...perk, cooldown: perkCooldown(perk) }));
 export const killerById = new Map(killers.map((killer) => [killer.id, killer]));
 export const survivorById = new Map(survivors.map((survivor) => [survivor.id, survivor]));
 export const characterById = new Map([...killers, ...survivors].map((character) => [character.id, character]));

@@ -1,0 +1,194 @@
+{
+  "type": "object",
+  "properties": {
+    "answer": {
+      "type": "string"
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "update_perk_description"
+                ]
+              },
+              "perkId": {
+                "type": "string"
+              },
+              "descriptionHtml": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "perkId",
+              "descriptionHtml"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "set_killer_tier"
+                ]
+              },
+              "killerId": {
+                "type": "string"
+              },
+              "tier": {
+                "type": "string",
+                "enum": [
+                  "S+",
+                  "S-",
+                  "A+",
+                  "A-",
+                  "B+",
+                  "B-",
+                  "C+",
+                  "C-",
+                  "D"
+                ]
+              }
+            },
+            "required": [
+              "type",
+              "killerId",
+              "tier"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "set_perk_tier"
+                ]
+              },
+              "perkId": {
+                "type": "string"
+              },
+              "tier": {
+                "type": "string",
+                "enum": [
+                  "S+",
+                  "S-",
+                  "A+",
+                  "A-",
+                  "B+",
+                  "B-",
+                  "C+",
+                  "C-",
+                  "D"
+                ]
+              }
+            },
+            "required": [
+              "type",
+              "perkId",
+              "tier"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "save_build"
+                ]
+              },
+              "buildId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "name": {
+                "type": "string"
+              },
+              "side": {
+                "type": "string",
+                "enum": [
+                  "killer",
+                  "survivor"
+                ]
+              },
+              "killerId": {
+                "type": "string"
+              },
+              "perkIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "type",
+              "buildId",
+              "name",
+              "side",
+              "killerId",
+              "perkIds"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "set_current_build"
+                ]
+              },
+              "name": {
+                "type": "string"
+              },
+              "side": {
+                "type": "string",
+                "enum": [
+                  "killer",
+                  "survivor"
+                ]
+              },
+              "killerId": {
+                "type": "string"
+              },
+              "perkIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "type",
+              "name",
+              "side",
+              "killerId",
+              "perkIds"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    }
+  },
+  "required": [
+    "answer",
+    "actions"
+  ],
+  "additionalProperties": false
+}

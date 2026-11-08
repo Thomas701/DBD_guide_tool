@@ -46,7 +46,9 @@ export const KNOWN_CONDITIONS = [
   "devour_hope_5_tokens",
   "forever_entwined_max_tokens",
   "exit_gate_progress_80",
-  "perk_triggered"
+  "perk_triggered",
+  "trial_start", "fire_up_five_tokens", "ravenous_four_tokens", "scourge_hook", "weeping_wounds_healed", "far_from_hook", "grim_embrace_four_tokens", "repairing_generator", "survivor_within_24m", "dying_light_three_tokens",
+  "survivor_healthy", "survivor_exhausted", "survivor_inside_boon", "survivor_rescued_ally", "survivor_healed_ally", "survivor_on_revealed_generator", "survivor_safe_rescue", "survivor_ally_two_hook_states", "survivor_hyperfocus_six_tokens", "survivor_last_alive", "survivor_deep_wound", "survivor_aura_visible_to_killer", "survivor_hex_cleansed", "survivor_coop_repair", "survivor_six_tokens", "survivor_in_basement", "survivor_four_alive", "survivor_healing_downed_ally", "survivor_five_tokens", "survivor_using_flashlight", "survivor_boon_active"
 ] as const;
 
 export type KnownConditionType = (typeof KNOWN_CONDITIONS)[number];

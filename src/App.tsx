@@ -10,6 +10,7 @@ import { KILLER_TIERS, type Killer, type KillerTier } from "./domain/killer.js";
 import type { Perk, PerkSide } from "./domain/perk.js";
 import { BuildAnalyzer } from "./features/build-analyzer/BuildAnalyzer.js";
 import { BuildAssistant } from "./features/build-assistant/BuildAssistant.js";
+import { hasMeaningfulDescriptionContent, sanitizeDescriptionHtml } from "./components/rich-description-html.js";
 import { BuildEditor } from "./features/build-editor/BuildEditor.js";
 import { BuildSummary } from "./features/build-summary/BuildSummary.js";
 import { BlindTestView } from "./features/blind-test/BlindTestView.js";
@@ -19,6 +20,7 @@ import { PerkInspectorPanel } from "./features/perk-browser/PerkInspectorPanel.j
 import { PerkBrowser } from "./features/perk-browser/PerkBrowser.js";
 import { PerkFiltersPanel } from "./features/perk-browser/PerkFiltersPanel.js";
 import { SavedBuilds } from "./features/saved-builds/SavedBuilds.js";
+import { TierListView } from "./features/tier-list/TierListView.js";
 import { StatisticsAutoSync } from "./features/statistics/StatisticsAutoSync.js";
 import { StatisticsView } from "./features/statistics/StatisticsView.js";
 import {
@@ -29,6 +31,8 @@ import {
 } from "./services/description-overrides.js";
 import { BUILDS_STORAGE_KEY, LocalBuildRepository } from "./services/build-repository.js";
 import { ASSISTANT_SERVER_STORAGE_KEY, normalizeServerUrl } from "./services/assistant-provider.js";
+import { applyAssistantActions, validateAssistantSnapshot, type AssistantAction, type AssistantActionSnapshot } from "./services/assistant-actions.js";
+import { LocalTierOverrideRepository, rankPerks, TIER_OVERRIDES_STORAGE_KEY, type TierOverrides } from "./services/tier-list.js";
 import { APP_SESSION_STORAGE_KEY, DEFAULT_APP_SESSION, readAppSession, type AppSession, type AppView } from "./services/app-session.js";
 import {
   calculateBuild,
@@ -40,6 +44,7 @@ import {
 import { createCurrentBuildExport, syncCurrentBuildFile, updateNativePerk } from "./services/local-data.js";
 import { DEFAULT_KILLER_OPTIONS, type KillerListOptions } from "./services/killer-selector.js";
 import { DEFAULT_PERK_FILTERS, type PerkFilters } from "./services/perk-filter.js";
+import { perkCooldown } from "./services/perk-cooldown.js";
 import { killerPowerDescription } from "./services/killer-powers.js";
 import { checkAppUpdate, installAppUpdate, type AppUpdateStatus } from "./services/app-updater.js";
 
@@ -69,6 +74,7 @@ export default function App() {
   const [initialSession] = useState(loadPersistedAppSession);
   const [activeView, setActiveView] = useState<AppView>(initialSession.activeView);
   const [side, setSide] = useState<PerkSide>(initialSession.side);
+  const [buildSessions, setBuildSessions] = useState(initialSession.buildSessions);
   const [topbarMenu, setTopbarMenu] = useState<TopbarMenu>(null);
   const [howToPlayOpen, setHowToPlayOpen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(initialSession.soundEnabled);
@@ -93,6 +99,8 @@ export default function App() {
   const [descriptionOverrides, setDescriptionOverrides] = useState<Record<string, string>>(descriptionRepositoryState.overrides);
   const [categoryRepositoryState] = useState(createCategoryOverrideRepository);
   const [categoryOverrides, setCategoryOverrides] = useState<Record<string, PerkCategory[]>>(categoryRepositoryState.overrides);
+  const [tierRepositoryState] = useState(createTierOverrideRepository);
+  const [tierOverrides, setTierOverrides] = useState<TierOverrides>(tierRepositoryState.overrides);
   const [repositoryState] = useState(createBuildRepository);
   const [repositoryMessage, setRepositoryMessage] = useState<string | null>(null);
   const [canResetStorage, setCanResetStorage] = useState(false);
@@ -116,11 +124,14 @@ export default function App() {
   const buildRepository = repositoryState.repository;
   const descriptionOverrideRepository = descriptionRepositoryState.repository;
   const categoryOverrideRepository = categoryRepositoryState.repository;
-  const effectivePerks = useMemo(() => catalogPerks.map((perk) => Object.hasOwn(categoryOverrides, perk.id)
-    ? { ...perk, categories: categoryOverrides[perk.id] ?? [] }
-    : perk
-  ), [catalogPerks, categoryOverrides]);
-  const activeCharacters = side === "survivor" ? survivors : killers;
+  const effectivePerks = useMemo(() => catalogPerks.map((perk) => ({
+    ...perk,
+    cooldown: perkCooldown(perk, descriptionOverrides[perk.id]),
+    categories: categoryOverrides[perk.id] ?? perk.categories
+  })), [catalogPerks, categoryOverrides, descriptionOverrides]);
+  const effectiveKillers = useMemo(() => killers.map((killer) => ({ ...killer, tier: tierOverrides.killers[killer.id] ?? killer.tier })), [tierOverrides.killers]);
+  const perkTierList = useMemo(() => rankPerks(effectivePerks, tierOverrides.perks), [effectivePerks, tierOverrides.perks]);
+  const activeCharacters = side === "survivor" ? survivors : effectiveKillers;
   const selectedKiller = selectedKillerId ? activeCharacters.find((character) => character.id === selectedKillerId) ?? null : null;
   const selectedNativePerk = selectedPerkId ? catalogPerks.find((perk) => perk.id === selectedPerkId) ?? null : null;
   const selectedPerk = selectedPerkId ? effectivePerks.find((perk) => perk.id === selectedPerkId) ?? null : null;
@@ -130,17 +141,19 @@ export default function App() {
     return perk ? [perk] : [];
   }), [equippedPerkIds, effectivePerks]);
   const calculation = useMemo(
-    () => selectedKiller ? calculateBuild({ killer: selectedKiller, perks: equippedPerks, scenario }) : null,
-    [selectedKiller, equippedPerks, scenario]
+    () => selectedKiller ? calculateBuild({ killer: selectedKiller, perks: equippedPerks, scenario, side }) : null,
+    [selectedKiller, equippedPerks, scenario, side]
   );
   const currentBuildExport = useMemo(() => createCurrentBuildExport({
     activeBuildId,
     buildName,
     killer: selectedKiller,
+    side,
     perks: equippedPerks,
     scenario,
-    calculation
-  }), [activeBuildId, buildName, selectedKiller, equippedPerks, scenario, calculation]);
+    calculation,
+    perkDescriptionOverrides: descriptionOverrides
+  }), [activeBuildId, buildName, selectedKiller, equippedPerks, scenario, calculation, descriptionOverrides, side]);
 
   useEffect(() => {
     killerThemeAudioRef.current = new Audio();
@@ -163,27 +176,25 @@ export default function App() {
   }, [soundEnabled, musicVolume, terrorRadiusPlayback.volume]);
 
   useEffect(() => {
-    const timeout = window.setTimeout(() => {
-      const session: AppSession = {
-        activeView,
-        side,
-        soundEnabled,
-        musicVolume,
-        selectedKillerId,
-        selectedPerkId,
-        equippedPerkIds,
-        activeBuildId,
-        buildName,
-        conversationKey,
-        scenario,
-        paneLayout,
-        sidebarLayout,
-        catalogScrollPositions: { ...catalogScrollPositionsRef.current }
-      };
-      try { window.localStorage.setItem(APP_SESSION_STORAGE_KEY, JSON.stringify(session)); } catch { /* Reprise indisponible si le navigateur bloque le stockage. */ }
-    }, 120);
-    return () => window.clearTimeout(timeout);
-  }, [activeView, side, soundEnabled, musicVolume, selectedKillerId, selectedPerkId, equippedPerkIds, activeBuildId, buildName, conversationKey, scenario, paneLayout, sidebarLayout]);
+    const session: AppSession = {
+      activeView,
+      side,
+      soundEnabled,
+      musicVolume,
+      selectedKillerId,
+      selectedPerkId,
+      equippedPerkIds,
+      activeBuildId,
+      buildName,
+      conversationKey,
+      scenario,
+      buildSessions: { ...buildSessions, [side]: { selectedKillerId, selectedPerkId, equippedPerkIds, activeBuildId, buildName, conversationKey, scenario } },
+      paneLayout,
+      sidebarLayout,
+      catalogScrollPositions: { ...catalogScrollPositionsRef.current }
+    };
+    try { window.localStorage.setItem(APP_SESSION_STORAGE_KEY, JSON.stringify(session)); } catch { /* Reprise indisponible si le navigateur bloque le stockage. */ }
+  }, [activeView, side, soundEnabled, musicVolume, selectedKillerId, selectedPerkId, equippedPerkIds, activeBuildId, buildName, conversationKey, scenario, buildSessions, paneLayout, sidebarLayout]);
 
   useEffect(() => {
     const previousView = previousViewRef.current;
@@ -212,7 +223,7 @@ export default function App() {
     if (missingConditions.length === 0 && missingRuntimePerks.length === 0) return;
     setScenario((current) => ({
       ...current,
-      conditions: { ...current.conditions, ...Object.fromEntries(missingConditions.map((condition) => [condition, true])) },
+      conditions: { ...current.conditions, ...Object.fromEntries(missingConditions.map((condition) => [condition, side !== "survivor" || (condition === "survivor_healthy" ? !current.conditions.survivor_injured && !current.conditions.survivor_downed : !["survivor_exhausted", "survivor_injured", "survivor_downed"].includes(condition))])) },
       perkStates: { ...current.perkStates, ...Object.fromEntries(missingRuntimePerks.map((perk) => [perk.id, "active" as const])) }
     }));
   }, [equippedPerkIds]);
@@ -232,15 +243,22 @@ export default function App() {
         setCategoryOverrides(categoryOverrideRepository.list());
       }
     };
+    const syncTierOverrides = (event: StorageEvent): void => {
+      if (event.key === TIER_OVERRIDES_STORAGE_KEY || event.key === null) {
+        try { setTierOverrides(tierRepositoryState.repository.list()); } catch (error) { setRepositoryMessage(errorMessage(error)); }
+      }
+    };
     window.addEventListener("storage", syncBuilds);
     window.addEventListener("storage", syncDescriptionOverrides);
     window.addEventListener("storage", syncCategoryOverrides);
+    window.addEventListener("storage", syncTierOverrides);
     return () => {
       window.removeEventListener("storage", syncBuilds);
       window.removeEventListener("storage", syncDescriptionOverrides);
       window.removeEventListener("storage", syncCategoryOverrides);
+      window.removeEventListener("storage", syncTierOverrides);
     };
-  }, [buildRepository, categoryOverrideRepository, descriptionOverrideRepository]);
+  }, [buildRepository, categoryOverrideRepository, descriptionOverrideRepository, tierRepositoryState.repository]);
 
   const defaultName = selectedKiller ? defaultBuildName(selectedKiller) : "";
   const activeSavedBuild = activeBuildId ? savedBuilds.find((build) => build.id === activeBuildId) ?? null : null;
@@ -287,17 +305,24 @@ export default function App() {
     };
   }, []);
 
+  function rememberCurrentBuild(): void {
+    setBuildSessions((current) => ({ ...current, [side]: { selectedKillerId, selectedPerkId, equippedPerkIds, activeBuildId, buildName, conversationKey, scenario } }));
+  }
+
   function toggleSide(): void {
     runUiTransition(() => {
       const nextSide: PerkSide = side === "killer" ? "survivor" : "killer";
+      rememberCurrentBuild();
+      const remembered = buildSessions[nextSide];
       setSide(nextSide);
-      setSelectedKillerId(null);
-      setSelectedPerkId(null);
-      setEquippedPerkIds([]);
-      setActiveBuildId(null);
-      setBuildName("");
-      setScenario(emptyScenario());
-      setConversationKey(newConversationKey("draft"));
+      setSelectedKillerId(remembered.selectedKillerId);
+      setSelectedPerkId(remembered.selectedPerkId);
+      setEquippedPerkIds(remembered.equippedPerkIds);
+      setActiveBuildId(savedBuilds.some((build) => build.id === remembered.activeBuildId && build.side === nextSide) ? remembered.activeBuildId : null);
+      setBuildName(remembered.buildName);
+      setScenario(remembered.scenario);
+      setConversationKey(remembered.conversationKey === "empty-build" ? newConversationKey("draft") : remembered.conversationKey);
+      setRepositoryMessage(null);
       setPerkFilters({ ...DEFAULT_PERK_FILTERS, side: nextSide, categories: [] });
       setKillerOptions({ ...DEFAULT_KILLER_OPTIONS, sortBy: nextSide === "survivor" ? "name" : DEFAULT_KILLER_OPTIONS.sortBy });
       setActiveView("killers");
@@ -401,6 +426,7 @@ export default function App() {
     }
     const knownPerkIds = build.perkIds.filter((id) => catalogPerks.some((perk) => perk.id === id && perk.side === buildSide));
     const missingPerkCount = build.perkIds.length - knownPerkIds.length;
+    if (buildSide !== side) rememberCurrentBuild();
     setSide(buildSide);
     setPerkFilters({ ...DEFAULT_PERK_FILTERS, side: buildSide, categories: [] });
     setSelectedKillerId(killer.id);
@@ -422,6 +448,7 @@ export default function App() {
     try {
       const duplicate = buildRepository.duplicate(build.id, `${build.name} (copie)`);
       setSavedBuilds(buildRepository.list());
+      if (duplicate.side !== side) rememberCurrentBuild();
       setSide(duplicate.side);
       setPerkFilters({ ...DEFAULT_PERK_FILTERS, side: duplicate.side, categories: [] });
       setSelectedKillerId(duplicate.killerId);
@@ -476,6 +503,10 @@ export default function App() {
       const conditions = { ...current.conditions, [condition]: active };
       const opposite = OPPOSITE_CONDITIONS.get(condition);
       if (active && opposite) conditions[opposite] = false;
+      const healthStates = ["survivor_healthy", "survivor_injured", "survivor_downed"];
+      if (side === "survivor" && active && healthStates.includes(condition)) {
+        healthStates.filter((state) => state !== condition).forEach((state) => { conditions[state] = false; });
+      }
       return { ...current, conditions };
     });
   }
@@ -493,6 +524,44 @@ export default function App() {
 
   function saveDescriptionOverride(perkId: string, html: string): void {
     setDescriptionOverrides(descriptionOverrideRepository.update(perkId, html));
+  }
+
+  function moveTier(kind: keyof TierOverrides, id: string, tier: KillerTier): void {
+    const known = kind === "killers" ? effectiveKillers.some((killer) => killer.id === id) : effectivePerks.some((perk) => perk.id === id);
+    if (!known || !(KILLER_TIERS as readonly string[]).includes(tier)) throw new Error("Entrée ou tier inconnu.");
+    setTierOverrides(tierRepositoryState.repository.update(kind, id, tier));
+  }
+
+  function applyChatActions(actions: readonly AssistantAction[], snapshot: AssistantActionSnapshot): string[] {
+    if (actions.length === 0) return [];
+    const currentBuilds = buildRepository.list();
+    validateAssistantSnapshot(actions, snapshot, { currentBuild: currentBuildExport, savedBuilds: currentBuilds, perks: effectivePerks, perkDescriptionOverrides: descriptionOverrides });
+    return applyAssistantActions(actions, { killers: effectiveKillers, survivors, perks: effectivePerks, builds: currentBuilds }, {
+      updateDescription: (perkId, html) => {
+        const sanitized = sanitizeDescriptionHtml(html);
+        if (!hasMeaningfulDescriptionContent(sanitized)) throw new Error("Description vide après nettoyage.");
+        saveDescriptionOverride(perkId, sanitized);
+      },
+      updateKillerTier: (id, tier) => moveTier("killers", id, tier),
+      updatePerkTier: (id, tier) => moveTier("perks", id, tier),
+      saveBuild: (action) => {
+        const saved = action.buildId === null ? buildRepository.create(action) : buildRepository.update(action.buildId, action);
+        setSavedBuilds(buildRepository.list());
+        if (saved.id === activeBuildId) loadBuild(saved);
+      },
+      setCurrentBuild: (action) => {
+        if (action.side !== side) rememberCurrentBuild();
+        setActiveBuildId(null);
+        setConversationKey(newConversationKey("draft"));
+        setSide(action.side);
+        setPerkFilters({ ...DEFAULT_PERK_FILTERS, side: action.side, categories: [] });
+        setSelectedKillerId(action.killerId);
+        setEquippedPerkIds([...action.perkIds]);
+        setBuildName(action.name);
+        setSelectedPerkId(null);
+        setScenario(emptyScenario());
+      }
+    });
   }
 
   function resetDescriptionOverride(perkId: string): void {
@@ -727,7 +796,7 @@ export default function App() {
         activeView={activeView}
         side={side}
         menu={topbarMenu}
-        savedBuildCount={savedBuilds.length}
+        savedBuildCount={savedBuilds.filter((build) => build.side === side).length}
         hasBuild={selectedKiller !== null}
         installState={installState}
         canInstallApplication={canInstallApplication}
@@ -744,7 +813,7 @@ export default function App() {
       {killerInfo && <KillerInfoModal killer={killerInfo} killers={killers} onClose={() => setKillerInfo(null)} />}
 
       <BlindTestView active={activeView === "blindtest"} killers={killers} soundEnabled={soundEnabled} onSessionStart={startBlindTestSession} onSessionStop={stopBlindTestSession} />
-      {activeView === "blindtest" ? null : activeView === "constants" ? <ConstantsView scrollTop={catalogScrollPositionsRef.current.constants} onScroll={(scrollTop) => rememberCatalogScroll("constants", scrollTop)} /> : activeView === "tiers" ? <TierListView killers={killers} perks={catalogPerks} /> : activeView === "statistics" ? <StatisticsView serverUrl={currentAssistantServerUrl()} nextSyncAt={nextStatisticsSyncAt} /> : <main className={`analyzer-workspace view-${activeView}`} ref={workspaceRef} style={workspaceStyle}>
+      {activeView === "blindtest" ? null : activeView === "constants" ? <ConstantsView scrollTop={catalogScrollPositionsRef.current.constants} onScroll={(scrollTop) => rememberCatalogScroll("constants", scrollTop)} /> : activeView === "tiers" ? <TierListView killers={effectiveKillers} survivors={survivors} perkTierList={perkTierList} descriptionOverrides={descriptionOverrides} onMove={moveTier} /> : activeView === "statistics" ? <StatisticsView serverUrl={currentAssistantServerUrl()} nextSyncAt={nextStatisticsSyncAt} /> : <main className={`analyzer-workspace view-${activeView}`} ref={workspaceRef} style={workspaceStyle}>
         <aside className={`analyzer-sidebar left-sidebar${activeView === "perks" ? " perks-sidebar" : ""}`}>
           <section className={`analyzer-panel selected-loadout-panel${activeView === "perks" ? " perks-loadout-panel" : ""}`} aria-label="Personnage et perks sélectionnés">
             <SelectedKillerCard killer={selectedKiller} side={side} onChange={() => showView("killers")} onRemove={removeKiller} terrorPlayback={terrorRadiusPlayback} onTerrorRadiusToggle={() => selectedKiller && void toggleTerrorRadius(selectedKiller)} onTerrorRadiusSeek={seekTerrorRadius} onTerrorRadiusVolumeChange={setTerrorRadiusVolume} onShowInfo={setKillerInfo} />
@@ -761,12 +830,10 @@ export default function App() {
           {activeView === "build" && (
             <>
               {selectedKiller && calculation
-                ? <BuildAnalyzer calculation={calculation} perks={equippedPerks} />
+                ? <BuildAnalyzer calculation={calculation} perks={equippedPerks} character={selectedKiller} side={side} serverUrl={currentAssistantServerUrl()} />
                 : <EmptyCenterPanel title="Impact Analysis" action={`Choisir un ${side === "survivor" ? "survivant" : "tueur"}`} onAction={() => showView("killers")}>Sélectionnez un {side === "survivor" ? "survivant" : "tueur"} pour commencer l’analyse.</EmptyCenterPanel>}
               <ResizeHandle orientation="horizontal" label="Redimensionner l’analyse et l’assistant" onDelta={resizeCenter} onReset={() => setPaneLayout(DEFAULT_PANE_LAYOUT)} />
-              {selectedKiller && calculation
-                ? <BuildAssistant conversationKey={conversationKey} killer={selectedKiller} perks={equippedPerks} scenario={scenario} calculation={calculation} currentBuild={currentBuildExport} allKillers={activeCharacters} allPerks={effectivePerks} howToPlay={howToPlayText} constants={fixedStatisticsText} perkDescriptionOverrides={descriptionOverrides} />
-                : <EmptyCenterPanel title="Build Assistant">L’assistant sera disponible dès qu’un {side === "survivor" ? "survivant" : "tueur"} aura été sélectionné.</EmptyCenterPanel>}
+              <BuildAssistant currentBuild={currentBuildExport} allKillers={effectiveKillers} allSurvivors={survivors} allPerks={effectivePerks} savedBuilds={savedBuilds} perkTierList={perkTierList} howToPlay={howToPlayText} constants={fixedStatisticsText} perkDescriptionOverrides={descriptionOverrides} onApplyActions={applyChatActions} />
             </>
           )}
 
@@ -830,6 +897,7 @@ export default function App() {
           ) : (
             <section className="analyzer-panel build-manager build-summary sidebar-build-panel" aria-label="Gestion et résumé du build">
               <SavedBuilds
+                side={side}
                 builds={savedBuilds}
                 activeBuildId={activeBuildId}
                 buildName={buildName}
@@ -914,56 +982,6 @@ function ConstantsView({ scrollTop, onScroll }: { scrollTop: number; onScroll: (
   </main>;
 }
 
-const PERK_TIER_LIST: Record<KillerTier, readonly string[]> = {
-  "S+": ["Intervention impure", "Écho de douleur", "Sombre étreinte", "Le tour est joué", "Aucune issue", "Poursuivant meurtrier"],
-  "S-": ["Dispositif de l'homme mort", "Nulle part où se cacher", "Éruption", "Surtension", "Amis pour la vie", "Remonter le temps", "Tous les coups sont permis", "Blessures béantes"],
-  "A+": ["Mangeur d'espoir", "Réparateur", "Déboussoler", "Discordance", "Faveur de sang", "Fais-les attendre", "Vorace", "Oppression", "Repentir", "Briseur d'esprit", "Fascination", "Personne n'échappe à la mort"],
-  "A-": ["Agitation", "Tenace", "Vocation de l'infirmière", "Ruine", "Peur contagieuse", "Je vous écoute", "Poursuite furtive", "Bricolo", "Immortel", "Ténèbres révélées", "Affrontez les ténèbres", "Témoin céleste", "La Ruche", "Frayeur mortelle", "Boussole de douleur", "Lien avec la trame", "Contact languide", "Inattendu", "Arme ultime", "Brutalité rapide", "Hésitation forcée", "Effet de levier", "Flots de rage", "Contrôle des foules", "Piste de souffrance", "Fais ton choix", "Chili et Barbecue", "Trépas de Franklin", "Boucher sadique", "Regarde-les détaler"],
-  "B+": ["Force brute", "Prédateur", "Présence écrasante", "Surveillance et maltraitance", "Gardien de sang", "Intensité ardente", "Coulrophobie", "Fureur de l'esprit", "Terrain hanté", "Rancœur", "Vierge de fer", "Frissons palpitants", "Tactiques de Zanshin", "Écho sanguin", "Châtiment", "Dissolution", "Hubris", "À jamais liés", "Personne n'est libre", "Coup de tonnerre", "Pas de quartier", "Destin misérable", "Inexorable", "Limites génétiques", "Instinct d'Alien", "Apprentissage automatique", "VLAN !", "Anatomie supérieure", "Terminus", "Tempête impitoyable", "Hystérie", "Coup de grâce", "Limites cruelles", "Espions de l'ombre", "Euphorie de la chasse", "Part d'infortune", "Ombre silencieuse", "Semer la dévastation"],
-  "B-": ["Présence perturbante", "Rejeton de l'ombre", "Rejeton de la lumière", "Thanatophobie", "Surcharge", "Souviens-toi de moi", "Cran dément", "Sombre dévotion", "Ennemi juré", "Prise du dragon", "On embauche", "Frayeur fantôme", "Détraqué", "Ouverture maudite", "Que du malheur", "Arrogance ténébreuse", "Ouverture de la chasse", "Perception éveillée", "Appel de la mer", "Pénitence forcée", "Lien mortel", "Surveillance", "Sanctuaire monstrueux", "Murmure amer", "Murmures", "Éradication des faibles"],
-  "C+": ["Limier", "Stridor", "Le troisième sceau", "Berceuse de la Chasseuse", "Toucher septique", "Sous votre coupe", "Saccage", "Œil vagabond", "Avidité humaine", "Domination", "Piles incluses", "On peut jouer à deux", "K.O.", "Coup du pendu", "Inquiétant", "Pisteur", "Poigne de fer"],
-  "C-": ["Prédation", "Instinct territorial", "Projet secret", "Interrompu", "Amasseur", "Implacable", "Insidieux"],
-  "D": ["Espoir brisé"]
-};
-
-const PERK_TIER_NAME_ALIASES: Record<string, string> = {
-  "Chili et Barbecue": "chili et barbebue",
-  "Piste de souffrance": "pistre de souffrance"
-};
-
-function TierListView({ killers, perks }: { killers: readonly Killer[]; perks: readonly Perk[] }) {
-  const [kind, setKind] = useState<"killers" | "perks">("killers");
-  const perksByName = useMemo(() => new Map(perks.filter((perk) => perk.side === "killer").map((perk) => [normalizeTierListName(perk.name.fr ?? perk.name.en ?? perk.id), perk])), [perks]);
-  return <main className="tier-list-page" data-kind={kind}>
-    <aside className="tier-list-sidebar" aria-label="Type de tier list">
-      <button className={kind === "killers" ? "selected" : ""} onClick={() => setKind("killers")} type="button">Killer</button>
-      <button className={kind === "perks" ? "selected" : ""} onClick={() => setKind("perks")} type="button">Perk</button>
-    </aside>
-    <section className="tier-list-board" aria-label={kind === "killers" ? "Tier list des tueurs" : "Tier list des perks"}>
-      {KILLER_TIERS.map((tier) => {
-        const rankedKillers = kind === "killers" ? killers.filter((killer) => killer.tier === tier) : [];
-        const rankedPerks = kind === "perks" ? PERK_TIER_LIST[tier].map((name) => ({ name, perk: perksByName.get(normalizeTierListName(PERK_TIER_NAME_ALIASES[name] ?? name)) })) : [];
-        const count = kind === "killers" ? rankedKillers.length : rankedPerks.length;
-        return <section className="tier-list-row" data-tier={tier} key={tier}>
-          <header><strong>{tier}</strong><small>{count} {kind === "killers" ? `tueur${count > 1 ? "s" : ""}` : `perk${count > 1 ? "s" : ""}`}</small></header>
-          <div className="tier-list-killers" role="list">
-            {kind === "killers" ? rankedKillers.map((killer) => <TierListItem key={killer.id} name={killer.name.fr ?? killer.name.en ?? killer.id} image={killerPortraitUrl(killer)} />)
-              : rankedPerks.map(({ name, perk }) => <TierListItem key={name} name={name} image={perk ? perkIconUrl(perk) : null} perk />)}
-          </div>
-        </section>;
-      })}
-    </section>
-  </main>;
-}
-
-function TierListItem({ name, image, perk = false }: { name: string; image: string | null; perk?: boolean }) {
-  const content = image ? <img src={image} alt={name} loading="lazy" /> : <span>{name}</span>;
-  return <article className={`tier-list-killer${perk ? " tier-list-perk" : ""}`} role="listitem" title={name} data-name={perk ? name : undefined}>{perk ? <span className="tier-list-perk-icon">{content}</span> : content}</article>;
-}
-
-function normalizeTierListName(value: string): string {
-  return value.replace(/œ/g, "oe").replace(/æ/g, "ae").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/gi, "").toLowerCase();
-}
 
 function parseFixedStatistics(source: string): FixedStatisticsBlock[] {
   const blocks: FixedStatisticsBlock[] = [];
@@ -1378,6 +1396,15 @@ function createMemoryStorage(): Pick<Storage, "getItem" | "setItem" | "removeIte
     setItem: (key: string, value: string) => { values.set(key, value); },
     removeItem: (key: string) => { values.delete(key); }
   };
+}
+
+function createTierOverrideRepository(): { repository: LocalTierOverrideRepository; overrides: TierOverrides } {
+  try {
+    const repository = new LocalTierOverrideRepository(window.localStorage);
+    return { repository, overrides: repository.list() };
+  } catch {
+    return { repository: new LocalTierOverrideRepository(createMemoryStorage()), overrides: { killers: {}, perks: {} } };
+  }
 }
 
 function loadPersistedAppSession(): AppSession {

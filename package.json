@@ -5,6 +5,9 @@
   "author": "Thomas701",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "vite",
     "build:data": "tsc -p tsconfig.json",
@@ -16,7 +19,9 @@
     "start:app": "node scripts/start-app.mjs",
     "assistant:install-browser": "playwright install chromium",
     "test:chatgpt-browser": "node scripts/test-chatgpt-browser.mjs",
-    "test": "npm run build:data && node --test dist/tests/import.test.js dist/tests/catalog.test.js dist/tests/build-calculator.test.js dist/tests/build-repository.test.js dist/tests/statistics-mmr.test.js scripts/app-updater.test.mjs scripts/codex-assistant-provider.test.mjs scripts/dbd-statistics-provider.test.mjs scripts/local-data-files.test.mjs",
+    "test:workspace": "node scripts/verify-build-workspace.mjs",
+    "test:installation": "node scripts/verify-installation.mjs",
+    "test": "npm run build:data && node --test dist/tests/import.test.js dist/tests/catalog.test.js dist/tests/build-calculator.test.js dist/tests/build-repository.test.js dist/tests/statistics-mmr.test.js dist/tests/statistics-analysis.test.js dist/tests/assistant.test.js scripts/app-updater.test.mjs scripts/start-app.test.mjs scripts/codex-assistant-provider.test.mjs scripts/dbd-statistics-provider.test.mjs scripts/local-data-files.test.mjs scripts/openai-assistant-proxy.test.mjs",
     "check": "npm test && npm run import:data -- --check && npm run audit:analysis && npm run build:app"
   },
   "devDependencies": {
@@ -28,6 +33,7 @@
     "vite": "^6.4.3"
   },
   "dependencies": {
+    "@openai/codex": "0.167.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   }

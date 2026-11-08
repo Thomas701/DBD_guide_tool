@@ -205,6 +205,16 @@
         }
       },
       {
+        "stat": "healing.skill_check_chance",
+        "operation": "add",
+        "interpretation": "verified",
+        "value": 10,
+        "unit": "percentage_points",
+        "condition": {
+          "type": "inside_terror_radius"
+        }
+      },
+      {
         "stat": "generator.skill_check_good_zone",
         "operation": "multiply",
         "interpretation": "verified",
@@ -282,7 +292,8 @@
         "unit": "seconds",
         "condition": {
           "type": "blood_pool_present"
-        }
+        },
+        "detail": "Base de 4 s estimée ; +4 s au rang III. Les flaques deviennent plus visibles."
       }
     ],
     "cooldown": null,
@@ -343,14 +354,18 @@
     },
     "effects": [
       {
-        "stat": "tracking.survivor_aura_reveal_average",
-        "operation": "add",
+        "stat": "survivor.aura",
+        "label": "Aura de la cible perdue",
+        "detail": "Après abandon de poursuite ; 4 s par activation, sans moyenne artificielle par partie.",
+        "operation": "reveal",
         "interpretation": "verified",
-        "value": 10.8,
-        "unit": "seconds",
+        "value": true,
+        "unit": "boolean",
         "condition": {
           "type": "chase_abandoned"
-        }
+        },
+        "duration": 4,
+        "cooldown": 40
       }
     ],
     "cooldown": 40,
@@ -477,7 +492,18 @@
         "value": 0.5,
         "unit": "multiplier",
         "condition": {
-          "type": "pallet_stunned"
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "pallet_stunned"
+            },
+            {
+              "operator": "not",
+              "condition": {
+                "type": "carrying_survivor"
+              }
+            }
+          ]
         }
       }
     ],
@@ -557,14 +583,26 @@
     },
     "effects": [
       {
-        "stat": "tracking.lightborn_aura_reveal_average",
-        "operation": "add",
+        "stat": "survivor.aura",
+        "label": "Aura lors d’une tentative d’aveuglement",
+        "detail": "Lampes, pétards, grenades et mine : aura de l’auteur.",
+        "operation": "reveal",
         "interpretation": "verified",
-        "value": 8,
-        "unit": "seconds",
+        "value": true,
+        "unit": "boolean",
         "condition": {
           "type": "blind_attempted"
-        }
+        },
+        "duration": 10
+      },
+      {
+        "stat": "killer.blind_immunity",
+        "label": "Immunité à l’aveuglement",
+        "detail": "Les sources d’aveuglement ne masquent plus votre vision.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean"
       }
     ],
     "cooldown": null,
@@ -631,14 +669,16 @@
     },
     "effects": [
       {
-        "stat": "tracking.tinkerer_undetectable_average",
-        "operation": "add",
+        "stat": "killer.status.undetectable",
+        "operation": "apply_status",
         "interpretation": "verified",
-        "value": 61,
-        "unit": "seconds",
+        "value": true,
+        "unit": "boolean",
+        "duration": 16,
         "condition": {
           "type": "generator_at_70_percent"
-        }
+        },
+        "detail": "Une activation par générateur à 70 % ; notification sonore et 16 s par activation."
       }
     ],
     "cooldown": null,
@@ -717,7 +757,8 @@
         "unit": "multiplier",
         "condition": {
           "type": "four_survivors_injured"
-        }
+        },
+        "detail": "Scénario à 4 survivants blessés, à terre ou accrochés : 4 × 2 % + 12 % = 20 % de pénalité. À 1/2/3 survivants : 2/4/6 %."
       },
       {
         "stat": "hook.sabotage_time",
@@ -727,7 +768,8 @@
         "unit": "multiplier",
         "condition": {
           "type": "four_survivors_injured"
-        }
+        },
+        "detail": "Scénario à 4 survivants blessés, à terre ou accrochés : 4 × 2 % + 12 % = 20 % de pénalité. À 1/2/3 survivants : 2/4/6 %."
       },
       {
         "stat": "totem.dull_cleanse_time",
@@ -737,7 +779,8 @@
         "unit": "multiplier",
         "condition": {
           "type": "four_survivors_injured"
-        }
+        },
+        "detail": "Scénario à 4 survivants blessés, à terre ou accrochés : 4 × 2 % + 12 % = 20 % de pénalité. À 1/2/3 survivants : 2/4/6 %."
       },
       {
         "stat": "totem.hex_cleanse_time",
@@ -747,7 +790,8 @@
         "unit": "multiplier",
         "condition": {
           "type": "four_survivors_injured"
-        }
+        },
+        "detail": "Scénario à 4 survivants blessés, à terre ou accrochés : 4 × 2 % + 12 % = 20 % de pénalité. À 1/2/3 survivants : 2/4/6 %."
       }
     ],
     "cooldown": null,
@@ -794,12 +838,13 @@
     },
     "effects": [
       {
-        "stat": "tracking.healing_aura",
-        "operation": "set",
+        "stat": "survivor.aura",
+        "label": "Aura des survivants qui soignent à 32 m",
+        "detail": "Révélation pendant le soin à portée, sans durée totale ni valeur infinie artificielle.",
+        "operation": "reveal",
         "interpretation": "verified",
-        "value": 0,
+        "value": true,
         "unit": "boolean",
-        "target": "infinite",
         "condition": {
           "type": "healing_within_32m"
         }
@@ -970,30 +1015,62 @@
         "value": 1.05,
         "unit": "multiplier",
         "condition": {
-          "type": "devour_hope_2_tokens"
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "hex_active"
+            },
+            {
+              "type": "after_hook"
+            },
+            {
+              "type": "devour_hope_2_tokens"
+            }
+          ]
         },
         "duration": 10
       },
       {
-        "stat": "tracking.devour_hope_exposed",
-        "operation": "set",
+        "stat": "survivor.status.exposed",
+        "operation": "apply_status",
         "interpretation": "verified",
-        "value": 0,
+        "value": true,
         "unit": "boolean",
-        "target": "infinite",
+        "duration": null,
         "condition": {
-          "type": "devour_hope_3_tokens"
-        }
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "hex_active"
+            },
+            {
+              "type": "devour_hope_3_tokens"
+            }
+          ]
+        },
+        "detail": "À 3 jetons. Un décrochage à au moins 24 m rapporte un jeton ; totem actif requis."
       },
       {
-        "stat": "tracking.devour_hope_kill",
-        "operation": "set",
+        "stat": "survivor.kill_available",
+        "label": "Exécution des survivants à terre",
+        "detail": "À 5 jetons ; la cible doit être en état critique.",
+        "operation": "reveal",
         "interpretation": "verified",
-        "value": 0,
+        "value": true,
         "unit": "boolean",
-        "target": "infinite",
         "condition": {
-          "type": "devour_hope_5_tokens"
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "hex_active"
+            },
+            {
+              "type": "survivor_downed"
+            },
+            {
+              "type": "devour_hope_5_tokens"
+            }
+          ]
         }
       }
     ],
@@ -1067,7 +1144,8 @@
         "unit": "multiplier",
         "condition": {
           "type": "hex_active"
-        }
+        },
+        "detail": "Générateurs non réparés : 150 % du rythme normal, soit 0,375 charge/s. La formulation locale est ambiguë ; cette interprétation suit la règle de référence."
       }
     ],
     "cooldown": null,
@@ -1141,10 +1219,11 @@
               "type": "hex_active"
             },
             {
-              "type": "after_basic_attack"
+              "type": "perk_triggered"
             }
           ]
-        }
+        },
+        "detail": "Les 4 derniers survivants touchés par une attaque de base ou spéciale ; cesse avec le totem."
       }
     ],
     "cooldown": null,
@@ -1218,20 +1297,50 @@
     },
     "effects": [
       {
+        "stat": "survivor.status.exhausted",
+        "operation": "apply_status",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "duration": 15,
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "inside_terror_radius"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
+        }
+      },
+      {
         "stat": "survivor.aura",
+        "label": "Survivant épuisé le plus proche",
+        "detail": "Dans le rayon de terreur ; recharge 25 s.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+4[aura]"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "inside_terror_radius"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
         },
         "duration": 4,
-        "unit": "seconds"
+        "cooldown": 25
       }
     ],
     "cooldown": 25,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 33
@@ -1382,14 +1491,23 @@
     },
     "effects": [
       {
-        "stat": "generator.damage_penalty",
+        "stat": "generator.instant_regression",
         "operation": "add",
         "interpretation": "verified",
-        "value": 4,
-        "unit": "percentage_points",
+        "value": 3.6,
+        "unit": "count",
         "condition": {
-          "type": "generator_damaged"
-        }
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "generator_damaged"
+            },
+            {
+              "type": "skill_check_failed"
+            }
+          ]
+        },
+        "detail": "4 % de 90 charges = 3.6 charges, soit autant de secondes de réparation solo (plafonnées à la progression présente). Pénalité du test raté, distincte des 5 % du kick."
       },
       {
         "stat": "generator.regression_rate",
@@ -1398,9 +1516,30 @@
         "value": 1.3,
         "unit": "multiplier",
         "condition": {
-          "type": "generator_damaged"
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "generator_damaged"
+            },
+            {
+              "type": "skill_check_failed"
+            }
+          ]
         },
-        "duration": 30
+        "duration": 30,
+        "detail": "Palier final : de 85 % à 130 % du rythme normal sur 30 s, pas une vitesse constante sur toute la période."
+      },
+      {
+        "stat": "generator.skill_check",
+        "label": "Test difficile au prochain contact",
+        "detail": "Un échec est nécessaire pour la pénalité supplémentaire.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "generator_damaged"
+        }
       }
     ],
     "cooldown": null,
@@ -1457,18 +1596,19 @@
       {
         "stat": "killer.status.undetectable",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+40[indetectable]"
-        },
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
         "duration": 40,
-        "unit": "seconds"
+        "condition": {
+          "type": "bloodlust_active"
+        },
+        "detail": "Lorsque la Soif de sang démarre."
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 38
@@ -1621,7 +1761,8 @@
               "type": "lullaby_five_tokens"
             }
           ]
-        }
+        },
+        "detail": "1/2/3/4 jetons : délai sonore réduit de 14/28/42/56 %. À 5 jetons : plus de signal sonore."
       }
     ],
     "cooldown": null,
@@ -1689,19 +1830,22 @@
     "effects": [
       {
         "stat": "survivor.aura",
+        "label": "Intrusion dans la cave",
+        "detail": "Vous devez être à plus de 24 m de la cave.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+6[aura]"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "perk_triggered"
         },
         "duration": 6,
-        "unit": "seconds"
+        "cooldown": 45
       }
     ],
     "cooldown": 45,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 40
@@ -1775,18 +1919,20 @@
               "type": "exit_gate_open"
             },
             {
-              "type": "survivor_hooked"
+              "type": "after_hook"
             }
           ]
-        }
+        },
+        "detail": "Une activation, après ouverture d’une porte puis accrochage."
       },
       {
-        "stat": "survivor.aura.exit_gate",
+        "stat": "survivor.aura",
+        "label": "Survivants dans les zones de sortie",
+        "detail": "Tant qu’ils restent dans la zone de la porte ouverte.",
         "operation": "reveal",
         "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": null,
         "condition": {
           "type": "exit_gate_open"
         }
@@ -1827,41 +1973,67 @@
         "stat": "killer.window_vault_time",
         "operation": "multiply",
         "interpretation": "verified",
-        "value": 1.06,
+        "value": 1.4,
         "unit": "multiplier",
         "condition": {
-          "type": "generator_completed"
-        }
+          "type": "fire_up_five_tokens"
+        },
+        "detail": "Scénario à 5 générateurs : +8 % par jeton, +40 % maximum. Bonus de vitesse d’action ; la durée est divisée par 1,4."
       },
       {
         "stat": "killer.pallet_break_time",
         "operation": "multiply",
         "interpretation": "verified",
-        "value": 1.06,
+        "value": 1.4,
         "unit": "multiplier",
         "condition": {
-          "type": "generator_completed"
-        }
+          "type": "fire_up_five_tokens"
+        },
+        "detail": "Scénario à 5 générateurs : +8 % par jeton, +40 % maximum. Bonus de vitesse d’action ; la durée est divisée par 1,4."
       },
       {
         "stat": "killer.wall_break_time",
         "operation": "multiply",
         "interpretation": "verified",
-        "value": 1.06,
+        "value": 1.4,
         "unit": "multiplier",
         "condition": {
-          "type": "generator_completed"
-        }
+          "type": "fire_up_five_tokens"
+        },
+        "detail": "Scénario à 5 générateurs : +8 % par jeton, +40 % maximum. Bonus de vitesse d’action ; la durée est divisée par 1,4."
       },
       {
         "stat": "generator.damage_time",
         "operation": "multiply",
         "interpretation": "verified",
-        "value": 1.06,
+        "value": 1.4,
         "unit": "multiplier",
         "condition": {
-          "type": "generator_completed"
-        }
+          "type": "fire_up_five_tokens"
+        },
+        "detail": "Scénario à 5 générateurs : +8 % par jeton, +40 % maximum. Bonus de vitesse d’action ; la durée est divisée par 1,4."
+      },
+      {
+        "stat": "hook.pickup_time",
+        "operation": "multiply",
+        "interpretation": "verified",
+        "value": 1.4,
+        "unit": "multiplier",
+        "condition": {
+          "type": "fire_up_five_tokens"
+        },
+        "detail": "Scénario à 5 générateurs : +8 % par jeton, +40 % maximum. Bonus de vitesse d’action ; la durée est divisée par 1,4."
+      },
+      {
+        "stat": "hook.drop_time",
+        "operation": "multiply",
+        "interpretation": "verified",
+        "value": 1.4,
+        "unit": "multiplier",
+        "condition": {
+          "type": "fire_up_five_tokens"
+        },
+        "detail": "Scénario à 5 générateurs : +8 % par jeton, +40 % maximum. Bonus de vitesse d’action ; la durée est divisée par 1,4."
       }
     ],
     "cooldown": null,
@@ -1939,8 +2111,20 @@
         "value": 30,
         "unit": "seconds",
         "condition": {
-          "type": "perk_triggered"
-        }
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "perk_triggered"
+            },
+            {
+              "operator": "not",
+              "condition": {
+                "type": "target_is_obsession"
+              }
+            }
+          ]
+        },
+        "detail": "Scénario à 5 jetons : 20 + 5 × 6 = 50 s. L’obsession conserve 20 s ; chaque perte de santé donne un jeton."
       }
     ],
     "cooldown": null,
@@ -2101,7 +2285,8 @@
             }
           ]
         },
-        "duration": 45
+        "duration": 45,
+        "detail": "Version locale : 5 % de kick + 15 points = 20 % de 90 charges, soit 18 charges / 18 s de réparation solo. Une utilisation dans les 45 s après le crochet."
       }
     ],
     "cooldown": null,
@@ -2184,6 +2369,17 @@
         "interpretation": "verified",
         "value": 1.15,
         "unit": "multiplier"
+      },
+      {
+        "stat": "chase.window_lock",
+        "operation": "block",
+        "interpretation": "verified",
+        "duration": 16,
+        "unit": "seconds",
+        "condition": {
+          "type": "after_killer_vault"
+        },
+        "detail": "Une seule fenêtre ; un autre franchissement déplace le blocage."
       }
     ],
     "cooldown": null,
@@ -2245,13 +2441,22 @@
     "effects": [
       {
         "stat": "chase.instant_pallet_break",
-        "operation": "apply_status",
+        "label": "Palette brisée instantanément",
+        "detail": "Après 2 palettes détruites manuellement : la prochaine palette qui vous étourdit se brise. L’étourdissement reste appliqué.",
+        "operation": "reveal",
         "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": null,
         "condition": {
-          "type": "perk_triggered"
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "perk_triggered"
+            },
+            {
+              "type": "pallet_stunned"
+            }
+          ]
         }
       }
     ],
@@ -2327,18 +2532,19 @@
       {
         "stat": "survivor.status.exposed",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+60[be_one_shot]"
-        },
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
         "duration": 60,
-        "unit": "seconds"
+        "condition": {
+          "type": "perk_triggered"
+        },
+        "detail": "Purification d’un des 2 totems piégés : l’autre s’éteint. Une activation."
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 54
@@ -2367,33 +2573,64 @@
     },
     "effects": [
       {
-        "stat": "survivor.aura",
+        "stat": "tracking.locations",
+        "label": "Positions de tous les survivants",
+        "detail": "3 s par générateur terminé ; l’obsession voit votre aura 3 s. Une position n’est pas une lecture d’aura.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+3[aura]"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "generator_completed"
         },
-        "duration": 3,
-        "unit": "seconds"
+        "duration": 3
       },
       {
         "stat": "survivor.status.exposed",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "infinite(be_one_shot(obsession))"
-        },
-        "target": "obsession",
+        "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": null
+        "duration": null,
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "exit_gates_powered"
+            },
+            {
+              "type": "target_is_obsession"
+            }
+          ]
+        }
+      },
+      {
+        "stat": "survivor.kill_available",
+        "label": "Exécution de l’obsession à terre",
+        "detail": "Après achèvement des générateurs.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "exit_gates_powered"
+            },
+            {
+              "type": "survivor_downed"
+            },
+            {
+              "type": "target_is_obsession"
+            }
+          ]
+        }
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 55
@@ -2448,20 +2685,21 @@
     },
     "effects": [
       {
-        "stat": "survivor.aura",
+        "stat": "generator.aura",
+        "label": "Générateur réparé par au moins 2 survivants",
+        "detail": "Portée 128 m ; alerte et aura. Persiste 4 s après la fin de la réparation à plusieurs.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+4[aura]"
-        },
-        "duration": 4,
-        "unit": "seconds"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "perk_triggered"
+        }
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 58
@@ -2541,7 +2779,8 @@
               "type": "after_basic_attack"
             }
           ]
-        }
+        },
+        "detail": "Chaque coup réussi interrompt la libération pendant 4 s."
       }
     ],
     "cooldown": null,
@@ -2636,7 +2875,8 @@
         "duration": 30,
         "condition": {
           "type": "perk_triggered"
-        }
+        },
+        "detail": "Sortie de casier : cri et position signalée pendant 4 s."
       }
     ],
     "cooldown": null,
@@ -2695,8 +2935,20 @@
         "duration": 120,
         "unit": "seconds",
         "condition": {
-          "type": "perk_triggered"
-        }
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "trial_start"
+            },
+            {
+              "operator": "not",
+              "condition": {
+                "type": "survivor_downed"
+              }
+            }
+          ]
+        },
+        "detail": "Les 3 générateurs les plus éloignés au départ ; cesse au premier survivant à terre."
       }
     ],
     "cooldown": null,
@@ -2746,20 +2998,30 @@
     },
     "effects": [
       {
-        "stat": "survivor.aura",
+        "stat": "tracking.locations",
+        "label": "Cris dans le rayon de terreur",
+        "detail": "Mise à terre : positions signalées 6 s, sans aura.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+6[aura]"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "survivor_downed"
+            },
+            {
+              "type": "inside_terror_radius"
+            }
+          ]
         },
-        "duration": 6,
-        "unit": "seconds"
+        "duration": 6
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 64
@@ -2827,32 +3089,29 @@
     },
     "effects": [
       {
-        "stat": "killer.terror_radius",
-        "operation": "add",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+40[terror_rayon]"
-        },
-        "value": 40,
-        "unit": "meters"
-      },
-      {
         "stat": "killer.status.undetectable",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "infinite[indetectable]"
-        },
+        "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": null
+        "duration": 40,
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "survivor_injured"
+            },
+            {
+              "type": "target_is_obsession"
+            }
+          ]
+        },
+        "detail": "Un rayon de 40 m émane de l’obsession blessée, pas du tueur ; le rayon propre du tueur n’est pas augmenté."
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 65
@@ -2916,19 +3175,22 @@
     "effects": [
       {
         "stat": "survivor.aura",
+        "label": "Action précipitée à moins de 48 m",
+        "detail": "Casier ou point de saut franchi en courant.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+8[aura]"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "perk_triggered"
         },
         "duration": 8,
-        "unit": "seconds"
+        "cooldown": 30
       }
     ],
     "cooldown": 30,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 69
@@ -2998,6 +3260,7 @@
         "condition": {
           "type": "after_pickup"
         },
+        "detail": "Générateurs non réparés ; leurs auras deviennent blanches.",
         "cooldown": 30
       }
     ],
@@ -3091,7 +3354,8 @@
         "duration": 18,
         "condition": {
           "type": "obsession_hooked"
-        }
+        },
+        "detail": "Au décrochage, le sauveteur devient l’obsession."
       }
     ],
     "cooldown": null,
@@ -3152,20 +3416,31 @@
     },
     "effects": [
       {
-        "stat": "survivor.aura",
+        "stat": "tracking.vaults",
+        "label": "Palettes et fenêtres à 32 m",
+        "detail": "Auras visibles en permanence à portée.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+5[aura]"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean"
+      },
+      {
+        "stat": "survivor.aura",
+        "label": "Survivant qui renverse une palette",
+        "detail": "Révélation lors du renversement.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "perk_triggered"
         },
-        "duration": 5,
-        "unit": "seconds"
+        "duration": 5
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 74
@@ -3222,7 +3497,15 @@
         "unit": "boolean",
         "duration": 30,
         "condition": {
-          "type": "after_hook"
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "after_hook"
+            },
+            {
+              "type": "survivor_injured"
+            }
+          ]
         }
       },
       {
@@ -3233,8 +3516,17 @@
         "unit": "boolean",
         "duration": 30,
         "condition": {
-          "type": "after_hook"
-        }
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "after_hook"
+            },
+            {
+              "type": "survivor_injured"
+            }
+          ]
+        },
+        "detail": "Survivants blessés lors de l’accrochage."
       }
     ],
     "cooldown": null,
@@ -3315,31 +3607,45 @@
     },
     "effects": [
       {
-        "stat": "killer.status.undetectable",
+        "stat": "tracking.obsession",
+        "label": "Changement d’obsession",
+        "detail": "Le survivant qui vous aveugle ou vous étourdit devient obsession.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "perk_triggered"
+        }
+      },
+      {
+        "stat": "survivor.status.oblivious",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+60[indetectable]"
-        },
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
         "duration": 60,
-        "unit": "seconds"
+        "condition": {
+          "type": "perk_triggered"
+        }
       },
       {
         "stat": "survivor.aura",
+        "label": "Aura de la nouvelle obsession",
+        "detail": "Lors du changement.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+8[aura]"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "perk_triggered"
         },
-        "duration": 8,
-        "unit": "seconds"
+        "duration": 8
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 76
@@ -3391,19 +3697,29 @@
     "effects": [
       {
         "stat": "survivor.aura",
+        "label": "Aura après un bon test de réparation",
+        "detail": "Pendant les 30 s après une blessure : un test standard réussi révèle son auteur 8 s.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+8[aura]"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "survivor_injured"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
         },
-        "duration": 8,
-        "unit": "seconds"
+        "duration": 8
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 79
@@ -3468,14 +3784,24 @@
         "stat": "generator.lock",
         "operation": "block",
         "interpretation": "verified",
-        "duration": 35,
+        "duration": 40,
         "unit": "seconds",
         "condition": {
-          "type": "after_hook"
-        }
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "after_hook"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
+        },
+        "detail": "Premier survivant à arrêter de réparer au moins 2 s ; un seul générateur bloqué.",
+        "cooldown": 40
       }
     ],
-    "cooldown": 35,
+    "cooldown": 40,
     "effectImportStatus": "parsed",
     "analysisReadiness": "ready",
     "provenance": {
@@ -3558,31 +3884,42 @@
     },
     "effects": [
       {
-        "stat": "killer.status.undetectable",
+        "stat": "survivor.status.oblivious",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+60[indetectable]"
-        },
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
         "duration": 60,
-        "unit": "seconds"
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "hex_active"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
+        },
+        "detail": "Survivant qui bénit ou purifie un totem."
       },
       {
         "stat": "survivor.aura",
+        "label": "Auras après destruction d’un maléfice",
+        "detail": "Tous les survivants pendant 20 s.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+20[aura]"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "perk_triggered"
         },
-        "duration": 20,
-        "unit": "seconds"
+        "duration": 20
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 81
@@ -3653,31 +3990,51 @@
     },
     "effects": [
       {
-        "stat": "survivor.aura",
-        "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+4[aura]"
-        },
-        "duration": 4,
-        "unit": "seconds"
-      },
-      {
         "stat": "survivor.status.exposed",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+60[be_one_shot]"
-        },
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
         "duration": 60,
-        "unit": "seconds"
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "generator_damaged"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
+        },
+        "detail": "Premier contact avec le générateur dans les 30 s après le kick ; cri et position 4 s."
+      },
+      {
+        "stat": "tracking.locations",
+        "label": "Cri sur le générateur piégé",
+        "detail": "Recharge 30 s.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "generator_damaged"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
+        },
+        "duration": 4,
+        "cooldown": 30
       }
     ],
     "cooldown": 30,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 84
@@ -3751,21 +4108,41 @@
     },
     "effects": [
       {
-        "stat": "survivor.aura",
+        "stat": "totem.transfer",
+        "label": "Protection d’un autre maléfice",
+        "detail": "Le premier maléfice détruit est transféré sur Immortel, détruit à sa place.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "infinite[aura]"
-        },
+        "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": null
+        "condition": {
+          "type": "hex_active"
+        }
+      },
+      {
+        "stat": "survivor.aura",
+        "label": "Survivant près d’un totem terne",
+        "detail": "Portée de 4 m retenue comme référence externe ; absente de la description locale. Totem Immortel actif requis.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "hex_active"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
+        }
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 85
@@ -3850,10 +4227,11 @@
               "type": "hex_active"
             },
             {
-              "type": "survivor_lost_health_state"
+              "type": "after_basic_attack"
             }
           ]
-        }
+        },
+        "detail": "Palettes debout à moins de 32 m du survivant touché."
       }
     ],
     "cooldown": null,
@@ -3908,26 +4286,28 @@
     },
     "effects": [
       {
-        "stat": "killer.pallet_break_time",
-        "operation": "set",
+        "stat": "chase.instant_pallet_break",
+        "label": "Destruction après un saut de palette",
+        "detail": "3 s après une attaque de base réussie, fenêtre de 15 s : le prochain saut rapide dans votre rayon détruit la palette.",
+        "operation": "reveal",
         "interpretation": "verified",
-        "value": 0,
-        "unit": "seconds",
+        "value": true,
+        "unit": "boolean",
         "condition": {
           "operator": "all",
           "conditions": [
             {
-              "type": "perk_triggered"
-            },
-            {
-              "type": "after_survivor_vault"
+              "type": "after_basic_attack"
             },
             {
               "type": "inside_terror_radius"
+            },
+            {
+              "type": "after_survivor_vault"
             }
           ]
         },
-        "duration": 20
+        "duration": 15
       }
     ],
     "cooldown": null,
@@ -3990,19 +4370,22 @@
     "effects": [
       {
         "stat": "survivor.aura",
+        "label": "Survivants proches d’un casier",
+        "detail": "Après fouille d’un casier ; tous les survivants à moins de 8 m de n’importe quel casier.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+8[aura]"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "perk_triggered"
         },
         "duration": 8,
-        "unit": "seconds"
+        "cooldown": 30
       }
     ],
     "cooldown": 30,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 90
@@ -4061,29 +4444,46 @@
       {
         "stat": "survivor.status.blindness",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+30[blind,exhausted]"
-        },
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
         "duration": 30,
-        "unit": "seconds"
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "inside_terror_radius"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
+        }
       },
       {
         "stat": "survivor.status.exhausted",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+30[blind,exhausted]"
-        },
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
         "duration": 30,
-        "unit": "seconds"
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "inside_terror_radius"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
+        },
+        "detail": "Pendant les soins dans le rayon, puis 30 s après leur interruption."
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 91
@@ -4134,19 +4534,21 @@
     "effects": [
       {
         "stat": "survivor.aura",
+        "label": "Survivants autour du générateur endommagé",
+        "detail": "Rayon de 24 m autour du générateur selon la description locale.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+5[aura]"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "generator_damaged"
         },
-        "duration": 5,
-        "unit": "seconds"
+        "duration": 5
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 94
@@ -4215,19 +4617,32 @@
     "effects": [
       {
         "stat": "survivor.aura",
+        "label": "Cris et auras hors rayon de terreur",
+        "detail": "Après blessure, tant que le survivant maudit n’est ni soigné ni à terre et que le totem reste actif : un cri toutes les 25 s, révélation 2 s.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+2[aura]"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "hex_active"
+            },
+            {
+              "type": "perk_triggered"
+            },
+            {
+              "type": "outside_terror_radius"
+            }
+          ]
         },
-        "duration": 2,
-        "unit": "seconds"
+        "duration": 2
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 95
@@ -4285,18 +4700,19 @@
       {
         "stat": "survivor.status.exposed",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+30[be_one_shot]"
-        },
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
         "duration": 30,
-        "unit": "seconds"
+        "condition": {
+          "type": "perk_triggered"
+        },
+        "detail": "Survivant qui vous étourdit ; recharge de 20 s."
       }
     ],
-    "cooldown": null,
+    "cooldown": 20,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 96
@@ -4361,13 +4777,25 @@
         "stat": "killer.successful_attack_recovery_time",
         "operation": "multiply",
         "interpretation": "verified",
-        "value": 1.25,
+        "value": 0.75,
         "unit": "multiplier",
         "condition": {
           "type": "compromised_generator_completed"
         },
-        "duration": 60,
-        "calculationMode": "action_speed"
+        "duration": 90,
+        "detail": "Réduction directe de durée : 2,7 × 0,75 = 2,025 s pendant 90 s. Jusqu’à 3 générateurs compromis."
+      },
+      {
+        "stat": "generator.regression_rate",
+        "operation": "multiply",
+        "interpretation": "verified",
+        "value": 1.5,
+        "unit": "multiplier",
+        "condition": {
+          "type": "compromised_generator_completed"
+        },
+        "duration": 90,
+        "detail": "Générateurs non réparés : 150 % du rythme normal pendant 90 s ; les autres marques compromis disparaissent."
       }
     ],
     "cooldown": null,
@@ -4377,7 +4805,7 @@
       "file": "source.txt",
       "line": 99
     },
-    "nativeDescriptionHtml": "<p><span>Dès que vous endommagez un&nbsp;</span><span class=\"description-term\">générateur</span><span>&nbsp;, ce dernier devient un </span><span class=\"description-term\">générateur</span><span> compromis (il peut y avoir jusqu'à <span class=\"description-value\">3 </span><span style=\"color: rgb(241, 108, 101);\"><strong>générateur </strong></span>compromis à la fois).</span><br></p><p><span>Une fois le </span><span class=\"description-term\">générateur</span><span> compromis terminé par les survivants :</span><br></p><ul><li>Vos recharges d'attaques de base réussis sont <span class=\"description-value\">25%</span> plus courte pendant&nbsp;<span class=\"description-value\">120 secondes</span></li><li>Les <span style=\"color: rgb(241, 108, 101);\"><strong>générateurs </strong></span>qui ne sont pas en cours de réparation régressent à une vitesse de <span class=\"description-value\">150%</span> pendant <span class=\"description-value\">120 secondes</span></li><li>Les autres générateurs cessent d'être compromis</li></ul>"
+    "nativeDescriptionHtml": "<p><span>Dès que vous endommagez un&nbsp;</span><span class=\"description-term\">générateur</span><span>&nbsp;, ce dernier devient un </span><span class=\"description-term\">générateur</span><span> compromis (il peut y avoir jusqu'à <span class=\"description-value\">3 </span><span style=\"color: rgb(241, 108, 101);\"><strong>générateur </strong></span>compromis à la fois).</span><br></p><p><span>Une fois le </span><span class=\"description-term\">générateur</span><span> compromis terminé par les survivants :</span><br></p><ul><li>Vos recharges d'attaques de base réussis sont <span class=\"description-value\">25%</span> plus courte pendant&nbsp;<span class=\"description-value\">90 secondes</span></li><li>Les <span style=\"color: rgb(241, 108, 101);\"><strong>générateurs </strong></span>qui ne sont pas en cours de réparation régressent à une vitesse de <span class=\"description-value\">150%</span> pendant <span class=\"description-value\">90 secondes</span></li><li>Les autres générateurs cessent d'être compromis</li></ul>"
   },
   {
     "id": "phantom-fear",
@@ -4430,19 +4858,30 @@
     "effects": [
       {
         "stat": "survivor.aura",
+        "label": "Survivant qui vous regarde dans le rayon",
+        "detail": "Le survivant hurle, puis son aura est révélée.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+2[aura]"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "inside_terror_radius"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
         },
         "duration": 2,
-        "unit": "seconds"
+        "cooldown": 60
       }
     ],
     "cooldown": 60,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 100
@@ -4503,7 +4942,8 @@
         "unit": "percent",
         "condition": {
           "type": "exit_gate_progress_80"
-        }
+        },
+        "detail": "Au relâchement d’une porte à au moins 80 % : régression à la vitesse d’ouverture, soit 5 points/s ; 16 s pour vider une porte à 80 %. Ce n’est pas une perte instantanée de 100 %."
       }
     ],
     "cooldown": null,
@@ -4551,11 +4991,11 @@
     },
     "effects": [
       {
-        "stat": "generator.progress",
-        "operation": "multiply",
+        "stat": "generator.instant_regression",
+        "operation": "add",
         "interpretation": "verified",
-        "value": 0.9,
-        "unit": "multiplier",
+        "value": 9,
+        "unit": "count",
         "condition": {
           "operator": "all",
           "conditions": [
@@ -4567,7 +5007,7 @@
             }
           ]
         },
-        "duration": 60
+        "detail": "10 % de 90 charges = 9 charges, soit autant de secondes de réparation solo (plafonnées à la progression présente). Activation manuelle dans les 60 s après le crochet ; générateur visé à moins de 20 m, puis régression passive."
       }
     ],
     "cooldown": null,
@@ -4622,20 +5062,32 @@
     },
     "effects": [
       {
+        "stat": "generator.lock",
+        "operation": "block",
+        "interpretation": "verified",
+        "duration": 30,
+        "unit": "seconds",
+        "condition": {
+          "type": "perk_triggered"
+        },
+        "detail": "Totem béni ou purifié : un générateur aléatoire non bloqué."
+      },
+      {
         "stat": "killer.status.undetectable",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+30[indetectable]"
-        },
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
         "duration": 30,
-        "unit": "seconds"
+        "condition": {
+          "type": "perk_triggered"
+        },
+        "detail": "Lorsqu’un ou plusieurs générateurs sont bloqués."
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 105
@@ -4709,11 +5161,23 @@
     },
     "effects": [
       {
-        "stat": "generator.progress",
-        "operation": "multiply",
+        "stat": "generator.aura",
+        "label": "Lecture de progression des générateurs",
+        "detail": "Le premier crochet allume le totem si un emplacement terne existe ; intensité d’aura selon progression.",
+        "operation": "reveal",
         "interpretation": "verified",
-        "value": 0.9,
-        "unit": "multiplier",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "hex_active"
+        }
+      },
+      {
+        "stat": "generator.instant_regression",
+        "operation": "add",
+        "interpretation": "verified",
+        "value": 9,
+        "unit": "count",
         "condition": {
           "operator": "all",
           "conditions": [
@@ -4724,7 +5188,8 @@
               "type": "four_generators_completed"
             }
           ]
-        }
+        },
+        "detail": "10 % de 90 charges = 9 charges, soit autant de secondes de réparation solo (plafonnées à la progression présente). Tous les générateurs restants après le quatrième terminé ; le totem s’éteint ensuite."
       }
     ],
     "cooldown": null,
@@ -4773,19 +5238,22 @@
     "effects": [
       {
         "stat": "survivor.aura",
+        "label": "Obsession éloignée d’au moins 40 m",
+        "detail": "Toutes les 30 s ; sinon le survivant le plus éloigné devient l’obsession.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+3[aura]"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "perk_triggered"
         },
         "duration": 3,
-        "unit": "seconds"
+        "cooldown": 30
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 109
@@ -4848,21 +5316,41 @@
     },
     "effects": [
       {
-        "stat": "survivor.aura",
+        "stat": "survivor.haste_cap",
+        "label": "Rapidité des survivants limitée à 15 %",
+        "detail": "Après le premier état de crochet, tant que le maléfice reste actif : plafond sur la Rapidité de course. N’impose pas un malus aux survivants sans bonus.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "infinite[aura]"
-        },
+        "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": null
+        "condition": {
+          "type": "hex_active"
+        }
+      },
+      {
+        "stat": "tracking.alert",
+        "label": "Alerte lors d’un gain de Rapidité",
+        "detail": "Survivant qui court à moins de 32 m.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "hex_active"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
+        }
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 110
@@ -4912,15 +5400,23 @@
     },
     "effects": [
       {
-        "stat": "generator",
+        "stat": "generator.regression_rate",
         "operation": "multiply",
         "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "-2%[generator]"
+        "value": 2.8,
+        "unit": "multiplier",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "generator_damaged"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
         },
-        "value": 0.98,
-        "unit": "multiplier"
+        "detail": "Exemple estimé à 90 charges présentes au déclenchement : +2 % par charge = +180 %, soit 0,7 charge/s. À 45 charges : 0,475 charge/s. La recharge de 45 s n’est pas la durée de l’effet ; la progression réelle est nécessaire pour un résultat exact."
       }
     ],
     "cooldown": 45,
@@ -4997,10 +5493,36 @@
             },
             {
               "type": "in_chase"
+            },
+            {
+              "type": "after_break_action"
             }
           ]
         },
         "duration": 3
+      },
+      {
+        "stat": "tracking.locations",
+        "label": "Cris après destruction d’une palette",
+        "detail": "Totem activé après 3 survivants différents accrochés ; survivants à moins de 13 m pendant la poursuite.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "hex_active"
+            },
+            {
+              "type": "in_chase"
+            },
+            {
+              "type": "after_break_action"
+            }
+          ]
+        }
       }
     ],
     "cooldown": null,
@@ -5057,19 +5579,30 @@
       {
         "stat": "killer.status.undetectable",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "infinite[indetectable]"
-        },
+        "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": null
+        "duration": 13,
+        "condition": {
+          "type": "after_hook"
+        }
+      },
+      {
+        "stat": "killer.status.undetectable",
+        "operation": "apply_status",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "duration": null,
+        "condition": {
+          "type": "exit_gates_powered"
+        },
+        "detail": "Après le dernier générateur : jusqu’à la fin de la partie."
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 115
@@ -5135,7 +5668,7 @@
           "type": "perk_triggered"
         },
         "duration": 13,
-        "cooldown": 20
+        "detail": "Scénario à 13 jetons : +1 % par palette/mur détruit, +13 % maximum. Déclenchement après aveuglement ou étourdissement ; recharge 20 s."
       }
     ],
     "cooldown": 20,
@@ -5203,20 +5736,40 @@
     },
     "effects": [
       {
+        "stat": "killer.carry_speed",
+        "operation": "multiply",
+        "interpretation": "verified",
+        "value": 1.16,
+        "unit": "multiplier",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "carrying_survivor"
+            },
+            {
+              "type": "ravenous_four_tokens"
+            }
+          ]
+        },
+        "detail": "Scénario à 4 survivants différents accrochés : +4 % de vitesse de transport par jeton, +16 % au maximum."
+      },
+      {
         "stat": "survivor.status.exposed",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+60[be_one_shot]"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "duration": 90,
+        "condition": {
+          "type": "ravenous_four_tokens"
         },
-        "duration": 60,
-        "unit": "seconds"
+        "detail": "Quand le quatrième jeton est gagné, tous les survivants hurlent et deviennent Exposés pour 90 s."
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 119
@@ -5274,19 +5827,30 @@
     "effects": [
       {
         "stat": "survivor.aura",
+        "label": "Autres survivants blessés au début d’une poursuite",
+        "detail": "Rayon de 20 m autour de vous ; ne révèle pas la cible actuellement poursuivie.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+5[aura]"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "in_chase"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
         },
         "duration": 5,
-        "unit": "seconds"
+        "cooldown": 30
       }
     ],
     "cooldown": 30,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 120
@@ -5381,18 +5945,27 @@
       {
         "stat": "killer.status.undetectable",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+30[indetectable]"
-        },
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
         "duration": 30,
-        "unit": "seconds"
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "hex_active"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
+        },
+        "detail": "Après 5 s de réparation du générateur maudit : votre rayon est transféré au générateur. Après sa finition, le générateur le plus éloigné devient maudit."
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 121
@@ -5465,6 +6038,37 @@
           ]
         },
         "duration": 15
+      },
+      {
+        "stat": "survivor.window_vault_time",
+        "operation": "multiply",
+        "interpretation": "verified",
+        "value": 0.9,
+        "unit": "multiplier",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "hex_active"
+            },
+            {
+              "type": "after_basic_attack"
+            }
+          ]
+        },
+        "duration": 15
+      },
+      {
+        "stat": "totem.activation",
+        "label": "Maléfice après 4 attaques de base réussies",
+        "detail": "Le ralentissement s’applique aux survivants touchés, pendant 15 s, tant que le totem reste actif.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "hex_active"
+        }
       }
     ],
     "cooldown": null,
@@ -5526,18 +6130,30 @@
         "unit": "multiplier",
         "condition": {
           "type": "forever_entwined_max_tokens"
-        }
+        },
+        "detail": "Scénario à 8 jetons : +4 % par blessure, +32 % de vitesse d’action au maximum."
       },
       {
-        "stat": "hook.pickup_drop_action_speed",
-        "operation": "apply_status",
+        "stat": "hook.pickup_time",
+        "operation": "multiply",
         "interpretation": "verified",
-        "value": true,
-        "unit": "boolean",
-        "duration": null,
+        "value": 1.32,
+        "unit": "multiplier",
         "condition": {
           "type": "forever_entwined_max_tokens"
-        }
+        },
+        "detail": "Scénario à 8 jetons : +4 % par blessure, +32 % de vitesse d’action au maximum."
+      },
+      {
+        "stat": "hook.drop_time",
+        "operation": "multiply",
+        "interpretation": "verified",
+        "value": 1.32,
+        "unit": "multiplier",
+        "condition": {
+          "type": "forever_entwined_max_tokens"
+        },
+        "detail": "Scénario à 8 jetons : +4 % par blessure, +32 % de vitesse d’action au maximum."
       }
     ],
     "cooldown": null,
@@ -5573,21 +6189,39 @@
         "stat": "chase.palette_lock",
         "operation": "block",
         "interpretation": "verified",
-        "duration": 16,
+        "duration": 64,
         "unit": "seconds",
         "condition": {
-          "type": "perk_triggered"
-        }
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "exit_gates_powered"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
+        },
+        "detail": "Scénario à 4 survivants différents accrochés : 16 s par jeton = 64 s sur toutes les palettes debout."
       },
       {
         "stat": "chase.window_lock",
         "operation": "block",
         "interpretation": "verified",
-        "duration": 16,
+        "duration": 64,
         "unit": "seconds",
         "condition": {
-          "type": "perk_triggered"
-        }
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "exit_gates_powered"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
+        },
+        "detail": "Même durée sur les points de saut ; 0/16/32/48/64 s pour 0/1/2/3/4 jetons."
       }
     ],
     "cooldown": null,
@@ -5657,7 +6291,7 @@
           "type": "after_fall"
         },
         "duration": 25,
-        "cooldown": 5
+        "detail": "Chute d’au moins 1,25 m ; recharge 5 s. Sur la référence approximative de 6 m : portée ≈10,5 m."
       }
     ],
     "cooldown": 5,
@@ -5689,20 +6323,39 @@
     },
     "effects": [
       {
-        "stat": "survivor.aura",
+        "stat": "survivor.hook_conversion",
+        "label": "Crochets flagellateurs supplémentaires",
+        "detail": "4 crochets au départ ; chaque décrochage convertit le crochet utilisé.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+10[aura]"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean"
+      },
+      {
+        "stat": "generator.aura",
+        "label": "Générateur le plus avancé",
+        "detail": "Après accrochage sur un crochet flagellateur.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "after_hook"
+            },
+            {
+              "type": "scourge_hook"
+            }
+          ]
         },
-        "duration": 10,
-        "unit": "seconds"
+        "duration": 10
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 130
@@ -5757,20 +6410,40 @@
     },
     "effects": [
       {
-        "stat": "survivor.status.sick",
+        "stat": "healing.skill_checks",
+        "label": "Tests continus à partir de 75 % d’auto-soin",
+        "detail": "Échec ou interruption : Brisé 30 s ; ne ralentit pas automatiquement tous les soins.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "perk_triggered"
+        }
+      },
+      {
+        "stat": "survivor.status.broken",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+30[care(sick)]"
-        },
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
         "duration": 30,
-        "unit": "seconds"
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "perk_triggered"
+            },
+            {
+              "type": "skill_check_failed"
+            }
+          ]
+        }
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 131
@@ -5845,12 +6518,21 @@
               "type": "hex_active"
             },
             {
-              "type": "generator_completed"
-            },
-            {
               "type": "target_is_obsession"
             }
           ]
+        }
+      },
+      {
+        "stat": "totem.visibility",
+        "label": "L’obsession voit le totem dans les 12 m",
+        "detail": "S’allume au premier générateur terminé ; seuls les soins/réparations explicitement visés sont modifiés, ici la réparation de l’obsession.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "hex_active"
         }
       }
     ],
@@ -5924,19 +6606,21 @@
     "effects": [
       {
         "stat": "survivor.aura",
+        "label": "Survivant à moins de 8 m d’un coffre verrouillé",
+        "detail": "Aura 5 s ; les auras des coffres verrouillés sont visibles. La fermeture manuelle a une recharge de 10 s.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+5[aura]"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "perk_triggered"
         },
-        "duration": 5,
-        "unit": "seconds"
+        "duration": 5
       }
     ],
     "cooldown": 10,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 135
@@ -5998,20 +6682,33 @@
     },
     "effects": [
       {
-        "stat": "action.lock",
+        "stat": "totem.lock",
         "operation": "block",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+16[action(lock)]"
+        "interpretation": "verified",
+        "duration": 25,
+        "unit": "seconds",
+        "condition": {
+          "type": "perk_triggered"
         },
-        "duration": 16,
-        "unit": "seconds"
+        "detail": "Première interaction de purification/bénédiction avec chaque totem ; cri et aura 5 s."
+      },
+      {
+        "stat": "survivor.aura",
+        "label": "Auteur de la première interaction avec un totem",
+        "detail": "La fenêtre de blocage retarde l’interaction ; elle ne rallonge pas sa durée de base.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "perk_triggered"
+        },
+        "duration": 5
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 136
@@ -6073,32 +6770,42 @@
     },
     "effects": [
       {
-        "stat": "survivor.aura",
+        "stat": "item.forced_drop",
+        "label": "Objet épuisé lâché automatiquement",
+        "detail": "Lorsqu’il n’a plus de charges.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "infinite[aura]"
-        },
+        "interpretation": "verified",
         "value": true,
-        "unit": "boolean",
-        "duration": null
+        "unit": "boolean"
       },
       {
-        "stat": "killer.status.undetectable",
+        "stat": "survivor.aura",
+        "label": "Survivants près d’un objet au sol",
+        "detail": "Rayon de 12 m ; ils voient l’objet en retour.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "perk_triggered"
+        }
+      },
+      {
+        "stat": "survivor.status.oblivious",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+30[indetectable]"
-        },
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
         "duration": 30,
-        "unit": "seconds"
+        "condition": {
+          "type": "perk_triggered"
+        },
+        "detail": "Lors du ramassage d’un objet."
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 139
@@ -6156,18 +6863,19 @@
       {
         "stat": "survivor.status.exhausted",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+10[exhausted]"
-        },
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
         "duration": 10,
-        "unit": "seconds"
+        "condition": {
+          "type": "perk_triggered"
+        },
+        "detail": "Corbeau effrayé à moins de 36 m ; recharge 5 s."
       }
     ],
     "cooldown": 5,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 140
@@ -6200,6 +6908,34 @@
         "interpretation": "verified",
         "value": 1.25,
         "unit": "multiplier"
+      },
+      {
+        "stat": "killer.missed_attack_recovery_time",
+        "operation": "multiply",
+        "interpretation": "verified",
+        "value": 0.75,
+        "unit": "multiplier",
+        "detail": "Réduction de durée de l’attaque de base RATÉE seulement, conformément au patch live 10.2 (la description locale est moins précise)."
+      },
+      {
+        "stat": "killer.pallet_stun_duration",
+        "operation": "multiply",
+        "interpretation": "verified",
+        "value": 1.25,
+        "unit": "multiplier",
+        "condition": {
+          "type": "pallet_stunned"
+        }
+      },
+      {
+        "stat": "killer.blind_duration",
+        "operation": "multiply",
+        "interpretation": "verified",
+        "value": 1.25,
+        "unit": "multiplier",
+        "condition": {
+          "type": "after_blind"
+        }
       }
     ],
     "cooldown": null,
@@ -6263,7 +6999,7 @@
         "stat": "killer.speed",
         "operation": "multiply",
         "interpretation": "verified",
-        "value": 1.07,
+        "value": 1.05,
         "unit": "multiplier",
         "condition": {
           "operator": "all",
@@ -6276,7 +7012,20 @@
             }
           ]
         },
-        "duration": 10
+        "duration": 25
+      },
+      {
+        "stat": "chase.activation_window",
+        "label": "Fenêtre d’activation de 30 s après une blessure",
+        "detail": "Un saut dans cette fenêtre donne +5 % pendant 25 s ; pas de cumul avec soi-même.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "survivor_injured"
+        },
+        "duration": 30
       }
     ],
     "cooldown": null,
@@ -6353,18 +7102,19 @@
       {
         "stat": "killer.status.undetectable",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+30[indetectable]"
-        },
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
         "duration": 30,
-        "unit": "seconds"
+        "condition": {
+          "type": "generator_damaged"
+        },
+        "detail": "Rayon de terreur de 32 m transféré au générateur ; le tueur reste Indétectable. Recharge 30 s."
       }
     ],
     "cooldown": 30,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 145
@@ -6432,24 +7182,23 @@
     },
     "effects": [
       {
-        "stat": "generator.progress",
-        "operation": "multiply",
+        "stat": "generator.instant_regression",
+        "operation": "add",
         "interpretation": "verified",
-        "value": 0.7,
-        "unit": "multiplier",
+        "value": 27,
+        "unit": "count",
         "condition": {
           "operator": "all",
           "conditions": [
             {
-              "type": "skill_check_failed"
+              "type": "generator_damaged"
             },
             {
-              "type": "generator_damaged"
+              "type": "perk_triggered"
             }
           ]
         },
-        "duration": null,
-        "cooldown": 60
+        "detail": "30 % de 90 charges = 27 charges, soit autant de secondes de réparation solo (plafonnées à la progression présente). Scénario à 3 jetons gagnés par accrochages : 10 % par jeton consommé. Aucune dépendance à un test raté ; hors perte du kick de base."
       },
       {
         "stat": "generator.lock",
@@ -6461,16 +7210,17 @@
           "operator": "all",
           "conditions": [
             {
-              "type": "skill_check_failed"
+              "type": "generator_damaged"
             },
             {
-              "type": "generator_damaged"
+              "type": "perk_triggered"
             }
           ]
-        }
+        },
+        "detail": "10 s de blocage par jeton consommé : 10/20/30 s pour 1/2/3 jetons."
       }
     ],
-    "cooldown": 60,
+    "cooldown": null,
     "effectImportStatus": "parsed",
     "analysisReadiness": "ready",
     "provenance": {
@@ -6540,20 +7290,36 @@
     },
     "effects": [
       {
-        "stat": "survivor.status.blindness",
-        "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+1.5[blind]"
+        "stat": "survivor.visual_blind",
+        "label": "Aveuglement visuel en retour",
+        "detail": "Totem activé après 2 aveuglements/étourdissements ; hors transport, l’auteur est aveuglé visuellement 1,5 s. Ce n’est pas le statut empêchant la lecture d’aura.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "hex_active"
+            },
+            {
+              "type": "perk_triggered"
+            },
+            {
+              "operator": "not",
+              "condition": {
+                "type": "carrying_survivor"
+              }
+            }
+          ]
         },
-        "duration": 1.5,
-        "unit": "seconds"
+        "duration": 1.5
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 149
@@ -6635,31 +7401,67 @@
     },
     "effects": [
       {
-        "stat": "survivor.status.exposed",
-        "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+20[be_one_shot]"
+        "stat": "survivor.aura",
+        "label": "Aura de l’obsession après un autre crochet",
+        "detail": "Un survivant non obsession doit être accroché.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "after_hook"
+            },
+            {
+              "operator": "not",
+              "condition": {
+                "type": "target_is_obsession"
+              }
+            }
+          ]
         },
-        "duration": 20,
-        "unit": "seconds"
+        "duration": 10
       },
       {
-        "stat": "survivor.aura",
+        "stat": "survivor.status.exposed",
+        "operation": "apply_status",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "duration": 20,
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "after_hook"
+            },
+            {
+              "operator": "not",
+              "condition": {
+                "type": "target_is_obsession"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stat": "tracking.obsession",
+        "label": "Nouvelle obsession après son accrochage",
+        "detail": "Un autre survivant aléatoire hurle et devient obsession.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+10[aura]"
-        },
-        "duration": 10,
-        "unit": "seconds"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "obsession_hooked"
+        }
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 150
@@ -6722,7 +7524,8 @@
         "condition": {
           "type": "near_completed_generator"
         },
-        "duration": 5
+        "duration": 5,
+        "detail": "À moins de 16 m d’un générateur terminé ; persiste 5 s après sortie de zone."
       }
     ],
     "cooldown": null,
@@ -6792,18 +7595,19 @@
       {
         "stat": "survivor.status.blindness",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+30[blind]"
-        },
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
         "duration": 30,
-        "unit": "seconds"
+        "condition": {
+          "type": "perk_triggered"
+        },
+        "detail": "Fouille de casier : tous les survivants à moins de 40 m hurlent et subissent Aveuglement ; recharge 45 s."
       }
     ],
     "cooldown": 45,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 154
@@ -6868,6 +7672,15 @@
           "type": "after_basic_attack"
         },
         "duration": 10
+      },
+      {
+        "stat": "killer.no_bloodlust",
+        "label": "Soif de sang désactivée",
+        "detail": "Contrepartie permanente : ne pas ajouter de bonus de Soif de sang à ce build.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean"
       }
     ],
     "cooldown": null,
@@ -6901,31 +7714,33 @@
     },
     "effects": [
       {
-        "stat": "killer.status.undetectable",
-        "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+60[indetectable]"
+        "stat": "survivor.aura",
+        "label": "Survivant blessé le plus éloigné",
+        "detail": "Révélé après un accrochage.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "after_hook"
         },
-        "duration": 60,
-        "unit": "seconds"
+        "duration": 8
       },
       {
-        "stat": "survivor.aura",
-        "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+8[aura]"
-        },
-        "duration": 8,
-        "unit": "seconds"
+        "stat": "survivor.status.oblivious",
+        "operation": "apply_status",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "duration": 60,
+        "condition": {
+          "type": "after_hook"
+        }
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 156
@@ -6977,18 +7792,19 @@
       {
         "stat": "survivor.status.exhausted",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+8[exhausted]"
-        },
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
         "duration": 8,
-        "unit": "seconds"
+        "condition": {
+          "type": "survivor_lost_health_state"
+        },
+        "detail": "S’applique au survivant qui vient de perdre un état de santé."
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 159
@@ -7053,7 +7869,7 @@
           "type": "survivor_downed"
         },
         "duration": 10,
-        "cooldown": 30
+        "detail": "Survivants à moins de 16 m de la mise à terre ; recharge 30 s."
       }
     ],
     "cooldown": 30,
@@ -7151,7 +7967,7 @@
         "value": 1.08,
         "unit": "multiplier",
         "condition": {
-          "type": "generator_completed"
+          "type": "compromised_generator_completed"
         },
         "duration": 60
       },
@@ -7163,8 +7979,9 @@
         "unit": "boolean",
         "duration": 60,
         "condition": {
-          "type": "generator_completed"
-        }
+          "type": "compromised_generator_completed"
+        },
+        "detail": "Le générateur doit être compromis avant d’être achevé. Jusqu’à 3 marqués ; les autres marques disparaissent lors du déclenchement."
       }
     ],
     "cooldown": null,
@@ -7174,7 +7991,7 @@
       "file": "source.txt",
       "line": 161
     },
-    "nativeDescriptionHtml": "<p><span>Lorsque vous endommagez un&nbsp;</span><span class=\"description-term\">générateur</span><span>, ce dernier devient compromis :</span><br></p><p><span>Lorsque ce </span><span style=\"color: rgb(241, 108, 101);\"><strong>générateur </strong></span><span>est réparé entièrement:</span><br></p><ul><li>Vous gagnez <span class=\"description-value\">10%</span> de <span style=\"color: rgb(121, 199, 255);\"><strong>rapidité </strong></span>pendant <span class=\"description-value\">60 secondes</span>.</li><li>Vous gagnez <span style=\"color: rgb(241, 108, 101);\"><strong>Indétectable </strong></span>pendant <span class=\"description-value\">60 secondes</span>.</li><li>Les autres générateurs cessent d'être compromis</li></ul><p>Il peut y avoir jusqu'à <span class=\"description-value\">3&nbsp;</span><span style=\"color: rgb(241, 108, 101);\"><strong>générateurs&nbsp;</strong></span>compromis à la fois.</p>"
+    "nativeDescriptionHtml": "<p><span>Lorsque vous endommagez un&nbsp;</span><span class=\"description-term\">générateur</span><span>, ce dernier devient compromis :</span><br></p><p><span>Lorsque ce </span><span style=\"color: rgb(241, 108, 101);\"><strong>générateur </strong></span><span>est réparé entièrement:</span><br></p><ul><li>Vous gagnez <span class=\"description-value\">8%</span> de <span style=\"color: rgb(121, 199, 255);\"><strong>rapidité </strong></span>pendant <span class=\"description-value\">60 secondes</span>.</li><li>Vous gagnez <span style=\"color: rgb(241, 108, 101);\"><strong>Indétectable </strong></span>pendant <span class=\"description-value\">60 secondes</span>.</li><li>Les autres générateurs cessent d'être compromis</li></ul><p>Il peut y avoir jusqu'à <span class=\"description-value\">3&nbsp;</span><span style=\"color: rgb(241, 108, 101);\"><strong>générateurs&nbsp;</strong></span>compromis à la fois.</p>"
   },
   {
     "id": "game-afoot",
@@ -7246,23 +8063,46 @@
       {
         "stat": "killer.speed",
         "operation": "multiply",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+7%[speed]"
+        "interpretation": "verified",
+        "value": 1.1,
+        "unit": "multiplier",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "in_chase"
+            },
+            {
+              "type": "target_is_obsession"
+            },
+            {
+              "type": "after_break_action"
+            }
+          ]
         },
-        "value": 1.07,
-        "unit": "multiplier"
+        "duration": 10
+      },
+      {
+        "stat": "tracking.obsession",
+        "label": "La cible la plus poursuivie devient obsession",
+        "detail": "Lorsqu’elle subit une blessure.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "survivor_injured"
+        }
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 164
     },
-    "nativeDescriptionHtml": "<ul><li>Pendant que vous pourchassez l'<span style=\"color: rgb(241, 108, 101);\"><strong>obsession</strong></span>, dès que vous détruisez une <span style=\"color: rgb(241, 108, 101);\"><strong>palette</strong></span>, un <span style=\"color: rgb(241, 108, 101);\"><strong>mur destructible</strong></span> ou un <span style=\"color: rgb(241, 108, 101);\"><strong>générateur</strong></span>, vous gagnez <span class=\"description-value\">7%</span> de <span style=\"color: rgb(241, 108, 101);\"><strong>rapidité </strong></span>pendant <span class=\"description-value\">10 secondes.</span></li><li>Dès que vous blesser le survivant qui a été le plus poursuivi pendant la partie, ce dernier devient l'<span style=\"color: rgb(241, 108, 101);\"><strong>obsession</strong></span>.</li></ul>"
+    "nativeDescriptionHtml": "<ul><li>Pendant que vous pourchassez l'<span style=\"color: rgb(241, 108, 101);\"><strong>obsession</strong></span>, dès que vous détruisez une <span style=\"color: rgb(241, 108, 101);\"><strong>palette</strong></span>, un <span style=\"color: rgb(241, 108, 101);\"><strong>mur destructible</strong></span> ou un <span style=\"color: rgb(241, 108, 101);\"><strong>générateur</strong></span>, vous gagnez <span class=\"description-value\">10%</span> de <span style=\"color: rgb(241, 108, 101);\"><strong>rapidité </strong></span>pendant <span class=\"description-value\">10 secondes.</span></li><li>Dès que vous blesser le survivant qui a été le plus poursuivi pendant la partie, ce dernier devient l'<span style=\"color: rgb(241, 108, 101);\"><strong>obsession</strong></span>.</li></ul>"
   },
   {
     "id": "thwack",
@@ -7321,19 +8161,21 @@
     "effects": [
       {
         "stat": "survivor.aura",
+        "label": "Cris et auras après destruction",
+        "detail": "Dépense 1 des 3 jetons ; +1 par crochet. Palette/mur détruit, survivants à moins de 36 m.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+6[aura]"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "after_break_action"
         },
-        "duration": 6,
-        "unit": "seconds"
+        "duration": 6
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 165
@@ -7390,7 +8232,8 @@
         "condition": {
           "type": "survivor_unhooked"
         },
-        "duration": 60
+        "duration": 60,
+        "detail": "Pénalité sur le survivant qui effectue le sauvetage, pas automatiquement sur toute l’équipe."
       }
     ],
     "cooldown": null,
@@ -7458,10 +8301,12 @@
         "unit": "multiplier",
         "condition": {
           "type": "after_survivor_vault"
-        }
+        },
+        "duration": 10,
+        "detail": "Saut moyen/rapide d’un survivant à moins de 12 m : sauts de base du tueur +40 % pendant 10 s ; recharge 20 s."
       }
     ],
-    "cooldown": 25,
+    "cooldown": 20,
     "effectImportStatus": "parsed",
     "analysisReadiness": "ready",
     "provenance": {
@@ -7513,20 +8358,20 @@
     "effects": [
       {
         "stat": "survivor.aura",
+        "label": "Survivants à 20 m pendant le transport",
+        "detail": "Révélation continue tant que le transport et la portée sont respectés.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "infinite[aura]"
-        },
+        "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": null
+        "condition": {
+          "type": "carrying_survivor"
+        }
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 170
@@ -7587,10 +8432,19 @@
         "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": 45,
+        "duration": null,
         "condition": {
-          "type": "exit_gates_powered"
-        }
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "exit_gates_powered"
+            },
+            {
+              "type": "survivor_injured"
+            }
+          ]
+        },
+        "detail": "Survivants blessés, à terre ou accrochés : jusqu’à ouverture d’une porte, puis 45 s supplémentaires."
       }
     ],
     "cooldown": null,
@@ -7657,19 +8511,29 @@
     "effects": [
       {
         "stat": "survivor.aura",
+        "label": "Autres survivants après décrochage flagellateur",
+        "detail": "4 crochets flagellateurs au départ ; le survivant décroché est exclu de la révélation.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+7[aura]"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "survivor_unhooked"
+            },
+            {
+              "type": "scourge_hook"
+            }
+          ]
         },
-        "duration": 7,
-        "unit": "seconds"
+        "duration": 7
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 174
@@ -7742,15 +8606,17 @@
         "duration": 90
       },
       {
-        "stat": "generator.aura",
+        "stat": "generator.skill_check_alert",
+        "label": "Notification après un test standard réussi",
+        "detail": "Sur le générateur endommagé pendant les 90 s ; pas de révélation d’aura de survivant.",
         "operation": "reveal",
         "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": 90,
         "condition": {
           "type": "generator_damaged"
-        }
+        },
+        "duration": 90
       }
     ],
     "cooldown": null,
@@ -7822,8 +8688,17 @@
         "duration": 20,
         "unit": "seconds",
         "condition": {
-          "type": "generator_at_90_percent"
-        }
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "generator_at_90_percent"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
+        },
+        "detail": "Première arrivée à 90 % par générateur : tests continus. Blocage uniquement si un test est raté ou si la réparation est interrompue."
       }
     ],
     "cooldown": null,
@@ -7897,8 +8772,22 @@
         "duration": 40,
         "unit": "seconds",
         "condition": {
-          "type": "after_hook"
-        }
+          "type": "grim_embrace_four_tokens"
+        },
+        "detail": "Scénario à 4 premiers accrochages différents : 40 s. Les 3 premiers bloquent 10 s chacun après éloignement de 16 m."
+      },
+      {
+        "stat": "survivor.aura",
+        "label": "Aura de l’obsession au quatrième jeton",
+        "detail": "L’obsession est révélée en plus du blocage.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "grim_embrace_four_tokens"
+        },
+        "duration": 6
       }
     ],
     "cooldown": null,
@@ -8007,14 +8896,26 @@
     },
     "effects": [
       {
-        "stat": "generator.progress",
-        "operation": "multiply",
+        "stat": "generator.instant_regression",
+        "operation": "add",
         "interpretation": "verified",
-        "value": 0.8,
-        "unit": "multiplier",
+        "value": 18,
+        "unit": "count",
         "condition": {
-          "type": "after_hook"
-        }
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "after_hook"
+            },
+            {
+              "type": "scourge_hook"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
+        },
+        "detail": "20 % de 90 charges = 18 charges, soit autant de secondes de réparation solo (plafonnées à la progression présente). 18 charges sur le générateur le plus avancé. 4 jetons au départ, un seul premier accrochage flagellateur par survivant ; cri des réparateurs."
       }
     ],
     "cooldown": null,
@@ -8133,7 +9034,8 @@
               "type": "pentimento_five_tokens"
             }
           ]
-        }
+        },
+        "detail": "Scénario à 5 totems ravivés : 20 % + 4 × 3 % = 32 % de pénalité. Dès le premier : 20 %."
       },
       {
         "stat": "generator.repair_time",
@@ -8151,15 +9053,17 @@
               "type": "pentimento_five_tokens"
             }
           ]
-        }
+        },
+        "detail": "1/2/3/4/5 totems : pénalité de 20/23/26/29/32 %. Purification normale : 14 s ; bénédiction ensorcelée : 28 s."
       },
       {
         "stat": "totem.rekindled_blocked",
-        "operation": "apply_status",
+        "label": "Totems ravivés bloqués au cinquième",
+        "detail": "Chaque totem détruit ne peut être ravivé qu’une fois ; les survivants voient les auras des ravivés à 16 m.",
+        "operation": "reveal",
         "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": null,
         "condition": {
           "operator": "all",
           "conditions": [
@@ -8230,19 +9134,30 @@
     "effects": [
       {
         "stat": "survivor.aura",
+        "label": "Auras au début de partie",
+        "detail": "9 s de base + son propre bonus de 2 s = 11 s au total.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+9[aura]"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "trial_start"
         },
-        "duration": 9,
-        "unit": "seconds"
+        "duration": 9
+      },
+      {
+        "stat": "tracking.aura_extension",
+        "label": "Révélations d’auras temporisées : +2 s",
+        "detail": "Prolonge aussi sa propre révélation initiale. Ne prolonge pas une simple position/cri ou une aura continue sans temporisation.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean"
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 184
@@ -8304,20 +9219,21 @@
     },
     "effects": [
       {
-        "stat": "killer.status.undetectable",
+        "stat": "survivor.status.oblivious",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+40[indetectable]"
-        },
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
         "duration": 40,
-        "unit": "seconds"
+        "condition": {
+          "type": "survivor_injured"
+        },
+        "detail": "Après blessure d’un survivant sain : tous les survivants blessés, y compris la cible ; recharge 20 s."
       }
     ],
     "cooldown": 20,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 185
@@ -8411,30 +9327,47 @@
     },
     "effects": [
       {
-        "stat": "generator.progress",
-        "operation": "multiply",
+        "stat": "generator.instant_regression",
+        "operation": "add",
         "interpretation": "verified",
-        "value": 0.9,
-        "unit": "multiplier",
+        "value": 9,
+        "unit": "count",
         "condition": {
-          "type": "survivor_downed"
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "survivor_downed"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
         },
-        "duration": null,
-        "cooldown": 30
+        "detail": "10 % de 90 charges = 9 charges, soit autant de secondes de réparation solo (plafonnées à la progression présente). Générateurs préalablement endommagés/marqués, puis régression. Recharge 30 s."
       },
       {
         "stat": "survivor.aura",
+        "label": "Réparateurs des générateurs marqués",
+        "detail": "À la mise à terre, les réparateurs hurlent et leur aura est révélée.",
         "operation": "reveal",
         "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": 12,
         "condition": {
-          "type": "survivor_downed"
-        }
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "survivor_downed"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
+        },
+        "duration": 10
       }
     ],
-    "cooldown": null,
+    "cooldown": 30,
     "effectImportStatus": "parsed",
     "analysisReadiness": "ready",
     "provenance": {
@@ -8500,19 +9433,27 @@
       {
         "stat": "survivor.status.exposed",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "infinite[be_one_shot]"
-        },
+        "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": null
+        "duration": 30,
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "carrying_survivor"
+            },
+            {
+              "type": "inside_terror_radius"
+            }
+          ]
+        },
+        "detail": "Pendant le transport puis 30 s après sortie du rayon ou fin du transport ; recharge 60 s."
       }
     ],
     "cooldown": 60,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 189
@@ -8541,21 +9482,25 @@
     },
     "effects": [
       {
-        "stat": "chase.window_lock",
-        "operation": "block",
+        "stat": "killer.window_vault_time",
+        "operation": "multiply",
         "interpretation": "verified",
-        "duration": 15,
-        "unit": "seconds",
+        "value": 1.15,
+        "unit": "multiplier",
         "condition": {
-          "operator": "all",
-          "conditions": [
-            {
-              "type": "hex_active"
-            },
-            {
-              "type": "after_survivor_vault"
-            }
-          ]
+          "type": "hex_active"
+        }
+      },
+      {
+        "stat": "chase.window_lock",
+        "label": "Les 6 derniers points de saut sont bloqués",
+        "detail": "Activation au premier franchissement ; blocage maintenu par le totem, pas une ancienne durée fixe de 15 s. Auras des points bloqués à 24 m.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "hex_active"
         }
       }
     ],
@@ -8650,7 +9595,8 @@
               "type": "perk_triggered"
             }
           ]
-        }
+        },
+        "detail": "Au premier contact avec un interrupteur : 12 s + 12 s par premier survivant accroché ; scénario à 4 jetons = 60 s, sinon 12/24/36/48 s."
       }
     ],
     "cooldown": null,
@@ -8722,21 +9668,29 @@
     },
     "effects": [
       {
-        "stat": "survivor.aura",
+        "stat": "chest.count",
+        "operation": "add",
+        "interpretation": "verified",
+        "value": 2,
+        "unit": "count",
+        "detail": "3 coffres de base + 2 = 5 coffres, hors offrandes/carte."
+      },
+      {
+        "stat": "tracking.item_alert",
+        "label": "Ramassage d’objet ou ouverture d’un coffre",
+        "detail": "Notification à moins de 64 m ; ce n’est pas une lecture d’aura.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "infinite[aura]"
-        },
+        "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": null
+        "condition": {
+          "type": "perk_triggered"
+        }
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 194
@@ -8800,25 +9754,16 @@
     "effects": [
       {
         "stat": "generator.additional_regression",
-        "operation": "apply_status",
+        "label": "Régression de 4 générateurs supplémentaires",
+        "detail": "Ils régressent au rythme normal de 0,25 charge/s ; les réparateurs reçoivent un test difficile. Pas de perte instantanée ajoutée.",
+        "operation": "reveal",
         "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": null,
         "condition": {
           "type": "generator_damaged"
-        }
-      },
-      {
-        "stat": "generator.difficult_skill_check",
-        "operation": "apply_status",
-        "interpretation": "verified",
-        "value": true,
-        "unit": "boolean",
-        "duration": null,
-        "condition": {
-          "type": "generator_damaged"
-        }
+        },
+        "cooldown": 35
       }
     ],
     "cooldown": 35,
@@ -8891,7 +9836,8 @@
         "unit": "multiplier",
         "condition": {
           "type": "perk_triggered"
-        }
+        },
+        "detail": "+2 jetons par générateur terminé, maximum 5 ; une fente consomme un jeton. Référence approximative : 6 × 1,8 ≈ 10,8 m."
       }
     ],
     "cooldown": null,
@@ -8953,7 +9899,8 @@
         "duration": 80,
         "condition": {
           "type": "perk_triggered"
-        }
+        },
+        "detail": "Survivant qui reçoit un coup de protection."
       }
     ],
     "cooldown": null,
@@ -9021,21 +9968,21 @@
     },
     "effects": [
       {
-        "stat": "survivor.aura",
-        "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "infinite[aura]"
-        },
+        "stat": "killer.status.undetectable",
+        "operation": "apply_status",
+        "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": null
+        "duration": null,
+        "condition": {
+          "type": "generator_damaged"
+        },
+        "detail": "Jusqu’à ce que le générateur endommagé cesse de régresser ; les survivants voient son aura. Recharge 30 s."
       }
     ],
     "cooldown": 30,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 200
@@ -9104,33 +10051,21 @@
     },
     "effects": [
       {
-        "stat": "survivor.aura",
-        "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "infinite[aura,indetectable]"
-        },
-        "value": true,
-        "unit": "boolean",
-        "duration": null
-      },
-      {
-        "stat": "killer.status.undetectable",
+        "stat": "survivor.status.oblivious",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "infinite[aura,indetectable]"
-        },
+        "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": null
+        "duration": null,
+        "condition": {
+          "type": "perk_triggered"
+        },
+        "detail": "Après avoir fini de soigner un autre survivant : le soigneur hurle, puis reste Inconscient à moins de 4 m de la personne soignée, jusqu’à sa prochaine blessure. Il voit l’aura de cette personne."
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 201
@@ -9186,14 +10121,23 @@
     },
     "effects": [
       {
-        "stat": "generator.progress",
-        "operation": "multiply",
+        "stat": "generator.instant_regression",
+        "operation": "add",
         "interpretation": "verified",
-        "value": 0.92,
-        "unit": "multiplier",
+        "value": 7.2,
+        "unit": "count",
         "condition": {
-          "type": "survivor_downed"
-        }
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "survivor_downed"
+            },
+            {
+              "type": "after_basic_attack"
+            }
+          ]
+        },
+        "detail": "8 % de 90 charges = 7.2 charges, soit autant de secondes de réparation solo (plafonnées à la progression présente). Générateurs à moins de 32 m de la mise à terre par attaque de base : explosion, régression et cri des réparateurs."
       }
     ],
     "cooldown": null,
@@ -9262,31 +10206,30 @@
       {
         "stat": "survivor.status.blindness",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "infinite[blind,exhausted]"
-        },
+        "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": null
+        "duration": 5,
+        "condition": {
+          "type": "repairing_generator"
+        }
       },
       {
         "stat": "survivor.status.exhausted",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "infinite[blind,exhausted]"
-        },
+        "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": null
+        "duration": 5,
+        "condition": {
+          "type": "repairing_generator"
+        },
+        "detail": "Pendant la réparation puis 5 s après l’arrêt ; durée d’effet, pas cooldown de la perk."
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 205
@@ -9342,20 +10285,20 @@
     },
     "effects": [
       {
-        "stat": "survivor.aura",
-        "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+30[aura]"
-        },
+        "stat": "chase.window_lock",
+        "operation": "block",
+        "interpretation": "verified",
         "duration": 30,
-        "unit": "seconds"
+        "unit": "seconds",
+        "condition": {
+          "type": "generator_completed"
+        },
+        "detail": "Tous les points de saut sont bloqués à chaque générateur terminé ; leurs auras sont visibles pendant 30 s."
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 206
@@ -9429,20 +10372,28 @@
     "effects": [
       {
         "stat": "survivor.aura",
+        "label": "Survivants près des crochets flagellateurs",
+        "detail": "Pendant le transport, survivants à moins de 16 m d’un de ces crochets ; 4 crochets initiaux. Alerte lors d’un sabotage.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "infinite[aura]"
-        },
+        "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": null
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "carrying_survivor"
+            },
+            {
+              "type": "scourge_hook"
+            }
+          ]
+        }
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 210
@@ -9516,20 +10467,21 @@
     },
     "effects": [
       {
-        "stat": "survivor.aura",
+        "stat": "generator.aura",
+        "label": "Générateurs en régression",
+        "detail": "Aura continue pendant la régression, puis surlignage pendant 16 s à son interruption. Description locale : réparations audibles à 8 m ; aucun malus de vitesse de réparation.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+16[aura]"
-        },
-        "duration": 16,
-        "unit": "seconds"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "perk_triggered"
+        }
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 211
@@ -9594,18 +10546,27 @@
       {
         "stat": "survivor.status.exposed",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+60[be_one_shot]"
-        },
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
         "duration": 60,
-        "unit": "seconds"
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "survivor_unhooked"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
+        },
+        "detail": "Le sauveteur, si vous êtes à plus de 32 m ; cri et Exposé 60 s. Recharge 60 s."
       }
     ],
     "cooldown": 60,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 212
@@ -9649,19 +10610,21 @@
     "effects": [
       {
         "stat": "survivor.aura",
+        "label": "Survivants éloignés du crochet",
+        "detail": "Survivants à au moins 40 m après un accrochage.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+5[aura]"
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "after_hook"
         },
-        "duration": 5,
-        "unit": "seconds"
+        "duration": 5
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 215
@@ -9710,26 +10673,26 @@
     },
     "effects": [
       {
-        "stat": "survivor.speed",
+        "stat": "survivor.run_speed",
         "operation": "multiply",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "-5%[speed(survivant)]"
+        "interpretation": "verified",
+        "value": 0.8,
+        "unit": "multiplier",
+        "condition": {
+          "type": "perk_triggered"
         },
-        "target": "survivor",
-        "value": 0.95,
-        "unit": "multiplier"
+        "duration": 4,
+        "detail": "Dans les 6 s après renversement d’une palette, si la cible s’en éloigne de plus de 10 m. Fin anticipée dès que le tueur commence à briser la palette. Plus aucun effet de slug de l’ancienne version."
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 216
     },
-    "nativeDescriptionHtml": "<p>Dès qu'une survivant renverse une <span style=\"color: rgb(241, 108, 101);\"><strong>palette</strong></span>, pendant les <span class=\"description-value\">6 secondes</span> qui suivent, s'il s'éloigne à plus de<span class=\"description-value\">&nbsp;10 mètres</span> de cette <span style=\"color: rgb(241, 108, 101);\"><strong>palette </strong></span>:</p><ul><li>il est <span class=\"description-value\">20%</span> moins rapide pendant <span class=\"description-value\">5 secondes</span></li></ul>"
+    "nativeDescriptionHtml": "<p>Dès qu'une survivant renverse une <span style=\"color: rgb(241, 108, 101);\"><strong>palette</strong></span>, pendant les <span class=\"description-value\">6 secondes</span> qui suivent, s'il s'éloigne à plus de<span class=\"description-value\">&nbsp;10 mètres</span> de cette <span style=\"color: rgb(241, 108, 101);\"><strong>palette </strong></span>:</p><ul><li>il est <span class=\"description-value\">20%</span> moins rapide pendant <span class=\"description-value\">4 secondes</span></li></ul>"
   },
   {
     "id": "franklins-demise",
@@ -9745,28 +10708,52 @@
     "characterResolution": "resolved",
     "icon": "DBDImages-main/DBDImages-main/images/perks/killer/franklinsdemise.png",
     "description": {
-      "fr": null,
+      "fr": {
+        "version": 1,
+        "blocks": [
+          {
+            "type": "list",
+            "ordered": false,
+            "items": [
+              [
+                {
+                  "type": "text",
+                  "value": "Les survivants touchés par votre attaque de base dévastatrice laissent tomber tout objet équipé. sur l'impact:"
+                }
+              ],
+              [
+                {
+                  "type": "text",
+                  "value": "Vous voyez les objets perdus sont révélés à une distance de 32 / 48 / 64 mètres."
+                }
+              ]
+            ]
+          }
+        ]
+      },
       "en": null
     },
     "effects": [
       {
         "stat": "item.forced_drop",
-        "operation": "apply_status",
+        "label": "Objet tenu lâché au sol",
+        "detail": "À l’impact d’une attaque de base ; aucune réduction de charges n’est décrite dans cette version.",
+        "operation": "reveal",
         "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": null,
         "condition": {
           "type": "after_basic_attack"
         }
       },
       {
-        "stat": "item.aura.within_64m",
+        "stat": "item.aura",
+        "label": "Objets lâchés visibles à 64 m",
+        "detail": "Les objets perdus sont révélés après le coup.",
         "operation": "reveal",
         "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": null,
         "condition": {
           "type": "after_basic_attack"
         }
@@ -9871,6 +10858,18 @@
         "condition": {
           "type": "after_basic_attack"
         }
+      },
+      {
+        "stat": "healing.regression_rate",
+        "operation": "multiply",
+        "interpretation": "verified",
+        "value": 1.25,
+        "unit": "multiplier",
+        "condition": {
+          "type": "after_basic_attack"
+        },
+        "duration": 90,
+        "detail": "Hémorragie normale : 7 points/s ; bonus de 25 % au rythme de régression = 8,75 points/s, pas 32 points/s."
       }
     ],
     "cooldown": null,
@@ -9955,14 +10954,65 @@
     },
     "effects": [
       {
+        "stat": "survivor.status.hemorrhage",
+        "operation": "apply_status",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "duration": 90,
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "survivor_unhooked"
+            },
+            {
+              "type": "scourge_hook"
+            },
+            {
+              "operator": "not",
+              "condition": {
+                "type": "weeping_wounds_healed"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stat": "healing.time",
+        "operation": "multiply",
+        "interpretation": "verified",
+        "value": 0.8,
+        "unit": "multiplier",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "survivor_unhooked"
+            },
+            {
+              "type": "scourge_hook"
+            },
+            {
+              "operator": "not",
+              "condition": {
+                "type": "weeping_wounds_healed"
+              }
+            }
+          ]
+        },
+        "duration": 90
+      },
+      {
         "stat": "healing.time",
         "operation": "multiply",
         "interpretation": "verified",
         "value": 0.84,
         "unit": "multiplier",
         "condition": {
-          "type": "survivor_unhooked"
-        }
+          "type": "weeping_wounds_healed"
+        },
+        "detail": "Après soin du survivant décroché d’un crochet flagellateur, jusqu’à sa prochaine blessure : ses soins et réparations sont 16 % plus lents. Distinct de l’Estropiement initial."
       },
       {
         "stat": "generator.repair_time",
@@ -9971,19 +11021,9 @@
         "value": 0.84,
         "unit": "multiplier",
         "condition": {
-          "type": "survivor_unhooked"
-        }
-      },
-      {
-        "stat": "survivor.status.hemorrhage",
-        "operation": "apply_status",
-        "interpretation": "verified",
-        "value": true,
-        "unit": "boolean",
-        "duration": 90,
-        "condition": {
-          "type": "survivor_unhooked"
-        }
+          "type": "weeping_wounds_healed"
+        },
+        "detail": "Après soin du survivant décroché d’un crochet flagellateur, jusqu’à sa prochaine blessure : ses soins et réparations sont 16 % plus lents. Distinct de l’Estropiement initial."
       }
     ],
     "cooldown": null,
@@ -10050,14 +11090,26 @@
     },
     "effects": [
       {
-        "stat": "hook.phase_duration",
+        "stat": "generator.regression_rate",
         "operation": "multiply",
         "interpretation": "verified",
-        "value": 1.2,
+        "value": 2,
         "unit": "multiplier",
         "condition": {
-          "type": "survivor_hooked"
-        }
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "survivor_hooked"
+            },
+            {
+              "type": "scourge_hook"
+            },
+            {
+              "type": "far_from_hook"
+            }
+          ]
+        },
+        "detail": "À plus de 24 m du survivant accroché à un crochet flagellateur : générateurs non réparés à 200 %, soit 0,5 charge/s. N’accélère plus le sacrifice. 4 crochets aléatoires et crochets de cave concernés."
       }
     ],
     "cooldown": null,
@@ -10117,21 +11169,22 @@
     },
     "effects": [
       {
-        "stat": "survivor.aura",
+        "stat": "tracking.crow_alert",
+        "label": "Corbeau effrayé à moins de 40 m",
+        "detail": "Notification sonore, pas aura de survivant.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "infinite[aura]"
-        },
+        "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": null
+        "condition": {
+          "type": "perk_triggered"
+        },
+        "cooldown": 3
       }
     ],
-    "cooldown": 5,
+    "cooldown": 3,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 223
@@ -10199,20 +11252,33 @@
     },
     "effects": [
       {
-        "stat": "survivor.aura",
-        "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+8[aura]"
+        "stat": "totem.lock",
+        "operation": "block",
+        "interpretation": "verified",
+        "duration": 20,
+        "unit": "seconds",
+        "condition": {
+          "type": "perk_triggered"
         },
-        "duration": 8,
-        "unit": "seconds"
+        "detail": "Totem béni, purifié ou détruit : tous les totems bloqués 20 s ; éteindre une bénédiction détruit son totem."
+      },
+      {
+        "stat": "totem.aura",
+        "label": "Auras des totems de bénédiction",
+        "detail": "Lors du même déclenchement.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "perk_triggered"
+        },
+        "duration": 20
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 224
@@ -10275,7 +11341,8 @@
         "unit": "multiplier",
         "condition": {
           "type": "perk_triggered"
-        }
+        },
+        "detail": "Scénario à 8 jetons : 8 × 5 % = 40 % de durée en moins, soit 1,62 s. Coup sur non-obsession : +1 ; blessure de l’obsession : −2. Plus de gain de jetons si l’obsession meurt."
       }
     ],
     "cooldown": null,
@@ -10332,7 +11399,21 @@
         "stat": "killer.missed_attack_recovery_time",
         "operation": "multiply",
         "interpretation": "verified",
-        "value": 1.3,
+        "value": 0.6,
+        "unit": "multiplier"
+      },
+      {
+        "stat": "killer.obstructed_attack_recovery_time",
+        "operation": "multiply",
+        "interpretation": "verified",
+        "value": 0.6,
+        "unit": "multiplier"
+      },
+      {
+        "stat": "killer.successful_attack_recovery_time",
+        "operation": "multiply",
+        "interpretation": "verified",
+        "value": 0.9,
         "unit": "multiplier"
       }
     ],
@@ -10384,18 +11465,24 @@
       {
         "stat": "killer.terror_radius",
         "operation": "multiply",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+30%[terror_rayon]"
-        },
+        "interpretation": "verified",
         "value": 1.3,
         "unit": "multiplier"
+      },
+      {
+        "stat": "generator.repair_time",
+        "operation": "multiply",
+        "interpretation": "verified",
+        "value": 0.92,
+        "unit": "multiplier",
+        "condition": {
+          "type": "inside_terror_radius"
+        }
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 227
@@ -10457,19 +11544,19 @@
       {
         "stat": "killer.status.undetectable",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "infinite[indetectable]"
-        },
+        "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": null
+        "duration": null,
+        "condition": {
+          "type": "perk_triggered"
+        },
+        "detail": "Après 2 s immobile ; persiste 8 s après reprise d’une action."
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 228
@@ -10530,42 +11617,51 @@
     },
     "effects": [
       {
-        "stat": "survivor.aura.generator",
+        "stat": "survivor.aura",
+        "label": "Survivants près d’un générateur terminé",
+        "detail": "Rayon de 20 m autour du générateur ; durée de 10 s par activation.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "+5[aura(generator(fixed))]"
-        },
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
         "condition": {
-          "type": "generator_completed"
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "generator_completed"
+            },
+            {
+              "operator": "not",
+              "condition": {
+                "type": "exit_gates_powered"
+              }
+            }
+          ]
         },
-        "duration": 5,
-        "unit": "seconds"
+        "duration": 10
       },
       {
-        "stat": "survivor.aura.generator",
+        "stat": "survivor.aura",
+        "label": "Tous les survivants après le dernier générateur",
+        "detail": "Une seule révélation globale de 20 s, sans addition artificielle avec la révélation locale.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "10[aura(generator(all_finished))]"
-        },
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
         "condition": {
           "type": "exit_gates_powered"
         },
-        "duration": 10,
-        "unit": "seconds"
+        "duration": 20
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 229
     },
-    "nativeDescriptionHtml": "<p><span>Dès qu'un </span><span style=\"color: rgb(241, 108, 101);\"><strong>générateur </strong></span><span>est terminé :</span><br></p><ul><li>&nbsp;vous voyez les survivants situés à moins de <span class=\"description-value\">20 mètres</span> de ce <span class=\"description-term\">générateur</span> pendant <span class=\"description-value\">8 secondes</span>.</li></ul><p><span>Une fois tous les&nbsp;</span><span class=\"description-term\">générateurs</span><span>&nbsp;sont terminés:</span><br></p><ul><li>Vous voyez les <span class=\"description-term\">auras</span> de tous les survivants pendant <span class=\"description-value\">14 secondes</span>.</li></ul>"
+    "nativeDescriptionHtml": "<p><span>Dès qu'un </span><span style=\"color: rgb(241, 108, 101);\"><strong>générateur </strong></span><span>est terminé :</span><br></p><ul><li>&nbsp;vous voyez les survivants situés à moins de <span class=\"description-value\">20 mètres</span> de ce <span class=\"description-term\">générateur</span> pendant <span class=\"description-value\">10 secondes</span>.</li></ul><p><span>Une fois tous les&nbsp;</span><span class=\"description-term\">générateurs</span><span>&nbsp;sont terminés:</span><br></p><ul><li>Vous voyez les <span class=\"description-term\">auras</span> de tous les survivants pendant <span class=\"description-value\">20 secondes</span>.</li></ul>"
   },
   {
     "id": "whispers",
@@ -10609,13 +11705,27 @@
     "effects": [
       {
         "stat": "tracking.whispers",
-        "operation": "apply_status",
+        "label": "Présence d’un survivant dans les 24 m",
+        "detail": "Information sonore, pas aura. Peut être déclenchée par un survivant accroché.",
+        "operation": "reveal",
         "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": null,
         "condition": {
-          "type": "survivor_within_32m"
+          "type": "survivor_within_24m"
+        }
+      },
+      {
+        "stat": "killer.speed",
+        "operation": "multiply",
+        "interpretation": "verified",
+        "value": 1.05,
+        "unit": "multiplier",
+        "condition": {
+          "operator": "not",
+          "condition": {
+            "type": "survivor_within_24m"
+          }
         }
       }
     ],
@@ -10688,20 +11798,34 @@
     "effects": [
       {
         "stat": "survivor.aura",
+        "label": "Révélation réciproque des auras",
+        "detail": "Tant qu’un survivant voit votre aura, vous voyez la sienne ; pas l’ancienne recherche de survivants à terre.",
         "operation": "reveal",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "infinite[aura]"
-        },
+        "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": null
+        "condition": {
+          "type": "perk_triggered"
+        }
+      },
+      {
+        "stat": "tracking.self_aura",
+        "label": "Votre aura donnée au survivant le moins poursuivi",
+        "detail": "Toutes les 30 s, pendant 4 s ; déclenche donc aussi la réciprocité.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "perk_triggered"
+        },
+        "duration": 4,
+        "cooldown": 30
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 231
@@ -10759,11 +11883,12 @@
         "stat": "hook.wiggle_time",
         "operation": "multiply",
         "interpretation": "verified",
-        "value": 0.88,
+        "value": 1.12,
         "unit": "multiplier",
         "condition": {
           "type": "carrying_survivor"
-        }
+        },
+        "detail": "Augmentation directe de durée : 16 × 1,12 = 17,92 s pour se libérer."
       },
       {
         "stat": "hook.wiggle_strength",
@@ -10783,7 +11908,7 @@
       "file": "source.txt",
       "line": 232
     },
-    "nativeDescriptionHtml": "<p><span>Pendant que vous transportez un survivant :</span><br></p><ul><li>Augmente le temps nécessaire pour se libérer de votre emprise de <span class=\"description-value\">4 / 8 / 12 %</span>.</li><li>Il se débat <span class=\"description-value\">75%</span> plus faiblement</li></ul>"
+    "nativeDescriptionHtml": "<p><span>Pendant que vous transportez un survivant :</span><br></p><ul><li>Augmente le temps nécessaire pour se libérer de votre emprise de <span class=\"description-value\">10 / 11 / 12 %</span>.</li><li>Il se débat <span class=\"description-value\">75%</span> plus faiblement</li></ul>"
   },
   {
     "id": "see-how-they-run",
@@ -10853,19 +11978,12 @@
         "value": 1.15,
         "unit": "multiplier",
         "condition": {
-          "operator": "all",
-          "conditions": [
-            {
-              "type": "hex_active"
-            },
-            {
-              "type": "perk_triggered"
-            }
-          ]
-        }
+          "type": "perk_triggered"
+        },
+        "detail": "Scénario à 3 jetons : +5 % chacun, +15 % au maximum ; abandonner l’obsession donne 1 jeton, une attaque en retire 1. Aucun totem n’est requis."
       }
     ],
-    "cooldown": 10,
+    "cooldown": null,
     "effectImportStatus": "parsed",
     "analysisReadiness": "ready",
     "provenance": {
@@ -10895,25 +12013,33 @@
     },
     "effects": [
       {
-        "stat": "action.totem",
-        "operation": "multiply",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "-10%[action(totem)]"
+        "stat": "totem.lock",
+        "operation": "block",
+        "interpretation": "verified",
+        "duration": 30,
+        "unit": "seconds",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "hex_active"
+            },
+            {
+              "type": "after_hook"
+            }
+          ]
         },
-        "value": 0.9,
-        "unit": "multiplier"
+        "detail": "Scénario à 5 totems ensorcelés allumés : 6 s chacun, soit 30 s maximum. Un premier accrochage allume ce maléfice ; l’effet concerne les totems ensorcelés."
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 234
     },
-    "nativeDescriptionHtml": "<p>La première fois qu'un survivant est accroché, un <strong><span style=\"color: rgb(241, 108, 101);\">totem </span></strong>s'embrase et confère les effets suivant (tant qu'il n'est pas détruit) :</p><ul><li>Lorsque vous accrochez un survivant, cela bloque tous les <span style=\"color: rgb(241, 108, 101);\"><strong>totems ensorcelés</strong></span> pendant <span class=\"description-value\">8 secondes</span> pour chaque <span style=\"color: rgb(241, 108, 101);\"><strong>totem ensorcelé</strong></span> allumé.</li></ul>"
+    "nativeDescriptionHtml": "<p>La première fois qu'un survivant est accroché, un <strong><span style=\"color: rgb(241, 108, 101);\">totem </span></strong>s'embrase et confère les effets suivant (tant qu'il n'est pas détruit) :</p><ul><li>Lorsque vous accrochez un survivant, cela bloque tous les <span style=\"color: rgb(241, 108, 101);\"><strong>totems ensorcelés</strong></span> pendant <span class=\"description-value\">6 secondes</span> pour chaque <span style=\"color: rgb(241, 108, 101);\"><strong>totem ensorcelé</strong></span> allumé.</li></ul>"
   },
   {
     "id": "hex-fortunes-fool",
@@ -10995,21 +12121,48 @@
     },
     "effects": [
       {
-        "stat": "killer.status.undetectable",
+        "stat": "survivor.status.oblivious",
         "operation": "apply_status",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "infinite[indetectable]"
-        },
+        "interpretation": "verified",
         "value": true,
         "unit": "boolean",
-        "duration": null
+        "duration": null,
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "hex_active"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
+        },
+        "detail": "Premier accrochage : cible maudite. Le totem est protégé 90 s contre les autres survivants ; la cible voit son aura à 16 m."
+      },
+      {
+        "stat": "totem.lock",
+        "operation": "block",
+        "interpretation": "verified",
+        "duration": 90,
+        "unit": "seconds",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "hex_active"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
+        },
+        "detail": "Protection contre les autres survivants seulement ; la cible maudite peut interagir."
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 235
@@ -11131,7 +12284,8 @@
               "type": "hex_active"
             }
           ]
-        }
+        },
+        "detail": "Totem allumé après achèvement des générateurs ; son aura passe de 4 à 24 m de visibilité en 30 s. Cesse avec le totem."
       }
     ],
     "cooldown": null,
@@ -11197,7 +12351,8 @@
         "unit": "seconds",
         "condition": {
           "type": "generator_completed"
-        }
+        },
+        "detail": "Le générateur restant le plus avancé ; aura blanche. N’enlève pas de progression."
       }
     ],
     "cooldown": null,
@@ -11232,45 +12387,97 @@
     },
     "effects": [
       {
-        "stat": "survivor.healing",
+        "stat": "healing.time",
         "operation": "multiply",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "-3%[care]"
-        },
-        "value": 0.97,
-        "unit": "multiplier"
-      },
-      {
-        "stat": "generator",
-        "operation": "multiply",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "-3%[generator(fixed)]"
-        },
+        "interpretation": "verified",
+        "value": 0.91,
+        "unit": "multiplier",
         "condition": {
-          "type": "generator_completed"
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "dying_light_three_tokens"
+            },
+            {
+              "operator": "not",
+              "condition": {
+                "type": "target_is_obsession"
+              }
+            }
+          ]
         },
-        "value": 0.97,
-        "unit": "multiplier"
+        "detail": "Exemple à 3 jetons : −9 % de vitesse sur les non-obsessions, tant que l’obsession vit. −3 % par crochet non obsession ; ne pas traiter cette pénalité comme une perte instantanée de progression."
       },
       {
-        "stat": "hook.action_speed",
+        "stat": "generator.repair_time",
         "operation": "multiply",
-        "interpretation": "inferred",
-        "source": {
-          "format": "legacy-effect",
-          "raw": "-3%[hook]"
+        "interpretation": "verified",
+        "value": 0.91,
+        "unit": "multiplier",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "dying_light_three_tokens"
+            },
+            {
+              "operator": "not",
+              "condition": {
+                "type": "target_is_obsession"
+              }
+            }
+          ]
         },
-        "value": 0.97,
-        "unit": "multiplier"
+        "detail": "Exemple à 3 jetons : −9 % de vitesse sur les non-obsessions, tant que l’obsession vit. −3 % par crochet non obsession ; ne pas traiter cette pénalité comme une perte instantanée de progression."
+      },
+      {
+        "stat": "hook.sabotage_time",
+        "operation": "multiply",
+        "interpretation": "verified",
+        "value": 0.91,
+        "unit": "multiplier",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "dying_light_three_tokens"
+            },
+            {
+              "operator": "not",
+              "condition": {
+                "type": "target_is_obsession"
+              }
+            }
+          ]
+        },
+        "detail": "Exemple à 3 jetons : −9 % de vitesse sur les non-obsessions, tant que l’obsession vit. −3 % par crochet non obsession ; ne pas traiter cette pénalité comme une perte instantanée de progression."
+      },
+      {
+        "stat": "healing.time",
+        "operation": "multiply",
+        "interpretation": "verified",
+        "value": 1.33,
+        "unit": "multiplier",
+        "condition": {
+          "type": "target_is_obsession"
+        },
+        "detail": "Bonus propre à l’obsession : soins altruistes et décrochages +33 %. Ce bonus et la pénalité concernent des survivants différents."
+      },
+      {
+        "stat": "hook.unhook_time",
+        "operation": "multiply",
+        "interpretation": "verified",
+        "value": 1.33,
+        "unit": "multiplier",
+        "condition": {
+          "type": "target_is_obsession"
+        },
+        "detail": "Bonus propre à l’obsession : soins altruistes et décrochages +33 %. Ce bonus et la pénalité concernent des survivants différents."
       }
     ],
     "cooldown": null,
     "effectImportStatus": "parsed",
-    "analysisReadiness": "partial",
+    "analysisReadiness": "ready",
     "provenance": {
       "file": "source.txt",
       "line": 238
