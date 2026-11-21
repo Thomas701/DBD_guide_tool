@@ -56,9 +56,9 @@ chrome.runtime.onMessage.addListener((message, sender) => {
   });
 });
 
-async function readTab(tabId, kind, knownMatches = []) {
+async function readTab(tabId, kind, knownMatches = [], attemptedMatches = []) {
   for (let attempt = 0; attempt < 15; attempt++) {
-    try { return await chrome.tabs.sendMessage(tabId, { type: "DBD_COLLECT", kind, knownMatches }); }
+    try { return await chrome.tabs.sendMessage(tabId, { type: "DBD_COLLECT", kind, knownMatches, attemptedMatches }); }
     catch { await new Promise(resolve => setTimeout(resolve, 500)); }
   }
   throw new Error("La page Behaviour ne répond pas. Réessayez depuis le site.");
@@ -104,11 +104,13 @@ async function runSync(existingTabId) {
     }
     const historyTab = await chrome.tabs.create({ url: "https://stats.deadbydaylight.com/match-history/", active: false });
     created.push(historyTab.id);
-    const history = await readTab(historyTab.id, "history", pairing.knownMatches ?? []);
+    const history = await readTab(historyTab.id, "history", pairing.knownMatches ?? [], pairing.attemptedMatches ?? []);
     if (!history?.ok) throw new Error(history?.error ?? "Historique Behaviour indisponible.");
     if (history.fingerprint !== overview.fingerprint) throw new Error("Le compte Behaviour a changé pendant la lecture. Aucune statistique envoyée.");
     await upload(pairing, overview.statistics, history.matches, "success", "Statistiques synchronisées depuis votre navigateur.");
     pairing.knownMatches = [...new Set([...(history.completeMatchIds ?? []), ...(pairing.knownMatches ?? [])])].slice(0, 2_000);
+    const attempted = new Set(history.matches.map(match => match.id));
+    pairing.attemptedMatches = [...(pairing.attemptedMatches ?? []).filter(id => !attempted.has(id)), ...attempted].slice(-2_000);
     await chrome.storage.local.set({ pairing });
     await chrome.storage.local.set({ status: `Dernière synchronisation : ${new Date().toISOString()}` });
     if (existingTabId !== undefined) await chrome.storage.local.remove("loginTabId");

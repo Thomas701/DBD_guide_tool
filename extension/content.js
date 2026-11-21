@@ -1,5 +1,5 @@
 (async () => {
-  const { createStatisticsParser, hasCompleteMatchDetails } = await import(chrome.runtime.getURL("statistics-parser.mjs"));
+  const { createStatisticsParser, hasCompleteMatchDetails, prioritizeMatchRetries } = await import(chrome.runtime.getURL("statistics-parser.mjs"));
   const { matchHistoryIdentity } = await import(chrome.runtime.getURL("match-history-identity.mjs"));
   const { readBehaviourIdentity } = await import(chrome.runtime.getURL("behaviour-session.mjs"));
   const parser = createStatisticsParser(matchHistoryIdentity);
@@ -63,7 +63,7 @@
       await delay(150);
     }
   }
-  async function history(knownMatches) {
+  async function history(knownMatches, attemptedMatches) {
     const identity = await fingerprint();
     if (!identity) throw new Error("Session Behaviour indisponible. Reconnectez-vous au site officiel.");
     await waitFor(parser.MATCH_CARD_SELECTOR, 8_000);
@@ -78,6 +78,7 @@
     const cards = [...document.querySelectorAll(parser.MATCH_CARD_SELECTOR)].slice(0, 200);
     const matches = [];
     const known = new Set(knownMatches);
+    const candidates = [];
     let parsedCount = 0;
     for (const card of cards) {
       const entry = parser.extractMatchHistoryEntriesFromHtml(card.outerHTML, "https://stats.deadbydaylight.com/match-history/")[0];
@@ -85,6 +86,9 @@
       parsedCount++;
       entry.id = await hash(entry.id, "SHA-1");
       if (known.has(entry.id)) continue;
+      candidates.push({ card, entry });
+    }
+    for (const { card, entry } of prioritizeMatchRetries(candidates, attemptedMatches)) {
       matches.push(await enrich(card, entry));
       // shortcut: import 20 detailed matches per pass; subsequent polls continue the initial archive.
       if (matches.length >= 20) break;
@@ -95,7 +99,7 @@
   let running = null;
   chrome.runtime.onMessage.addListener((message, _sender, respond) => {
     if (message?.type !== "DBD_COLLECT") return false;
-    running ??= (message.kind === "overview" ? overview() : history(Array.isArray(message.knownMatches) ? message.knownMatches : [])).finally(() => { running = null; });
+    running ??= (message.kind === "overview" ? overview() : history(Array.isArray(message.knownMatches) ? message.knownMatches : [], Array.isArray(message.attemptedMatches) ? message.attemptedMatches : [])).finally(() => { running = null; });
     void running.then(respond).catch(cause => respond({ ok: false, error: cause instanceof Error ? cause.message : "Lecture impossible." }));
     return true;
   });

@@ -4,12 +4,17 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { isAllowedSender, validPairing, hashText } from "../extension/policy.mjs";
 import { APP_URL } from "../extension/config.mjs";
-import { createStatisticsParser } from "../shared/statistics-parser.mjs";
+import { createStatisticsParser, prioritizeMatchRetries } from "../shared/statistics-parser.mjs";
 import { matchHistoryIdentity } from "../shared/match-history-identity.mjs";
 import { buildMatchHistoryEntryId } from "./match-history-id.mjs";
 import { readBehaviourIdentity } from "../extension/behaviour-session.mjs";
 
 globalThis.crypto ??= webcrypto;
+
+test("des détails temporairement indisponibles ne bloquent pas l’import des autres parties", () => {
+  const candidates = ["retry-newest", "unseen", "retry-oldest"].map(id => ({ entry: { id } }));
+  assert.deepEqual(prioritizeMatchRetries(candidates, ["retry-oldest", "retry-newest"]).map(({ entry }) => entry.id), ["unseen", "retry-oldest", "retry-newest"]);
+});
 
 test("l’identité Behaviour reste stable après renouvellement et distingue les joueurs", () => {
   const store = (sub, nonce) => JSON.stringify({ state: { authToken: { token: `header.${Buffer.from(JSON.stringify({ sub, nonce })).toString("base64url")}.signature` }, refreshToken: { token: "must-stay-in-browser" } } });

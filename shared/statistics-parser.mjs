@@ -1,4 +1,9 @@
 // Shared by the local collector and the browser extension.
+export function prioritizeMatchRetries(candidates, attemptedMatches) {
+  const order = new Map(attemptedMatches.map((id, index) => [id, index]));
+  return candidates.sort((left, right) => (order.get(left.entry.id) ?? -1) - (order.get(right.entry.id) ?? -1));
+}
+
 export function hasCompleteMatchDetails(entry) {
   return Array.isArray(entry.emblemIconUrls) && (entry.role !== "survivor" || Boolean(entry.survivalTimeLabel))
     && entry.participants.every(participant => Array.isArray(participant.perkIconUrls) && Array.isArray(participant.equipmentIconUrls));
