@@ -35,7 +35,14 @@ jobs:
       - run: npm ci --include=dev --include=optional --no-audit --no-fund
       - run: npm test
       - name: Construire le site et l’extension
-        run: npm run build:site
+        run: |
+          npm run build:site
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import { readFile } from 'node:fs/promises';
+          const html = await readFile('dist/index.html', 'utf8');
+          assert.ok(html.includes(`src="${process.env.VITE_BASE_PATH}assets/`), 'Le chemin GitHub Pages doit être appliqué aux fichiers de l’application.');
+          JS
         env:
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
           VITE_SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
