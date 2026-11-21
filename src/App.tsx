@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
 import howToPlayText from "../partie_dbd.txt?raw";
 import fixedStatisticsText from "../statistiques_fixe.txt?raw";
+import { isHostedApp } from "./app/cloud.js";
+import { appStorage } from "./services/account-storage.js";
 
 import { appLogoUrl, killerPortraitUrl, killerTerrorRadiusUrl, killerThemeUrl, originalKillerThemeUrl, perkIconUrl } from "./app/assets.js";
 import { killers, perks, survivors } from "./app/catalog.js";
@@ -193,7 +195,7 @@ export default function App() {
       sidebarLayout,
       catalogScrollPositions: { ...catalogScrollPositionsRef.current }
     };
-    try { window.localStorage.setItem(APP_SESSION_STORAGE_KEY, JSON.stringify(session)); } catch { /* Reprise indisponible si le navigateur bloque le stockage. */ }
+    try { appStorage.setItem(APP_SESSION_STORAGE_KEY, JSON.stringify(session)); } catch { /* Reprise indisponible si le navigateur bloque le stockage. */ }
   }, [activeView, side, soundEnabled, musicVolume, selectedKillerId, selectedPerkId, equippedPerkIds, activeBuildId, buildName, conversationKey, scenario, buildSessions, paneLayout, sidebarLayout]);
 
   useEffect(() => {
@@ -211,6 +213,7 @@ export default function App() {
   }, [activeView, selectedPerkId]);
 
   useEffect(() => {
+    if (isHostedApp) return;
     const timeout = window.setTimeout(() => {
       void syncCurrentBuildFile(currentAssistantServerUrl(), currentBuildExport).catch(() => undefined);
     }, 250);
@@ -578,6 +581,12 @@ export default function App() {
 
   async function saveNativePerkChanges(perkId: string, changes: { descriptionHtml?: string; categories?: readonly PerkCategory[] }): Promise<void> {
     try {
+      if (isHostedApp) {
+        if (changes.descriptionHtml !== undefined) setDescriptionOverrides(descriptionOverrideRepository.update(perkId, changes.descriptionHtml));
+        if (changes.categories !== undefined) setCategoryOverrides(categoryOverrideRepository.update(perkId, changes.categories));
+        setRepositoryMessage("Personnalisations enregistrées dans votre compte.");
+        return;
+      }
       const updated = await updateNativePerk(currentAssistantServerUrl(), perkId, changes);
       setCatalogPerks((current) => current.map((perk) => perk.id === updated.id ? updated : perk));
       setRepositoryMessage("Source native de la perk mise à jour.");
@@ -1167,6 +1176,7 @@ function SettingsModal({ soundEnabled, volume, onSoundEnabledChange, onVolumeCha
   const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
+    if (isHostedApp) return;
     let active = true;
     void checkAppUpdate(APP_UPDATE_SERVER)
       .then((status) => { if (active) setUpdateStatus(status); })
@@ -1200,11 +1210,13 @@ function SettingsModal({ soundEnabled, volume, onSoundEnabledChange, onVolumeCha
       <label className="sound-toggle"><input type="checkbox" checked={soundEnabled} onChange={(event) => onSoundEnabledChange(event.target.checked)} /><span>Activer le son</span></label>
       <label className="field"><span>Volume musique</span><input type="range" min="0" max="1" step="0.05" value={volume} disabled={!soundEnabled} onChange={(event) => onVolumeChange(Number(event.target.value))} /></label>
       <div className="settings-update">
+        {isHostedApp ? <p>Le site reçoit automatiquement les mises à jour publiées sur GitHub.</p> : <>
         <div><strong>Mise à jour</strong>{versionLabel && <small>{versionLabel}</small>}</div>
         <button className="primary-button" type="button" onClick={() => { void updateApplication(); }} disabled={!canUpdate || updating}>
           {updating ? "Mise à jour…" : updateStatus?.gitMissing ? "Installer Git et mettre à jour" : updateStatus?.available ? "Mettre à jour" : updateStatus ? updateStatus.blocked || !updateStatus.supported ? "Indisponible" : "À jour" : updateError ? "Service à redémarrer" : "Vérification…"}
         </button>
         <p className={updateError ? "error" : ""} role="status">{updateError ?? updateStatus?.message ?? "Recherche d’une nouvelle version sur GitHub…"}</p>
+        </>}
       </div>
     </section>
   </div>;
@@ -1306,7 +1318,7 @@ const BUILD_CONVERSATIONS_STORAGE_KEY = "dbd-build-tool.assistant-build-keys";
 function rememberBuildConversation(buildId: string, conversationKey: string): void {
   try {
     const mappings = readBuildConversations();
-    window.localStorage.setItem(BUILD_CONVERSATIONS_STORAGE_KEY, JSON.stringify({ ...mappings, [buildId]: conversationKey }));
+    appStorage.setItem(BUILD_CONVERSATIONS_STORAGE_KEY, JSON.stringify({ ...mappings, [buildId]: conversationKey }));
   } catch {
     // La conversation courante reste disponible en mémoire si le stockage est bloqué.
   }
@@ -1324,14 +1336,14 @@ function forgetBuildConversation(buildId: string): void {
   try {
     const mappings = readBuildConversations();
     delete mappings[buildId];
-    window.localStorage.setItem(BUILD_CONVERSATIONS_STORAGE_KEY, JSON.stringify(mappings));
+    appStorage.setItem(BUILD_CONVERSATIONS_STORAGE_KEY, JSON.stringify(mappings));
   } catch {
     // Aucune incidence sur la suppression du build lui-même.
   }
 }
 
 function readBuildConversations(): Record<string, string> {
-  const raw = window.localStorage.getItem(BUILD_CONVERSATIONS_STORAGE_KEY);
+  const raw = appStorage.getItem(BUILD_CONVERSATIONS_STORAGE_KEY);
   if (!raw) return {};
   const value: unknown = JSON.parse(raw);
   if (typeof value !== "object" || value === null || Array.isArray(value)) return {};
@@ -1359,7 +1371,7 @@ const OPPOSITE_CONDITIONS = new Map([
 
 function createBuildRepository(): { repository: LocalBuildRepository; persistent: boolean; warning: string | null } {
   try {
-    const storage = window.localStorage;
+    const storage = appStorage;
     storage.getItem(BUILDS_STORAGE_KEY);
     return { repository: new LocalBuildRepository(storage), persistent: true, warning: null };
   } catch {
@@ -1369,7 +1381,7 @@ function createBuildRepository(): { repository: LocalBuildRepository; persistent
 
 function createDescriptionOverrideRepository(): { repository: LocalDescriptionOverrideRepository; overrides: Record<string, string> } {
   try {
-    const storage = window.localStorage;
+    const storage = appStorage;
     storage.getItem(DESCRIPTION_OVERRIDES_STORAGE_KEY);
     const repository = new LocalDescriptionOverrideRepository(storage);
     return { repository, overrides: repository.list() };
@@ -1381,7 +1393,7 @@ function createDescriptionOverrideRepository(): { repository: LocalDescriptionOv
 
 function createCategoryOverrideRepository(): { repository: LocalCategoryOverrideRepository; overrides: Record<string, PerkCategory[]> } {
   try {
-    const repository = new LocalCategoryOverrideRepository(window.localStorage);
+    const repository = new LocalCategoryOverrideRepository(appStorage);
     return { repository, overrides: repository.list() };
   } catch {
     const repository = new LocalCategoryOverrideRepository(createMemoryStorage());
@@ -1400,7 +1412,7 @@ function createMemoryStorage(): Pick<Storage, "getItem" | "setItem" | "removeIte
 
 function createTierOverrideRepository(): { repository: LocalTierOverrideRepository; overrides: TierOverrides } {
   try {
-    const repository = new LocalTierOverrideRepository(window.localStorage);
+    const repository = new LocalTierOverrideRepository(appStorage);
     return { repository, overrides: repository.list() };
   } catch {
     return { repository: new LocalTierOverrideRepository(createMemoryStorage()), overrides: { killers: {}, perks: {} } };
@@ -1410,7 +1422,7 @@ function createTierOverrideRepository(): { repository: LocalTierOverrideReposito
 function loadPersistedAppSession(): AppSession {
   try {
     return readAppSession(
-      window.localStorage.getItem(APP_SESSION_STORAGE_KEY),
+      appStorage.getItem(APP_SESSION_STORAGE_KEY),
       new Set([...killers, ...survivors].map((character) => character.id)),
       new Set(perks.map((perk) => perk.id))
     );
@@ -1421,7 +1433,7 @@ function loadPersistedAppSession(): AppSession {
 
 function currentAssistantServerUrl(): string {
   try {
-    return normalizeServerUrl(window.localStorage.getItem(ASSISTANT_SERVER_STORAGE_KEY) ?? DEFAULT_ASSISTANT_SERVER);
+    return normalizeServerUrl(appStorage.getItem(ASSISTANT_SERVER_STORAGE_KEY) ?? DEFAULT_ASSISTANT_SERVER);
   } catch {
     return normalizeServerUrl(DEFAULT_ASSISTANT_SERVER);
   }

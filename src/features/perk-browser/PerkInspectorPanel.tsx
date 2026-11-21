@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { isHostedApp } from "../../app/cloud.js";
 
 import { killerPortraitUrl, perkIconUrl } from "../../app/assets.js";
 import { perkOwner } from "../../app/catalog.js";
@@ -158,7 +159,7 @@ export function PerkInspectorPanel({
             </button>
           )}
         </div>
-        {categoryOverride !== null && <span className="description-override-badge">Version locale</span>}
+        {categoryOverride !== null && <span className="description-override-badge">{isHostedApp ? "Version du compte" : "Version locale"}</span>}
       </div>
 
       {isEditingCategories ? (
@@ -204,7 +205,7 @@ export function PerkInspectorPanel({
             </button>
           )}
         </div>
-        {descriptionOverride && <span className="description-override-badge">Version locale</span>}
+        {descriptionOverride && <span className="description-override-badge">{isHostedApp ? "Version du compte" : "Version locale"}</span>}
       </div>
 
       {isEditingDescription ? (
@@ -241,6 +242,7 @@ function CloseIcon() {
 }
 
 function EditModeToggle({ mode, onChange }: { mode: EditMode; onChange: (mode: EditMode) => void }) {
+  if (isHostedApp) return <p>Personnalisation de votre compte</p>;
   return (
     <div className="edit-mode-toggle" role="group" aria-label="Emplacement de l’enregistrement">
       <button type="button" className={mode === "native" ? "active" : ""} aria-pressed={mode === "native"} onClick={() => onChange("native")}>Natif</button>

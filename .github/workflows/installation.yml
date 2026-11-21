@@ -46,5 +46,9 @@ jobs:
         run: npm run check
       - name: Vérifier le parcours dans le navigateur
         run: npm run test:workspace
+      - name: Vérifier les comptes web
+        run: npm run test:cloud
+      - name: Vérifier l’extension Statistiques
+        run: npm run test:extension
       - name: Vérifier le lancement complet
         run: npm run test:installation

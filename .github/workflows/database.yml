@@ -1,0 +1,30 @@
+name: Vérifier la base Supabase
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  database:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: dbd_test
+          POSTGRES_PASSWORD: dbd_test
+          POSTGRES_DB: dbd_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U dbd_test -d dbd_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v7
+      - name: Vérifier les accès, les conflits et la révocation des collecteurs
+        env:
+          PGPASSWORD: dbd_test
+        run: |
+          psql -h 127.0.0.1 -U dbd_test -d dbd_test -v ON_ERROR_STOP=1 \
+            -f tests/database/bootstrap.sql \
+            -f supabase/migrations/202611210001_accounts_and_statistics.sql \
+            -f tests/database/accounts.sql

@@ -1,4 +1,6 @@
 import { normalizeServerUrl } from "./assistant-provider.js";
+import { getCloudClient } from "./cloud-client.js";
+import { editCloudMatch, readCloudStatisticsSnapshot, readCloudStatisticsStatus, requestCloudStatisticsSync } from "./cloud-statistics.js";
 
 export interface StatisticsOverview {
   hoursPlayed: string;
@@ -73,30 +75,48 @@ export interface StatisticsStatus {
 }
 
 export async function readStatisticsSnapshot(serverUrl: string): Promise<StatisticsSnapshot> {
+  if (getCloudClient()) {
+    const snapshot = parseSnapshot(await readCloudStatisticsSnapshot());
+    snapshot.matchHistory.sort((left, right) => (right.playedAt ?? right.importedAt).localeCompare(left.playedAt ?? left.importedAt));
+    return snapshot;
+  }
   return requestSnapshot(serverUrl, "/api/statistics/cache");
 }
 
 export async function readStatisticsStatus(serverUrl: string): Promise<StatisticsStatus> {
+  if (getCloudClient()) return readCloudStatisticsStatus();
   return requestStatus(serverUrl, "/api/statistics/status");
 }
 
 export async function syncStatisticsSnapshot(serverUrl: string): Promise<StatisticsSnapshot> {
+  if (getCloudClient()) {
+    await requestCloudStatisticsSync();
+    return readStatisticsSnapshot(serverUrl);
+  }
   return requestSnapshot(serverUrl, "/api/statistics/connect", { method: "POST" });
 }
 
 export async function updateMatchHistoryEntry(serverUrl: string, id: string, changes: MatchHistoryEntry): Promise<StatisticsSnapshot> {
+  if (getCloudClient()) { await editCloudMatch(id, changes); return readStatisticsSnapshot(serverUrl); }
   return requestSnapshot(serverUrl, "/api/statistics/match", {
     method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, changes })
   });
 }
 
 export async function deleteMatchHistoryEntry(serverUrl: string, id: string): Promise<StatisticsSnapshot> {
+  if (getCloudClient()) { await editCloudMatch(id, null); return readStatisticsSnapshot(serverUrl); }
   return requestSnapshot(serverUrl, "/api/statistics/match", {
     method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id })
   });
 }
 
 export async function showStatisticsPage(serverUrl: string, url: string): Promise<void> {
+  if (getCloudClient()) {
+    const target = new URL(url);
+    if (target.origin !== "https://stats.deadbydaylight.com" || !["/statistics/", "/match-history/"].includes(target.pathname)) throw new Error("Page Behaviour non autorisée.");
+    window.open(target.href, "_blank", "noopener,noreferrer");
+    return;
+  }
   let response: Response;
   try {
     response = await fetch(`${normalizeServerUrl(serverUrl)}/api/statistics/show-page`, {

@@ -1,5 +1,7 @@
 # DBD Build Tool
 
+La version hébergée utilise **GitHub Pages + Supabase** pour les comptes et les sauvegardes, avec une extension Chrome / Edge pour les statistiques Behaviour de chaque joueur. La configuration et les limites sont décrites dans [le guide de déploiement web](docs/HOSTING.md).
+
 Le dépôt couvre actuellement les phases 1 à 9 du cahier des charges : audit, modèle de domaine, import/nettoyage, mapping des images, bibliothèque de perks, sélection du tueur, éditeur de build, analyse et sauvegarde locale.
 
 ## Première installation sous Windows

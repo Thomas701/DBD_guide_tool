@@ -1,5 +1,6 @@
 const CACHE_VERSION = new URL(self.location.href).searchParams.get("v") ?? "v1";
-const CACHE_NAME = `dbd-build-tool-${CACHE_VERSION}`;
+const CACHE_PREFIX = `dbd-build-tool-${new URL(self.registration.scope).pathname}`;
+const CACHE_NAME = `${CACHE_PREFIX}-${CACHE_VERSION}`;
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -21,7 +22,7 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
+      .then((keys) => Promise.all(keys.filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME).map((key) => caches.delete(key))))
       .then(() => self.clients.claim())
   );
 });
@@ -56,8 +57,9 @@ self.addEventListener("fetch", (event) => {
 });
 
 function shouldCache(pathname) {
-  return pathname.startsWith("/assets/")
-    || pathname.startsWith("/icons/")
+  const relativePath = pathname.slice(new URL(self.registration.scope).pathname.length);
+  return relativePath.startsWith("assets/")
+    || relativePath.startsWith("icons/")
     || pathname.endsWith(".png")
     || pathname.endsWith(".webmanifest")
     || pathname.endsWith(".css")

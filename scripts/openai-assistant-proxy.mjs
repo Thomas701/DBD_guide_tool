@@ -1,5 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { createServer } from "node:http";
+import { hasCompleteMatchDetails } from "../shared/statistics-parser.mjs";
 
 import { BrowserChatGPTProvider, BrowserProviderError } from "./chatgpt-browser-provider.mjs";
 import { DbdStatisticsError, DbdStatisticsProvider } from "./dbd-statistics-provider.mjs";
@@ -224,7 +225,7 @@ async function connectStatistics() {
         const current = await readStatisticsSnapshot();
         return await syncStatisticsSnapshot(await dbdStatisticsProvider.connect({
           knownMatchIds: current.matchHistory.map((entry) => entry.id),
-          incompleteMatchIds: current.matchHistory.filter((entry) => !entry.emblemIconUrls || (entry.role === "survivor" && !entry.survivalTimeLabel) || entry.participants.some((participant) => !participant.perkIconUrls || !participant.equipmentIconUrls)).map((entry) => entry.id)
+          incompleteMatchIds: current.matchHistory.filter((entry) => !hasCompleteMatchDetails(entry)).map((entry) => entry.id)
         }));
       } finally {
         statisticsSyncPromise = null;

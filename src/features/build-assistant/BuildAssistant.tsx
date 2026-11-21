@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { isHostedApp } from "../../app/cloud.js";
+import { appStorage } from "../../services/account-storage.js";
 
 import type { Build } from "../../domain/build.js";
 import type { Killer } from "../../domain/killer.js";
@@ -93,7 +95,7 @@ export function BuildAssistant({ currentBuild, allKillers, allSurvivors, allPerk
     setProviderId(id);
     setShowConnection(id !== "clipboard");
     setCopyStatus(null);
-    try { window.localStorage.setItem(ASSISTANT_PROVIDER_STORAGE_KEY, id); } catch { /* Le mode reste actif pour cette session. */ }
+    try { appStorage.setItem(ASSISTANT_PROVIDER_STORAGE_KEY, id); } catch { /* Le mode reste actif pour cette session. */ }
   }
 
   function updateConnection(status: CodexProviderStatus | OpenAIProviderStatus): void {
@@ -109,7 +111,7 @@ export function BuildAssistant({ currentBuild, allKillers, allSurvivors, allPerk
     try {
       const status = await action();
       updateConnection(status);
-      try { window.localStorage.setItem(ASSISTANT_SERVER_STORAGE_KEY, normalizeServerUrl(serverUrl)); } catch { /* Connexion disponible sans stockage. */ }
+      try { appStorage.setItem(ASSISTANT_SERVER_STORAGE_KEY, normalizeServerUrl(serverUrl)); } catch { /* Connexion disponible sans stockage. */ }
     } catch (failure) { setError(errorMessage(failure)); }
     finally { setApiKey(""); setIsConnecting(false); }
   }
@@ -224,7 +226,7 @@ export function BuildAssistant({ currentBuild, allKillers, allSurvivors, allPerk
       {providerId === "openai" && <button className="secondary-button compact-button" type="button" onClick={() => setShowConnection((current) => !current)} aria-expanded={showConnection || !connected} aria-controls="assistant-connection">Connexion</button>}
     </div>
     <div className="assistant-provider-tabs" role="group" aria-label="Mode de l’assistant">
-      {ASSISTANT_PROVIDER_IDS.map((id) => <button key={id} type="button" aria-pressed={providerId === id} onClick={() => selectProvider(id)} disabled={isSending || isConnecting}>{PROVIDER_LABELS[id]}</button>)}
+      {ASSISTANT_PROVIDER_IDS.filter(id => !isHostedApp || id === "clipboard").map((id) => <button key={id} type="button" aria-pressed={providerId === id} onClick={() => selectProvider(id)} disabled={isSending || isConnecting}>{PROVIDER_LABELS[id]}</button>)}
     </div>
     {providerId === "clipboard" ? <p className="assistant-mode-description">Écrivez votre question puis cliquez sur Copier. Le prompt complet reprend le catalogue, les descriptions affichées, les constantes, les tier lists et vos builds.</p> : <>
       {((providerId === "openai" && showConnection) || !connected) && <div className="assistant-connection" id="assistant-connection">
@@ -277,7 +279,7 @@ export function BuildAssistant({ currentBuild, allKillers, allSurvivors, allPerk
 
 function createHistoryRepository(): { repository: LocalAssistantConversationRepository; conversations: AssistantConversation[]; warning: string | null } {
   try {
-    const repository = new LocalAssistantConversationRepository(window.localStorage);
+    const repository = new LocalAssistantConversationRepository(appStorage);
     return { repository, conversations: repository.list(), warning: null };
   } catch {
     const values = new Map<string, string>();
@@ -285,8 +287,8 @@ function createHistoryRepository(): { repository: LocalAssistantConversationRepo
     return { repository, conversations: [], warning: "Historique local indisponible : les conversations de cette session restent en mémoire. Les anciennes données sont conservées." };
   }
 }
-function loadSetting(key: string, fallback: string): string { try { return window.localStorage.getItem(key) ?? window.sessionStorage.getItem(key) ?? fallback; } catch { return fallback; } }
-function loadProviderId(): AssistantProviderId { const value = loadSetting(ASSISTANT_PROVIDER_STORAGE_KEY, "clipboard"); return value === "codex" || value === "openai" ? value : "clipboard"; }
+function loadSetting(key: string, fallback: string): string { try { return appStorage.getItem(key) ?? (isHostedApp ? null : window.sessionStorage.getItem(key)) ?? fallback; } catch { return fallback; } }
+function loadProviderId(): AssistantProviderId { const value = loadSetting(ASSISTANT_PROVIDER_STORAGE_KEY, "clipboard"); return !isHostedApp && (value === "codex" || value === "openai") ? value : "clipboard"; }
 function errorMessage(error: unknown): string { return error instanceof Error ? error.message : "Erreur inconnue."; }
 function quotaPercent(value: number | null): string { return value === null ? "Non communiqué" : `${value.toLocaleString("fr-FR", { maximumFractionDigits: 1 })} %`; }
 function quotaWindow(minutes: number | null): string { return minutes === null ? "Période" : minutes % 1440 === 0 ? `${minutes / 1440} j` : minutes % 60 === 0 ? `${minutes / 60} h` : `${minutes} min`; }

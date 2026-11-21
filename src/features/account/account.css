@@ -1,0 +1,22 @@
+.account-page { min-height: 100dvh; display: grid; place-items: center; padding: 2rem 1rem; }
+.account-card { width: min(100%, 28rem); padding: 2rem; background: #15171b; color: #f3f4f6; border: 1px solid #343840; border-radius: 1rem; }
+.account-card h1 { margin: .5rem 0 1rem; font-size: 2rem; }
+.account-card h2 { margin: .5rem 0; font-size: 1.2rem; }
+.account-card p { line-height: 1.6; }
+.account-card form, .account-card label { display: grid; gap: .65rem; }
+.account-card form { margin: 1.5rem 0; gap: 1rem; }
+.account-card input { width: 100%; min-height: 2.8rem; padding: .65rem; border: 1px solid #626975; border-radius: .4rem; background: #0b0c0e; color: #fff; font: inherit; }
+.account-card button { min-height: 2.75rem; }
+.account-google { width: 100%; margin-top: .75rem; }
+.account-links { display: flex; flex-wrap: wrap; gap: .5rem 1rem; margin-bottom: 1.5rem; }
+.account-card small { display: block; font-size: .875rem; line-height: 1.5; color: #c1c5ce; }
+.account-toolbar { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: .5rem 1.25rem; padding: .5rem 1.5rem; background: #15171b; border-bottom: 1px solid #343840; font-size: .875rem; }
+.account-toolbar [role=status] { color: #c1c5ce; }
+.account-sync-error { padding: 1rem 1.5rem; background: #361f20; border-bottom: 1px solid #a9676d; }
+.account-sync-error p { margin: 0 0 .75rem; }
+.account-sync-error button { margin: .25rem .75rem .25rem 0; }
+.account-card :focus-visible, .account-toolbar :focus-visible { outline: 2px solid #e4b25b; outline-offset: 3px; }
+.statistics-connection { margin: 1rem 0; padding: 1.25rem; border: 1px solid #343840; border-radius: .6rem; background: #15171b; }
+.statistics-connection h2 { margin: 0 0 .75rem; font-size: 1.2rem; }
+.statistics-connection p { line-height: 1.6; }
+.statistics-connection button, .statistics-connection a { margin: .25rem .75rem .25rem 0; }

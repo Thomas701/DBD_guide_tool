@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
-import App from "./App.js";
+import { AccountApp } from "./features/account/AccountApp.js";
 import "./styles.css";
 
 const root = document.getElementById("root");
@@ -15,6 +15,6 @@ if (import.meta.env.PROD && "serviceWorker" in navigator) {
 
 createRoot(root).render(
   <StrictMode>
-    <App />
+    <AccountApp />
   </StrictMode>
 );

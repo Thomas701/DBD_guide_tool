@@ -1,0 +1,57 @@
+name: Publier le site GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      VITE_HOSTED_APP: "true"
+      VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+      VITE_EMAIL_AUTH_ENABLED: ${{ vars.VITE_EMAIL_AUTH_ENABLED || 'false' }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Vérifier la configuration Supabase
+        run: |
+          test -n "$VITE_SUPABASE_URL" || { echo 'Configurer la variable GitHub VITE_SUPABASE_URL.'; exit 1; }
+          test -n "$VITE_SUPABASE_PUBLISHABLE_KEY" || { echo 'Configurer la variable GitHub VITE_SUPABASE_PUBLISHABLE_KEY.'; exit 1; }
+      - uses: actions/configure-pages@v5
+        id: pages
+      - run: npm ci --include=dev --include=optional --no-audit --no-fund
+      - run: npm test
+      - name: Construire le site et l’extension
+        run: npm run build:site
+        env:
+          VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}/
+          VITE_SITE_URL: ${{ steps.pages.outputs.base_url }}/
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment

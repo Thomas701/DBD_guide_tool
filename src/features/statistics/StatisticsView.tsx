@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { isHostedApp } from "../../app/cloud.js";
+import { StatisticsConnection } from "./StatisticsConnection.js";
 
 import {
   deleteMatchHistoryEntry,
@@ -46,6 +48,8 @@ export function StatisticsView({ serverUrl, nextSyncAt }: { serverUrl: string; n
   const pollingTimer = useRef<number | null>(null);
   const autoRefreshTimer = useRef<number | null>(null);
   const mounted = useRef(true);
+  const snapshotUpdatedAt = useRef<string | null>(null);
+  snapshotUpdatedAt.current = snapshot?.updatedAt ?? null;
 
   async function refresh(): Promise<void> {
     setLoading(true);
@@ -151,7 +155,7 @@ export function StatisticsView({ serverUrl, nextSyncAt }: { serverUrl: string; n
       <div>
         <span className="eyebrow">Dead by Daylight</span>
         <h1>Statistique</h1>
-        <p>Statistiques récupérées depuis stats.deadbydaylight.com, archivées localement et mises à jour automatiquement.</p>
+        <p>Statistiques récupérées depuis stats.deadbydaylight.com, {isHostedApp ? "enregistrées dans votre compte" : "archivées localement"} et mises à jour automatiquement.</p>
       </div>
       <div className="statistics-sync-actions">
         <StatisticsSyncCountdown nextSyncAt={nextSyncAt} syncing={syncing} />
@@ -159,6 +163,7 @@ export function StatisticsView({ serverUrl, nextSyncAt }: { serverUrl: string; n
       </div>
     </header>
 
+    {isHostedApp && <StatisticsConnection />}
     <section className="statistics-content" aria-label="Statistiques Dead by Daylight">
       <div className="statistics-tabs-row">
         <div className="impact-tabs" role="tablist" aria-label="Sections statistiques">
@@ -167,14 +172,14 @@ export function StatisticsView({ serverUrl, nextSyncAt }: { serverUrl: string; n
           <button type="button" role="tab" aria-selected={tab === "history"} onClick={() => setTab("history")}>Historique {matchHistory.length > 0 ? `(${matchHistory.length})` : ""}</button>
         </div>
         <div className="statistics-summary" aria-label="Résumé de synchronisation">
-          {snapshot?.updatedAt && <span className="statistics-chip">Base locale mise à jour le {formatTimestamp(snapshot.updatedAt)}</span>}
+          {snapshot?.updatedAt && <span className="statistics-chip">{isHostedApp ? "Compte" : "Base locale"} mis à jour le {formatTimestamp(snapshot.updatedAt)}</span>}
           {matchHistory.length > 0 && <span className="statistics-chip">{matchHistory.length} partie{matchHistory.length > 1 ? "s" : ""} enregistrée{matchHistory.length > 1 ? "s" : ""}</span>}
           {snapshot && snapshot.fetchedCount > 0 && <span className={`statistics-chip${snapshot.importedCount > 0 ? " accent" : ""}`}>{snapshot.importedCount > 0 ? `+${snapshot.importedCount} nouvelle${snapshot.importedCount > 1 ? "s" : ""} partie${snapshot.importedCount > 1 ? "s" : ""}` : "Aucune nouvelle partie"}</span>}
         </div>
       </div>
 
       {(status?.logs.length || syncing || status?.error) ? <SyncStatusPanel status={status} syncing={syncing} /> : null}
-      {syncing && !hasSnapshotContent(snapshot) && <p className="statistics-sync-note">Connexion en cours dans le Chrome contrôlé par l’application. Sa session est distincte de votre Chrome habituel : terminez la connexion Behaviour dans la fenêtre ouverte.</p>}
+      {!isHostedApp && syncing && !hasSnapshotContent(snapshot) && <p className="statistics-sync-note">Connexion en cours dans le Chrome contrôlé par l’application. Sa session est distincte de votre Chrome habituel : terminez la connexion Behaviour dans la fenêtre ouverte.</p>}
       {error && <p className="statistics-error" role="alert">{error}</p>}
       {hasSnapshotContent(snapshot) && <div className="statistics-source">Source : <a href={sourceUrl} onClick={(event) => {
         event.preventDefault();
@@ -281,8 +286,10 @@ export function StatisticsView({ serverUrl, nextSyncAt }: { serverUrl: string; n
       if (!nextStatus.busy) {
         stopPolling();
         setLoading(false);
-        const cached = await readStatisticsSnapshot(serverUrl).catch(() => null);
-        if (cached && mounted.current) setSnapshot(cached);
+        if (!isHostedApp || nextStatus.lastSuccessAt !== snapshotUpdatedAt.current) {
+          const cached = await readStatisticsSnapshot(serverUrl).catch(() => null);
+          if (cached && mounted.current) setSnapshot(cached);
+        }
         setError(nextStatus.error);
       } else {
         setLoading(true);

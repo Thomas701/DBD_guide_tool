@@ -1,0 +1,13 @@
+project_id = "dbd-build-tool"
+
+[auth]
+site_url = "https://thomas701.github.io/DBD_guide_tool/"
+additional_redirect_urls = ["http://127.0.0.1:5173/", "http://localhost:5173/"]
+enable_signup = true
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true
