@@ -94,6 +94,7 @@ function LoginForm({ client, recovery, onRecovered, initialError }: { client: Su
       <button className="text-button" type="button" disabled={busy} onClick={() => { setMode(mode === "reset" ? "signin" : "reset"); setError(null); setNotice(null); }}>{mode === "reset" ? "Revenir à la connexion" : "Mot de passe oublié ?"}</button>
     </div>}
     <small>Votre connexion est conservée sur ce navigateur. Déconnectez-vous après utilisation sur un appareil partagé.</small>
+    <p><a href={`${import.meta.env.BASE_URL}privacy.html`} target="_blank" rel="noreferrer">Confidentialité et données personnelles</a></p>
   </AccountCard>;
 }
 
