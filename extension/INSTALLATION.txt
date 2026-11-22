@@ -1,24 +1,23 @@
-DBD Build Analyzer — Extension Statistiques (Chrome / Edge)
+DBD Build Analyzer — Statistiques (Chrome, Edge, Opera et navigateurs Chromium compatibles)
+Version 0.4.1
 
-1. Décompressez le fichier dbd-statistics-extension.zip dans un dossier permanent.
-2. Ouvrez chrome://extensions (Chrome) ou edge://extensions (Edge).
-3. Activez « Mode développeur ».
-4. Cliquez sur « Charger l’extension non empaquetée » et sélectionnez le dossier décompressé qui contient manifest.json.
-5. Rechargez le site Build Analyzer et connectez-vous à votre compte personnel.
-6. Ouvrez « Statistique », puis cliquez sur « Connecter mes statistiques ».
-7. Si demandé, cliquez sur « Se connecter à Behaviour », puis connectez le compte correspondant à ce joueur sur le site officiel. Vous pouvez ensuite fermer cet onglet.
+Installation depuis la boutique officielle :
+1. Dans le site, ouvrez Statistique et cliquez sur « Installer l’extension et connecter Behaviour ».
+2. Confirmez l’installation dans la boutique. Gardez le site ouvert : il détecte l’extension et reprend automatiquement, sans rechargement.
+3. Connectez votre compte dans la page officielle Behaviour ouverte si une connexion est nécessaire. L’association et l’activation de la synchronisation se terminent automatiquement.
 
-Chaque joueur installe la même extension, dans son propre profil de navigateur.
-Un profil de navigateur est associé à un seul compte Build Analyzer à la fois.
-Sur un ordinateur partagé, utilisez un profil Chrome / Edge séparé pour chaque joueur.
+Chaque joueur utilise son propre profil de navigateur. Une confirmation d’installation du navigateur reste obligatoire. Edge peut demander d’autoriser les extensions provenant d’une autre boutique.
 
-La version 0.3.0 transmet la première connexion Behaviour au serveur Supabase. Les jetons sont conservés chiffrés dans Supabase Vault et renouvelés automatiquement. L’extension efface sa copie après confirmation. Les mots de passe et cookies restent dans votre navigateur.
-Le serveur synchronise ensuite toutes les cinq minutes, même navigateur fermé et PC éteint, sans ouvrir d’onglet. Aucun programme local ni serveur Chrome n’est requis. Un jeton distinct autorise uniquement le collecteur de statistiques, sans accès aux builds ou à votre session Supabase.
+Installation manuelle provisoire, si la fiche n’est pas encore disponible :
+1. Décompressez ce ZIP dans un dossier permanent.
+2. Ouvrez chrome://extensions, edge://extensions ou opera://extensions.
+3. Activez « Mode développeur », choisissez « Charger l’extension non empaquetée » et sélectionnez le dossier contenant manifest.json.
+Le site déjà ouvert détecte automatiquement l’extension. Si vous n’aviez pas encore lancé l’association, ouvrez Statistique puis cliquez sur « Connecter Behaviour ».
 
-Si Behaviour expire ou révoque sa session, reconnectez-vous au site officiel. L’extension ne peut pas empêcher une révocation du fournisseur.
-Pour arrêter la collecte et supprimer les jetons du serveur, utilisez « Désactiver la synchronisation » dans votre compte.
-La déconnexion de Build Analyzer et la désinstallation de l’extension seules laissent la collecte distante active.
+La synchronisation continue ensuite sur Supabase toutes les cinq minutes, navigateur fermé et PC éteint. Les jetons Behaviour sont conservés chiffrés dans Supabase Vault ; l’extension efface sa copie après confirmation. Les mots de passe et cookies restent sur le site officiel.
 
-L’extension dépend des API Behaviour et de leur session. Si leur format change, la collecte s’arrête avec un message ; les données déjà enregistrées restent conservées.
-Pour mettre l’extension à jour, remplacez les fichiers du dossier puis cliquez sur « Recharger » dans chrome://extensions ou edge://extensions.
-Pour passer de la version 0.2.0 à la version 0.3.0, rechargez l’extension. La connexion déjà conservée sera transférée automatiquement au serveur. Si elle n’est plus disponible, reconnectez Behaviour depuis votre compte.
+Pour arrêter la collecte et supprimer les jetons du serveur, utilisez « Désactiver la synchronisation ». Les parties enregistrées restent conservées. La déconnexion du site et la désinstallation de l’extension seules n’arrêtent pas la collecte distante.
+
+Behaviour peut expirer ou révoquer l’autorisation : une nouvelle connexion sera alors nécessaire. L’extension ne peut pas empêcher cette révocation.
+
+Les mises à jour de la boutique sont gérées par le navigateur. Pour une installation manuelle, remplacez les fichiers du dossier puis cliquez sur « Recharger » dans la page des extensions ; les onglets déjà ouverts sont activés automatiquement.

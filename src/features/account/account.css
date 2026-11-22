@@ -20,3 +20,7 @@
 .statistics-connection h2 { margin: 0 0 .75rem; font-size: 1.2rem; }
 .statistics-connection p { line-height: 1.6; }
 .statistics-connection button, .statistics-connection a { margin: .25rem .75rem .25rem 0; }
+.statistics-setup-steps { display: flex; flex-wrap: wrap; gap: .75rem 2.5rem; padding-left: 1.25rem; margin: 1.25rem 0; color: #c1c5ce; }
+.statistics-setup-steps .complete { color: #8bd5a0; }
+.statistics-connection details { margin-top: 1rem; color: #c1c5ce; }
+.statistics-connection summary { cursor: pointer; }

@@ -50,5 +50,7 @@ jobs:
         run: npm run test:cloud
       - name: Vérifier l’extension Statistiques
         run: npm run test:extension
+      - name: Vérifier le paquet pour la boutique
+        run: python scripts/verify-statistics-extension-package.py
       - name: Vérifier le lancement complet
         run: npm run test:installation

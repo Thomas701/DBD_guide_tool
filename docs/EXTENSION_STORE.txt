@@ -1,0 +1,48 @@
+DBD Build Analyzer — Statistiques
+Version 0.4.1
+Identifiant de la fiche : cljdeckobhfikpiecnpjlhmlbaeoalgh
+URL de la fiche : https://chromewebstore.google.com/detail/cljdeckobhfikpiecnpjlhmlbaeoalgh
+
+Nom de la fiche : DBD Build Analyzer — Statistiques
+Langue : français
+Catégorie : Outils
+Visibilité recommandée : Non répertorié (accessible par lien)
+Site : https://thomas701.github.io/DBD_guide_tool/
+Confidentialité : https://thomas701.github.io/DBD_guide_tool/privacy.html
+Assistance : https://github.com/Thomas701/DBD_guide_tool/issues
+Contact : mynoteet@gmail.com
+
+Description :
+Associez une fois votre compte Behaviour à DBD Build Analyzer pour retrouver vos statistiques et votre historique de parties dans votre compte personnel.
+
+Depuis Statistique, cliquez sur « Installer l’extension et connecter Behaviour ». Après la confirmation du navigateur, le site détecte l’extension sans rechargement et ouvre la connexion officielle Behaviour. Une session déjà ouverte peut être réutilisée. Aucun mot de passe n’est demandé par l’extension.
+
+L’autorisation est transmise par HTTPS au serveur Supabase de Build Analyzer, conservée chiffrée dans Supabase Vault, puis effacée de l’extension après confirmation. Le serveur synchronise ensuite les statistiques toutes les cinq minutes, même navigateur fermé ou ordinateur éteint. La synchronisation courante n’ouvre aucun onglet.
+
+Vous pouvez désactiver la synchronisation depuis le site pour supprimer l’autorisation conservée. Les statistiques déjà enregistrées sont conservées. Une reconnexion peut être demandée si Behaviour expire ou révoque l’autorisation. Sur un ordinateur partagé, utilisez un profil distinct par joueur.
+
+Projet communautaire indépendant, non affilié à Behaviour Interactive.
+
+Objectif unique :
+Associer le compte Behaviour du joueur à son compte Build Analyzer afin d’activer sa synchronisation privée de statistiques.
+
+Justifications des permissions :
+storage : conserver temporairement l’association et l’autorisation Behaviour pendant le transfert initial ; effacer les jetons après confirmation serveur.
+alarms : réessayer un transfert initial en échec. L’alarme est supprimée après confirmation ; les collectes suivantes ont lieu sur le serveur.
+scripting : activer les scripts empaquetés sur les onglets du site et de Behaviour déjà ouverts, sans demander de rechargement ; préparer la connexion PKCE sur le site officiel.
+stats.deadbydaylight.com : lire l’autorisation de statistiques uniquement après association initiée par le joueur, et préparer la connexion officielle.
+thomas701.github.io/DBD_guide_tool/ : communiquer avec le bouton de connexion de Build Analyzer ; les autres projets GitHub Pages sont refusés.
+stlhqufxhcaqsllspmgr.supabase.co : transmettre l’autorisation au seul projet Supabase utilisé par Build Analyzer.
+
+Données à déclarer :
+- Informations permettant d’identifier une personne : identifiant du compte Build Analyzer, identifiant du compte Behaviour.
+- Informations d’authentification : jetons d’accès et de renouvellement Behaviour ; jamais les mots de passe ou les cookies.
+- Localisation approximative : fuseau horaire du système, pour conserver les dates locales des parties ; aucune position GPS.
+- Aucune vente, publicité, utilisation pour la solvabilité, ni transfert sans rapport avec la synchronisation demandée.
+- Aucun code distant : tous les scripts exécutables sont inclus dans le ZIP ; seuls les échanges de données utilisent HTTPS.
+
+Test par Google :
+Un compte Google personnel permet de se connecter à Build Analyzer. La synchronisation requiert un compte Behaviour personnel avec un compte de jeu lié. Aucun compte ni mot de passe d’un joueur réel ne doit être fourni dans le dossier de publication.
+
+Après création de la fiche :
+Renseigner son URL réelle dans public/extension-store.json, vérifier sa disponibilité après validation, puis publier le site. Ne pas annoncer la disponibilité avant la validation de Google.

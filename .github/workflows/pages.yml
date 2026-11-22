@@ -37,6 +37,7 @@ jobs:
       - name: Construire le site et l’extension
         run: |
           npm run build:site
+          python3 scripts/verify-statistics-extension-package.py
           node --input-type=module <<'JS'
           import assert from 'node:assert/strict';
           import { readFile } from 'node:fs/promises';

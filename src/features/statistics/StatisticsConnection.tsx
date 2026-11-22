@@ -1,65 +1,148 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "../../app/cloud.js";
-import { statisticsExtensionMessage } from "../../services/statistics-extension.js";
+import { statisticsBrowser, statisticsExtensionMessage, statisticsStoreUrl } from "../../services/statistics-extension.js";
+
+const SETUP_KEY = "dbd-statistics-setup";
 
 export function StatisticsConnection() {
+  const browser = statisticsBrowser(navigator.userAgent);
   const [installed, setInstalled] = useState(false);
   const [linked, setLinked] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [storeUrl, setStoreUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const busyRef = useRef(false), attempted = useRef(false), userId = useRef<string | null>(null);
+  const generation = useRef(0);
+
   useEffect(() => {
-    let active = true;
-    void supabase!.rpc("statistics_collector_status").then(({ data }) => { if (active) setLinked(Boolean(data?.remote)); }, () => undefined);
-    void (async () => {
-      const session = await supabase!.auth.getSession();
-      const reply = await statisticsExtensionMessage({ type: "DBD_EXTENSION_STATUS" });
-      if (active) { setInstalled(true); if (reply.userId === session.data.session?.user.id) setLinked(true); }
-    })().catch(() => undefined);
-    return () => { active = false; };
+    let active = true, checking = false;
+    void fetch(`${import.meta.env.BASE_URL}extension-store.json`).then(response => response.json()).then(data => {
+      if (active) setStoreUrl(statisticsStoreUrl(data.chromeWebStoreUrl));
+    }).catch(() => undefined);
+    async function check(): Promise<void> {
+      if (checking || busyRef.current) return;
+      const current = generation.current;
+      checking = true;
+      try {
+        const session = await supabase!.auth.getSession();
+        const owner = session.data.session?.user.id ?? null;
+        const [server, extension] = await Promise.all([
+          supabase!.rpc("statistics_collector_status"),
+          statisticsExtensionMessage({ type: "DBD_EXTENSION_STATUS" }).catch(() => null),
+        ]);
+        if (!active || busyRef.current || current !== generation.current) return;
+        userId.current = owner;
+        const available = Boolean(extension?.guidedSetupSupported);
+        setInstalled(available); setReady(true);
+        const waiting = Boolean(owner && sessionStorage.getItem(SETUP_KEY) === owner);
+        setPending(waiting);
+        if (!server.error) {
+          setLinked(Boolean(server.data?.remote && server.data.state !== "waiting_for_login"));
+          if (server.data?.remote && server.data.state === "success" && waiting) {
+            sessionStorage.removeItem(SETUP_KEY); setPending(false); setError(null);
+            setNotice("Synchronisation distante activée. Vous pouvez fermer le navigateur et éteindre votre PC.");
+            return;
+          }
+          if (server.data?.remote && server.data.state === "waiting_for_login" && server.data.lastSeenAt) {
+            sessionStorage.removeItem(SETUP_KEY); setPending(false);
+            setError(server.data.message ?? "Behaviour demande une nouvelle connexion.");
+            return;
+          }
+          if (waiting && server.data?.remote && server.data.state === "error") setNotice(server.data.message);
+        }
+        if (waiting && !server.data?.remote && extension?.userId === owner && extension.status?.includes("indisponible")) setNotice(extension.status);
+        if (waiting && available && !attempted.current) { attempted.current = true; void connect(); }
+      } finally { checking = false; }
+    }
+    const refresh = () => { void check().catch(() => undefined); };
+    const extensionReady = (event: MessageEvent) => {
+      if (event.source === window && event.origin === location.origin && event.data?.source === "DBD_STATISTICS_EXTENSION" && event.data.type === "READY") refresh();
+    };
+    refresh();
+    const timer = window.setInterval(() => { if (sessionStorage.getItem(SETUP_KEY)) refresh(); }, 2_000);
+    window.addEventListener("focus", refresh);
+    window.addEventListener("message", extensionReady);
+    return () => { active = false; clearInterval(timer); window.removeEventListener("focus", refresh); window.removeEventListener("message", extensionReady); };
   }, []);
+
   async function connect(): Promise<void> {
-    if (busy) return;
-    setBusy(true); setError(null); setNotice(null);
+    if (busyRef.current) return;
+    generation.current++;
+    busyRef.current = true; setBusy(true); setError(null);
     try {
       const extension = await statisticsExtensionMessage({ type: "DBD_EXTENSION_STATUS" });
-      if (!extension.remoteSupported) throw new Error("Mettez l’extension à jour vers la version 0.3.0, puis rechargez cette page.");
+      if (!extension.guidedSetupSupported) throw new Error("Installez la dernière version de l’extension pour continuer.");
       const session = await supabase!.auth.getSession();
-      if (!session.data.session) throw new Error("Reconnectez-vous à votre compte.");
-      const result = await supabase!.rpc("create_statistics_collector");
-      if (result.error) throw result.error;
-      const reply = await statisticsExtensionMessage({ type: "DBD_EXTENSION_PAIR", pairing: {
-        userId: session.data.session.user.id,
-        supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
-        publishableKey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-        collectorToken: result.data,
-      } });
-      setInstalled(true); setLinked(true);
-      setNotice(reply.loginRequired ? "Ouvrez Behaviour ci-dessous et connectez le compte de ce joueur une fois. Vous pourrez ensuite fermer le navigateur." : "Activation distante en cours. Supabase prendra ensuite le relais, même navigateur fermé et PC éteint.");
+      const owner = session.data.session?.user.id;
+      if (!owner) throw new Error("Reconnectez-vous à votre compte.");
+      let reply;
+      if (extension.userId === owner && !extension.cloudConnected) {
+        reply = await statisticsExtensionMessage({ type: "DBD_EXTENSION_LOGIN", userId: owner });
+      } else {
+        const result = await supabase!.rpc("create_statistics_collector");
+        if (result.error) throw result.error;
+        reply = await statisticsExtensionMessage({ type: "DBD_EXTENSION_PAIR", openLogin: true, forceLogin: extension.userId === owner && extension.cloudConnected, pairing: {
+          userId: owner,
+          supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
+          publishableKey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          collectorToken: result.data,
+        } });
+      }
+      setNotice(reply.loginRequired ? "Connectez-vous dans l’onglet Behaviour ouvert. L’association se terminera automatiquement." : "Connexion détectée. Transmission sécurisée à Supabase en cours…");
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Connexion impossible."); }
-    finally { setBusy(false); }
+    finally { busyRef.current = false; setBusy(false); }
   }
+
+  function start(): void {
+    if (!userId.current || busyRef.current) return;
+    sessionStorage.setItem(SETUP_KEY, userId.current);
+    setPending(true); setError(null);
+    if (!installed) {
+      attempted.current = false;
+      setNotice("Installez l’extension dans l’onglet ouvert. Cette page reprendra automatiquement, sans rechargement.");
+      window.open(storeUrl ?? `${import.meta.env.BASE_URL}extension-installation.html?setup=1`, "_blank", "noopener,noreferrer");
+    } else { attempted.current = true; void connect(); }
+  }
+
   async function disconnect(): Promise<void> {
-    setBusy(true); setError(null);
+    if (busyRef.current) return;
+    generation.current++;
+    busyRef.current = true; setBusy(true); setError(null);
     try {
-      const session = await supabase!.auth.getSession();
       const result = await supabase!.rpc("revoke_statistics_collector");
       if (result.error) throw result.error;
-      await statisticsExtensionMessage({ type: "DBD_EXTENSION_DISCONNECT", userId: session.data.session?.user.id }).catch(() => undefined);
-      setLinked(false); setNotice("Synchronisation désactivée. Vos statistiques enregistrées restent conservées.");
+      await statisticsExtensionMessage({ type: "DBD_EXTENSION_DISCONNECT", userId: userId.current }).catch(() => undefined);
+      sessionStorage.removeItem(SETUP_KEY); attempted.current = false;
+      setPending(false); setLinked(false); setNotice("Synchronisation désactivée. Vos statistiques enregistrées restent conservées.");
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Déconnexion impossible."); }
-    finally { setBusy(false); }
+    finally { busyRef.current = false; setBusy(false); }
   }
+
   return <section className="statistics-connection" aria-label="Connexion Behaviour">
     <h2>Vos statistiques Behaviour</h2>
-    <p>Chaque joueur associe une première fois son compte Behaviour avec l’extension. Ses jetons de connexion sont conservés chiffrés dans Supabase pour permettre la collecte distante.</p>
-    <p>Le serveur synchronise ensuite les statistiques toutes les cinq minutes, même navigateur fermé et PC éteint. La connexion est renouvelée automatiquement tant que Behaviour l’autorise.</p>
-    <p><a href="https://stats.deadbydaylight.com/statistics/" target="_blank" rel="noreferrer">Se connecter à Behaviour</a> · Vous pouvez fermer l’onglet après la connexion.</p>
-    {!installed && <p><a className="secondary-button" href={`${import.meta.env.BASE_URL}dbd-statistics-extension.zip`} download>Télécharger l’extension Chrome / Edge</a> <a href={`${import.meta.env.BASE_URL}extension-installation.html`} target="_blank" rel="noreferrer">Instructions d’installation</a></p>}
-    <button className="primary-button" type="button" disabled={busy} onClick={() => void connect()}>{busy ? "Veuillez patienter…" : linked ? "Reconnecter Behaviour" : "Connecter mes statistiques"}</button>
-    {linked && <button className="secondary-button" type="button" disabled={busy} onClick={() => void disconnect()}>Désactiver la synchronisation</button>}
-    {linked && <p>La désactivation arrête la collecte distante et supprime les jetons Behaviour du serveur.</p>}
-    {notice && <p role="status">{notice}</p>}
+    <p>Associez votre compte une fois. Vos statistiques seront ensuite synchronisées toutes les cinq minutes, même navigateur fermé et PC éteint.</p>
+    {linked && !pending ? <p role="status">✓ Synchronisation distante active.</p> : <ol className="statistics-setup-steps">
+      <li className={installed ? "complete" : ""}>{installed ? "✓ Extension installée" : "Installer l’extension"}</li>
+      <li>Se connecter à Behaviour</li>
+      <li>Synchronisation automatique</li>
+    </ol>}
+    {!browser.supported ? <p>Pour associer Behaviour, ouvrez ce site sur un ordinateur avec Chrome, Edge, Opera ou un navigateur Chromium compatible. Vos statistiques resteront ensuite consultables depuis vos autres appareils.</p> : <>
+      <button className="primary-button" type="button" disabled={busy || !ready} onClick={start}>
+        {!ready ? "Vérification…" : busy ? "Connexion en cours…" : linked && !pending ? "Reconnecter Behaviour" : !installed ? "Installer l’extension et connecter Behaviour" : pending ? "Rouvrir la connexion Behaviour" : "Connecter Behaviour"}
+      </button>
+      {!installed && !linked && <p>Une confirmation d’installation sera demandée par {browser.name}. Le site reprend ensuite automatiquement.</p>}
+    </>}
+    {(linked || pending) && <button className="secondary-button" type="button" disabled={busy} onClick={() => void disconnect()}>{linked ? "Désactiver la synchronisation" : "Annuler l’association"}</button>}
+    {pending && <p>Gardez le navigateur ouvert jusqu’à la confirmation de l’activation distante.</p>}
+    {notice && <p role="status" aria-live="polite">{notice}</p>}
     {error && <p className="error" role="alert">{error}</p>}
+    <details><summary>Aide et confidentialité</summary>
+      <p>L’extension transmet uniquement l’autorisation Behaviour à Supabase, où elle est conservée chiffrée. Votre mot de passe reste sur le site officiel. Une reconnexion sera nécessaire si Behaviour révoque l’autorisation.</p>
+      <p>Désactiver la synchronisation supprime les jetons du serveur. Vos parties enregistrées sont conservées. Sur un ordinateur partagé, utilisez un profil de navigateur distinct pour chaque joueur.</p>
+      <a href={`${import.meta.env.BASE_URL}extension-installation.html`} target="_blank" rel="noreferrer">Aide à l’installation</a>
+    </details>
   </section>;
 }

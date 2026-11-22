@@ -34,7 +34,11 @@ Les snapshots de préférences et builds sont limités à 5 Mo par compte. Les h
 
 ## Statistiques Behaviour
 
-Chaque joueur télécharge **la même extension Chrome / Edge**, la charge une seule fois depuis `chrome://extensions` ou `edge://extensions`, puis utilise **Statistique → Connecter mes statistiques**. L’installation détaillée est disponible sur `extension-installation.html` et dans le ZIP.
+Chaque joueur utilise **Statistique → Installer l’extension et connecter Behaviour**. Après confirmation dans la boutique, l’extension active les onglets déjà ouverts sans rechargement et le site poursuit automatiquement l’association. La page officielle de connexion Behaviour est ouverte si nécessaire ; une session existante peut être réutilisée. Chrome, Edge, Opera et les navigateurs Chromium compatibles sur ordinateur sont visés. Le site reste consultable sur les autres navigateurs après association.
+
+L’installation simplifiée nécessite une fiche approuvée dans le Chrome Web Store. Son URL réelle est renseignée dans `public/extension-store.json`. Tant que cette URL n’est pas renseignée, le bouton ouvre le guide d’installation manuelle provisoire. Le ZIP et les informations de publication sont préparés par `npm run build:extension` et `docs/EXTENSION_STORE.txt`. Le navigateur impose une confirmation d’installation ; le site ne peut pas la contourner. Edge peut aussi demander d’autoriser les extensions d’une autre boutique.
+
+La version 0.4.1 détecte l’installation à chaud, reprend l’intention d’association du compte courant et attend une première synchronisation réussie avant d’annoncer son activation. L’intention est conservée dans la session de l’onglet, sans jeton d’authentification. Les scripts empaquetés n’agissent que sur le site de Build Analyzer et le site officiel de statistiques. Les onglets de connexion créés par l’extension sont distingués des onglets personnels du joueur.
 
 L’extension associe le navigateur au compte Supabase connecté avec un jeton aléatoire révocable. Ce jeton n’autorise que le collecteur de statistiques ; il ne fournit pas la session Supabase ni l’accès aux builds. Le serveur déduit toujours le compte propriétaire du jeton. Le jeton n’est pas embarqué dans le ZIP distribué.
 

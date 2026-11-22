@@ -2,13 +2,17 @@
   "manifest_version": 3,
   "name": "DBD Build Analyzer — Statistiques",
   "description": "Associe Behaviour à Build Analyzer pour synchroniser vos statistiques sur Supabase, même navigateur fermé et PC éteint.",
-  "version": "0.3.0",
+  "version": "0.4.1",
   "minimum_chrome_version": "120",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAstz+cPgTIpr5uQl0ypVlORmrT+6k8bSZ4xwN4nw0UyRbco4IiQcRy1l26GH/bfuVCRAfICgcUowzIsQhTTPV0aFijFZ435KqJTUAPcIpU7Bau1jksXfDMN2egyi+SQsx/EBJS8hK99dk611R8NathaZYQat0F48HRxDAu+bvNYI5nyAdatXIoHhSdBT0tbxKC0DtWsgdRF+BHYBrYMP4D3h1Jt92KAa/JYOYogiBVcgz1L4lCo6lZZ2Q+YWoX3ZQy+UztQdLMVYoxLSyfz7e2V1UDy61qvHOB6i+1sl4xex15uJ666XQqgWgzPNLBI+05XbYnZIZ8FELqlu+rKz5eQIDAQAB",
-  "permissions": ["storage", "alarms"],
-  "host_permissions": ["https://stats.deadbydaylight.com/*", "https://*.supabase.co/*"],
+  "permissions": ["storage", "alarms", "scripting"],
+  "host_permissions": ["https://stats.deadbydaylight.com/*", "https://stlhqufxhcaqsllspmgr.supabase.co/*", "https://thomas701.github.io/DBD_guide_tool/*"],
   "background": { "service_worker": "background.mjs", "type": "module" },
-  "content_scripts": [{ "matches": ["https://stats.deadbydaylight.com/*"], "js": ["content.js"], "run_at": "document_idle" }],
+  "content_scripts": [
+    { "matches": ["https://stats.deadbydaylight.com/*"], "js": ["content.js"], "run_at": "document_idle" },
+    { "matches": ["https://thomas701.github.io/DBD_guide_tool/*"], "js": ["site.js"], "run_at": "document_idle" }
+  ],
+  "icons": { "16": "icons/16.png", "32": "icons/32.png", "48": "icons/48.png", "128": "icons/128.png" },
   "externally_connectable": { "matches": ["https://thomas701.github.io/*"] },
   "action": { "default_title": "Ouvrir Build Analyzer" }
 }

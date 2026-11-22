@@ -1,4 +1,6 @@
 (() => {
+  if (globalThis.dbdStatisticsCapture) return;
+  globalThis.dbdStatisticsCapture = true;
   let lastSession = "";
   function readSession() {
     try {
@@ -11,7 +13,9 @@
     const session = readSession(), serialized = JSON.stringify(session);
     if (!session || serialized === lastSession) return;
     lastSession = serialized;
-    void chrome.runtime.sendMessage({ type: "DBD_BEHAVIOUR_SESSION", session }).catch(() => { lastSession = ""; });
+    void chrome.runtime.sendMessage({ type: "DBD_BEHAVIOUR_SESSION", session }).then(reply => {
+      if (!reply?.ok) lastSession = "";
+    }).catch(() => { lastSession = ""; });
   }
   chrome.runtime.onMessage.addListener((message, sender, respond) => {
     if (sender.id !== chrome.runtime.id) return false;

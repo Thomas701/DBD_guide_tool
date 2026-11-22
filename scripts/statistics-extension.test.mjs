@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { createHash, webcrypto } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { runInNewContext } from "node:vm";
 import { isAllowedSender, validPairing, hashText } from "../extension/policy.mjs";
 import { APP_URL } from "../extension/config.mjs";
 import { createStatisticsParser, prioritizeMatchRetries } from "../shared/statistics-parser.mjs";
@@ -10,8 +11,45 @@ import { buildMatchHistoryEntryId } from "./match-history-id.mjs";
 import { readBehaviourIdentity } from "../extension/behaviour-session.mjs";
 import { collectBehaviourStatistics, mapBehaviourMatches, mapBehaviourOverview } from "../extension/behaviour-api.mjs";
 import { behaviourHistory, behaviourOverview, behaviourSession, behaviourToken } from "../tests/fixtures/behaviour-api.mjs";
+import { statisticsBrowser, statisticsStoreUrl } from "../dist/src/services/statistics-extension.js";
 
 globalThis.crypto ??= webcrypto;
+
+test("l’installation distingue les navigateurs Chromium de bureau et les navigateurs incompatibles", () => {
+  assert.equal(statisticsBrowser("Mozilla Chrome/140.0 Safari/537.36 Edg/140.0").name, "Edge");
+  assert.equal(statisticsBrowser("Mozilla Chrome/140.0 Safari/537.36 OPR/124.0").name, "Opera");
+  assert.equal(statisticsBrowser("Mozilla Chrome/140.0 Safari/537.36").supported, true);
+  for (const ua of ["Mozilla Firefox/142.0", "Mozilla Version/18.0 Safari/605.1.15", "Mozilla Android Chrome/140.0 Mobile", "Mozilla iPad Version/18.0 Safari/605.1.15"]) assert.equal(statisticsBrowser(ua).supported, false);
+});
+
+test("le bouton d’installation accepte uniquement une fiche réelle du Chrome Web Store", () => {
+  const url = "https://chromewebstore.google.com/detail/" + "a".repeat(32);
+  assert.equal(statisticsStoreUrl(url), url);
+  for (const value of [null, "", "https://example.com/detail/" + "a".repeat(32), url + "?redirect=evil", url.replace("https:", "http:"), url.replace("chromewebstore", "user:password@chromewebstore"), "https://chromewebstore.google.com/detail/inconnue"]) assert.equal(statisticsStoreUrl(value), null);
+});
+
+test("la passerelle refuse les autres fenêtres, origines, commandes et exemplaires de l’extension", async () => {
+  let receive, calls = 0;
+  const messages = [], origin = new URL(APP_URL).origin;
+  const window = { postMessage: message => messages.push(message), addEventListener: (_type, listener) => { receive = listener; } };
+  window.top = window;
+  runInNewContext(await readFile(new URL("../extension/site.js", import.meta.url), "utf8"), {
+    window, location: { origin }, chrome: { runtime: { id: "chosen-extension", sendMessage: async () => { calls++; return { ok: true }; } } },
+  });
+  assert.equal(messages[0].type, "READY");
+  const request = { source: "DBD_BUILD_ANALYZER", id: "request", extensionId: "chosen-extension", request: { type: "DBD_EXTENSION_STATUS" } };
+  for (const event of [
+    { source: {}, origin, data: request },
+    { source: window, origin: "https://evil.example", data: request },
+    { source: window, origin, data: { ...request, extensionId: "another-extension" } },
+    { source: window, origin, data: { ...request, request: { type: "EXECUTE_CODE" } } },
+  ]) receive(event);
+  assert.equal(calls, 0);
+  receive({ source: window, origin, data: request });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(calls, 1);
+  assert.equal(messages[1].reply.extensionId, "chosen-extension");
+});
 
 test("l’API conserve les identifiants historiques, les emblèmes et les détails des participants", async () => {
   const [match] = await mapBehaviourMatches(behaviourHistory, new Date("2026-11-22T12:00:00Z"), "Europe/Paris");
