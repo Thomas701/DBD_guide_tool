@@ -11,13 +11,19 @@ import { buildMatchHistoryEntryId } from "./match-history-id.mjs";
 import { readBehaviourIdentity } from "../extension/behaviour-session.mjs";
 import { collectBehaviourStatistics, mapBehaviourMatches, mapBehaviourOverview } from "../extension/behaviour-api.mjs";
 import { behaviourHistory, behaviourOverview, behaviourSession, behaviourToken } from "../tests/fixtures/behaviour-api.mjs";
-import { statisticsBrowser, statisticsStoreUrl } from "../dist/src/services/statistics-extension.js";
+import { statisticsBrowser, statisticsBrowsers, statisticsStoreUrl } from "../dist/src/services/statistics-extension.js";
 
 globalThis.crypto ??= webcrypto;
 
 test("l’installation distingue les navigateurs Chromium de bureau et les navigateurs incompatibles", () => {
   assert.equal(statisticsBrowser("Mozilla Chrome/140.0 Safari/537.36 Edg/140.0").name, "Edge");
-  assert.equal(statisticsBrowser("Mozilla Chrome/140.0 Safari/537.36 OPR/124.0").name, "Opera");
+  assert.equal(statisticsBrowser("Mozilla Chrome/140.0 Safari/537.36 OPR/124.0"), statisticsBrowsers.opera);
+  assert.equal(statisticsBrowser("Mozilla Chrome/140.0 Vivaldi/7.6"), statisticsBrowsers.vivaldi);
+  assert.equal(statisticsBrowser("Mozilla Chrome/140.0 Brave/1.82"), statisticsBrowsers.brave);
+  assert.equal(statisticsBrowser("Mozilla Chromium/140.0"), statisticsBrowsers.chrome);
+  assert.equal(statisticsBrowser("Mozilla Firefox/142.0"), statisticsBrowsers.firefox);
+  assert.equal(statisticsBrowser("Mozilla Version/18.0 Safari/605.1.15"), statisticsBrowsers.safari);
+  assert.equal(statisticsBrowser("unknown"), statisticsBrowsers.other);
   assert.equal(statisticsBrowser("Mozilla Chrome/140.0 Safari/537.36").supported, true);
   for (const ua of ["Mozilla Firefox/142.0", "Mozilla Version/18.0 Safari/605.1.15", "Mozilla Android Chrome/140.0 Mobile", "Mozilla iPad Version/18.0 Safari/605.1.15"]) assert.equal(statisticsBrowser(ua).supported, false);
 });

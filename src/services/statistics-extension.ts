@@ -5,12 +5,28 @@ type BrowserRuntime = {
   sendMessage: (id: string, request: unknown, callback: (reply: ExtensionReply | undefined) => void) => void;
 };
 
+export const statisticsBrowsers = {
+  chrome: { name: "Chrome / Chromium", supported: true, extensionsUrl: "chrome://extensions" },
+  edge: { name: "Edge", supported: true, extensionsUrl: "edge://extensions" },
+  opera: { name: "Opera / Opera GX", supported: true, extensionsUrl: "opera://extensions" },
+  brave: { name: "Brave", supported: true, extensionsUrl: "brave://extensions" },
+  vivaldi: { name: "Vivaldi", supported: true, extensionsUrl: "vivaldi://extensions" },
+  firefox: { name: "Firefox", supported: false, extensionsUrl: "" },
+  safari: { name: "Safari", supported: false, extensionsUrl: "" },
+  mobile: { name: "Navigateur mobile", supported: false, extensionsUrl: "" },
+  other: { name: "Autre navigateur", supported: false, extensionsUrl: "" },
+};
+
 export function statisticsBrowser(userAgent: string): { name: string; supported: boolean; extensionsUrl: string } {
-  if (/Android|iPhone|iPad|Mobile/i.test(userAgent)) return { name: "mobile", supported: false, extensionsUrl: "" };
-  if (/Edg\//.test(userAgent)) return { name: "Edge", supported: true, extensionsUrl: "edge://extensions" };
-  if (/OPR\//.test(userAgent)) return { name: "Opera", supported: true, extensionsUrl: "opera://extensions" };
-  if (/Chrome\//.test(userAgent)) return { name: "Chrome / Chromium", supported: true, extensionsUrl: "chrome://extensions" };
-  return { name: "ce navigateur", supported: false, extensionsUrl: "" };
+  if (/Android|iPhone|iPad|Mobile/i.test(userAgent)) return statisticsBrowsers.mobile;
+  if (/Edg\//.test(userAgent)) return statisticsBrowsers.edge;
+  if (/OPR\//.test(userAgent)) return statisticsBrowsers.opera;
+  if (/Vivaldi\//.test(userAgent)) return statisticsBrowsers.vivaldi;
+  if (/Brave\//.test(userAgent)) return statisticsBrowsers.brave;
+  if (/Firefox\//.test(userAgent)) return statisticsBrowsers.firefox;
+  if (/Chrome\/|Chromium\//.test(userAgent)) return statisticsBrowsers.chrome;
+  if (/Safari\//.test(userAgent)) return statisticsBrowsers.safari;
+  return statisticsBrowsers.other;
 }
 
 export function statisticsStoreUrl(value: unknown): string | null {

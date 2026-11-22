@@ -4,6 +4,7 @@ const buildId = new Date().toISOString();
 
 export default defineConfig({
   base: process.env.VITE_BASE_PATH ?? "/",
+  build: { rollupOptions: { input: ["index.html", "extension-installation.html"] } },
   server: {
     host: "127.0.0.1", port: 5173, strictPort: true,
     // Chrome verrouille ses fichiers de profil sous Windows.
