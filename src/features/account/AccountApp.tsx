@@ -100,6 +100,7 @@ function LoginForm({ client, recovery, onRecovered, initialError }: { client: Su
 
 function AccountWorkspace({ client, user }: { client: SupabaseClient; user: User }) {
   const [ready, setReady] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [version, setVersion] = useState(0);
   const [status, setStatus] = useState("Chargement de votre compte…");
   const [error, setError] = useState<string | null>(null);
@@ -129,8 +130,10 @@ function AccountWorkspace({ client, user }: { client: SupabaseClient; user: User
   async function load(discardLocal = false): Promise<void> {
     setBusy(true); setError(null);
     try {
-      await workspace.load(discardLocal);
+      const [, role] = await Promise.all([workspace.load(discardLocal), client.rpc("is_admin")]);
+      if (role.error) throw role.error;
       if (!active.current) return;
+      setIsAdmin(role.data === true);
       setAccountStorage(workspace.local.storage);
       setReady(true); setVersion(current => current + 1);
       setStatus(workspace.local.pending() ? "Changements en attente…" : "Données synchronisées");
@@ -188,7 +191,7 @@ function AccountWorkspace({ client, user }: { client: SupabaseClient; user: User
       <button className="secondary-button" type="button" disabled={busy} onClick={() => { if (ready) void flush().catch(() => undefined); else void load(); }}>Réessayer</button>
       <button className="secondary-button" type="button" disabled={busy || (workspace.local.pending() && !exported)} onClick={() => void load(true)}>Recharger les données en ligne</button>
     </div>}
-    {ready ? <App key={version} /> : !error && <AccountCard><p role="status">Chargement de vos données…</p></AccountCard>}
+    {ready ? <App key={version} isAdmin={isAdmin} /> : !error && <AccountCard><p role="status">Chargement de vos données…</p></AccountCard>}
   </>;
 }
 

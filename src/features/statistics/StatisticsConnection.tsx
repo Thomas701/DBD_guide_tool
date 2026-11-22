@@ -129,13 +129,14 @@ export function StatisticsConnection() {
       <li>Se connecter à Behaviour</li>
       <li>Synchronisation automatique</li>
     </ol>}
-    {!browser.supported ? <p>Pour associer Behaviour, ouvrez ce site sur un ordinateur avec Chrome, Edge, Opera ou un navigateur Chromium compatible. Vos statistiques resteront ensuite consultables depuis vos autres appareils.</p> : <>
+    {!linked && (!browser.supported ? <p>Pour associer Behaviour, ouvrez ce site sur un ordinateur avec Chrome, Edge, Opera ou un navigateur Chromium compatible. Vos statistiques resteront ensuite consultables depuis vos autres appareils.</p> : <>
       <button className="primary-button" type="button" disabled={busy || !ready} onClick={start}>
-        {!ready ? "Vérification…" : busy ? "Connexion en cours…" : linked && !pending ? "Reconnecter Behaviour" : !installed ? "Installer l’extension et connecter Behaviour" : pending ? "Rouvrir la connexion Behaviour" : "Connecter Behaviour"}
+        {!ready ? "Vérification…" : busy ? "Connexion en cours…" : !installed ? "Installer l’extension et connecter Behaviour" : pending ? "Rouvrir la connexion Behaviour" : "Connecter Behaviour"}
       </button>
       {!installed && !linked && <p>Une confirmation d’installation sera demandée par {browser.name}. Le site reprend ensuite automatiquement.</p>}
-    </>}
-    {(linked || pending) && <button className="secondary-button" type="button" disabled={busy} onClick={() => void disconnect()}>{linked ? "Désactiver la synchronisation" : "Annuler l’association"}</button>}
+    </>)}
+    {linked && <button className="secondary-button" type="button" disabled={busy} onClick={() => void disconnect()}>Désactiver la synchronisation</button>}
+    {pending && !linked && <button className="secondary-button" type="button" disabled={busy} onClick={() => void disconnect()}>Annuler l’association</button>}
     {pending && <p>Gardez le navigateur ouvert jusqu’à la confirmation de l’activation distante.</p>}
     {notice && <p role="status" aria-live="polite">{notice}</p>}
     {error && <p className="error" role="alert">{error}</p>}

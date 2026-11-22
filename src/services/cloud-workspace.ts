@@ -20,6 +20,7 @@ export function workspaceRemote(client: SupabaseClient, userId: string): Workspa
     async save(data, revision) {
       const result = await client.rpc("save_workspace", { workspace_data: data, expected_revision: revision });
       if (result.error?.code === "40001") throw new WorkspaceConflictError();
+      if (result.error && /timeout|timed out/i.test(result.error.message)) throw new Error("Sauvegarde impossible : le serveur a mis trop de temps à répondre. Vos changements restent sur cet appareil ; une nouvelle tentative sera effectuée automatiquement.");
       if (result.error) throw new Error(`Sauvegarde impossible : ${result.error.message}`);
       if (!Number.isSafeInteger(result.data) || result.data < 1) throw new Error("Version de sauvegarde invalide.");
       return result.data as number;
@@ -49,7 +50,16 @@ export class CloudWorkspace {
   private async savePending(): Promise<void> {
     while (this.local.pending()) {
       const snapshot = this.local.snapshot();
-      const revision = await this.remote.save(snapshot, this.local.revision());
+      const expected = this.local.revision();
+      let revision: number;
+      try { revision = await this.remote.save(snapshot, expected); }
+      catch (cause) {
+        // A timeout can hide a committed save; acknowledge only this exact snapshot and revision.
+        const saved = await this.remote.read().catch(() => null);
+        if (!saved || saved.revision !== expected + 1 || Object.keys(saved.data).length !== Object.keys(snapshot).length
+          || !Object.entries(snapshot).every(([key, value]) => saved.data[key] === value)) throw cause;
+        revision = saved.revision;
+      }
       this.local.saved(revision, snapshot);
     }
   }

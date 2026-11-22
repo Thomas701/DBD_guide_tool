@@ -3,7 +3,7 @@ import type { PerkSide } from "../domain/perk.js";
 
 export const APP_SESSION_STORAGE_KEY = "dbd-build-tool.current-session";
 
-export type AppView = "build" | "killers" | "perks" | "constants" | "tiers" | "blindtest" | "statistics";
+export type AppView = "build" | "killers" | "perks" | "constants" | "tiers" | "blindtest" | "statistics" | "administration";
 
 type CatalogScrollPositions = Record<"killers" | "perks" | "constants", number>;
 
@@ -61,7 +61,7 @@ export function readAppSession(raw: string | null, knownKillerIds: ReadonlySet<s
     };
     return {
       ...current,
-      activeView: value.activeView === "killers" || value.activeView === "perks" || value.activeView === "constants" || value.activeView === "tiers" || value.activeView === "blindtest" || value.activeView === "statistics" ? value.activeView : "build",
+      activeView: value.activeView === "killers" || value.activeView === "perks" || value.activeView === "constants" || value.activeView === "tiers" || value.activeView === "blindtest" || value.activeView === "statistics" || value.activeView === "administration" ? value.activeView : "build",
       side,
       soundEnabled: typeof value.soundEnabled === "boolean" ? value.soundEnabled : DEFAULT_APP_SESSION.soundEnabled,
       musicVolume: clamp(value.musicVolume, DEFAULT_APP_SESSION.musicVolume, 0, 1),

@@ -1,5 +1,6 @@
 begin;
 insert into auth.users(id) values ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'), ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb');
+insert into public.app_administrators(user_id) values ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa');
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', true);
@@ -57,7 +58,7 @@ do $$ begin
   begin
     perform public.edit_player_match(repeat('1', 40), null, true);
     raise exception 'Bob must not edit Alice matches';
-  exception when invalid_parameter_value then null; end;
+  exception when insufficient_privilege then null; end;
 end $$;
 
 select set_config('request.jwt.claim.sub', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', true);

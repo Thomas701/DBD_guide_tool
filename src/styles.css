@@ -3579,11 +3579,15 @@ button:disabled {
     min-height: 100dvh;
   }
 
+  #root { display: flex; flex-direction: column; }
+  .account-toolbar, .account-sync-error { flex-shrink: 0; }
+
   .app-shell {
     display: grid;
     grid-template-rows: auto minmax(0, 1fr);
-    height: 100dvh;
-    min-height: 100dvh;
+    flex: 1;
+    height: auto;
+    min-height: 0;
     overflow: hidden;
   }
 
@@ -3605,12 +3609,14 @@ button:disabled {
     overflow-y: auto;
     scrollbar-color: #3c4348 transparent;
   }
+
+  .tier-list-page { height: 100%; }
 }
 
 /* Persistent, resizable workspace */
 .analyzer-workspace {
   grid-template-columns: var(--left-pane) 8px minmax(0, 1fr) 8px var(--right-pane);
-  height: calc(100dvh - 58px);
+  height: 100%;
   min-height: 0;
   padding: 12px 0;
   gap: 0;

@@ -99,11 +99,14 @@ try {
   const app = await context.newPage(); await app.goto(APP_URL);
   const install = app.getByRole("button", { name: "Installer l’extension et connecter Behaviour" });
   await install.waitFor();
+  assert.equal(await app.getByRole("button", { name: "Désactiver la synchronisation", exact: true }).count(), 0);
   await app.evaluate(() => { window.remote = true; window.dispatchEvent(new Event("focus")); });
-  await app.getByRole("button", { name: "Reconnecter Behaviour" }).waitFor();
+  await app.getByRole("button", { name: "Désactiver la synchronisation", exact: true }).waitFor();
+  assert.equal(await app.getByRole("button", { name: "Reconnecter Behaviour" }).count(), 0);
   assert.equal(await install.count(), 0, "An account already synchronized on the server does not need to install the extension again");
   await app.evaluate(() => { window.remote = false; window.dispatchEvent(new Event("focus")); });
   await install.waitFor();
+  assert.equal(await app.getByRole("button", { name: "Désactiver la synchronisation", exact: true }).count(), 0);
   await app.setViewportSize({ width: 1280, height: 800 });
   await app.getByLabel("Brouillon").evaluate(input => { input.style.visibility = "hidden"; });
   await app.screenshot({ path: join(root, ".tmp-extension-store-installation.png") });

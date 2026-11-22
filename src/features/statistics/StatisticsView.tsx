@@ -28,7 +28,7 @@ const STATUS_REFRESH_INTERVAL_MS = 5_000;
 const ESCAPED_ICON_URL = "https://assets.live.bhvraccount.com/stats/VE_Escaped.png";
 const SACRIFICED_ICON_URL = "https://assets.live.bhvraccount.com/stats/VE_Sacrificed.png";
 
-export function StatisticsView({ serverUrl, nextSyncAt }: { serverUrl: string; nextSyncAt: number | null }) {
+export function StatisticsView({ serverUrl, nextSyncAt, canEdit }: { serverUrl: string; nextSyncAt: number | null; canEdit: boolean }) {
   const [snapshot, setSnapshot] = useState<StatisticsSnapshot | null>(null);
   const [status, setStatus] = useState<StatisticsStatus | null>(null);
   const [tab, setTab] = useState<StatisticsTab>("overview");
@@ -220,10 +220,10 @@ export function StatisticsView({ serverUrl, nextSyncAt }: { serverUrl: string; n
             onKillerFiltersChange={setKillerFilters}
             onSurvivorFiltersChange={setSurvivorFilters}
             onPageChange={setHistoryPage}
-            onEdit={setEditingMatch}
-            onDelete={(match) => void removeMatch(match)}
+            onEdit={canEdit ? setEditingMatch : undefined}
+            onDelete={canEdit ? (match) => void removeMatch(match) : undefined}
           />}
-      {editingMatch && <MatchEditDialog match={editingMatch} saving={savingMatch} onClose={() => setEditingMatch(null)} onSave={(changes) => void saveMatch(changes)} />}
+      {canEdit && editingMatch && <MatchEditDialog match={editingMatch} saving={savingMatch} onClose={() => setEditingMatch(null)} onSave={(changes) => void saveMatch(changes)} />}
     </section>
   </main>;
 
@@ -235,6 +235,7 @@ export function StatisticsView({ serverUrl, nextSyncAt }: { serverUrl: string; n
   }
 
   async function saveMatch(changes: MatchHistoryEntry): Promise<void> {
+    if (!canEdit) return;
     setSavingMatch(true);
     setError(null);
     try {
@@ -248,6 +249,7 @@ export function StatisticsView({ serverUrl, nextSyncAt }: { serverUrl: string; n
   }
 
   async function removeMatch(match: MatchHistoryEntry): Promise<void> {
+    if (!canEdit) return;
     if (!window.confirm(`Supprimer définitivement la partie de ${match.characterName} du ${match.playedAtLabel ?? "date inconnue"} ?`)) return;
     setError(null);
     try {
@@ -364,8 +366,8 @@ function HistoryPanel({
   onKillerFiltersChange: (value: string[]) => void;
   onSurvivorFiltersChange: (value: string[]) => void;
   onPageChange: (value: number) => void;
-  onEdit: (match: MatchHistoryEntry) => void;
-  onDelete: (match: MatchHistoryEntry) => void;
+  onEdit: ((match: MatchHistoryEntry) => void) | undefined;
+  onDelete: ((match: MatchHistoryEntry) => void) | undefined;
 }) {
   return <section className="statistics-history-section" aria-label="Historique des parties">
     <div className="statistics-history-toolbar">
@@ -427,7 +429,7 @@ function PaginationControls({ page, pageCount, onPageChange }: { page: number; p
   </div>;
 }
 
-function MatchHistoryCard({ match, mmr, onEdit, onDelete }: { match: MatchHistoryEntry; mmr: MmrEvent | undefined; onEdit: (match: MatchHistoryEntry) => void; onDelete: (match: MatchHistoryEntry) => void }) {
+function MatchHistoryCard({ match, mmr, onEdit, onDelete }: { match: MatchHistoryEntry; mmr: MmrEvent | undefined; onEdit: ((match: MatchHistoryEntry) => void) | undefined; onDelete: ((match: MatchHistoryEntry) => void) | undefined }) {
   const [selected, setSelected] = useState<{ match: MatchHistoryEntry; available: boolean } | null>(null);
   const loadout = classifyLoadout(match);
   const survivorResultIconUrl = match.role === "survivor" ? survivorOutcomeIconUrl(match.resultLabel) : null;
@@ -471,8 +473,8 @@ function MatchHistoryCard({ match, mmr, onEdit, onDelete }: { match: MatchHistor
       <strong className="statistics-match-duration">{match.durationLabel ?? "--:--"}</strong>
       <span className="statistics-match-source">Ajouté le {formatTimestamp(match.importedAt)}</span>
       <div className="statistics-match-actions">
-        <button type="button" className="statistics-action edit" title="Modifier la partie" onClick={() => onEdit(match)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5 4 4M4 20l4-1L20 7a2.8 2.8 0 0 0-4-4L4 15Z" /></svg><span>Modifier</span></button>
-        <button type="button" className="statistics-action delete" title="Supprimer la partie" onClick={() => onDelete(match)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v5M14 11v5" /></svg><span>Supprimer</span></button>
+        {onEdit && <button type="button" className="statistics-action edit" title="Modifier la partie" onClick={() => onEdit(match)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5 4 4M4 20l4-1L20 7a2.8 2.8 0 0 0-4-4L4 15Z" /></svg><span>Modifier</span></button>}
+        {onDelete && <button type="button" className="statistics-action delete" title="Supprimer la partie" onClick={() => onDelete(match)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v5M14 11v5" /></svg><span>Supprimer</span></button>}
       </div>
     </div>
     {selected && <ParticipantDetails match={selected.match} available={selected.available} onClose={() => setSelected(null)} />}

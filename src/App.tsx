@@ -71,10 +71,10 @@ interface TerrorRadiusPlayback {
   volume: number;
 }
 
-export default function App() {
+export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
   const [nextStatisticsSyncAt, setNextStatisticsSyncAt] = useState<number | null>(null);
   const [initialSession] = useState(loadPersistedAppSession);
-  const [activeView, setActiveView] = useState<AppView>(initialSession.activeView);
+  const [activeView, setActiveView] = useState<AppView>(initialSession.activeView === "administration" && !isAdmin ? "build" : initialSession.activeView);
   const [side, setSide] = useState<PerkSide>(initialSession.side);
   const [buildSessions, setBuildSessions] = useState(initialSession.buildSessions);
   const [topbarMenu, setTopbarMenu] = useState<TopbarMenu>(null);
@@ -526,6 +526,7 @@ export default function App() {
   }
 
   function saveDescriptionOverride(perkId: string, html: string): void {
+    if (!isAdmin) throw new Error("Cette modification est réservée aux administrateurs.");
     setDescriptionOverrides(descriptionOverrideRepository.update(perkId, html));
   }
 
@@ -568,18 +569,22 @@ export default function App() {
   }
 
   function resetDescriptionOverride(perkId: string): void {
+    if (!isAdmin) return;
     setDescriptionOverrides(descriptionOverrideRepository.delete(perkId));
   }
 
   function saveCategoryOverride(perkId: string, categories: readonly PerkCategory[]): void {
+    if (!isAdmin) return;
     setCategoryOverrides(categoryOverrideRepository.update(perkId, categories));
   }
 
   function resetCategoryOverride(perkId: string): void {
+    if (!isAdmin) return;
     setCategoryOverrides(categoryOverrideRepository.delete(perkId));
   }
 
   async function saveNativePerkChanges(perkId: string, changes: { descriptionHtml?: string; categories?: readonly PerkCategory[] }): Promise<void> {
+    if (!isAdmin) throw new Error("Cette modification est réservée aux administrateurs.");
     try {
       if (isHostedApp) {
         if (changes.descriptionHtml !== undefined) setDescriptionOverrides(descriptionOverrideRepository.update(perkId, changes.descriptionHtml));
@@ -610,6 +615,7 @@ export default function App() {
   }
 
   function showView(view: AppView): void {
+    if (view === "administration" && !isAdmin) return;
     runUiTransition(() => {
       if (activeView === "perks" && view !== "perks" && selectedPerkId && !equippedPerkIds.includes(selectedPerkId)) {
         setSelectedPerkId(null);
@@ -646,9 +652,9 @@ export default function App() {
       return;
     }
     theme.pause();
-    theme.loop = false;
+    theme.loop = true;
     theme.src = url;
-    theme.onended = () => { if (request === themePlaybackRequestRef.current) void playOriginalKillerTheme(request); };
+    theme.onended = null;
     void theme.play().catch(() => undefined);
   }
 
@@ -802,6 +808,7 @@ export default function App() {
     <div className="app-shell">
       <StatisticsAutoSync serverUrl={currentAssistantServerUrl()} onSchedule={setNextStatisticsSyncAt} />
       <Topbar
+        isAdmin={isAdmin}
         activeView={activeView}
         side={side}
         menu={topbarMenu}
@@ -822,7 +829,7 @@ export default function App() {
       {killerInfo && <KillerInfoModal killer={killerInfo} killers={killers} onClose={() => setKillerInfo(null)} />}
 
       <BlindTestView active={activeView === "blindtest"} killers={killers} soundEnabled={soundEnabled} onSessionStart={startBlindTestSession} onSessionStop={stopBlindTestSession} />
-      {activeView === "blindtest" ? null : activeView === "constants" ? <ConstantsView scrollTop={catalogScrollPositionsRef.current.constants} onScroll={(scrollTop) => rememberCatalogScroll("constants", scrollTop)} /> : activeView === "tiers" ? <TierListView killers={effectiveKillers} survivors={survivors} perkTierList={perkTierList} descriptionOverrides={descriptionOverrides} onMove={moveTier} /> : activeView === "statistics" ? <StatisticsView serverUrl={currentAssistantServerUrl()} nextSyncAt={nextStatisticsSyncAt} /> : <main className={`analyzer-workspace view-${activeView}`} ref={workspaceRef} style={workspaceStyle}>
+      {activeView === "blindtest" ? null : activeView === "administration" && isAdmin ? <main aria-label="Administration" /> : activeView === "constants" ? <ConstantsView scrollTop={catalogScrollPositionsRef.current.constants} onScroll={(scrollTop) => rememberCatalogScroll("constants", scrollTop)} /> : activeView === "tiers" ? <TierListView killers={effectiveKillers} survivors={survivors} perkTierList={perkTierList} descriptionOverrides={descriptionOverrides} onMove={moveTier} /> : activeView === "statistics" ? <StatisticsView serverUrl={currentAssistantServerUrl()} nextSyncAt={nextStatisticsSyncAt} canEdit={isAdmin} /> : <main className={`analyzer-workspace view-${activeView}`} ref={workspaceRef} style={workspaceStyle}>
         <aside className={`analyzer-sidebar left-sidebar${activeView === "perks" ? " perks-sidebar" : ""}`}>
           <section className={`analyzer-panel selected-loadout-panel${activeView === "perks" ? " perks-loadout-panel" : ""}`} aria-label="Personnage et perks sélectionnés">
             <SelectedKillerCard killer={selectedKiller} side={side} onChange={() => showView("killers")} onRemove={removeKiller} terrorPlayback={terrorRadiusPlayback} onTerrorRadiusToggle={() => selectedKiller && void toggleTerrorRadius(selectedKiller)} onTerrorRadiusSeek={seekTerrorRadius} onTerrorRadiusVolumeChange={setTerrorRadiusVolume} onShowInfo={setKillerInfo} />
@@ -885,6 +892,7 @@ export default function App() {
         <aside className="analyzer-sidebar right-sidebar">
           {selectedPerk ? (
             <PerkInspectorPanel
+              canEdit={isAdmin}
               perk={selectedPerk}
               owner={selectedPerkOwner}
               descriptionOverride={descriptionOverrides[selectedPerk.id] ?? null}
@@ -1073,6 +1081,7 @@ function ResizeHandle({ orientation, label, onDelta, onReset }: {
 }
 
 function Topbar({
+  isAdmin,
   activeView,
   side,
   menu,
@@ -1088,6 +1097,7 @@ function Topbar({
   onHelp,
   onResetScenario
 }: {
+  isAdmin: boolean;
   activeView: AppView;
   side: PerkSide;
   menu: TopbarMenu;
@@ -1128,7 +1138,7 @@ function Topbar({
         </button>
       </div>
       <nav className="main-navigation" aria-label="Navigation principale">
-        {(["build", "killers", "perks", "tiers", "blindtest", "constants", "statistics"] as AppView[]).map((view) => (
+        {(["build", "killers", "perks", "tiers", "blindtest", "constants", "statistics", ...(isAdmin ? ["administration"] : [])] as AppView[]).map((view) => (
           <button className={activeView === view ? "active" : ""} type="button" onClick={() => onViewChange(view)} aria-current={activeView === view ? "page" : undefined} key={view}>
             <span aria-hidden="true">{view === "build" ? "⌘" : view === "killers" ? side === "survivor" ? "◉" : "☠" : view === "perks" ? "◇" : view === "tiers" ? "♜" : view === "blindtest" ? "♪" : "≡"}</span>
             {view === "killers" ? side === "survivor" ? "Survivants" : "Killers" : view === "constants" ? "Constantes" : view === "tiers" ? "Tiers List" : view === "blindtest" ? "BlindTest" : view === "statistics" ? "Statistique" : `${view[0]?.toUpperCase()}${view.slice(1)}`}

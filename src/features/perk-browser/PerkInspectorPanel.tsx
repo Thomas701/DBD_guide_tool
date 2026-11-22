@@ -14,6 +14,7 @@ import type { Perk, PerkSide } from "../../domain/perk.js";
 type EditMode = "native" | "local";
 
 interface PerkInspectorPanelProps {
+  canEdit: boolean;
   perk: Perk;
   owner: Killer | null;
   descriptionOverride: string | null;
@@ -34,6 +35,7 @@ interface PerkInspectorPanelProps {
 }
 
 export function PerkInspectorPanel({
+  canEdit,
   perk,
   owner,
   descriptionOverride,
@@ -150,10 +152,10 @@ export function PerkInspectorPanel({
       <div className="inspector-section-heading categories-section-heading">
         <div className="inspector-heading-controls">
           <p className="description-section-title">Catégories</p>
-          <button className={`manager-icon-button category-edit-button${isEditingCategories ? " active" : ""}`} type="button" onClick={openCategoryEditor} aria-label="Modifier les catégories" title="Modifier les catégories">
+          {canEdit && <button className={`manager-icon-button category-edit-button${isEditingCategories ? " active" : ""}`} type="button" onClick={openCategoryEditor} aria-label="Modifier les catégories" title="Modifier les catégories">
             <CategoryEditIcon />
-          </button>
-          {categoryOverride !== null && (
+          </button>}
+          {canEdit && categoryOverride !== null && (
             <button className="manager-icon-button reset-override-button" type="button" onClick={() => onResetCategoryOverride(perk.id)} aria-label="Rétablir les catégories natives" title="Rétablir les catégories natives">
               <ResetIcon />
             </button>
@@ -162,7 +164,7 @@ export function PerkInspectorPanel({
         {categoryOverride !== null && <span className="description-override-badge">{isHostedApp ? "Version du compte" : "Version locale"}</span>}
       </div>
 
-      {isEditingCategories ? (
+      {canEdit && isEditingCategories ? (
         <div className="category-editor">
           <EditModeToggle mode={editMode} onChange={changeEditMode} />
           <div className="category-editor-options">
@@ -190,7 +192,7 @@ export function PerkInspectorPanel({
       <div className="inspector-section-heading description-section-heading">
         <div className="inspector-heading-controls">
           <p className="description-section-title">Description</p>
-          <button
+          {canEdit && <button
             className={`manager-icon-button description-edit-button${isEditingDescription ? " active" : ""}`}
             type="button"
             onClick={() => runPanelTransition(() => setIsEditingDescription((current) => !current))}
@@ -198,8 +200,8 @@ export function PerkInspectorPanel({
             title={isEditingDescription ? "Fermer l’éditeur" : "Modifier la description"}
           >
             <PencilIcon />
-          </button>
-          {descriptionOverride && (
+          </button>}
+          {canEdit && descriptionOverride && (
             <button className="manager-icon-button reset-override-button" type="button" onClick={() => onResetDescriptionOverride(perk.id)} aria-label="Rétablir la description native" title="Rétablir la description native">
               <ResetIcon />
             </button>
@@ -208,7 +210,7 @@ export function PerkInspectorPanel({
         {descriptionOverride && <span className="description-override-badge">{isHostedApp ? "Version du compte" : "Version locale"}</span>}
       </div>
 
-      {isEditingDescription ? (
+      {canEdit && isEditingDescription ? (
         <div className="inspector-editor-stack description-surface description-surface-editor">
           <EditModeToggle mode={editMode} onChange={changeEditMode} />
           <RichDescriptionEditor
