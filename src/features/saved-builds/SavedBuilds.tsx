@@ -91,7 +91,7 @@ export function SavedBuilds({
         <button
           className="manager-icon-button danger"
           type="button"
-          disabled={!activeBuildId}
+          disabled={!canEdit || !activeBuildId}
           onClick={() => {
             const build = builds.find((candidate) => candidate.id === activeBuildId);
             if (build) onDelete(build);

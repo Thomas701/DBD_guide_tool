@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createClient } from "@supabase/supabase-js";
-import { setCloudClient } from "../src/services/cloud-client.js";
-import { readCloudStatisticsSnapshot, readCloudStatisticsStatus, requestCloudStatisticsSync } from "../src/services/cloud-statistics.js";
+import { setCloudClient, setViewedUserId } from "../src/services/cloud-client.js";
+import { editCloudMatch, readCloudStatisticsSnapshot, readCloudStatisticsStatus, requestCloudStatisticsSync } from "../src/services/cloud-statistics.js";
 
 test("l’historique paginé récupère ensuite seulement les changements et les suppressions", async () => {
   const userId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
@@ -11,6 +11,7 @@ test("l’historique paginé récupère ensuite seulement les changements et les
   const rows = Array.from({ length: 501 }, (_, index) => ({ match_id: String(index).padStart(40, "0"), entry: { id: String(index).padStart(40, "0") }, deleted: false, updated_at: firstVersion }));
   const requests: { since: string | undefined; count: number }[] = [];
   let remoteSyncs = 0;
+  let viewedId = userId;
   const user = { id: userId, aud: "authenticated", email: "alice@example.test", created_at: "2026-11-21T00:00:00Z", app_metadata: {}, user_metadata: {} };
   const client = createClient("https://dbd-test.supabase.co", "sb_publishable_test_key", {
     auth: { persistSession: false, autoRefreshToken: false },
@@ -23,10 +24,17 @@ test("l’historique paginé récupère ensuite seulement les changements et les
         assert.match(new Headers(init?.headers).get("Authorization") ?? "", /^Bearer /);
         remoteSyncs++; result = { ok: true };
       }
-      else if (url.pathname === "/rest/v1/player_statistics") result = [{ updated_at: version, overview: null, fetched_count: 0, imported_count: 0 }];
+      else if (url.pathname === "/rest/v1/player_statistics") {
+        assert.equal(url.searchParams.get("user_id"), `eq.${viewedId}`);
+        result = [{ updated_at: version, overview: null, fetched_count: 0, imported_count: 0 }];
+      }
+      else if (url.pathname === "/rest/v1/rpc/admin_statistics_status") {
+        assert.equal(JSON.parse(init?.body as string).target_user, viewedId);
+        result = { state: "success", message: "Compte consulté", lastSeenAt: version };
+      }
       else if (url.pathname === "/rest/v1/rpc/statistics_collector_status") result = { state: "success", message: "Synchronisé", lastSeenAt: version };
       else if (url.pathname === "/rest/v1/player_matches") {
-        assert.equal(url.searchParams.get("user_id"), `eq.${userId}`);
+        assert.equal(url.searchParams.get("user_id"), `eq.${viewedId}`);
         const since = url.searchParams.getAll("updated_at").find(value => value.startsWith("gt."))?.slice(3);
         const until = url.searchParams.getAll("updated_at").find(value => value.startsWith("lte."))!.slice(4);
         const afterId = url.searchParams.getAll("match_id").find(value => value.startsWith("gt."))?.slice(3);
@@ -62,5 +70,14 @@ test("l’historique paginé récupère ensuite seulement les changements et les
     assert.equal((await readCloudStatisticsStatus()).lastSuccessAt, new Date(version).toISOString());
     await requestCloudStatisticsSync();
     assert.equal(remoteSyncs, 1, "Manual synchronization must work without a browser extension.");
-  } finally { setCloudClient(null); }
+    viewedId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
+    setViewedUserId(viewedId);
+    assert.equal((await readCloudStatisticsSnapshot() as { matchHistory: unknown[] }).matchHistory.length, 501);
+    assert.equal((await readCloudStatisticsStatus()).message, "Compte consulté");
+    await assert.rejects(requestCloudStatisticsSync(), /lecture seule/);
+    await assert.rejects(editCloudMatch(newId, null), /lecture seule/);
+    assert.equal(remoteSyncs, 1);
+    setViewedUserId(null); viewedId = userId;
+    await readCloudStatisticsStatus();
+  } finally { setViewedUserId(null); setCloudClient(null); }
 });

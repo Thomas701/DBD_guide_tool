@@ -44,7 +44,7 @@ test("les réponses structurées refusent les commandes et les données mal form
   assert.deepEqual(schema.properties.actions.items.anyOf.map((entry: { properties: { type: { enum: string[] } } }) => entry.properties.type.enum[0]), actions.map(({ type }) => type));
 });
 
-test("un lot invalide ne modifie aucune donnée, même si ses premières actions sont valides", () => {
+test("un lot invalide ne modifie aucune donnée, même si ses premières actions sont valides", async () => {
   let applied = 0;
   const targets = { updateDescription: () => { applied++; }, updateKillerTier: () => { applied++; }, updatePerkTier: () => { applied++; }, saveBuild: () => { applied++; }, setCurrentBuild: () => { applied++; } };
   const first: AssistantAction = { type: "update_perk_description", perkId: perk.id, descriptionHtml: "<p>Texte</p>" };
@@ -54,19 +54,19 @@ test("un lot invalide ne modifie aucune donnée, même si ses premières actions
     { type: "save_build", buildId: "unknown", name: "Absent", side: "killer", killerId: killer.id, perkIds: [] },
     { type: "set_current_build", name: "Doublons", side: "killer", killerId: killer.id, perkIds: [perk.id, perk.id] },
     { type: "set_current_build", name: "Trop de perks", side: "killer", killerId: killer.id, perkIds: ["a", "b", "c", "d", "e"] }
-  ] as AssistantAction[]) assert.throws(() => applyAssistantActions([first, invalid], catalog, targets));
+  ] as AssistantAction[]) await assert.rejects(applyAssistantActions([first, invalid], catalog, targets));
   assert.equal(applied, 0);
 });
 
-test("les actions créent plusieurs builds et rapportent les échecs sans annoncer un succès", () => {
+test("les actions créent plusieurs builds et rapportent les échecs sans annoncer un succès", async () => {
   const builds = new LocalBuildRepository(new MemoryStorage());
   const actions: AssistantAction[] = [
     { type: "save_build", buildId: null, name: "Killer", side: "killer", killerId: killer.id, perkIds: [perk.id] },
     { type: "save_build", buildId: null, name: "Survivant", side: "survivor", killerId: survivor.id, perkIds: [survivorPerk.id] },
     { type: "update_perk_description", perkId: perk.id, descriptionHtml: "<p>Description</p>" }
   ];
-  const targets = { updateDescription: () => { throw new Error("Stockage plein"); }, updateKillerTier: () => {}, updatePerkTier: () => {}, setCurrentBuild: () => {}, saveBuild: (action: Extract<AssistantAction, { type: "save_build" }>) => { builds.create(action); } };
-  const report = applyAssistantActions(actions, catalog, targets);
+  const targets = { updateDescription: async () => { await Promise.resolve(); throw new Error("Stockage plein"); }, updateKillerTier: () => {}, updatePerkTier: () => {}, setCurrentBuild: () => {}, saveBuild: (action: Extract<AssistantAction, { type: "save_build" }>) => { builds.create(action); } };
+  const report = await applyAssistantActions(actions, catalog, targets);
   assert.equal(builds.list().length, 2);
   assert.match(report[0]!, /Build créé et sauvegardé \(tueur\) : Killer/);
   assert.match(report[2]!, /Échec.*Stockage plein/);
@@ -120,6 +120,12 @@ test("les tiers restent cohérents après plusieurs modifications et un recharge
   assert.equal(ranked.filter((entry) => entry.perk?.id === perk.id).length, 1);
   assert.equal(ranked.find((entry) => entry.perk?.id === perk.id)?.tier, "S+");
   assert.equal(ranked.find((entry) => entry.perk?.id === survivorPerk.id)?.tier, "A-");
+  tiers.update("killers", killer.id, "unranked");
+  tiers.update("perks", perk.id, "unranked");
+  const unranked = new LocalTierOverrideRepository(storage).list();
+  assert.equal(unranked.killers[killer.id], "unranked");
+  assert.equal(rankPerks([perk, survivorPerk], unranked.perks).at(-1)?.tier, "unranked");
+  assert.equal(rankPerks([perk, survivorPerk], unranked.perks).at(-1)?.perk.id, perk.id);
   assert.throws(() => tiers.update("killers", "__proto__", "D"));
   storage.setItem(TIER_OVERRIDES_STORAGE_KEY, "invalid");
   assert.throws(() => tiers.update("killers", killer.id, "D"));

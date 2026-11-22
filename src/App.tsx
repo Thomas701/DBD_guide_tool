@@ -4,11 +4,15 @@ import fixedStatisticsText from "../statistiques_fixe.txt?raw";
 import { isHostedApp } from "./app/cloud.js";
 import { appStorage } from "./services/account-storage.js";
 
-import { appLogoUrl, killerPortraitUrl, killerTerrorRadiusUrl, killerThemeUrl, originalKillerThemeUrl, perkIconUrl } from "./app/assets.js";
+import { appLogoUrl, killerPortraitUrl, killerTerrorRadiusUrl, killerThemeUrl, originalKillerThemeUrl, survivorThemeUrl, perkIconUrl } from "./app/assets.js";
+import { AdministrationView } from "./features/account/AdministrationView.js";
+import { LeaderboardView } from "./features/statistics/LeaderboardView.js";
+import type { AdministrationUser } from "./services/community.js";
+import { mergeDescriptions, readSharedDescriptions, saveSharedDescription, type SharedDescriptions } from "./services/shared-perks.js";
 import { killers, perks, survivors } from "./app/catalog.js";
 import { MAX_BUILD_PERKS, type Build } from "./domain/build.js";
 import type { PerkCategory } from "./domain/category.js";
-import { KILLER_TIERS, type Killer, type KillerTier } from "./domain/killer.js";
+import { KILLER_TIERS, type Killer } from "./domain/killer.js";
 import type { Perk, PerkSide } from "./domain/perk.js";
 import { BuildAnalyzer } from "./features/build-analyzer/BuildAnalyzer.js";
 import { BuildAssistant } from "./features/build-assistant/BuildAssistant.js";
@@ -34,7 +38,7 @@ import {
 import { BUILDS_STORAGE_KEY, LocalBuildRepository } from "./services/build-repository.js";
 import { ASSISTANT_SERVER_STORAGE_KEY, normalizeServerUrl } from "./services/assistant-provider.js";
 import { applyAssistantActions, validateAssistantSnapshot, type AssistantAction, type AssistantActionSnapshot } from "./services/assistant-actions.js";
-import { LocalTierOverrideRepository, rankPerks, TIER_OVERRIDES_STORAGE_KEY, type TierOverrides } from "./services/tier-list.js";
+import { LocalTierOverrideRepository, rankPerks, TIER_OVERRIDES_STORAGE_KEY, type TierOverrides, type TierPlacement } from "./services/tier-list.js";
 import { APP_SESSION_STORAGE_KEY, DEFAULT_APP_SESSION, readAppSession, type AppSession, type AppView } from "./services/app-session.js";
 import {
   calculateBuild,
@@ -71,7 +75,9 @@ interface TerrorRadiusPlayback {
   volume: number;
 }
 
-export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
+export default function App({ isAdmin = !isHostedApp, readOnly = false, onInspect, sharedDescriptions: initialShared = {} }: {
+  isAdmin?: boolean; readOnly?: boolean; onInspect?: ((user: AdministrationUser) => void) | undefined; sharedDescriptions?: SharedDescriptions;
+}) {
   const [nextStatisticsSyncAt, setNextStatisticsSyncAt] = useState<number | null>(null);
   const [initialSession] = useState(loadPersistedAppSession);
   const [activeView, setActiveView] = useState<AppView>(initialSession.activeView === "administration" && !isAdmin ? "build" : initialSession.activeView);
@@ -98,7 +104,9 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
   const [perkFilterDetailsOpen, setPerkFilterDetailsOpen] = useState({ characters: false, categories: false });
   const [savedBuilds, setSavedBuilds] = useState<Build[]>([]);
   const [descriptionRepositoryState] = useState(createDescriptionOverrideRepository);
-  const [descriptionOverrides, setDescriptionOverrides] = useState<Record<string, string>>(descriptionRepositoryState.overrides);
+  const [localDescriptions, setDescriptionOverrides] = useState<Record<string, string>>(descriptionRepositoryState.overrides);
+  const [sharedDescriptions, setSharedDescriptions] = useState<SharedDescriptions>(initialShared);
+  const descriptionOverrides = useMemo(() => mergeDescriptions(localDescriptions, sharedDescriptions), [localDescriptions, sharedDescriptions]);
   const [categoryRepositoryState] = useState(createCategoryOverrideRepository);
   const [categoryOverrides, setCategoryOverrides] = useState<Record<string, PerkCategory[]>>(categoryRepositoryState.overrides);
   const [tierRepositoryState] = useState(createTierOverrideRepository);
@@ -131,7 +139,7 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
     cooldown: perkCooldown(perk, descriptionOverrides[perk.id]),
     categories: categoryOverrides[perk.id] ?? perk.categories
   })), [catalogPerks, categoryOverrides, descriptionOverrides]);
-  const effectiveKillers = useMemo(() => killers.map((killer) => ({ ...killer, tier: tierOverrides.killers[killer.id] ?? killer.tier })), [tierOverrides.killers]);
+  const effectiveKillers = useMemo(() => killers.map(killer => { const tier = tierOverrides.killers[killer.id]; return { ...killer, tier: !tier || tier === "unranked" ? killer.tier : tier }; }), [tierOverrides.killers]);
   const perkTierList = useMemo(() => rankPerks(effectivePerks, tierOverrides.perks), [effectivePerks, tierOverrides.perks]);
   const activeCharacters = side === "survivor" ? survivors : effectiveKillers;
   const selectedKiller = selectedKillerId ? activeCharacters.find((character) => character.id === selectedKillerId) ?? null : null;
@@ -161,10 +169,15 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
     killerThemeAudioRef.current = new Audio();
     originalThemeAudioRef.current = new Audio();
     terrorRadiusAudioRef.current = new Audio();
-    return () => [killerThemeAudioRef, originalThemeAudioRef, terrorRadiusAudioRef].forEach(({ current }) => current?.pause());
+    return () => {
+      themePlaybackRequestRef.current += 1;
+      terrorRadiusPlaybackRequestRef.current += 1;
+      [killerThemeAudioRef, originalThemeAudioRef, terrorRadiusAudioRef].forEach(({ current }) => current?.pause());
+    };
   }, []);
 
   useEffect(() => {
+    if (!soundEnabled) themePlaybackRequestRef.current += 1;
     [killerThemeAudioRef.current, originalThemeAudioRef.current].forEach((audio) => {
       if (!audio) return;
       audio.volume = musicVolume;
@@ -178,6 +191,11 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
   }, [soundEnabled, musicVolume, terrorRadiusPlayback.volume]);
 
   useEffect(() => {
+    if (side === "survivor" && selectedKillerId && activeView !== "constants") void playDefaultTheme("survivor");
+  }, [side, selectedKillerId, soundEnabled, blindTestRunning, activeView]);
+
+  useEffect(() => {
+    if (readOnly) return;
     const session: AppSession = {
       activeView,
       side,
@@ -196,7 +214,17 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
       catalogScrollPositions: { ...catalogScrollPositionsRef.current }
     };
     try { appStorage.setItem(APP_SESSION_STORAGE_KEY, JSON.stringify(session)); } catch { /* Reprise indisponible si le navigateur bloque le stockage. */ }
-  }, [activeView, side, soundEnabled, musicVolume, selectedKillerId, selectedPerkId, equippedPerkIds, activeBuildId, buildName, conversationKey, scenario, buildSessions, paneLayout, sidebarLayout]);
+  }, [activeView, side, soundEnabled, musicVolume, selectedKillerId, selectedPerkId, equippedPerkIds, activeBuildId, buildName, conversationKey, scenario, buildSessions, paneLayout, sidebarLayout, readOnly]);
+
+  useEffect(() => {
+    if (!isHostedApp) return;
+    let active = true;
+    const refresh = () => { void readSharedDescriptions().then(data => { if (active) setSharedDescriptions(data); }).catch(() => undefined); };
+    refresh();
+    const timer = window.setInterval(refresh, 30_000);
+    window.addEventListener("focus", refresh);
+    return () => { active = false; clearInterval(timer); window.removeEventListener("focus", refresh); };
+  }, []);
 
   useEffect(() => {
     const previousView = previousViewRef.current;
@@ -331,12 +359,14 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
       setActiveView("killers");
       setTopbarMenu(null);
       stopTerrorRadius();
+      themePlaybackRequestRef.current += 1;
       killerThemeAudioRef.current?.pause();
       originalThemeAudioRef.current?.pause();
     });
   }
 
   function selectKiller(killer: Killer): void {
+    if (readOnly) return;
     runUiTransition(() => {
       if (killer.id !== selectedKillerId) {
         setSelectedKillerId(killer.id);
@@ -347,10 +377,12 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
       setTopbarMenu(null);
       stopTerrorRadius();
       if (side === "killer") void playKillerTheme(killer);
+      else void playDefaultTheme("survivor");
     });
   }
 
   function removeKiller(): void {
+    if (readOnly) return;
     runUiTransition(() => {
       setSelectedKillerId(null);
       setActiveView("killers");
@@ -361,7 +393,7 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
         if (killerThemeAudioRef.current) killerThemeAudioRef.current.currentTime = 0;
         originalThemeAudioRef.current?.pause();
         if (originalThemeAudioRef.current) originalThemeAudioRef.current.currentTime = 0;
-        void playOriginalKillerTheme();
+        void playDefaultTheme();
       }
     });
   }
@@ -379,6 +411,7 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
   }
 
   function saveBuild(): void {
+    if (readOnly) return;
     if (!selectedKiller) return;
     try {
       const draft = { name: buildName, killerId: selectedKiller.id, side, perkIds: equippedPerkIds };
@@ -396,6 +429,7 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
   }
 
   function saveBuildAs(): void {
+    if (readOnly) return;
     if (!selectedKiller) return;
     try {
       const saved = buildRepository.create({ name: `${buildName} (copie)`, killerId: selectedKiller.id, side, perkIds: equippedPerkIds });
@@ -410,6 +444,7 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
   }
 
   function startNewBuild(): void {
+    if (readOnly) return;
     if (!selectedKiller) return;
     setActiveBuildId(null);
     setBuildName(defaultBuildName(selectedKiller));
@@ -448,6 +483,7 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
   }
 
   function duplicateBuild(build: Build): void {
+    if (readOnly) return;
     try {
       const duplicate = buildRepository.duplicate(build.id, `${build.name} (copie)`);
       setSavedBuilds(buildRepository.list());
@@ -472,6 +508,7 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
   }
 
   function deleteBuild(build: Build): void {
+    if (readOnly) return;
     try {
       const deleted = buildRepository.delete(build.id);
       if (!deleted) {
@@ -489,6 +526,7 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
   }
 
   function resetStorage(): void {
+    if (readOnly) return;
     if (!window.confirm("Effacer le stockage illisible des builds ? Cette action est irréversible.")) return;
     try {
       buildRepository.clear();
@@ -502,6 +540,7 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
   }
 
   function setScenarioCondition(condition: string, active: boolean): void {
+    if (readOnly) return;
     setScenario((current) => {
       const conditions = { ...current.conditions, [condition]: active };
       const opposite = OPPOSITE_CONDITIONS.get(condition);
@@ -515,37 +554,42 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
   }
 
   function setPerkRuntimeState(perkId: string, state: PerkRuntimeState): void {
+    if (readOnly) return;
     setScenario((current) => ({ ...current, perkStates: { ...current.perkStates, [perkId]: state } }));
   }
 
   function togglePerk(perkId: string): void {
+    if (readOnly) return;
     setEquippedPerkIds((current) => {
       if (current.includes(perkId)) return current.filter((id) => id !== perkId);
       return current.length < MAX_BUILD_PERKS ? [...current, perkId] : current;
     });
   }
 
-  function saveDescriptionOverride(perkId: string, html: string): void {
-    if (!isAdmin) throw new Error("Cette modification est réservée aux administrateurs.");
-    setDescriptionOverrides(descriptionOverrideRepository.update(perkId, html));
+  async function saveDescriptionOverride(perkId: string, html: string): Promise<void> {
+    if (!isAdmin || readOnly) throw new Error("Cette modification est réservée aux administrateurs.");
+    const sanitized = sanitizeDescriptionHtml(html);
+    if (!hasMeaningfulDescriptionContent(sanitized)) throw new Error("Description vide après nettoyage.");
+    if (isHostedApp) {
+      await saveSharedDescription(perkId, sanitized);
+      setSharedDescriptions(current => ({ ...current, [perkId]: sanitized }));
+    } else setDescriptionOverrides(descriptionOverrideRepository.update(perkId, sanitized));
   }
 
-  function moveTier(kind: keyof TierOverrides, id: string, tier: KillerTier): void {
+  function moveTier(kind: keyof TierOverrides, id: string, tier: TierPlacement): void {
+    if (readOnly) return;
     const known = kind === "killers" ? effectiveKillers.some((killer) => killer.id === id) : effectivePerks.some((perk) => perk.id === id);
-    if (!known || !(KILLER_TIERS as readonly string[]).includes(tier)) throw new Error("Entrée ou tier inconnu.");
+    if (!known || (tier !== "unranked" && !(KILLER_TIERS as readonly string[]).includes(tier))) throw new Error("Entrée ou tier inconnu.");
     setTierOverrides(tierRepositoryState.repository.update(kind, id, tier));
   }
 
-  function applyChatActions(actions: readonly AssistantAction[], snapshot: AssistantActionSnapshot): string[] {
+  async function applyChatActions(actions: readonly AssistantAction[], snapshot: AssistantActionSnapshot): Promise<string[]> {
+    if (readOnly) return [];
     if (actions.length === 0) return [];
     const currentBuilds = buildRepository.list();
     validateAssistantSnapshot(actions, snapshot, { currentBuild: currentBuildExport, savedBuilds: currentBuilds, perks: effectivePerks, perkDescriptionOverrides: descriptionOverrides });
     return applyAssistantActions(actions, { killers: effectiveKillers, survivors, perks: effectivePerks, builds: currentBuilds }, {
-      updateDescription: (perkId, html) => {
-        const sanitized = sanitizeDescriptionHtml(html);
-        if (!hasMeaningfulDescriptionContent(sanitized)) throw new Error("Description vide après nettoyage.");
-        saveDescriptionOverride(perkId, sanitized);
-      },
+      updateDescription: saveDescriptionOverride,
       updateKillerTier: (id, tier) => moveTier("killers", id, tier),
       updatePerkTier: (id, tier) => moveTier("perks", id, tier),
       saveBuild: (action) => {
@@ -568,9 +612,12 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
     });
   }
 
-  function resetDescriptionOverride(perkId: string): void {
+  async function resetDescriptionOverride(perkId: string): Promise<void> {
     if (!isAdmin) return;
-    setDescriptionOverrides(descriptionOverrideRepository.delete(perkId));
+    if (isHostedApp) {
+      await saveSharedDescription(perkId, null);
+      setSharedDescriptions(current => ({ ...current, [perkId]: null }));
+    } else setDescriptionOverrides(descriptionOverrideRepository.delete(perkId));
   }
 
   function saveCategoryOverride(perkId: string, categories: readonly PerkCategory[]): void {
@@ -587,9 +634,9 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
     if (!isAdmin) throw new Error("Cette modification est réservée aux administrateurs.");
     try {
       if (isHostedApp) {
-        if (changes.descriptionHtml !== undefined) setDescriptionOverrides(descriptionOverrideRepository.update(perkId, changes.descriptionHtml));
+        if (changes.descriptionHtml !== undefined) await saveDescriptionOverride(perkId, changes.descriptionHtml);
         if (changes.categories !== undefined) setCategoryOverrides(categoryOverrideRepository.update(perkId, changes.categories));
-        setRepositoryMessage("Personnalisations enregistrées dans votre compte.");
+        setRepositoryMessage("Modifications enregistrées.");
         return;
       }
       const updated = await updateNativePerk(currentAssistantServerUrl(), perkId, changes);
@@ -648,7 +695,7 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
     const url = await killerThemeUrl(killer.id);
     if (request !== themePlaybackRequestRef.current) return;
     if (!url) {
-      void playOriginalKillerTheme(request);
+      void playDefaultTheme("killer", request);
       return;
     }
     theme.pause();
@@ -658,15 +705,15 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
     void theme.play().catch(() => undefined);
   }
 
-  async function playOriginalKillerTheme(request = ++themePlaybackRequestRef.current): Promise<void> {
+  async function playDefaultTheme(themeSide: PerkSide = side, request = ++themePlaybackRequestRef.current): Promise<void> {
     if (!soundEnabled || blindTestRunning) return;
-    const url = await originalKillerThemeUrl();
+    const url = await (themeSide === "survivor" ? survivorThemeUrl() : originalKillerThemeUrl());
     if (request !== themePlaybackRequestRef.current) return;
     if (!url) return;
     const original = originalThemeAudioRef.current;
     if (!original) return;
     killerThemeAudioRef.current?.pause();
-    original.src = url;
+    if (original.getAttribute("src") !== url) original.src = url;
     original.loop = true;
     void original.play().catch(() => undefined);
   }
@@ -743,12 +790,13 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
 
   function resumeThemeMusic(): void {
     if (!soundEnabled) return;
+    if (side === "survivor") { void playDefaultTheme("survivor"); return; }
     const activeTheme = killerThemeAudioRef.current;
-    if (activeTheme?.src && activeTheme.currentTime < activeTheme.duration) {
+    if (activeTheme?.src && activeTheme.loop) {
       void activeTheme.play().catch(() => undefined);
       return;
     }
-    void playOriginalKillerTheme();
+    void playDefaultTheme();
   }
 
   function updatePerkFilters(filters: PerkFilters): void {
@@ -806,7 +854,7 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
 
   return (
     <div className="app-shell">
-      <StatisticsAutoSync serverUrl={currentAssistantServerUrl()} onSchedule={setNextStatisticsSyncAt} />
+      {!readOnly && <StatisticsAutoSync serverUrl={currentAssistantServerUrl()} onSchedule={setNextStatisticsSyncAt} />}
       <Topbar
         isAdmin={isAdmin}
         activeView={activeView}
@@ -822,19 +870,19 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
         onToggleSide={toggleSide}
         onMenuChange={setTopbarMenu}
         onHelp={() => setHowToPlayOpen(true)}
-        onResetScenario={() => setScenario(emptyScenario())}
+        onResetScenario={() => { if (!readOnly) setScenario(emptyScenario()); }}
       />
       {topbarMenu === "settings" && <SettingsModal soundEnabled={soundEnabled} volume={musicVolume} onSoundEnabledChange={setSoundEnabled} onVolumeChange={setMusicVolume} onClose={() => setTopbarMenu(null)} />}
       {howToPlayOpen && <HowToPlayModal onClose={() => setHowToPlayOpen(false)} />}
       {killerInfo && <KillerInfoModal killer={killerInfo} killers={killers} onClose={() => setKillerInfo(null)} />}
 
       <BlindTestView active={activeView === "blindtest"} killers={killers} soundEnabled={soundEnabled} onSessionStart={startBlindTestSession} onSessionStop={stopBlindTestSession} />
-      {activeView === "blindtest" ? null : activeView === "administration" && isAdmin ? <main aria-label="Administration" /> : activeView === "constants" ? <ConstantsView scrollTop={catalogScrollPositionsRef.current.constants} onScroll={(scrollTop) => rememberCatalogScroll("constants", scrollTop)} /> : activeView === "tiers" ? <TierListView killers={effectiveKillers} survivors={survivors} perkTierList={perkTierList} descriptionOverrides={descriptionOverrides} onMove={moveTier} /> : activeView === "statistics" ? <StatisticsView serverUrl={currentAssistantServerUrl()} nextSyncAt={nextStatisticsSyncAt} canEdit={isAdmin} /> : <main className={`analyzer-workspace view-${activeView}`} ref={workspaceRef} style={workspaceStyle}>
+      {activeView === "blindtest" ? null : activeView === "administration" && isAdmin ? <AdministrationView onInspect={onInspect} /> : activeView === "constants" ? <ConstantsView scrollTop={catalogScrollPositionsRef.current.constants} onScroll={(scrollTop) => rememberCatalogScroll("constants", scrollTop)} /> : activeView === "tiers" ? <TierListView killers={effectiveKillers} survivors={survivors} perkTierList={perkTierList} descriptionOverrides={descriptionOverrides} placements={tierOverrides} readOnly={readOnly} onMove={moveTier} /> : activeView === "leaderboard" ? <LeaderboardView /> : activeView === "statistics" ? <StatisticsView serverUrl={currentAssistantServerUrl()} nextSyncAt={nextStatisticsSyncAt} canEdit={isAdmin} readOnly={readOnly} /> : <main className={`analyzer-workspace view-${activeView}`} ref={workspaceRef} style={workspaceStyle}>
         <aside className={`analyzer-sidebar left-sidebar${activeView === "perks" ? " perks-sidebar" : ""}`}>
           <section className={`analyzer-panel selected-loadout-panel${activeView === "perks" ? " perks-loadout-panel" : ""}`} aria-label="Personnage et perks sélectionnés">
-            <SelectedKillerCard killer={selectedKiller} side={side} onChange={() => showView("killers")} onRemove={removeKiller} terrorPlayback={terrorRadiusPlayback} onTerrorRadiusToggle={() => selectedKiller && void toggleTerrorRadius(selectedKiller)} onTerrorRadiusSeek={seekTerrorRadius} onTerrorRadiusVolumeChange={setTerrorRadiusVolume} onShowInfo={setKillerInfo} />
+            <SelectedKillerCard killer={selectedKiller} side={side} readOnly={readOnly} onChange={() => showView("killers")} onRemove={removeKiller} terrorPlayback={terrorRadiusPlayback} onTerrorRadiusToggle={() => selectedKiller && void toggleTerrorRadius(selectedKiller)} onTerrorRadiusSeek={seekTerrorRadius} onTerrorRadiusVolumeChange={setTerrorRadiusVolume} onShowInfo={setKillerInfo} />
             <div className="build-editor-scroll-region">
-              <BuildEditor perks={equippedPerks} selectedPerkId={selectedPerkId} compact={activeView === "perks"} onRemove={togglePerk} onBrowse={browsePerk} scenario={scenario} onConditionChange={setScenarioCondition} onPerkStateChange={setPerkRuntimeState} />
+              <BuildEditor perks={equippedPerks} selectedPerkId={selectedPerkId} readOnly={readOnly} compact={activeView === "perks"} onRemove={togglePerk} onBrowse={browsePerk} scenario={scenario} onConditionChange={setScenarioCondition} onPerkStateChange={setPerkRuntimeState} />
             </div>
           </section>
           <PerkFiltersPanel characters={activeCharacters} side={side} filters={perkFilters} detailsOpen={perkFilterDetailsOpen} onChange={updatePerkFilters} onDetailsOpenChange={updatePerkFilterDetailsOpen} />
@@ -849,7 +897,7 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
                 ? <BuildAnalyzer calculation={calculation} perks={equippedPerks} character={selectedKiller} side={side} serverUrl={currentAssistantServerUrl()} />
                 : <EmptyCenterPanel title="Impact Analysis" action={`Choisir un ${side === "survivor" ? "survivant" : "tueur"}`} onAction={() => showView("killers")}>Sélectionnez un {side === "survivor" ? "survivant" : "tueur"} pour commencer l’analyse.</EmptyCenterPanel>}
               <ResizeHandle orientation="horizontal" label="Redimensionner l’analyse et l’assistant" onDelta={resizeCenter} onReset={() => setPaneLayout(DEFAULT_PANE_LAYOUT)} />
-              <BuildAssistant currentBuild={currentBuildExport} allKillers={effectiveKillers} allSurvivors={survivors} allPerks={effectivePerks} savedBuilds={savedBuilds} perkTierList={perkTierList} howToPlay={howToPlayText} constants={fixedStatisticsText} perkDescriptionOverrides={descriptionOverrides} onApplyActions={applyChatActions} />
+              {readOnly ? <section className="analyzer-panel build-assistant"><p>Assistant indisponible en lecture seule.</p></section> : <BuildAssistant currentBuild={currentBuildExport} allKillers={effectiveKillers} allSurvivors={survivors} allPerks={effectivePerks} savedBuilds={savedBuilds} perkTierList={perkTierList} howToPlay={howToPlayText} constants={fixedStatisticsText} perkDescriptionOverrides={descriptionOverrides} onApplyActions={applyChatActions} />}
             </>
           )}
 
@@ -876,7 +924,7 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
                 side={side}
                 filters={perkFilters}
                 equippedPerkIds={equippedPerkIds}
-                canEquip={selectedKiller !== null}
+                canEquip={!readOnly && selectedKiller !== null}
                 selectedPerkId={selectedPerkId}
                 scrollToPerkId={selectedPerkId}
                 onFiltersChange={updatePerkFilters}
@@ -892,13 +940,13 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
         <aside className="analyzer-sidebar right-sidebar">
           {selectedPerk ? (
             <PerkInspectorPanel
-              canEdit={isAdmin}
+              canEdit={isAdmin && !readOnly}
               perk={selectedPerk}
               owner={selectedPerkOwner}
               descriptionOverride={descriptionOverrides[selectedPerk.id] ?? null}
               categoryOverride={Object.hasOwn(categoryOverrides, selectedPerk.id) ? categoryOverrides[selectedPerk.id] ?? [] : null}
               nativeCategories={selectedNativePerk?.categories ?? selectedPerk.categories}
-              canEquip={selectedKiller !== null}
+              canEquip={!readOnly && selectedKiller !== null}
               isEquipped={equippedPerkIds.includes(selectedPerk.id)}
               buildIsFull={equippedPerkIds.length >= MAX_BUILD_PERKS}
               side={side}
@@ -920,8 +968,8 @@ export default function App({ isAdmin = !isHostedApp }: { isAdmin?: boolean }) {
                 buildName={buildName}
                 buildNamePlaceholder={defaultName}
                 hasUnsavedChanges={hasUnsavedBuildChanges}
-                canResetStorage={canResetStorage}
-                canEdit={selectedKiller !== null}
+                canResetStorage={!readOnly && canResetStorage}
+                canEdit={!readOnly && selectedKiller !== null}
                 onNameChange={setBuildName}
                 onSave={saveBuild}
                 onSaveAs={saveBuildAs}
@@ -1138,10 +1186,10 @@ function Topbar({
         </button>
       </div>
       <nav className="main-navigation" aria-label="Navigation principale">
-        {(["build", "killers", "perks", "tiers", "blindtest", "constants", "statistics", ...(isAdmin ? ["administration"] : [])] as AppView[]).map((view) => (
+        {(["build", "killers", "perks", "tiers", "blindtest", "constants", "statistics", "leaderboard", ...(isAdmin ? ["administration"] : [])] as AppView[]).map((view) => (
           <button className={activeView === view ? "active" : ""} type="button" onClick={() => onViewChange(view)} aria-current={activeView === view ? "page" : undefined} key={view}>
             <span aria-hidden="true">{view === "build" ? "⌘" : view === "killers" ? side === "survivor" ? "◉" : "☠" : view === "perks" ? "◇" : view === "tiers" ? "♜" : view === "blindtest" ? "♪" : "≡"}</span>
-            {view === "killers" ? side === "survivor" ? "Survivants" : "Killers" : view === "constants" ? "Constantes" : view === "tiers" ? "Tiers List" : view === "blindtest" ? "BlindTest" : view === "statistics" ? "Statistique" : `${view[0]?.toUpperCase()}${view.slice(1)}`}
+            {view === "killers" ? side === "survivor" ? "Survivants" : "Killers" : view === "constants" ? "Constantes" : view === "tiers" ? "Tiers List" : view === "blindtest" ? "BlindTest" : view === "statistics" ? "Statistique" : view === "leaderboard" ? "Classement" : `${view[0]?.toUpperCase()}${view.slice(1)}`}
           </button>
         ))}
       </nav>

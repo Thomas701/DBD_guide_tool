@@ -25,8 +25,8 @@ interface PerkInspectorPanelProps {
   buildIsFull: boolean;
   side: PerkSide;
   onClose: () => void;
-  onResetDescriptionOverride: (perkId: string) => void;
-  onSaveDescriptionOverride: (perkId: string, html: string) => void;
+  onResetDescriptionOverride: (perkId: string) => void | Promise<void>;
+  onSaveDescriptionOverride: (perkId: string, html: string) => void | Promise<void>;
   onSaveNativeDescription: (perkId: string, html: string) => Promise<void>;
   onResetCategoryOverride: (perkId: string) => void;
   onSaveCategoryOverride: (perkId: string, categories: readonly PerkCategory[]) => void;
@@ -60,6 +60,7 @@ export function PerkInspectorPanel({
   const [draftCategories, setDraftCategories] = useState<PerkCategory[]>([]);
   const [categorySaveError, setCategorySaveError] = useState<string | null>(null);
   const [isSavingCategories, setIsSavingCategories] = useState(false);
+  const [descriptionResetError, setDescriptionResetError] = useState<string | null>(null);
   const icon = perkIconUrl(perk);
   const portrait = owner ? killerPortraitUrl(owner) : null;
   const selectedDescription = perk.description.fr ?? perk.description.en ?? null;
@@ -70,6 +71,7 @@ export function PerkInspectorPanel({
     setIsEditingDescription(false);
     setIsEditingCategories(false);
     setEditMode("local");
+    setDescriptionResetError(null);
   }, [perk.id]);
 
   function changeEditMode(mode: EditMode): void {
@@ -202,14 +204,19 @@ export function PerkInspectorPanel({
             <PencilIcon />
           </button>}
           {canEdit && descriptionOverride && (
-            <button className="manager-icon-button reset-override-button" type="button" onClick={() => onResetDescriptionOverride(perk.id)} aria-label="Rétablir la description native" title="Rétablir la description native">
+            <button className="manager-icon-button reset-override-button" type="button" onClick={async () => {
+              setDescriptionResetError(null);
+              try { await onResetDescriptionOverride(perk.id); }
+              catch (error) { setDescriptionResetError(error instanceof Error ? error.message : "Rétablissement impossible."); }
+            }} aria-label="Rétablir la description native" title="Rétablir la description native">
               <ResetIcon />
             </button>
           )}
         </div>
-        {descriptionOverride && <span className="description-override-badge">{isHostedApp ? "Version du compte" : "Version locale"}</span>}
+        {descriptionOverride && <span className="description-override-badge">{isHostedApp ? "Version commune" : "Version locale"}</span>}
       </div>
 
+      {descriptionResetError && <p className="description-editor-error" role="alert">{descriptionResetError}</p>}
       {canEdit && isEditingDescription ? (
         <div className="inspector-editor-stack description-surface description-surface-editor">
           <EditModeToggle mode={editMode} onChange={changeEditMode} />
@@ -219,7 +226,7 @@ export function PerkInspectorPanel({
             onCancel={() => runPanelTransition(() => setIsEditingDescription(false))}
             onSave={async (html) => {
               if (editMode === "native") await onSaveNativeDescription(perk.id, html);
-              else onSaveDescriptionOverride(perk.id, html);
+              else await onSaveDescriptionOverride(perk.id, html);
               runPanelTransition(() => setIsEditingDescription(false));
             }}
           />
@@ -244,7 +251,7 @@ function CloseIcon() {
 }
 
 function EditModeToggle({ mode, onChange }: { mode: EditMode; onChange: (mode: EditMode) => void }) {
-  if (isHostedApp) return <p>Personnalisation de votre compte</p>;
+  if (isHostedApp) return <p>Les descriptions sont communes à tous les joueurs. Les catégories restent enregistrées dans votre compte.</p>;
   return (
     <div className="edit-mode-toggle" role="group" aria-label="Emplacement de l’enregistrement">
       <button type="button" className={mode === "native" ? "active" : ""} aria-pressed={mode === "native"} onClick={() => onChange("native")}>Natif</button>

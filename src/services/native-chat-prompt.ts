@@ -1,5 +1,6 @@
 import type { Build } from "../domain/build.js";
-import { KILLER_TIERS, type Killer, type KillerTier } from "../domain/killer.js";
+import { KILLER_TIERS, type Killer } from "../domain/killer.js";
+import type { TierPlacement } from "./tier-list.js";
 import type { Perk } from "../domain/perk.js";
 import type { CurrentBuildExport } from "./local-data.js";
 import { perkDescriptionToText, type AssistantHistoryItem } from "./openai-build-assistant.js";
@@ -12,7 +13,7 @@ export interface NativeChatKnowledge {
   survivors: readonly Killer[];
   perks: readonly Perk[];
   savedBuilds: readonly Build[];
-  perkTierList?: readonly { perkId: string; name: string; tier: KillerTier }[];
+  perkTierList?: readonly { perkId: string; name: string; tier: TierPlacement }[];
   perkDescriptionOverrides: Readonly<Record<string, string>>;
   killerPowerDescription: (killer: Killer) => string;
 }

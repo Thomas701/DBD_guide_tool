@@ -28,7 +28,7 @@ interface BuildAssistantProps {
   howToPlay: string;
   constants: string;
   perkDescriptionOverrides: Readonly<Record<string, string>>;
-  onApplyActions: (actions: readonly AssistantAction[], snapshot: AssistantActionSnapshot) => string[];
+  onApplyActions: (actions: readonly AssistantAction[], snapshot: AssistantActionSnapshot) => string[] | Promise<string[]>;
 }
 
 const DEFAULT_SERVER = import.meta.env.VITE_ASSISTANT_SERVER_URL ?? import.meta.env.VITE_OPENAI_ASSISTANT_ENDPOINT ?? "http://127.0.0.1:8787";
@@ -175,7 +175,7 @@ export function BuildAssistant({ currentBuild, allKillers, allSurvivors, allPerk
         }, controller.signal);
         if (controller.signal.aborted) throw new DOMException("Requête annulée.", "AbortError");
         let report: string[] = [];
-        try { report = applyActionsRef.current(response.actions, { currentBuild, savedBuilds, perks: allPerks, perkDescriptionOverrides }); }
+        try { report = await applyActionsRef.current(response.actions, { currentBuild, savedBuilds, perks: allPerks, perkDescriptionOverrides }); }
         catch (failure) { report = [`Aucune action appliquée : ${errorMessage(failure)}`]; }
         appendReply(targetId!, [response.answer, ...report.map((line) => `• ${line}`)].join("\n\n"));
       }

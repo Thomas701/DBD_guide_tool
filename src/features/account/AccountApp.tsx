@@ -2,7 +2,10 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { Session, SupabaseClient, User } from "@supabase/supabase-js";
 import App from "../../App.js";
 import { authRedirectUrl, emailAuthEnabled, isHostedApp, supabase } from "../../app/cloud.js";
-import { createAccountStorage, setAccountStorage } from "../../services/account-storage.js";
+import { createAccountStorage, setAccountStorage, readWorkspaceData } from "../../services/account-storage.js";
+import { setViewedUserId } from "../../services/cloud-client.js";
+import { type AdministrationUser, communityRpc } from "../../services/community.js";
+import { readSharedDescriptions, type SharedDescriptions } from "../../services/shared-perks.js";
 import { CloudWorkspace, workspaceRemote } from "../../services/cloud-workspace.js";
 import "./account.css";
 
@@ -101,6 +104,9 @@ function LoginForm({ client, recovery, onRecovered, initialError }: { client: Su
 function AccountWorkspace({ client, user }: { client: SupabaseClient; user: User }) {
   const [ready, setReady] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [nickname, setNickname] = useState("");
+  const [sharedDescriptions, setSharedDescriptions] = useState<SharedDescriptions>({});
+  const [preview, setPreview] = useState<AdministrationUser | null>(null);
   const [version, setVersion] = useState(0);
   const [status, setStatus] = useState("Chargement de votre compte…");
   const [error, setError] = useState<string | null>(null);
@@ -130,10 +136,14 @@ function AccountWorkspace({ client, user }: { client: SupabaseClient; user: User
   async function load(discardLocal = false): Promise<void> {
     setBusy(true); setError(null);
     try {
-      const [, role] = await Promise.all([workspace.load(discardLocal), client.rpc("is_admin")]);
-      if (role.error) throw role.error;
+      const [, role, profile, shared] = await Promise.all([workspace.load(discardLocal), client.rpc("is_admin"),
+        client.from("player_profiles").select("nickname").eq("user_id", user.id).maybeSingle(), readSharedDescriptions()]);
+      if (role.error || profile.error) throw role.error ?? profile.error;
       if (!active.current) return;
       setIsAdmin(role.data === true);
+      setNickname(profile.data?.nickname ?? `Joueur ${user.id.slice(0, 8)}`);
+      setSharedDescriptions(shared);
+      setPreview(null); setViewedUserId(null);
       setAccountStorage(workspace.local.storage);
       setReady(true); setVersion(current => current + 1);
       setStatus(workspace.local.pending() ? "Changements en attente…" : "Données synchronisées");
@@ -164,6 +174,7 @@ function AccountWorkspace({ client, user }: { client: SupabaseClient; user: User
       window.removeEventListener("online", retry);
       window.removeEventListener("beforeunload", beforeUnload);
       window.removeEventListener("storage", storageChanged);
+      setViewedUserId(null);
     };
   }, [workspace]);
   function exportLocal(): void {
@@ -180,18 +191,49 @@ function AccountWorkspace({ client, user }: { client: SupabaseClient; user: User
       if (result.error) throw result.error;
     } catch (cause) { if (active.current) { setError(message(cause)); setBusy(false); } }
   }
+  async function inspect(account: AdministrationUser): Promise<void> {
+    if (busy || !isAdmin) return;
+    setBusy(true); setError(null);
+    try {
+      await flush();
+      const data = readWorkspaceData(await communityRpc("admin_user_workspace", { target_user: account.id }));
+      if (!active.current) return;
+      setAccountStorage({ getItem: key => data[key] ?? null, setItem: () => {}, removeItem: () => {} });
+      setViewedUserId(account.id);
+      setPreview(account);
+    } catch (cause) { setError(message(cause)); }
+    finally { setBusy(false); }
+  }
+  function stopPreview(): void {
+    setAccountStorage(workspace.local.storage); setViewedUserId(null); setPreview(null);
+  }
+  async function saveNickname(event: FormEvent): Promise<void> {
+    event.preventDefault();
+    if (busy) return;
+    setBusy(true); setError(null);
+    try {
+      const value = nickname.trim();
+      if (value.length < 2 || value.length > 40) throw new Error("Le pseudo doit contenir entre 2 et 40 caractères.");
+      const result = await client.from("player_profiles").update({ nickname: value }).eq("user_id", user.id);
+      if (result.error) throw result.error;
+      setNickname(value);
+    } catch (cause) { if (active.current) setError(message(cause)); }
+    finally { if (active.current) setBusy(false); }
+  }
   return <>
     <div className="account-toolbar" aria-label="Mon compte">
       <span>{user.email ?? "Mon compte"}</span><span role="status">{status}</span>
-      <button className="text-button" type="button" disabled={busy} onClick={() => void signOut()}>Se déconnecter</button>
+      {!preview && <><form className="account-nickname" onSubmit={event => void saveNickname(event)}><label>Pseudo public<input value={nickname} minLength={2} maxLength={40} required onChange={event => setNickname(event.target.value)} /></label><button className="text-button" type="submit" disabled={busy}>Enregistrer le pseudo</button></form>
+      <button className="text-button" type="button" disabled={busy} onClick={() => void signOut()}>Se déconnecter</button></>}
     </div>
+    {preview && <div className="account-preview-banner" role="status">Lecture seule · compte de {preview.email ?? preview.id}<button type="button" className="secondary-button" onClick={stopPreview}>Quitter la visualisation</button></div>}
     {error && <div className="account-sync-error" role="alert">
       <p>{error}</p>
       <button className="secondary-button" type="button" onClick={exportLocal}>Exporter mes changements locaux</button>
       <button className="secondary-button" type="button" disabled={busy} onClick={() => { if (ready) void flush().catch(() => undefined); else void load(); }}>Réessayer</button>
       <button className="secondary-button" type="button" disabled={busy || (workspace.local.pending() && !exported)} onClick={() => void load(true)}>Recharger les données en ligne</button>
     </div>}
-    {ready ? <App key={version} isAdmin={isAdmin} /> : !error && <AccountCard><p role="status">Chargement de vos données…</p></AccountCard>}
+    {ready ? <App key={preview?.id ?? version} isAdmin={!preview && isAdmin} readOnly={Boolean(preview)} sharedDescriptions={sharedDescriptions} onInspect={account => void inspect(account)} /> : !error && <AccountCard><p role="status">Chargement de vos données…</p></AccountCard>}
   </>;
 }
 

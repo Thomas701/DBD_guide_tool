@@ -134,6 +134,10 @@ export async function originalKillerThemeUrl(): Promise<string | null> {
   return killerThemes.get("Original_Killer_Theme.ogg")?.() ?? null;
 }
 
+export async function survivorThemeUrl(): Promise<string | null> {
+  return killerThemes.get("Original_Survivor_Theme.ogg")?.() ?? null;
+}
+
 async function matchingAudio(tracks: Map<string, () => Promise<string>>, expectedFileName: string): Promise<string | null> {
   const fileName = findBlindTestAudioFile(tracks.keys(), expectedFileName);
   const loader = fileName ? tracks.get(fileName) : null;

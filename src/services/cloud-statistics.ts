@@ -1,4 +1,4 @@
-import { getCloudClient } from "./cloud-client.js";
+import { getCloudClient, getViewedUserId } from "./cloud-client.js";
 import type { MatchHistoryEntry, StatisticsStatus } from "./statistics.js";
 
 const historyCache = new Map<string, { watermark: string | null; entries: Map<string, unknown> }>();
@@ -8,7 +8,7 @@ async function account() {
   if (!client) throw new Error("Supabase n’est pas configuré.");
   const result = await client.auth.getSession();
   if (result.error || !result.data.session) throw new Error("Reconnectez-vous à votre compte.");
-  return { client, userId: result.data.session.user.id };
+  return { client, userId: getViewedUserId() ?? result.data.session.user.id };
 }
 
 export async function readCloudStatisticsSnapshot(): Promise<unknown> {
@@ -47,7 +47,7 @@ export async function readCloudStatisticsSnapshot(): Promise<unknown> {
 export async function readCloudStatisticsStatus(): Promise<StatisticsStatus> {
   const { client, userId } = await account();
   const [collector, overview] = await Promise.all([
-    client.rpc("statistics_collector_status"),
+    getViewedUserId() ? client.rpc("admin_statistics_status", { target_user: userId }) : client.rpc("statistics_collector_status"),
     client.from("player_statistics").select("updated_at").eq("user_id", userId).maybeSingle(),
   ]);
   if (collector.error || overview.error) throw new Error(collector.error?.message ?? overview.error!.message);
@@ -64,12 +64,14 @@ export async function readCloudStatisticsStatus(): Promise<StatisticsStatus> {
 }
 
 export async function requestCloudStatisticsSync(): Promise<void> {
+  if (getViewedUserId()) throw new Error("Consultation en lecture seule.");
   const { client } = await account();
   const { data, error } = await client.functions.invoke("sync-statistics", { body: { action: "sync" } });
   if (error || !data?.ok) throw new Error("Synchronisation distante indisponible. Réessayez dans quelques instants.");
 }
 
 export async function editCloudMatch(id: string, changes: MatchHistoryEntry | null): Promise<void> {
+  if (getViewedUserId()) throw new Error("Consultation en lecture seule.");
   const { client } = await account();
   const { error } = await client.rpc("edit_player_match", { match_id: id, changes, remove_match: changes === null });
   if (error) throw new Error(error.message);

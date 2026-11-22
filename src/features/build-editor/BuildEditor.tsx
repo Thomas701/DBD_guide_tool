@@ -10,6 +10,7 @@ interface BuildEditorProps {
   perks: readonly Perk[];
   selectedPerkId: string | null;
   compact?: boolean;
+  readOnly?: boolean;
   onRemove: (perkId: string) => void;
   onBrowse: (perkId: string | null) => void;
   scenario: BuildScenario;
@@ -17,7 +18,7 @@ interface BuildEditorProps {
   onPerkStateChange: (perkId: string, state: PerkRuntimeState) => void;
 }
 
-export function BuildEditor({ perks, selectedPerkId, compact = false, onRemove, onBrowse, scenario, onConditionChange, onPerkStateChange }: BuildEditorProps) {
+export function BuildEditor({ perks, selectedPerkId, compact = false, readOnly = false, onRemove, onBrowse, scenario, onConditionChange, onPerkStateChange }: BuildEditorProps) {
   const [openConditions, setOpenConditions] = useState<Record<string, boolean>>({});
   const slots = Array.from({ length: MAX_BUILD_PERKS }, (_, index) => perks[index] ?? null);
 
@@ -42,7 +43,7 @@ export function BuildEditor({ perks, selectedPerkId, compact = false, onRemove, 
               </span>
               </button>
               {isSelected && <svg className="perk-selection-path" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,2 98,50 50,98 2,50" /></svg>}
-              <button className="compact-perk-icon-remove" type="button" onClick={() => onRemove(perk.id)} aria-label={`Retirer ${name} du build`}>×</button>
+              <button className="compact-perk-icon-remove" type="button" disabled={readOnly} onClick={() => onRemove(perk.id)} aria-label={`Retirer ${name} du build`}>×</button>
             </div>
           );
         })}
@@ -96,11 +97,11 @@ export function BuildEditor({ perks, selectedPerkId, compact = false, onRemove, 
                     <span className="perk-slot-chevron" aria-hidden="true" />
                   </button>
                   <div className={`perk-condition-region${conditionsOpen ? " expanded" : ""}`} aria-hidden={!conditionsOpen}>
-                    <PerkConditions perk={perk} scenario={scenario} onConditionChange={onConditionChange} onPerkStateChange={onPerkStateChange} />
+                    <fieldset className="build-editor-conditions" disabled={readOnly}><PerkConditions perk={perk} scenario={scenario} onConditionChange={onConditionChange} onPerkStateChange={onPerkStateChange} /></fieldset>
                   </div>
                 </>
               )}
-              <button className="perk-slot-remove" type="button" onClick={() => onRemove(perk.id)} aria-label={`Retirer ${name}`}>×</button>
+              <button className="perk-slot-remove" type="button" disabled={readOnly} onClick={() => onRemove(perk.id)} aria-label={`Retirer ${name}`}>×</button>
             </article>
           );
         })}

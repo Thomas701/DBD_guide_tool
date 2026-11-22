@@ -3,12 +3,17 @@ import test from "node:test";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAccountStorage, readWorkspaceData, type AppStorage, type WorkspaceData } from "../src/services/account-storage.js";
 import { CloudWorkspace, WorkspaceConflictError, workspaceRemote, type WorkspaceRemote } from "../src/services/cloud-workspace.js";
+import { mergeDescriptions } from "../src/services/shared-perks.js";
 
 function memory(): AppStorage {
   const data = new Map<string, string>();
   return { getItem: key => data.get(key) ?? null, setItem: (key, value) => { data.set(key, value); }, removeItem: key => { data.delete(key); } };
 }
 const key = "dbd-build-tool.builds";
+
+test("les descriptions communes remplacent les anciennes versions privées, y compris après réinitialisation", () => {
+  assert.deepEqual(mergeDescriptions({ agitation: "ancien", bond: "ancien", hope: "local" }, { agitation: "commun", bond: null }), { agitation: "commun", hope: "local" });
+});
 
 test("un timeout Supabase explique la conservation locale et la reprise automatique", async () => {
   const client = { rpc: async () => ({ data: null, error: { message: "upstream request timeout" } }) } as unknown as SupabaseClient;

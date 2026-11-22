@@ -28,7 +28,7 @@ const STATUS_REFRESH_INTERVAL_MS = 5_000;
 const ESCAPED_ICON_URL = "https://assets.live.bhvraccount.com/stats/VE_Escaped.png";
 const SACRIFICED_ICON_URL = "https://assets.live.bhvraccount.com/stats/VE_Sacrificed.png";
 
-export function StatisticsView({ serverUrl, nextSyncAt, canEdit }: { serverUrl: string; nextSyncAt: number | null; canEdit: boolean }) {
+export function StatisticsView({ serverUrl, nextSyncAt, canEdit, readOnly = false }: { serverUrl: string; nextSyncAt: number | null; canEdit: boolean; readOnly?: boolean }) {
   const [snapshot, setSnapshot] = useState<StatisticsSnapshot | null>(null);
   const [status, setStatus] = useState<StatisticsStatus | null>(null);
   const [tab, setTab] = useState<StatisticsTab>("overview");
@@ -52,6 +52,7 @@ export function StatisticsView({ serverUrl, nextSyncAt, canEdit }: { serverUrl: 
   snapshotUpdatedAt.current = snapshot?.updatedAt ?? null;
 
   async function refresh(): Promise<void> {
+    if (readOnly) return;
     setLoading(true);
     setError(null);
     await loadStatus().catch(() => undefined);
@@ -106,7 +107,7 @@ export function StatisticsView({ serverUrl, nextSyncAt, canEdit }: { serverUrl: 
       stopPolling();
       stopAutoRefresh();
     };
-  }, [serverUrl]);
+  }, [serverUrl, readOnly]);
 
   useEffect(() => {
     stopAutoRefresh();
@@ -157,13 +158,13 @@ export function StatisticsView({ serverUrl, nextSyncAt, canEdit }: { serverUrl: 
         <h1>Statistique</h1>
         <p>Statistiques récupérées depuis stats.deadbydaylight.com, {isHostedApp ? "enregistrées dans votre compte" : "archivées localement"} et mises à jour automatiquement.</p>
       </div>
-      <div className="statistics-sync-actions">
+      {!readOnly && <div className="statistics-sync-actions">
         <StatisticsSyncCountdown nextSyncAt={nextSyncAt} syncing={syncing} />
         <button className="secondary-button" type="button" disabled={syncing} onClick={() => void refresh()}>{syncing ? "Synchronisation…" : "Synchroniser"}</button>
-      </div>
+      </div>}
     </header>
 
-    {isHostedApp && <StatisticsConnection />}
+    {isHostedApp && !readOnly && <StatisticsConnection />}
     <section className="statistics-content" aria-label="Statistiques Dead by Daylight">
       <div className="statistics-tabs-row">
         <div className="impact-tabs" role="tablist" aria-label="Sections statistiques">
@@ -220,10 +221,10 @@ export function StatisticsView({ serverUrl, nextSyncAt, canEdit }: { serverUrl: 
             onKillerFiltersChange={setKillerFilters}
             onSurvivorFiltersChange={setSurvivorFilters}
             onPageChange={setHistoryPage}
-            onEdit={canEdit ? setEditingMatch : undefined}
-            onDelete={canEdit ? (match) => void removeMatch(match) : undefined}
+            onEdit={canEdit && !readOnly ? setEditingMatch : undefined}
+            onDelete={canEdit && !readOnly ? (match) => void removeMatch(match) : undefined}
           />}
-      {canEdit && editingMatch && <MatchEditDialog match={editingMatch} saving={savingMatch} onClose={() => setEditingMatch(null)} onSave={(changes) => void saveMatch(changes)} />}
+      {canEdit && !readOnly && editingMatch && <MatchEditDialog match={editingMatch} saving={savingMatch} onClose={() => setEditingMatch(null)} onSave={(changes) => void saveMatch(changes)} />}
     </section>
   </main>;
 
@@ -235,7 +236,7 @@ export function StatisticsView({ serverUrl, nextSyncAt, canEdit }: { serverUrl: 
   }
 
   async function saveMatch(changes: MatchHistoryEntry): Promise<void> {
-    if (!canEdit) return;
+    if (!canEdit || readOnly) return;
     setSavingMatch(true);
     setError(null);
     try {
@@ -249,7 +250,7 @@ export function StatisticsView({ serverUrl, nextSyncAt, canEdit }: { serverUrl: 
   }
 
   async function removeMatch(match: MatchHistoryEntry): Promise<void> {
-    if (!canEdit) return;
+    if (!canEdit || readOnly) return;
     if (!window.confirm(`Supprimer définitivement la partie de ${match.characterName} du ${match.playedAtLabel ?? "date inconnue"} ?`)) return;
     setError(null);
     try {

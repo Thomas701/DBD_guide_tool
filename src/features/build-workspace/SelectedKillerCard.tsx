@@ -8,6 +8,7 @@ import type { PerkSide } from "../../domain/perk.js";
 interface SelectedKillerCardProps {
   killer: Killer | null;
   side: PerkSide;
+  readOnly?: boolean;
   onChange: () => void;
   onRemove: () => void;
   terrorPlayback: { currentTime: number; duration: number; isPlaying: boolean; volume: number };
@@ -17,7 +18,7 @@ interface SelectedKillerCardProps {
   onShowInfo: (killer: Killer) => void;
 }
 
-export function SelectedKillerCard({ killer, side, onChange, onRemove, terrorPlayback, onTerrorRadiusToggle, onTerrorRadiusSeek, onTerrorRadiusVolumeChange, onShowInfo }: SelectedKillerCardProps) {
+export function SelectedKillerCard({ killer, side, readOnly = false, onChange, onRemove, terrorPlayback, onTerrorRadiusToggle, onTerrorRadiusSeek, onTerrorRadiusVolumeChange, onShowInfo }: SelectedKillerCardProps) {
   const [volumeControlOpen, setVolumeControlOpen] = useState(false);
   if (!killer) {
     return (
@@ -52,7 +53,7 @@ export function SelectedKillerCard({ killer, side, onChange, onRemove, terrorPla
           </span>
         </div>
         {side === "killer" && <button className="killer-card-info" type="button" onClick={() => onShowInfo(killer)} aria-label={`Afficher le pouvoir de ${killer.name.fr ?? killer.id}`}>i</button>}
-        <button className="selected-killer-remove" type="button" onClick={onRemove} aria-label={`Retirer ${killer.name.fr ?? killer.name.en ?? killer.id}`}>×</button>
+        <button className="selected-killer-remove" type="button" disabled={readOnly} onClick={onRemove} aria-label={`Retirer ${killer.name.fr ?? killer.name.en ?? killer.id}`}>×</button>
       </div>
     </div>
   );

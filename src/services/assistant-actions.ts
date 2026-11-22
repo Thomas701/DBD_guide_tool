@@ -76,19 +76,23 @@ export function validateAssistantActions(actions: readonly AssistantAction[], ca
   }
 }
 
-export function applyAssistantActions(actions: readonly AssistantAction[], catalog: AssistantActionCatalog, targets: {
-  updateDescription: (perkId: string, html: string) => void;
+export async function applyAssistantActions(actions: readonly AssistantAction[], catalog: AssistantActionCatalog, targets: {
+  updateDescription: (perkId: string, html: string) => void | Promise<void>;
   updateKillerTier: (killerId: string, tier: KillerTier) => void;
   updatePerkTier: (perkId: string, tier: KillerTier) => void;
   saveBuild: (action: Extract<AssistantAction, { type: "save_build" }>) => void;
   setCurrentBuild: (action: Extract<AssistantAction, { type: "set_current_build" }>) => void;
-}): string[] {
+}): Promise<string[]> {
   validateAssistantActions(actions, catalog);
-  return actions.map((action) => {
+  const report: string[] = [];
+  for (const action of actions) report.push(await applyAction(action));
+  return report;
+
+  async function applyAction(action: AssistantAction): Promise<string> {
     try {
       switch (action.type) {
         case "update_perk_description":
-          targets.updateDescription(action.perkId, action.descriptionHtml);
+          await targets.updateDescription(action.perkId, action.descriptionHtml);
           return `Description mise à jour : ${perkName(action.perkId)}.`;
         case "set_killer_tier":
           targets.updateKillerTier(action.killerId, action.tier);
@@ -106,7 +110,7 @@ export function applyAssistantActions(actions: readonly AssistantAction[], catal
     } catch (error) {
       return `Échec de l’action ${action.type} : ${error instanceof Error ? error.message : "erreur inconnue"}`;
     }
-  });
+  }
 
   function perkName(id: string): string {
     const perk = catalog.perks.find((candidate) => candidate.id === id);
