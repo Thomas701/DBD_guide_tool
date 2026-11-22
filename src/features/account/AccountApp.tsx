@@ -133,15 +133,20 @@ function AccountWorkspace({ client, user }: { client: SupabaseClient; user: User
     if (timer.current !== null) clearTimeout(timer.current);
     timer.current = setTimeout(() => { void flush().catch(() => undefined); }, 1_000);
   };
+  async function readNickname(): Promise<string> {
+    const result = await client.from("player_profiles").select("nickname").eq("user_id", user.id).maybeSingle();
+    if (result.error) throw result.error;
+    return result.data?.nickname ?? `Joueur ${user.id.slice(0, 8)}`;
+  }
   async function load(discardLocal = false): Promise<void> {
     setBusy(true); setError(null);
     try {
       const [, role, profile, shared] = await Promise.all([workspace.load(discardLocal), client.rpc("is_admin"),
-        client.from("player_profiles").select("nickname").eq("user_id", user.id).maybeSingle(), readSharedDescriptions()]);
-      if (role.error || profile.error) throw role.error ?? profile.error;
+        readNickname(), readSharedDescriptions()]);
+      if (role.error) throw role.error;
       if (!active.current) return;
       setIsAdmin(role.data === true);
-      setNickname(profile.data?.nickname ?? `Joueur ${user.id.slice(0, 8)}`);
+      setNickname(profile);
       setSharedDescriptions(shared);
       setPreview(null); setViewedUserId(null);
       setAccountStorage(workspace.local.storage);
@@ -154,7 +159,10 @@ function AccountWorkspace({ client, user }: { client: SupabaseClient; user: User
   useEffect(() => {
     active.current = true;
     void load();
-    const retry = (): void => { void flush().catch(() => undefined); };
+    const retry = (): void => {
+      void flush().catch(() => undefined);
+      void readNickname().then(value => { if (active.current) setNickname(value); }).catch(() => undefined);
+    };
     const beforeUnload = (event: BeforeUnloadEvent): void => { if (workspace.local.pending()) { event.preventDefault(); event.returnValue = ""; } };
     const storageChanged = (event: StorageEvent): void => {
       if (!event.key?.startsWith(workspace.local.prefix)) return;
@@ -164,6 +172,7 @@ function AccountWorkspace({ client, user }: { client: SupabaseClient; user: User
       schedule.current();
     };
     window.addEventListener("online", retry);
+    window.addEventListener("focus", retry);
     window.addEventListener("beforeunload", beforeUnload);
     window.addEventListener("storage", storageChanged);
     const interval = window.setInterval(retry, 30_000);
@@ -172,6 +181,7 @@ function AccountWorkspace({ client, user }: { client: SupabaseClient; user: User
       if (timer.current !== null) clearTimeout(timer.current);
       window.clearInterval(interval);
       window.removeEventListener("online", retry);
+      window.removeEventListener("focus", retry);
       window.removeEventListener("beforeunload", beforeUnload);
       window.removeEventListener("storage", storageChanged);
       setViewedUserId(null);
@@ -207,23 +217,10 @@ function AccountWorkspace({ client, user }: { client: SupabaseClient; user: User
   function stopPreview(): void {
     setAccountStorage(workspace.local.storage); setViewedUserId(null); setPreview(null);
   }
-  async function saveNickname(event: FormEvent): Promise<void> {
-    event.preventDefault();
-    if (busy) return;
-    setBusy(true); setError(null);
-    try {
-      const value = nickname.trim();
-      if (value.length < 2 || value.length > 40) throw new Error("Le pseudo doit contenir entre 2 et 40 caractères.");
-      const result = await client.from("player_profiles").update({ nickname: value }).eq("user_id", user.id);
-      if (result.error) throw result.error;
-      setNickname(value);
-    } catch (cause) { if (active.current) setError(message(cause)); }
-    finally { if (active.current) setBusy(false); }
-  }
   return <>
     <div className="account-toolbar" aria-label="Mon compte">
       <span>{user.email ?? "Mon compte"}</span><span role="status">{status}</span>
-      {!preview && <><form className="account-nickname" onSubmit={event => void saveNickname(event)}><label>Pseudo public<input value={nickname} minLength={2} maxLength={40} required onChange={event => setNickname(event.target.value)} /></label><button className="text-button" type="submit" disabled={busy}>Enregistrer le pseudo</button></form>
+      {!preview && <><span>Pseudo Behaviour : {nickname}</span>
       <button className="text-button" type="button" disabled={busy} onClick={() => void signOut()}>Se déconnecter</button></>}
     </div>
     {preview && <div className="account-preview-banner" role="status">Lecture seule · compte de {preview.email ?? preview.id}<button type="button" className="secondary-button" onClick={stopPreview}>Quitter la visualisation</button></div>}

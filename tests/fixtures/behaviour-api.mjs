@@ -10,5 +10,7 @@ export const behaviourHistory = [{
   playerStat: behaviourPlayer(), opponentStat: [behaviourPlayer("VE_Slasher", "The Trapper"), behaviourPlayer("VE_Camper", "Meg Thomas")],
 }];
 export const behaviourOverview = { data: { "all-time": { global: { general: { totalHoursPlayed: 330, totalMatchesPlayed: 1832, bpEarnedThroughMatch: 136494114 } } } } };
+export const behaviourProfile = { nickName: "Compte Behaviour", accounts: [{ type: "egs", userName: "Donoteet" }, { type: "steam", userName: "Steam Player" }] };
+export const behaviourProviders = [{ provider: "egs", status: "owned" }, { provider: "steam", status: "owned" }];
 export const behaviourToken = subject => `header.${Buffer.from(JSON.stringify({ sub: subject })).toString("base64url")}.signature`;
 export const behaviourSession = () => ({ authToken: { token: behaviourToken("alice"), expirationDate: Date.now() + 3600_000 }, refreshToken: { token: "private-refresh", expirationDate: Date.now() + 86400_000 }, provider: "egs" });

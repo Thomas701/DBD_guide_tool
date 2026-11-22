@@ -59,6 +59,16 @@ export function mapBehaviourOverview(payload) {
   return { hoursPlayed: `${general.totalHoursPlayed.toLocaleString("en-US")} hrs`, matchesPlayed: general.totalMatchesPlayed.toLocaleString("en-US"), bloodpointsEarned: general.bpEarnedThroughMatch.toLocaleString("en-US"), sourceUrl: "https://stats.deadbydaylight.com/statistics/" };
 }
 
+export function readBehaviourNickname(profile, providers, provider) {
+  // This is the source of the official header's data-cy="nav-user-nickname".
+  const platform = Array.isArray(providers) && providers.some(account => account?.provider === provider)
+    && !providers.some(account => account?.status === "synced") && Array.isArray(profile?.accounts)
+    ? profile.accounts.find(account => account?.type === provider)?.userName : null;
+  const rawName = platform || profile?.nickName;
+  const name = typeof rawName === "string" ? rawName.trim() : "";
+  return [...name].length >= 2 && [...name].length <= 40 && !/[\u0000-\u001f\u007f-\u009f]/.test(name) ? name : null;
+}
+
 export async function collectBehaviourStatistics(session, saveSession, request = fetch, timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone) {
   async function refresh() {
     if (!session.refreshToken?.token || session.refreshToken.expirationDate <= Date.now()) throw new Error("Connexion Behaviour expirée. Reconnectez Behaviour depuis le site.");
@@ -78,13 +88,17 @@ export async function collectBehaviourStatistics(session, saveSession, request =
     if (!response.ok) throw new Error(response.status === 401 ? "Connexion Behaviour expirée. Reconnectez Behaviour depuis le site." : "Behaviour ne peut pas fournir les statistiques pour le moment.");
     return response.json();
   }
+  let providers;
   if (!/^[a-z0-9_-]{1,30}$/.test(session.provider ?? "")) {
-    const providers = await get("/players/me/game-accounts/dbd");
+    providers = await get("/players/me/game-accounts/dbd");
     const provider = Array.isArray(providers) ? providers.find(item => item.status === "synced")?.provider ?? providers[0]?.provider : null;
     if (!/^[a-z0-9_-]{1,30}$/.test(provider ?? "")) throw new Error("Aucune plateforme Dead by Daylight liée à Behaviour.");
     session = { ...session, provider }; await saveSession(session);
   }
   const overview = await get(`/player-stats/games/dbd/providers/${session.provider}?lang=en`);
   const history = await get(`/player-stats/match-history/games/dbd/providers/${session.provider}?lang=en&limit=30`);
-  return { statistics: mapBehaviourOverview(overview), matches: await mapBehaviourMatches(history, new Date(), timeZone) };
+  const profile = await get("/players/me").catch(() => null);
+  providers ??= await get("/players/me/game-accounts/dbd").catch(() => null);
+  const nickname = readBehaviourNickname(profile, providers, session.provider);
+  return { statistics: { ...mapBehaviourOverview(overview), ...(nickname ? { nickname } : {}) }, matches: await mapBehaviourMatches(history, new Date(), timeZone) };
 }

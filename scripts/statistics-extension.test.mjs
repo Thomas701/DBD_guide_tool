@@ -9,8 +9,8 @@ import { createStatisticsParser, prioritizeMatchRetries } from "../shared/statis
 import { matchHistoryIdentity } from "../shared/match-history-identity.mjs";
 import { buildMatchHistoryEntryId } from "./match-history-id.mjs";
 import { readBehaviourIdentity } from "../extension/behaviour-session.mjs";
-import { collectBehaviourStatistics, mapBehaviourMatches, mapBehaviourOverview } from "../extension/behaviour-api.mjs";
-import { behaviourHistory, behaviourOverview, behaviourSession, behaviourToken } from "../tests/fixtures/behaviour-api.mjs";
+import { collectBehaviourStatistics, mapBehaviourMatches, mapBehaviourOverview, readBehaviourNickname } from "../extension/behaviour-api.mjs";
+import { behaviourHistory, behaviourOverview, behaviourProfile, behaviourProviders, behaviourSession, behaviourToken } from "../tests/fixtures/behaviour-api.mjs";
 import { statisticsBrowser, statisticsBrowsers, statisticsStoreUrl } from "../dist/src/services/statistics-extension.js";
 
 globalThis.crypto ??= webcrypto;
@@ -83,10 +83,13 @@ test("la session Behaviour expirée est renouvelée et persistée avant la lectu
     calls.push({ url, init });
     if (url.endsWith("/sso/token")) return Response.json({ access_token: behaviourToken("alice"), refresh_token: "rotated-private-refresh", expires_in: 3600, refresh_token_expire_date: new Date(Date.now() + 86400_000).toISOString() });
     assert.equal(saved.length, 1);
+    if (url.endsWith("/players/me")) return Response.json(behaviourProfile);
+    if (url.endsWith("/players/me/game-accounts/dbd")) return Response.json(behaviourProviders);
     return Response.json(url.includes("match-history") ? behaviourHistory : behaviourOverview);
   };
   const result = await collectBehaviourStatistics(session, async value => { saved.push(value); }, request);
-  assert.equal(calls.length, 3);
+  assert.equal(calls.length, 5);
+  assert.equal(result.statistics.nickname, "Donoteet");
   assert.equal(saved[0].refreshToken.token, "rotated-private-refresh");
   assert.ok(!JSON.stringify(result).includes("refresh"));
   assert.ok(!JSON.stringify(result).includes("header."));
@@ -101,9 +104,27 @@ test("un refus 401 renouvelle une fois et une révocation ne provoque aucune ouv
     return Response.json(url.includes("match-history") ? behaviourHistory : behaviourOverview);
   };
   await collectBehaviourStatistics(session, async () => {}, request);
-  assert.equal(refreshes, 1); assert.equal(requests, 3);
+  assert.equal(refreshes, 1); assert.equal(requests, 5);
   session.authToken.expirationDate = 0;
   await assert.rejects(collectBehaviourStatistics(session, async () => {}, async () => new Response(null, { status: 400 })), /révoquée/);
+});
+
+test("le pseudo correspond au bloc officiel, à la plateforme sélectionnée et à la progression partagée", async () => {
+  const html = await readFile(new URL("../html_history_match_example.txt", import.meta.url), "utf8");
+  const header = html.match(/<span\b[^>]*data-cy="nav-user-nickname"[^>]*>([^<]+)<\/span>/)?.[1];
+  assert.equal(header, "Donoteet");
+  assert.equal(readBehaviourNickname(behaviourProfile, behaviourProviders, "egs"), header);
+  assert.equal(readBehaviourNickname(behaviourProfile, behaviourProviders, "steam"), "Steam Player");
+  assert.equal(readBehaviourNickname(behaviourProfile, [{ provider: "egs", status: "synced" }], "egs"), "Compte Behaviour");
+  assert.equal(readBehaviourNickname({ nickName: "  Nom exact#1234  " }, [], "bhvr"), "Nom exact#1234");
+  for (const profile of [null, {}, { nickName: 42 }, { nickName: " " }, { nickName: "a".repeat(41) }, { nickName: "Invalid\nName" }, { accounts: {}, nickName: null }]) {
+    assert.equal(readBehaviourNickname(profile, behaviourProviders, "egs"), null);
+  }
+  const result = await collectBehaviourStatistics(behaviourSession(), async () => {}, async url => {
+    if (url.includes("/players/me")) return new Response(null, { status: 503 });
+    return Response.json(url.includes("match-history") ? behaviourHistory : behaviourOverview);
+  });
+  assert.equal(result.statistics.nickname, undefined, "A missing nickname must not block statistics or erase an existing profile");
 });
 
 test("des détails temporairement indisponibles ne bloquent pas l’import des autres parties", () => {

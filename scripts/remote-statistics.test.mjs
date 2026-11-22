@@ -3,7 +3,7 @@ import test from "node:test";
 import { webcrypto } from "node:crypto";
 import { statisticsHandler } from "../supabase/functions/sync-statistics/handler.mjs";
 import { hashText } from "../extension/policy.mjs";
-import { behaviourHistory, behaviourOverview, behaviourSession, behaviourToken } from "../tests/fixtures/behaviour-api.mjs";
+import { behaviourHistory, behaviourOverview, behaviourProfile, behaviourProviders, behaviourSession, behaviourToken } from "../tests/fixtures/behaviour-api.mjs";
 
 globalThis.crypto ??= webcrypto;
 const owner = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", other = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
@@ -26,12 +26,15 @@ test("le serveur renouvelle et synchronise plusieurs joueurs sans navigateur, en
     }
     if (target.endsWith("/sso/token")) return Response.json({ access_token: behaviourToken("alice"), refresh_token: "rotated-private-refresh", expires_in: 3600, refresh_token_expire_date: new Date(Date.now()+86400_000).toISOString() });
     assert.ok(saved.length > 0, "Persist renewal before further API requests");
+    if (target.endsWith("/players/me")) return Response.json(behaviourProfile);
+    if (target.endsWith("/players/me/game-accounts/dbd")) return Response.json(behaviourProviders);
     return Response.json(target.includes("match-history") ? behaviourHistory : behaviourOverview);
   } });
   const response = await handler(req({ action: "cron" }, { "x-dbd-cron-token": "a".repeat(64) }));
   assert.equal(response.status,200); assert.equal((await response.json()).processed,2);
   assert.equal(saved.length,2); assert.equal(finished.length,2);
   assert.equal(finished[0].matches[0].id,"d9e9a1d32434193e7a9289f0e0dd2371f70c975e");
+  assert.equal(finished[0].statistics.nickname, "Donoteet");
   assert.deepEqual(new Set(finished.map(item=>item.owner_id)),new Set([owner,other]));
   assert.ok(!JSON.stringify(finished).includes("private-refresh"));
   assert.ok(!JSON.stringify(finished).includes("header."));

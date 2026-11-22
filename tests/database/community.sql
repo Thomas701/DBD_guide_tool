@@ -5,6 +5,7 @@ insert into auth.users(id, email, created_at, last_sign_in_at) values
 insert into auth.users(id, email, created_at)
   select ('cccccccc-cccc-4ccc-8ccc-' || lpad(n::text, 12, '0'))::uuid, 'player' || n || '@example.test', '2026-02-01' from generate_series(1, 52) n;
 insert into public.app_administrators(user_id) values ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa');
+update public.player_profiles set nickname = 'Bob public' where user_id = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 insert into public.user_workspaces(user_id, data) values
   ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', '{"dbd-build-tool.builds":"Bob", "dbd-build-tool.tier-overrides":"private tiers", "dbd-build-tool.assistant-conversations":"private chat"}');
 insert into public.statistics_collectors(user_id, token_hash, state, message)
@@ -30,13 +31,10 @@ set local role authenticated;
 select set_config('request.jwt.claim.sub', 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', true);
 do $$ declare result jsonb; begin
   assert (select count(*) from public.player_profiles) = 1;
-  update public.player_profiles set nickname = 'Bob public' where user_id = auth.uid();
-  update public.player_profiles set nickname = 'Forged' where user_id <> auth.uid();
-  assert not found, 'Other profiles must stay private';
   begin
-    update public.player_profiles set nickname = ' ' where user_id = auth.uid();
-    raise exception 'Empty nicknames must fail';
-  exception when check_violation then null; end;
+    update public.player_profiles set nickname = 'Forged' where user_id = auth.uid();
+    raise exception 'Behaviour nicknames must not be forged';
+  exception when insufficient_privilege then null; end;
   assert (select count(*) from public.player_matches where user_id <> auth.uid()) = 0;
   assert (select count(*) from public.user_workspaces where user_id <> auth.uid()) = 0;
   begin perform public.admin_users(); raise exception 'Users must not list accounts'; exception when insufficient_privilege then null; end;

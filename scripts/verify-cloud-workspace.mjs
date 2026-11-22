@@ -60,7 +60,7 @@ try {
     if (url.pathname === "/rest/v1/rpc/is_admin") return reply(userId === users.alice.id);
     if (url.pathname === "/rest/v1/player_profiles") {
       assert.equal(url.searchParams.get("user_id"), `eq.${userId}`);
-      if (request.method() === "PATCH") { profiles.set(userId, body.nickname); return reply(null); }
+      assert.equal(request.method(), "GET");
       return reply([{ nickname: profiles.get(userId) }]);
     }
     if (url.pathname === "/rest/v1/shared_perk_descriptions") return reply([...sharedDescriptions].map(([perk_id, description_html]) => ({ perk_id, description_html })));
@@ -200,11 +200,10 @@ try {
   assert.equal(await page.evaluate(async () => (await import("/src/services/account-storage.ts")).appStorage.getItem("dbd-build-tool.builds")), null);
   await saveBuild("Build Bob");
   await waitForSaved(users.bob.id, "Build Bob");
-  await page.getByLabel("Pseudo public", { exact: true }).fill("Bob public");
-  await page.getByRole("button", { name: "Enregistrer le pseudo", exact: true }).click();
-  await page.getByRole("button", { name: "Enregistrer le pseudo", exact: true }).waitFor({ state: "visible" });
-  await page.waitForFunction(() => !document.querySelector(".account-nickname button").disabled);
-  assert.equal(profiles.get(users.bob.id), "Bob public");
+  profiles.set(users.bob.id, "Bob Behaviour");
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+  await page.getByText("Pseudo Behaviour : Bob Behaviour", { exact: true }).waitFor();
+  assert.equal(await page.getByRole("button", { name: "Enregistrer le pseudo", exact: true }).count(), 0);
   await nav.getByRole("button", { name: "Perks", exact: true }).click();
   await page.locator('.perk-card[data-perk-id="agitation"] .perk-card-details').click();
   await inspector.getByText("Description commune de test", { exact: true }).waitFor();
