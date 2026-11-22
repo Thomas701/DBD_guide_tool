@@ -9,6 +9,9 @@ select set_config('request.jwt.claim.sub', 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb
 select set_config('request.jwt.claims', '{"user_metadata":{"is_admin":true,"role":"admin"}}', true);
 do $$ begin
   assert not public.is_admin(), 'User metadata must not grant admin permissions';
+  assert not has_function_privilege('authenticated', 'public.ingest_player_statistics(text,jsonb,jsonb,text,text)', 'EXECUTE'), 'Direct imports must not bypass admin edit restrictions';
+  assert not has_function_privilege('anon', 'public.ingest_player_statistics(text,jsonb,jsonb,text,text)', 'EXECUTE');
+  assert has_function_privilege('service_role', 'public.ingest_player_statistics(text,jsonb,jsonb,text,text)', 'EXECUTE');
   assert public.save_workspace('{"dbd-build-tool.builds":"Bob","dbd-build-tool.perk-description-overrides":"old description"}', 1) = 2, 'Existing customizations must not block build saves';
   begin
     perform public.save_workspace('{"dbd-build-tool.perk-description-overrides":"forged"}', 2);
