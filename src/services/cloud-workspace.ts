@@ -35,7 +35,10 @@ export class CloudWorkspace {
   async load(discardLocal = false): Promise<void> {
     const saved = await this.remote.read();
     if (!discardLocal && this.local.pending()) {
-      if (saved.revision !== this.local.revision()) throw new WorkspaceConflictError();
+      if (saved.revision !== this.local.revision()) {
+        if (saved.revision !== this.local.revision() + 1 || !sameData(saved.data, this.local.snapshot())) throw new WorkspaceConflictError();
+        this.local.saved(saved.revision, saved.data);
+      }
       return;
     }
     this.local.replace(saved.data, saved.revision);
@@ -56,11 +59,14 @@ export class CloudWorkspace {
       catch (cause) {
         // A timeout can hide a committed save; acknowledge only this exact snapshot and revision.
         const saved = await this.remote.read().catch(() => null);
-        if (!saved || saved.revision !== expected + 1 || Object.keys(saved.data).length !== Object.keys(snapshot).length
-          || !Object.entries(snapshot).every(([key, value]) => saved.data[key] === value)) throw cause;
+        if (!saved || saved.revision !== expected + 1 || !sameData(saved.data, snapshot)) throw cause;
         revision = saved.revision;
       }
       this.local.saved(revision, snapshot);
     }
   }
+}
+
+function sameData(left: WorkspaceData, right: WorkspaceData): boolean {
+  return Object.keys(left).length === Object.keys(right).length && Object.entries(right).every(([key, value]) => left[key] === value);
 }

@@ -98,6 +98,8 @@ try {
     assert.equal(await page.getByTitle("Modifier la partie", { exact: true }).count(), admin ? 1 : 0);
     assert.equal(await page.getByTitle("Supprimer la partie", { exact: true }).count(), admin ? 1 : 0);
     await nav.getByRole("button", { name: "Build", exact: true }).click();
+    await page.locator(".analyzer-workspace.view-build").waitFor();
+    await page.getByRole("status").filter({ hasText: "Données synchronisées" }).waitFor();
   }
   async function saveBuild(name) {
     await page.evaluate(async name => {

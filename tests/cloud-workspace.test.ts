@@ -93,3 +93,15 @@ test("un timeout avec une sauvegarde distante différente conserve les changemen
   assert.equal(local.pending(), true);
   assert.equal(local.storage.getItem(key), "mon build");
 });
+
+test("un rechargement reconnaît une sauvegarde validée dont la réponse a été perdue", async () => {
+  const local = createAccountStorage(memory(), "alice", () => {});
+  local.storage.setItem(key, "mon build");
+  await new CloudWorkspace(local, {
+    read: async () => ({ data: { [key]: "mon build" }, revision: 1 }),
+    save: async () => { throw new Error("No duplicate save expected"); },
+  }).load();
+  assert.equal(local.pending(), false);
+  assert.equal(local.revision(), 1);
+  assert.equal(local.storage.getItem(key), "mon build");
+});
