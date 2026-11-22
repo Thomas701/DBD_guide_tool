@@ -5,7 +5,7 @@ Le site utilise GitHub Pages pour l’interface, Supabase Auth pour la connexion
 ## Publication
 
 1. Créer un projet Supabase gratuit dans une organisation gratuite, en région Europe.
-2. Exécuter `supabase/migrations/202611210001_accounts_and_statistics.sql` dans l’éditeur SQL du nouveau projet. La migration crée les tables, les règles de lecture par propriétaire et les fonctions de sauvegarde et de collecte. Ne pas la réexécuter intégralement sur un projet où les tables existent déjà.
+2. Exécuter les fichiers de `supabase/migrations/` dans l’ordre de leur nom dans l’éditeur SQL du nouveau projet : comptes, collecte distante, administrateurs, puis import réservé au serveur. Ne pas réexécuter les migrations déjà appliquées sur un projet existant.
 3. Dans Supabase, configurer **Authentication → URL Configuration** : Site URL et URL de redirection `https://thomas701.github.io/DBD_guide_tool/`. Les URL locales `http://127.0.0.1:5173/` et `http://localhost:5173/` peuvent être ajoutées pour le développement.
 4. Dans GitHub, ouvrir **Settings → Pages**, choisir **GitHub Actions**.
 5. Dans **Settings → Secrets and variables → Actions → Variables**, ajouter `VITE_SUPABASE_URL` et `VITE_SUPABASE_PUBLISHABLE_KEY`. La seconde valeur est la clé **Publishable**, jamais une clé `sb_secret_` ni `service_role`.
@@ -23,9 +23,14 @@ La version publiée utilise **Google** par défaut. Pour proposer aussi **email 
 
 ## Données et conflits
 
+Les comptes présents dans `app_administrators` peuvent modifier les descriptions et catégories des perks, corriger ou supprimer leurs parties et ouvrir l’onglet **Administration**, vide pour le moment. Ces droits sont vérifiés dans Supabase, y compris pour les appels directs à l’API. Les imports de statistiques sont réservés au collecteur serveur. Les métadonnées modifiables par l’utilisateur ne donnent aucun droit.
+
+La migration `202611220003_administrators.sql` attribue ce rôle au compte confirmé `mynoteet@gmail.com` s’il existe déjà. Pour une nouvelle installation, après création et confirmation du compte, exécuter depuis l’éditeur SQL administrateur : `insert into public.app_administrators(user_id) select id from auth.users where lower(email) = 'mynoteet@gmail.com' and email_confirmed_at is not null on conflict do nothing;`. L’ajout d’autres administrateurs suit le même principe ; les utilisateurs ne peuvent pas s’attribuer le rôle eux-mêmes. Le mode local conserve les possibilités d’édition du propriétaire de l’installation.
+
 - Les builds, le brouillon, les préférences, tiers et personnalisations sont regroupés par utilisateur dans `user_workspaces`.
 - Le cache du navigateur est également séparé par compte. Les anciennes données du mode local sont conservées et ne sont pas automatiquement attribuées au premier compte connecté.
 - Une sauvegarde en échec reste en attente dans le cache et peut être reprise. La connexion du compte doit avoir été restaurée avant de charger ses données en ligne.
+- Un délai dépassé côté Supabase conserve les changements sur l’appareil et entraîne une nouvelle tentative. Si la réponse s’est perdue après validation, la même sauvegarde et sa version sont reconnues avant de signaler un conflit, y compris au rechargement.
 - Chaque sauvegarde vérifie sa version. Si un autre appareil a enregistré des changements, l’interface demande d’exporter les changements locaux avant de recharger la version distante.
 - Les statistiques et parties sont stockées séparément dans `player_statistics` et `player_matches`. Les parties supprimées restent marquées comme supprimées pour ne pas réapparaître au prochain import. Les corrections manuelles sont préservées.
 - Les règles RLS empêchent un utilisateur de lire les données d’un autre. L’administrateur du projet Supabase peut gérer l’ensemble des données.
@@ -64,4 +69,4 @@ Pour préparer une version web localement, utiliser les variables de `.env.examp
 
 `npm run check` vérifie les données, les tests et la compilation du site et du collecteur. Les tests du serveur vérifient l’authentification, plusieurs joueurs, le renouvellement et les pannes. `npm run test:cloud` vérifie les comptes dans Chromium. `npm run test:extension` vérifie la transmission initiale, sa reprise en cas d’échec, l’effacement des jetons locaux et l’absence d’onglets créés.
 
-Les tests SQL de `tests/database` s’exécutent dans une base PostgreSQL vierge et isolée : `bootstrap.sql`, première migration, `remote-bootstrap.sql`, seconde migration, `accounts.sql`, `remote-statistics.sql`. Les bootstraps imitent uniquement l’identité Supabase et l’API Vault pour les tests ; ne jamais les exécuter dans le projet réel. Le chiffrement Vault et le déclenchement du cron doivent aussi être vérifiés sur Supabase.
+Les tests SQL de `tests/database` s’exécutent dans une base PostgreSQL vierge et isolée : `bootstrap.sql`, première migration, `remote-bootstrap.sql`, migrations suivantes dans l’ordre, `accounts.sql`, `administrators.sql`, `remote-statistics.sql`. Les bootstraps imitent uniquement l’identité Supabase et l’API Vault pour les tests ; ne jamais les exécuter dans le projet réel. Le chiffrement Vault et le déclenchement du cron doivent aussi être vérifiés sur Supabase.
