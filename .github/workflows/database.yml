@@ -27,4 +27,7 @@ jobs:
           psql -h 127.0.0.1 -U dbd_test -d dbd_test -v ON_ERROR_STOP=1 \
             -f tests/database/bootstrap.sql \
             -f supabase/migrations/202611210001_accounts_and_statistics.sql \
-            -f tests/database/accounts.sql
+            -f tests/database/remote-bootstrap.sql \
+            -f supabase/migrations/202611220002_remote_statistics.sql \
+            -f tests/database/accounts.sql \
+            -f tests/database/remote-statistics.sql

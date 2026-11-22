@@ -59,7 +59,7 @@ export function mapBehaviourOverview(payload) {
   return { hoursPlayed: `${general.totalHoursPlayed.toLocaleString("en-US")} hrs`, matchesPlayed: general.totalMatchesPlayed.toLocaleString("en-US"), bloodpointsEarned: general.bpEarnedThroughMatch.toLocaleString("en-US"), sourceUrl: "https://stats.deadbydaylight.com/statistics/" };
 }
 
-export async function collectBehaviourStatistics(session, saveSession, request = fetch) {
+export async function collectBehaviourStatistics(session, saveSession, request = fetch, timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone) {
   async function refresh() {
     if (!session.refreshToken?.token || session.refreshToken.expirationDate <= Date.now()) throw new Error("Connexion Behaviour expirée. Reconnectez Behaviour depuis le site.");
     const response = await request(`${BEHAVIOUR_API}/sso/token`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ grant_type: "refresh_token", client_id: "DBDStats", refresh_token: session.refreshToken.token }), signal: AbortSignal.timeout(15_000) });
@@ -86,5 +86,5 @@ export async function collectBehaviourStatistics(session, saveSession, request =
   }
   const overview = await get(`/player-stats/games/dbd/providers/${session.provider}?lang=en`);
   const history = await get(`/player-stats/match-history/games/dbd/providers/${session.provider}?lang=en&limit=30`);
-  return { statistics: mapBehaviourOverview(overview), matches: await mapBehaviourMatches(history) };
+  return { statistics: mapBehaviourOverview(overview), matches: await mapBehaviourMatches(history, new Date(), timeZone) };
 }

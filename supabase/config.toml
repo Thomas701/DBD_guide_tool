@@ -11,3 +11,6 @@ refresh_token_reuse_interval = 10
 [auth.email]
 enable_signup = true
 enable_confirmations = true
+
+[functions.sync-statistics]
+verify_jwt = false

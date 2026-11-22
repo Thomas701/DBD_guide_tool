@@ -11,5 +11,5 @@ export function readBehaviourIdentity(raw) {
 
 export function validBehaviourSession(session) {
   return Boolean(session && readBehaviourIdentity(JSON.stringify({ state: session }))
-    && [session.authToken, session.refreshToken].every(token => typeof token?.token === "string" && token.token.length < 16_384 && Number.isFinite(token.expirationDate)));
+    && [session.authToken, session.refreshToken].every(token => typeof token?.token === "string" && token.token.length > 0 && token.token.length < 16_384 && Number.isFinite(token.expirationDate)));
 }

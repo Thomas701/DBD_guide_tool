@@ -1,5 +1,4 @@
 import { getCloudClient } from "./cloud-client.js";
-import { statisticsExtensionMessage } from "./statistics-extension.js";
 import type { MatchHistoryEntry, StatisticsStatus } from "./statistics.js";
 
 const historyCache = new Map<string, { watermark: string | null; entries: Map<string, unknown> }>();
@@ -65,8 +64,9 @@ export async function readCloudStatisticsStatus(): Promise<StatisticsStatus> {
 }
 
 export async function requestCloudStatisticsSync(): Promise<void> {
-  const { userId } = await account();
-  await statisticsExtensionMessage({ type: "DBD_EXTENSION_SYNC", userId });
+  const { client } = await account();
+  const { data, error } = await client.functions.invoke("sync-statistics", { body: { action: "sync" } });
+  if (error || !data?.ok) throw new Error("Synchronisation distante indisponible. Réessayez dans quelques instants.");
 }
 
 export async function editCloudMatch(id: string, changes: MatchHistoryEntry | null): Promise<void> {

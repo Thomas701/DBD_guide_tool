@@ -10,9 +10,10 @@
 <li><a href="./">Revenir à Build Analyzer</a>, recharger la page, se connecter à son compte puis ouvrir <strong>Statistique</strong>.</li>
 <li>Cliquer sur <strong>Connecter mes statistiques</strong>. Si une connexion est nécessaire, utiliser le lien <strong>Se connecter à Behaviour</strong>, puis se connecter au compte de ce joueur sur le site officiel. Cet onglet peut ensuite être fermé.</li>
 </ol>
-<p>Les données sont ensuite envoyées au compte associé en arrière-plan toutes les cinq minutes quand le navigateur est ouvert, même si Build Analyzer et Behaviour sont fermés. La synchronisation n’ouvre aucun onglet. L’extension conserve les jetons Behaviour dans son stockage local et les renouvelle automatiquement. Vos identifiants ne sont jamais envoyés à Supabase.</p>
+<p>L’extension transmet la première connexion au serveur. Les jetons Behaviour sont conservés chiffrés dans Supabase Vault et renouvelés automatiquement ; les mots de passe et cookies restent dans votre navigateur. Après confirmation du transfert, l’extension efface sa copie des jetons.</p>
+<p>Le serveur synchronise ensuite toutes les cinq minutes, même navigateur fermé et PC éteint. La synchronisation n’ouvre aucun onglet. Une reconnexion reste nécessaire si Behaviour révoque ou expire son autorisation.</p>
 <p>Sur un ordinateur partagé, chaque joueur doit utiliser un profil Chrome ou Edge distinct. Un profil de navigateur est associé à un seul compte Build Analyzer à la fois.</p>
 <p>Behaviour peut expirer ou révoquer sa session : une reconnexion au site officiel sera alors nécessaire. L’extension ne modifie pas cette règle.</p>
-<p>Pour arrêter la collecte, utiliser <strong>Désactiver la synchronisation</strong> dans le site. Se déconnecter de Build Analyzer laisse la collecte active sur votre appareil personnel.</p>
-<p>Pour mettre l’extension à jour, remplacer les fichiers du dossier puis cliquer sur <strong>Recharger</strong> dans la page des extensions. Pour la version 0.2.0, autoriser aussi l’accès à <code>account-backend.bhvr.com</code>, puis recharger une fois votre onglet Behaviour connecté pour récupérer sa session.</p>
+<p>Pour arrêter la collecte et supprimer les jetons du serveur, utiliser <strong>Désactiver la synchronisation</strong> dans le site. Se déconnecter ou désinstaller l’extension laisse la collecte distante active.</p>
+<p>Pour mettre l’extension à jour, remplacer les fichiers du dossier puis cliquer sur <strong>Recharger</strong>. La version 0.3.0 transfère automatiquement la connexion déjà conservée par la version 0.2.0. Si nécessaire, reconnecter Behaviour depuis le site.</p>
 </html>

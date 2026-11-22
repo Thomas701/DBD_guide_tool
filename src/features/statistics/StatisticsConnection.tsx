@@ -10,10 +10,11 @@ export function StatisticsConnection() {
   const [notice, setNotice] = useState<string | null>(null);
   useEffect(() => {
     let active = true;
+    void supabase!.rpc("statistics_collector_status").then(({ data }) => { if (active) setLinked(Boolean(data?.remote)); }).catch(() => undefined);
     void (async () => {
       const session = await supabase!.auth.getSession();
       const reply = await statisticsExtensionMessage({ type: "DBD_EXTENSION_STATUS" });
-      if (active) { setInstalled(true); setLinked(reply.userId === session.data.session?.user.id); }
+      if (active) { setInstalled(true); if (reply.userId === session.data.session?.user.id) setLinked(true); }
     })().catch(() => undefined);
     return () => { active = false; };
   }, []);
@@ -21,7 +22,8 @@ export function StatisticsConnection() {
     if (busy) return;
     setBusy(true); setError(null); setNotice(null);
     try {
-      await statisticsExtensionMessage({ type: "DBD_EXTENSION_STATUS" });
+      const extension = await statisticsExtensionMessage({ type: "DBD_EXTENSION_STATUS" });
+      if (!extension.remoteSupported) throw new Error("Mettez l’extension à jour vers la version 0.3.0, puis rechargez cette page.");
       const session = await supabase!.auth.getSession();
       if (!session.data.session) throw new Error("Reconnectez-vous à votre compte.");
       const result = await supabase!.rpc("create_statistics_collector");
@@ -33,7 +35,7 @@ export function StatisticsConnection() {
         collectorToken: result.data,
       } });
       setInstalled(true); setLinked(true);
-      setNotice(reply.loginRequired ? "Ouvrez le site Behaviour ci-dessous et connectez le compte de ce joueur une fois. Vous pourrez ensuite fermer cet onglet." : "Connexion Behaviour récupérée. La synchronisation s’effectue en arrière-plan sans ouvrir d’onglet.");
+      setNotice(reply.loginRequired ? "Ouvrez Behaviour ci-dessous et connectez le compte de ce joueur une fois. Vous pourrez ensuite fermer le navigateur." : "Activation distante en cours. Supabase prendra ensuite le relais, même navigateur fermé et PC éteint.");
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Connexion impossible."); }
     finally { setBusy(false); }
   }
@@ -50,12 +52,13 @@ export function StatisticsConnection() {
   }
   return <section className="statistics-connection" aria-label="Connexion Behaviour">
     <h2>Vos statistiques Behaviour</h2>
-    <p>Chaque joueur installe la même extension, puis l’associe à son compte Build Analyzer. Connectez-vous une première fois à Behaviour dans ce navigateur.</p>
-    <p>La synchronisation s’exécute en arrière-plan, sans ouvrir d’onglet, toutes les cinq minutes lorsque ce navigateur est ouvert. La connexion est renouvelée automatiquement tant que Behaviour l’autorise.</p>
+    <p>Chaque joueur associe une première fois son compte Behaviour avec l’extension. Ses jetons de connexion sont conservés chiffrés dans Supabase pour permettre la collecte distante.</p>
+    <p>Le serveur synchronise ensuite les statistiques toutes les cinq minutes, même navigateur fermé et PC éteint. La connexion est renouvelée automatiquement tant que Behaviour l’autorise.</p>
     <p><a href="https://stats.deadbydaylight.com/statistics/" target="_blank" rel="noreferrer">Se connecter à Behaviour</a> · Vous pouvez fermer l’onglet après la connexion.</p>
     {!installed && <p><a className="secondary-button" href={`${import.meta.env.BASE_URL}dbd-statistics-extension.zip`} download>Télécharger l’extension Chrome / Edge</a> <a href={`${import.meta.env.BASE_URL}extension-installation.html`} target="_blank" rel="noreferrer">Instructions d’installation</a></p>}
     <button className="primary-button" type="button" disabled={busy} onClick={() => void connect()}>{busy ? "Veuillez patienter…" : linked ? "Reconnecter Behaviour" : "Connecter mes statistiques"}</button>
     {linked && <button className="secondary-button" type="button" disabled={busy} onClick={() => void disconnect()}>Désactiver la synchronisation</button>}
+    {linked && <p>La désactivation arrête la collecte distante et supprime les jetons Behaviour du serveur.</p>}
     {notice && <p role="status">{notice}</p>}
     {error && <p className="error" role="alert">{error}</p>}
   </section>;

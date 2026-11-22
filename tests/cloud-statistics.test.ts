@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { createClient } from "@supabase/supabase-js";
 import { setCloudClient } from "../src/services/cloud-client.js";
-import { readCloudStatisticsSnapshot, readCloudStatisticsStatus } from "../src/services/cloud-statistics.js";
+import { readCloudStatisticsSnapshot, readCloudStatisticsStatus, requestCloudStatisticsSync } from "../src/services/cloud-statistics.js";
 
 test("l’historique paginé récupère ensuite seulement les changements et les suppressions", async () => {
   const userId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
@@ -10,13 +10,19 @@ test("l’historique paginé récupère ensuite seulement les changements et les
   let version = firstVersion;
   const rows = Array.from({ length: 501 }, (_, index) => ({ match_id: String(index).padStart(40, "0"), entry: { id: String(index).padStart(40, "0") }, deleted: false, updated_at: firstVersion }));
   const requests: { since: string | undefined; count: number }[] = [];
+  let remoteSyncs = 0;
   const user = { id: userId, aud: "authenticated", email: "alice@example.test", created_at: "2026-11-21T00:00:00Z", app_metadata: {}, user_metadata: {} };
   const client = createClient("https://dbd-test.supabase.co", "sb_publishable_test_key", {
     auth: { persistSession: false, autoRefreshToken: false },
-    global: { fetch: async (input) => {
+    global: { fetch: async (input, init) => {
       const url = new URL(typeof input === "string" ? input : input instanceof URL ? input.href : input.url);
       let result: unknown;
       if (url.pathname === "/auth/v1/user") result = user;
+      else if (url.pathname === "/functions/v1/sync-statistics") {
+        assert.equal(JSON.parse(init?.body as string).action, "sync");
+        assert.match(new Headers(init?.headers).get("Authorization") ?? "", /^Bearer /);
+        remoteSyncs++; result = { ok: true };
+      }
       else if (url.pathname === "/rest/v1/player_statistics") result = [{ updated_at: version, overview: null, fetched_count: 0, imported_count: 0 }];
       else if (url.pathname === "/rest/v1/rpc/statistics_collector_status") result = { state: "success", message: "Synchronisé", lastSeenAt: version };
       else if (url.pathname === "/rest/v1/player_matches") {
@@ -54,5 +60,7 @@ test("l’historique paginé récupère ensuite seulement les changements et les
     assert.equal(next.matchHistory.some(entry => entry.id === newId), true);
     assert.deepEqual(requests.at(-1), { since: firstVersion, count: 2 });
     assert.equal((await readCloudStatisticsStatus()).lastSuccessAt, new Date(version).toISOString());
+    await requestCloudStatisticsSync();
+    assert.equal(remoteSyncs, 1, "Manual synchronization must work without a browser extension.");
   } finally { setCloudClient(null); }
 });
