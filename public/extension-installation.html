@@ -8,11 +8,11 @@
 <li>Ouvrir <code>chrome://extensions</code> dans Chrome ou <code>edge://extensions</code> dans Edge.</li>
 <li>Activer <strong>Mode développeur</strong>, choisir <strong>Charger l’extension non empaquetée</strong> et sélectionner le dossier contenant <code>manifest.json</code>.</li>
 <li><a href="./">Revenir à Build Analyzer</a>, recharger la page, se connecter à son compte puis ouvrir <strong>Statistique</strong>.</li>
-<li>Cliquer sur <strong>Connecter mes statistiques</strong> puis se connecter au compte Behaviour de ce joueur dans l’onglet officiel.</li>
+<li>Cliquer sur <strong>Connecter mes statistiques</strong>. Si une connexion est nécessaire, utiliser le lien <strong>Se connecter à Behaviour</strong>, puis se connecter au compte de ce joueur sur le site officiel. Cet onglet peut ensuite être fermé.</li>
 </ol>
-<p>Les données sont ensuite envoyées au compte associé toutes les cinq minutes quand le navigateur est ouvert, même si Build Analyzer est fermé. Vos mots de passe et cookies Behaviour restent dans votre navigateur.</p>
+<p>Les données sont ensuite envoyées au compte associé en arrière-plan toutes les cinq minutes quand le navigateur est ouvert, même si Build Analyzer et Behaviour sont fermés. La synchronisation n’ouvre aucun onglet. L’extension conserve les jetons Behaviour dans son stockage local et les renouvelle automatiquement. Vos identifiants ne sont jamais envoyés à Supabase.</p>
 <p>Sur un ordinateur partagé, chaque joueur doit utiliser un profil Chrome ou Edge distinct. Un profil de navigateur est associé à un seul compte Build Analyzer à la fois.</p>
 <p>Behaviour peut expirer ou révoquer sa session : une reconnexion au site officiel sera alors nécessaire. L’extension ne modifie pas cette règle.</p>
 <p>Pour arrêter la collecte, utiliser <strong>Désactiver la synchronisation</strong> dans le site. Se déconnecter de Build Analyzer laisse la collecte active sur votre appareil personnel.</p>
-<p>Pour mettre l’extension à jour, remplacer les fichiers du dossier puis cliquer sur <strong>Recharger</strong> dans la page des extensions.</p>
+<p>Pour mettre l’extension à jour, remplacer les fichiers du dossier puis cliquer sur <strong>Recharger</strong> dans la page des extensions. Pour la version 0.2.0, autoriser aussi l’accès à <code>account-backend.bhvr.com</code>, puis recharger une fois votre onglet Behaviour connecté pour récupérer sa session.</p>
 </html>

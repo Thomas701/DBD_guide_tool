@@ -9,9 +9,10 @@ const output = join(root, ".tmp-statistics-extension");
 const archive = join(root, "dist", "dbd-statistics-extension.zip");
 await mkdir(output, { recursive: true });
 await mkdir(join(root, "dist"), { recursive: true });
-const files = ["manifest.json", "background.mjs", "content.js", "policy.mjs", "config.mjs", "behaviour-session.mjs", "INSTALLATION.txt"];
+const files = ["manifest.json", "background.mjs", "content.js", "policy.mjs", "config.mjs", "behaviour-session.mjs", "behaviour-api.mjs", "INSTALLATION.txt"];
 for (const file of files) await copyFile(join(root, "extension", file), join(output, file));
-for (const file of ["statistics-parser.mjs", "match-history-identity.mjs"]) {
+await writeFile(join(output, "behaviour-api.mjs"), (await readFile(join(output, "behaviour-api.mjs"), "utf8")).replace("../shared/match-history-identity.mjs", "./match-history-identity.mjs"));
+for (const file of ["match-history-identity.mjs"]) {
   await copyFile(join(root, "shared", file), join(output, file));
   files.push(file);
 }

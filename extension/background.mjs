@@ -1,5 +1,7 @@
 import { APP_URL } from "./config.mjs";
-import { isAllowedSender, validPairing } from "./policy.mjs";
+import { isAllowedSender, validPairing, hashText } from "./policy.mjs";
+import { readBehaviourIdentity, validBehaviourSession } from "./behaviour-session.mjs";
+import { collectBehaviourStatistics } from "./behaviour-api.mjs";
 
 const ALARM = "dbd-statistics-sync";
 let syncing = null;
@@ -8,6 +10,7 @@ async function ensureAlarm() {
   if (!await chrome.alarms.get(ALARM)) await chrome.alarms.create(ALARM, { periodInMinutes: 5 });
   await chrome.storage.local.setAccessLevel({ accessLevel: "TRUSTED_CONTEXTS" });
 }
+void ensureAlarm().catch(() => undefined);
 chrome.runtime.onInstalled.addListener(() => { void ensureAlarm(); });
 chrome.runtime.onStartup.addListener(() => { void ensureAlarm(); });
 chrome.alarms.onAlarm.addListener(alarm => { if (alarm.name === ALARM) void sync().catch(() => undefined); });
@@ -19,6 +22,24 @@ chrome.runtime.onMessageExternal.addListener((message, sender, respond) => {
   return true;
 });
 
+async function rememberSession(session) {
+  if (!validBehaviourSession(session)) return false;
+  const { pairing, behaviourSession } = await chrome.storage.local.get(["pairing", "behaviourSession"]);
+  if (!validPairing(pairing)) return false;
+  const fingerprint = await hashText(readBehaviourIdentity(JSON.stringify({ state: session })));
+  if (pairing.fingerprint && pairing.fingerprint !== fingerprint) return false;
+  if (behaviourSession?.authToken.expirationDate > session.authToken.expirationDate) return true;
+  await chrome.storage.local.set({ behaviourSession: session, pairing: { ...pairing, fingerprint } });
+  return true;
+}
+
+async function captureOpenSession() {
+  for (const tab of await chrome.tabs.query({ url: "https://stats.deadbydaylight.com/*" })) {
+    const session = await chrome.tabs.sendMessage(tab.id, { type: "DBD_READ_BEHAVIOUR_SESSION" }).catch(() => null);
+    if (await rememberSession(session)) return;
+  }
+}
+
 async function handleExternal(message) {
   if (message?.type === "DBD_EXTENSION_STATUS") {
     const { pairing, status } = await chrome.storage.local.get(["pairing", "status"]);
@@ -26,43 +47,37 @@ async function handleExternal(message) {
   }
   if (message?.type === "DBD_EXTENSION_PAIR") {
     if (!validPairing(message.pairing)) return { ok: false, error: "Configuration invalide." };
-    // Finish any upload to the previous account before changing the association.
     if (syncing) await syncing.catch(() => undefined);
-    await chrome.storage.local.set({ pairing: { ...message.pairing, fingerprint: null, knownMatches: [] }, status: "Connexion Behaviour requise." });
+    const { pairing: previous } = await chrome.storage.local.get("pairing");
+    if (previous?.userId !== message.pairing.userId) await chrome.storage.local.remove("behaviourSession");
+    await chrome.storage.local.set({ pairing: { ...message.pairing, fingerprint: null }, status: "Connexion Behaviour requise." });
     await ensureAlarm();
-    const tab = await chrome.tabs.create({ url: "https://stats.deadbydaylight.com/statistics/", active: true });
-    await chrome.storage.local.set({ loginTabId: tab.id });
-    void sync(tab.id).catch(() => undefined);
-    return { ok: true };
+    await captureOpenSession();
+    const { behaviourSession } = await chrome.storage.local.get("behaviourSession");
+    if (behaviourSession) void sync().catch(() => undefined);
+    return { ok: true, loginRequired: !behaviourSession };
   }
   const { pairing } = await chrome.storage.local.get("pairing");
   if (!pairing || pairing.userId !== message?.userId) return { ok: false, error: "Connectez d’abord l’extension à ce compte." };
   if (message.type === "DBD_EXTENSION_DISCONNECT") {
     if (syncing) await syncing.catch(() => undefined);
-    await chrome.storage.local.remove(["pairing", "status", "loginTabId"]);
+    await chrome.storage.local.remove(["pairing", "behaviourSession", "status", "loginTabId"]);
     return { ok: true };
   }
-  if (message.type === "DBD_EXTENSION_SYNC") {
-    void sync().catch(() => undefined);
-    return { ok: true };
-  }
+  if (message.type === "DBD_EXTENSION_SYNC") { void sync().catch(() => undefined); return { ok: true }; }
   return { ok: false, error: "Commande inconnue." };
 }
 
-chrome.runtime.onMessage.addListener((message, sender) => {
-  if (message?.type !== "DBD_STATISTICS_READY" || !sender.tab || !sender.url?.startsWith("https://stats.deadbydaylight.com/")) return;
-  void chrome.storage.local.get("loginTabId").then(({ loginTabId }) => {
-    if (sender.tab.id === loginTabId) void sync(loginTabId).catch(() => undefined);
-  });
+chrome.runtime.onMessage.addListener((message, sender, respond) => {
+  if (message?.type !== "DBD_BEHAVIOUR_SESSION" || sender.id !== chrome.runtime.id || !sender.tab || !sender.url?.startsWith("https://stats.deadbydaylight.com/")) return false;
+  void (async () => {
+    if (syncing) await syncing.catch(() => undefined);
+    const accepted = await rememberSession(message.session);
+    respond({ ok: accepted });
+    if (accepted) void sync().catch(() => undefined);
+  })().catch(() => respond({ ok: false }));
+  return true;
 });
-
-async function readTab(tabId, kind, knownMatches = [], attemptedMatches = []) {
-  for (let attempt = 0; attempt < 15; attempt++) {
-    try { return await chrome.tabs.sendMessage(tabId, { type: "DBD_COLLECT", kind, knownMatches, attemptedMatches }); }
-    catch { await new Promise(resolve => setTimeout(resolve, 500)); }
-  }
-  throw new Error("La page Behaviour ne répond pas. Réessayez depuis le site.");
-}
 
 async function upload(pairing, statistics, matches, state, detail) {
   const response = await fetch(`${pairing.supabaseUrl.replace(/\/$/, "")}/rest/v1/rpc/ingest_player_statistics`, {
@@ -73,52 +88,41 @@ async function upload(pairing, statistics, matches, state, detail) {
   if (!response.ok) throw new Error(response.status === 401 || response.status === 403 ? "Association révoquée. Reconnectez l’extension depuis votre compte." : "Supabase n’a pas pu enregistrer les statistiques.");
 }
 
-function sync(existingTabId) {
+function sync() {
   if (syncing) return syncing;
-  syncing = runSync(existingTabId).finally(() => { syncing = null; });
+  syncing = runSync().finally(() => { syncing = null; });
   return syncing;
 }
 
-async function runSync(existingTabId) {
+async function runSync() {
   const { pairing } = await chrome.storage.local.get("pairing");
   if (!validPairing(pairing)) return;
-  const created = [];
   try {
-    let overviewTabId = existingTabId;
-    if (overviewTabId === undefined) {
-      overviewTabId = (await chrome.tabs.create({ url: "https://stats.deadbydaylight.com/statistics/", active: false })).id;
-      created.push(overviewTabId);
+    let { behaviourSession } = await chrome.storage.local.get("behaviourSession");
+    if (!behaviourSession) {
+      await captureOpenSession();
+      ({ behaviourSession } = await chrome.storage.local.get("behaviourSession"));
     }
-    const overview = await readTab(overviewTabId, "overview");
-    if (!overview?.ok) {
-      const detail = overview?.error ?? "Reconnectez-vous à Behaviour, puis relancez la synchronisation.";
+    if (!validBehaviourSession(behaviourSession)) {
+      const detail = "Connectez Behaviour depuis le site pour démarrer la synchronisation en arrière-plan.";
       await upload(pairing, null, [], "waiting_for_login", detail);
-      await chrome.storage.local.set({ status: detail });
-      return;
+      await chrome.storage.local.set({ status: detail }); return;
     }
-    if (!overview.fingerprint) throw new Error("Le compte Behaviour n’a pas pu être identifié. Aucune statistique envoyée.");
-    if (pairing.fingerprint && pairing.fingerprint !== overview.fingerprint) throw new Error("Le compte Behaviour a changé. Rétablissez le compte associé avant de synchroniser.");
-    if (!pairing.fingerprint) {
-      pairing.fingerprint = overview.fingerprint;
-      await chrome.storage.local.set({ pairing });
-    }
-    const historyTab = await chrome.tabs.create({ url: "https://stats.deadbydaylight.com/match-history/", active: false });
-    created.push(historyTab.id);
-    const history = await readTab(historyTab.id, "history", pairing.knownMatches ?? [], pairing.attemptedMatches ?? []);
-    if (!history?.ok) throw new Error(history?.error ?? "Historique Behaviour indisponible.");
-    if (history.fingerprint !== overview.fingerprint) throw new Error("Le compte Behaviour a changé pendant la lecture. Aucune statistique envoyée.");
-    await upload(pairing, overview.statistics, history.matches, "success", "Statistiques synchronisées depuis votre navigateur.");
-    pairing.knownMatches = [...new Set([...(history.completeMatchIds ?? []), ...(pairing.knownMatches ?? [])])].slice(0, 2_000);
-    const attempted = new Set(history.matches.map(match => match.id));
-    pairing.attemptedMatches = [...(pairing.attemptedMatches ?? []).filter(id => !attempted.has(id)), ...attempted].slice(-2_000);
-    await chrome.storage.local.set({ pairing });
+    const fingerprint = await hashText(readBehaviourIdentity(JSON.stringify({ state: behaviourSession })));
+    if (pairing.fingerprint && pairing.fingerprint !== fingerprint) throw new Error("Le compte Behaviour a changé. Aucune statistique envoyée.");
+    await chrome.storage.local.set({ pairing: { ...pairing, fingerprint } });
+    const collected = await collectBehaviourStatistics(behaviourSession, async session => {
+      if (!validBehaviourSession(session) || await hashText(readBehaviourIdentity(JSON.stringify({ state: session }))) !== fingerprint) throw new Error("La session renouvelée ne correspond pas au joueur associé.");
+      await chrome.storage.local.set({ behaviourSession: session });
+      for (const tab of await chrome.tabs.query({ url: "https://stats.deadbydaylight.com/*" })) {
+        await chrome.tabs.sendMessage(tab.id, { type: "DBD_BEHAVIOUR_REFRESH", session }).catch(() => undefined);
+      }
+    });
+    await upload(pairing, collected.statistics, collected.matches, "success", "Statistiques synchronisées en arrière-plan.");
     await chrome.storage.local.set({ status: `Dernière synchronisation : ${new Date().toISOString()}` });
-    if (existingTabId !== undefined) await chrome.storage.local.remove("loginTabId");
   } catch (cause) {
-    const detail = cause instanceof Error ? cause.message : "Synchronisation impossible.";
+    const detail = cause instanceof Error && !["TypeError", "AbortError", "TimeoutError"].includes(cause.name) ? cause.message : "Synchronisation temporairement indisponible. Nouvelle tentative automatique.";
     await chrome.storage.local.set({ status: detail });
-    await upload(pairing, null, [], "error", detail).catch(() => undefined);
-  } finally {
-    for (const tabId of created) await chrome.tabs.remove(tabId).catch(() => undefined);
+    await upload(pairing, null, [], /Connexion Behaviour (expirée|révoquée)/.test(detail) ? "waiting_for_login" : "error", detail).catch(() => undefined);
   }
 }

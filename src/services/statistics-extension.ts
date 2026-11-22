@@ -1,5 +1,5 @@
 export const STATISTICS_EXTENSION_ID = "kiefmoeclpffgabjgaadfnmnfnocpffm";
-interface ExtensionReply { ok: boolean; error?: string; userId?: string | null; status?: string | null }
+interface ExtensionReply { ok: boolean; error?: string; userId?: string | null; status?: string | null; loginRequired?: boolean }
 type BrowserRuntime = {
   lastError?: { message?: string };
   sendMessage: (id: string, request: unknown, callback: (reply: ExtensionReply | undefined) => void) => void;

@@ -2,14 +2,13 @@
   "manifest_version": 3,
   "name": "DBD Build Analyzer — Statistiques",
   "description": "Synchronise vos statistiques Behaviour avec votre compte Build Analyzer sans transférer vos identifiants Behaviour.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "minimum_chrome_version": "120",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAstz+cPgTIpr5uQl0ypVlORmrT+6k8bSZ4xwN4nw0UyRbco4IiQcRy1l26GH/bfuVCRAfICgcUowzIsQhTTPV0aFijFZ435KqJTUAPcIpU7Bau1jksXfDMN2egyi+SQsx/EBJS8hK99dk611R8NathaZYQat0F48HRxDAu+bvNYI5nyAdatXIoHhSdBT0tbxKC0DtWsgdRF+BHYBrYMP4D3h1Jt92KAa/JYOYogiBVcgz1L4lCo6lZZ2Q+YWoX3ZQy+UztQdLMVYoxLSyfz7e2V1UDy61qvHOB6i+1sl4xex15uJ666XQqgWgzPNLBI+05XbYnZIZ8FELqlu+rKz5eQIDAQAB",
   "permissions": ["storage", "alarms"],
-  "host_permissions": ["https://stats.deadbydaylight.com/*", "https://*.supabase.co/*"],
+  "host_permissions": ["https://stats.deadbydaylight.com/*", "https://account-backend.bhvr.com/*", "https://*.supabase.co/*"],
   "background": { "service_worker": "background.mjs", "type": "module" },
   "content_scripts": [{ "matches": ["https://stats.deadbydaylight.com/*"], "js": ["content.js"], "run_at": "document_idle" }],
-  "web_accessible_resources": [{ "resources": ["statistics-parser.mjs", "match-history-identity.mjs", "behaviour-session.mjs"], "matches": ["https://stats.deadbydaylight.com/*"] }],
   "externally_connectable": { "matches": ["https://thomas701.github.io/*"] },
   "action": { "default_title": "Ouvrir Build Analyzer" }
 }

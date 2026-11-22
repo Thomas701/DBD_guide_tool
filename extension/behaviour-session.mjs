@@ -8,3 +8,8 @@ export function readBehaviourIdentity(raw) {
     return typeof subject === "string" && subject ? subject : null;
   } catch { return null; }
 }
+
+export function validBehaviourSession(session) {
+  return Boolean(session && readBehaviourIdentity(JSON.stringify({ state: session }))
+    && [session.authToken, session.refreshToken].every(token => typeof token?.token === "string" && token.token.length < 16_384 && Number.isFinite(token.expirationDate)));
+}

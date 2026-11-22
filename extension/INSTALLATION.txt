@@ -6,18 +6,19 @@ DBD Build Analyzer — Extension Statistiques (Chrome / Edge)
 4. Cliquez sur « Charger l’extension non empaquetée » et sélectionnez le dossier décompressé qui contient manifest.json.
 5. Rechargez le site Build Analyzer et connectez-vous à votre compte personnel.
 6. Ouvrez « Statistique », puis cliquez sur « Connecter mes statistiques ».
-7. Connectez le compte Behaviour correspondant à ce joueur dans l’onglet officiel qui s’ouvre.
+7. Si demandé, cliquez sur « Se connecter à Behaviour », puis connectez le compte correspondant à ce joueur sur le site officiel. Vous pouvez ensuite fermer cet onglet.
 
 Chaque joueur installe la même extension, dans son propre profil de navigateur.
 Un profil de navigateur est associé à un seul compte Build Analyzer à la fois.
 Sur un ordinateur partagé, utilisez un profil Chrome / Edge séparé pour chaque joueur.
 
-La synchronisation fonctionne toutes les cinq minutes quand le navigateur est ouvert, même si le site Build Analyzer est fermé. Aucun programme local ni serveur Chrome n’est requis.
+La synchronisation fonctionne en arrière-plan sans ouvrir d’onglet, toutes les cinq minutes quand le navigateur est ouvert, même si les sites Build Analyzer et Behaviour sont fermés. Les jetons Behaviour sont conservés localement dans le stockage restreint de l’extension et renouvelés automatiquement. Aucun programme local ni serveur Chrome n’est requis.
 Les identifiants et cookies Behaviour restent dans votre navigateur. Un jeton distinct autorise uniquement le collecteur de statistiques ; il ne donne pas accès à vos builds ou à votre session Supabase.
 
 Si Behaviour expire ou révoque sa session, reconnectez-vous au site officiel. L’extension ne peut pas empêcher une révocation du fournisseur.
 Pour arrêter la collecte, utilisez « Désactiver la synchronisation » dans votre compte, puis désinstallez l’extension si souhaité.
 La déconnexion de Build Analyzer seule laisse le collecteur actif sur cet appareil personnel.
 
-L’extension dépend du format des pages Behaviour et de leur session. Si ce format change, la collecte s’arrête avec un message ; les données déjà enregistrées restent conservées.
+L’extension dépend des API Behaviour et de leur session. Si leur format change, la collecte s’arrête avec un message ; les données déjà enregistrées restent conservées.
 Pour mettre l’extension à jour, remplacez les fichiers du dossier puis cliquez sur « Recharger » dans chrome://extensions ou edge://extensions.
+Pour la version 0.2.0, autorisez aussi l’accès à account-backend.bhvr.com et rechargez une fois votre onglet Behaviour connecté.
