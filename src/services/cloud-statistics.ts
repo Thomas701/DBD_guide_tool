@@ -38,7 +38,7 @@ export async function readCloudStatisticsSnapshot(): Promise<unknown> {
   historyCache.set(userId, { watermark, entries });
   return {
     statistics: overview.data?.overview ?? null,
-    updatedAt: overview.data?.updated_at ?? null,
+    updatedAt: watermark ? new Date(watermark).toISOString() : null,
     matchHistory: [...entries.values()],
     importedCount: overview.data?.imported_count ?? 0,
     fetchedCount: overview.data?.fetched_count ?? 0,

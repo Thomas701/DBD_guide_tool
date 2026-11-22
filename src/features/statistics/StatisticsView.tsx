@@ -184,7 +184,7 @@ export function StatisticsView({ serverUrl, nextSyncAt }: { serverUrl: string; n
       {hasSnapshotContent(snapshot) && <div className="statistics-source">Source : <a href={sourceUrl} onClick={(event) => {
         event.preventDefault();
         void showStatisticsPage(serverUrl, sourceUrl).catch((cause) => setError(cause instanceof Error ? cause.message : "Impossible d’ouvrir la page Statistiques."));
-      }}>{shortSourceLabel(tab)}</a> <span>(Chrome contrôlé)</span></div>}
+      }}>{shortSourceLabel(tab)}</a> {!isHostedApp && <span>(Chrome contrôlé)</span>}</div>}
 
       {tab === "overview" && <StatisticsOverview matches={matchHistory} syncing={syncing} />}
       {tab === "mmr" && <MmrPanel

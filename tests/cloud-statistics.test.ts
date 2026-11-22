@@ -38,8 +38,9 @@ test("l’historique paginé récupère ensuite seulement les changements et les
   assert.equal(authentication.error, null);
   setCloudClient(client);
   try {
-    const first = await readCloudStatisticsSnapshot() as { matchHistory: { id: string }[] };
+    const first = await readCloudStatisticsSnapshot() as { matchHistory: { id: string }[]; updatedAt: string };
     assert.equal(first.matchHistory.length, 501);
+    assert.equal(first.updatedAt, new Date(firstVersion).toISOString());
     assert.deepEqual(requests.map(request => request.count), [500, 1]);
     await readCloudStatisticsSnapshot();
     assert.equal(requests.length, 2, "An unchanged history must not be downloaded again.");
