@@ -52,6 +52,7 @@ test("aucun utilisateur ne peut lancer un autre compte ni usurper le cron", asyn
   assert.deepEqual(targets,[owner]);
   assert.equal((await handler(req({ action: "connect", collector_token: collector, session: behaviourSession(), timeZone: "Europe/Paris" }))).status,401);
   assert.equal((await handler(req({ action: "sync" }))).status,401);
+  assert.equal((await handler(req(null))).status,400);
 });
 
 test("une session révoquée ne bloque pas les autres joueurs et ne divulgue pas d’identifiants", async () => {

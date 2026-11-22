@@ -10,7 +10,7 @@ export function StatisticsConnection() {
   const [notice, setNotice] = useState<string | null>(null);
   useEffect(() => {
     let active = true;
-    void supabase!.rpc("statistics_collector_status").then(({ data }) => { if (active) setLinked(Boolean(data?.remote)); }).catch(() => undefined);
+    void supabase!.rpc("statistics_collector_status").then(({ data }) => { if (active) setLinked(Boolean(data?.remote)); }, () => undefined);
     void (async () => {
       const session = await supabase!.auth.getSession();
       const reply = await statisticsExtensionMessage({ type: "DBD_EXTENSION_STATUS" });
