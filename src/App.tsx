@@ -7,7 +7,8 @@ import { appStorage } from "./services/account-storage.js";
 import { appLogoUrl, killerPortraitUrl, killerTerrorRadiusUrl, killerThemeUrl, originalKillerThemeUrl, survivorThemeUrl, perkIconUrl } from "./app/assets.js";
 import { AdministrationView } from "./features/account/AdministrationView.js";
 import { LeaderboardView } from "./features/statistics/LeaderboardView.js";
-import type { AdministrationUser } from "./services/community.js";
+import type { AdministrationUser, CommunityPlayer } from "./services/community.js";
+import { PlayerStatisticsDialog } from "./features/statistics/PlayerStatisticsDialog.js";
 import { mergeDescriptions, readSharedDescriptions, saveSharedDescription, type SharedDescriptions } from "./services/shared-perks.js";
 import { killers, perks, survivors } from "./app/catalog.js";
 import { MAX_BUILD_PERKS, type Build } from "./domain/build.js";
@@ -75,9 +76,10 @@ interface TerrorRadiusPlayback {
   volume: number;
 }
 
-export default function App({ isAdmin = !isHostedApp, readOnly = false, onInspect, sharedDescriptions: initialShared = {} }: {
-  isAdmin?: boolean; readOnly?: boolean; onInspect?: ((user: AdministrationUser) => void) | undefined; sharedDescriptions?: SharedDescriptions;
+export default function App({ isAdmin = !isHostedApp, canManageAccounts = !isHostedApp, readOnly = false, onInspect, sharedDescriptions: initialShared = {} }: {
+  isAdmin?: boolean; canManageAccounts?: boolean; readOnly?: boolean; onInspect?: ((user: AdministrationUser) => void) | undefined; sharedDescriptions?: SharedDescriptions;
 }) {
+  const [publicPlayer, setPublicPlayer] = useState<CommunityPlayer | null>(null);
   const [nextStatisticsSyncAt, setNextStatisticsSyncAt] = useState<number | null>(null);
   const [initialSession] = useState(loadPersistedAppSession);
   const [activeView, setActiveView] = useState<AppView>(initialSession.activeView === "administration" && !isAdmin ? "build" : initialSession.activeView);
@@ -583,6 +585,11 @@ export default function App({ isAdmin = !isHostedApp, readOnly = false, onInspec
     setTierOverrides(tierRepositoryState.repository.update(kind, id, tier));
   }
 
+  function resetTiers(kind: keyof TierOverrides, ids: readonly string[]): void {
+    if (readOnly) return;
+    setTierOverrides(tierRepositoryState.repository.reset(kind, ids));
+  }
+
   async function applyChatActions(actions: readonly AssistantAction[], snapshot: AssistantActionSnapshot): Promise<string[]> {
     if (readOnly) return [];
     if (actions.length === 0) return [];
@@ -877,7 +884,8 @@ export default function App({ isAdmin = !isHostedApp, readOnly = false, onInspec
       {killerInfo && <KillerInfoModal killer={killerInfo} killers={killers} onClose={() => setKillerInfo(null)} />}
 
       <BlindTestView active={activeView === "blindtest"} killers={killers} soundEnabled={soundEnabled} onSessionStart={startBlindTestSession} onSessionStop={stopBlindTestSession} />
-      {activeView === "blindtest" ? null : activeView === "administration" && isAdmin ? <AdministrationView onInspect={onInspect} /> : activeView === "constants" ? <ConstantsView scrollTop={catalogScrollPositionsRef.current.constants} onScroll={(scrollTop) => rememberCatalogScroll("constants", scrollTop)} /> : activeView === "tiers" ? <TierListView killers={effectiveKillers} survivors={survivors} perkTierList={perkTierList} descriptionOverrides={descriptionOverrides} placements={tierOverrides} readOnly={readOnly} onMove={moveTier} /> : activeView === "leaderboard" ? <LeaderboardView /> : activeView === "statistics" ? <StatisticsView serverUrl={currentAssistantServerUrl()} nextSyncAt={nextStatisticsSyncAt} canEdit={isAdmin} readOnly={readOnly} /> : <main className={`analyzer-workspace view-${activeView}`} ref={workspaceRef} style={workspaceStyle}>
+      {publicPlayer && <PlayerStatisticsDialog key={publicPlayer.user_id} player={publicPlayer} onClose={() => setPublicPlayer(null)} onInspect={setPublicPlayer} />}
+      {activeView === "blindtest" ? null : activeView === "administration" && isAdmin ? <AdministrationView onInspect={onInspect} canManageAccounts={canManageAccounts} /> : activeView === "constants" ? <ConstantsView scrollTop={catalogScrollPositionsRef.current.constants} onScroll={(scrollTop) => rememberCatalogScroll("constants", scrollTop)} /> : activeView === "tiers" ? <TierListView killers={effectiveKillers} survivors={survivors} perkTierList={perkTierList} descriptionOverrides={descriptionOverrides} placements={tierOverrides} readOnly={readOnly} onMove={moveTier} onReset={resetTiers} /> : activeView === "leaderboard" ? <LeaderboardView onInspect={setPublicPlayer} /> : activeView === "statistics" ? <StatisticsView serverUrl={currentAssistantServerUrl()} nextSyncAt={nextStatisticsSyncAt} canEdit={isAdmin} readOnly={readOnly} onInspectPlayer={setPublicPlayer} /> : <main className={`analyzer-workspace view-${activeView}`} ref={workspaceRef} style={workspaceStyle}>
         <aside className={`analyzer-sidebar left-sidebar${activeView === "perks" ? " perks-sidebar" : ""}`}>
           <section className={`analyzer-panel selected-loadout-panel${activeView === "perks" ? " perks-loadout-panel" : ""}`} aria-label="Personnage et perks sélectionnés">
             <SelectedKillerCard killer={selectedKiller} side={side} readOnly={readOnly} onChange={() => showView("killers")} onRemove={removeKiller} terrorPlayback={terrorRadiusPlayback} onTerrorRadiusToggle={() => selectedKiller && void toggleTerrorRadius(selectedKiller)} onTerrorRadiusSeek={seekTerrorRadius} onTerrorRadiusVolumeChange={setTerrorRadiusVolume} onShowInfo={setKillerInfo} />

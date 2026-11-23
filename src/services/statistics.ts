@@ -1,5 +1,6 @@
 import { normalizeServerUrl } from "./assistant-provider.js";
-import { getCloudClient } from "./cloud-client.js";
+import { getCloudClient, getViewedUserId } from "./cloud-client.js";
+import { attachMatchAccounts, type CommunityPlayer } from "./community.js";
 import { editCloudMatch, readCloudStatisticsSnapshot, readCloudStatisticsStatus, requestCloudStatisticsSync } from "./cloud-statistics.js";
 
 export interface StatisticsOverview {
@@ -10,6 +11,7 @@ export interface StatisticsOverview {
 }
 
 export interface MatchHistoryParticipant {
+  communityPlayer?: CommunityPlayer | undefined;
   emblemIconUrls?: string[] | undefined;
   emblemIconLabels?: (string | null)[] | undefined;
   perkIconUrls?: string[] | undefined;
@@ -26,6 +28,7 @@ export interface MatchHistoryParticipant {
 }
 
 export interface MatchHistoryEntry {
+  communityPlayer?: CommunityPlayer | undefined;
   survivalTimeLabel?: string | null | undefined;
   emblemIconUrls?: string[] | undefined;
   emblemIconLabels?: (string | null)[] | undefined;
@@ -77,6 +80,9 @@ export interface StatisticsStatus {
 export async function readStatisticsSnapshot(serverUrl: string): Promise<StatisticsSnapshot> {
   if (getCloudClient()) {
     const snapshot = parseSnapshot(await readCloudStatisticsSnapshot());
+    const { data } = await getCloudClient()!.auth.getSession();
+    const owner = getViewedUserId() ?? data.session?.user.id;
+    if (owner && snapshot.matchHistory.length) await attachMatchAccounts(snapshot.matchHistory, owner).catch(() => undefined);
     snapshot.matchHistory.sort((left, right) => (right.playedAt ?? right.importedAt).localeCompare(left.playedAt ?? left.importedAt));
     return snapshot;
   }
@@ -155,7 +161,7 @@ async function requestStatus(serverUrl: string, path: string): Promise<Statistic
   return parseStatus(payload);
 }
 
-function parseSnapshot(value: unknown): StatisticsSnapshot {
+export function parseSnapshot(value: unknown): StatisticsSnapshot {
   if (!isRecord(value)) throw new Error("Le service de statistiques a renvoyé une réponse invalide.");
   return {
     updatedAt: isoOrNull(value.updatedAt),

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { killerBreathingUrl, killerPortraitUrl, killerTerrorRadiusUrl, killerThemeUrl } from "../../app/assets.js";
 import type { Killer } from "../../domain/killer.js";
-import { blindTestResultComment, getBlindTestPlayback, pickWeightedBlindTestTrack, type BlindTestAudioKind, type BlindTestTrack } from "../../services/blind-test.js";
+import { blindTestResultComment, getBlindTestPlayback, pickWeightedBlindTestTrack, type BlindTestAudioKind, type BlindTestTrack, type BlindTestPick } from "../../services/blind-test.js";
 
 type BlindTestSource = BlindTestAudioKind | "all";
 type BlindTestPhase = "setup" | "loading" | "question" | "result" | "complete";
@@ -41,7 +41,9 @@ export function BlindTestView({ active, killers, soundEnabled, onSessionStart, o
   const [score, setScore] = useState(0);
   const [result, setResult] = useState<boolean | null>(null);
   const [filter, setFilter] = useState("");
+  const [audioError, setAudioError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const preparedQuestion = useRef<{ pick: BlindTestPick; audio: HTMLAudioElement; playback: ReturnType<typeof getBlindTestPlayback> | null } | null>(null);
   const volumeRef = useRef(volume);
   const weightsRef = useRef<Record<string, number>>({});
   const runRef = useRef<BlindTestRun | null>(null);
@@ -61,6 +63,37 @@ export function BlindTestView({ active, killers, soundEnabled, onSessionStart, o
     if (!soundEnabled && phase !== "setup" && phase !== "complete") stopBlindTest();
   }, [soundEnabled]);
 
+  useEffect(() => {
+    let cancelled = false;
+    if (active && soundEnabled && phase === "setup") void loadTracks().then(tracks => {
+      if (!cancelled && !preparedQuestion.current) prepareQuestion(tracks, Object.fromEntries(tracks.map(track => [track.id, 1])), seconds);
+    });
+    return () => { cancelled = true; };
+  }, [active, source, soundEnabled, phase, seconds]);
+
+  useEffect(() => { discardPreparedQuestion(); }, [source, seconds]);
+
+  function discardPreparedQuestion(): void {
+    const audio = preparedQuestion.current?.audio;
+    preparedQuestion.current = null;
+    if (audio) { audio.pause(); audio.removeAttribute("src"); audio.load(); }
+  }
+
+  function prepareQuestion(tracks: readonly BlindTestTrack[], weights: Readonly<Record<string, number>>, seconds: number): void {
+    const pick = pickWeightedBlindTestTrack(tracks, weights);
+    if (!pick) return;
+    const audio = new Audio(); audio.preload = "auto";
+    const prepared = { pick, audio, playback: null as ReturnType<typeof getBlindTestPlayback> | null };
+    audio.addEventListener("loadedmetadata", () => {
+      if (!Number.isFinite(audio.duration) || audio.duration <= 0) return;
+      prepared.playback = getBlindTestPlayback(audio.duration, seconds, pick.track.kind);
+      audio.loop = prepared.playback.loop;
+      audio.currentTime = prepared.playback.startTime;
+    }, { once: true });
+    preparedQuestion.current = prepared;
+    audio.src = pick.track.url;
+  }
+
   function clearTimers(): void {
     if (timerRef.current !== null) window.clearInterval(timerRef.current);
     if (timeoutRef.current !== null) window.clearTimeout(timeoutRef.current);
@@ -79,6 +112,7 @@ export function BlindTestView({ active, killers, soundEnabled, onSessionStart, o
   function stopBlindTest(): void {
     requestRef.current += 1;
     clearTimers();
+    discardPreparedQuestion();
     const audio = audioRef.current;
     if (audio) {
       audio.pause();
@@ -115,6 +149,7 @@ export function BlindTestView({ active, killers, soundEnabled, onSessionStart, o
     setPhase("loading");
     setScore(0);
     setResult(null);
+    setAudioError(null);
     onSessionStart();
     const tracks = await loadTracks();
     if (request !== requestRef.current) return;
@@ -131,9 +166,15 @@ export function BlindTestView({ active, killers, soundEnabled, onSessionStart, o
   async function startQuestion(): Promise<void> {
     clearTimers();
     const run = runRef.current;
-    const audio = audioRef.current;
+    const prepared = preparedQuestion.current;
+    preparedQuestion.current = null;
+    const audio = prepared?.audio ?? audioRef.current;
     if (!run || !audio) return;
-    const pick = pickWeightedBlindTestTrack(run.tracks, weightsRef.current);
+    const previousAudio = audioRef.current;
+    previousAudio?.pause();
+    if (previousAudio && previousAudio !== audio) { previousAudio.onended = null; previousAudio.removeAttribute("src"); previousAudio.load(); }
+    audioRef.current = audio;
+    const pick = prepared?.pick ?? pickWeightedBlindTestTrack(run.tracks, weightsRef.current);
     if (!pick) return stopBlindTest();
     weightsRef.current = pick.weights;
     currentQuestionRef.current = pick.track;
@@ -142,26 +183,37 @@ export function BlindTestView({ active, killers, soundEnabled, onSessionStart, o
     setSelectedKillerId(null);
     setFilter("");
     setResult(null);
-    setPhase("question");
+    setPhase("loading");
     audio.pause();
-    audio.src = pick.track.url;
+    if (!prepared) audio.src = pick.track.url;
     audio.volume = volumeRef.current;
-    audio.currentTime = 0;
+    if (!prepared) audio.currentTime = 0;
     const request = ++requestRef.current;
-    await waitForMetadata(audio);
+    try { await waitForMetadata(audio); }
+    catch {
+      if (request !== requestRef.current) return;
+      stopBlindTest(); setAudioError("La piste audio n’a pas pu être chargée. Réessayez."); return;
+    }
     if (request !== requestRef.current || currentQuestionRef.current?.id !== pick.track.id) return;
     const duration = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : run.seconds;
-    const playback = getBlindTestPlayback(duration, run.seconds, pick.track.kind);
+    const playback = prepared?.playback ?? getBlindTestPlayback(duration, run.seconds, pick.track.kind);
     const questionDuration = run.seconds;
     audio.loop = playback.loop;
-    audio.currentTime = playback.startTime;
+    if (Math.abs(audio.currentTime - playback.startTime) > .01) audio.currentTime = playback.startTime;
+    try { await audio.play(); }
+    catch {
+      if (request !== requestRef.current) return;
+      stopBlindTest(); setAudioError("La lecture audio n’a pas pu démarrer. Réessayez."); return;
+    }
+    if (request !== requestRef.current) { audio.pause(); return; }
+    setPhase("question");
     const deadline = performance.now() + questionDuration * 1000;
     const updateCountdown = (): void => setCountdown(Math.max(0, Math.ceil((deadline - performance.now()) / 1000)));
     updateCountdown();
     timerRef.current = window.setInterval(updateCountdown, 100);
     timeoutRef.current = window.setTimeout(() => finishQuestion(pick.track.id), questionDuration * 1000);
     audio.onended = playback.loop ? null : () => finishQuestion(pick.track.id);
-    await audio.play().catch(() => finishQuestion(pick.track.id));
+    if (run.answered + 1 < run.totalQuestions) prepareQuestion(run.tracks, pick.weights, run.seconds);
   }
 
   function finishQuestion(trackId: string): void {
@@ -196,6 +248,7 @@ export function BlindTestView({ active, killers, soundEnabled, onSessionStart, o
   const isRunning = phase === "loading" || phase === "question" || phase === "result";
 
   return <main className={`blind-test-page${active ? "" : " blind-test-hidden"}`} aria-hidden={!active}>
+    {audioError && <p role="alert">{audioError}</p>}
     <label className="blind-test-volume">
       <span>Volume BlindTest</span>
       <input type="range" min="0" max="1" step="0.05" value={volume} onChange={(event) => updateBlindTestVolume(Number(event.target.value))} />
@@ -223,9 +276,14 @@ export function BlindTestView({ active, killers, soundEnabled, onSessionStart, o
 }
 
 async function waitForMetadata(audio: HTMLAudioElement): Promise<void> {
+  if (audio.error) throw new Error("Audio unavailable");
   if (audio.readyState >= HTMLMediaElement.HAVE_METADATA) return;
-  await new Promise<void>((resolve) => {
-    audio.addEventListener("loadedmetadata", () => resolve(), { once: true });
-    audio.addEventListener("error", () => resolve(), { once: true });
+  await new Promise<void>((resolve, reject) => {
+    const cleanup = () => { clearTimeout(timer); audio.removeEventListener("loadedmetadata", ready); audio.removeEventListener("error", failed); };
+    const ready = () => { cleanup(); resolve(); };
+    const failed = () => { cleanup(); reject(new Error("Audio unavailable")); };
+    const timer = setTimeout(failed, 15_000);
+    audio.addEventListener("loadedmetadata", ready, { once: true });
+    audio.addEventListener("error", failed, { once: true });
   });
 }

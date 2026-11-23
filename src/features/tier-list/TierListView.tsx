@@ -24,9 +24,10 @@ interface TierListViewProps {
   placements: TierOverrides;
   readOnly?: boolean;
   onMove: (kind: keyof TierOverrides, id: string, tier: TierPlacement) => void;
+  onReset: (kind: keyof TierOverrides, ids: readonly string[]) => void;
 }
 
-export function TierListView({ killers, survivors, perkTierList, descriptionOverrides, placements, readOnly = false, onMove }: TierListViewProps) {
+export function TierListView({ killers, survivors, perkTierList, descriptionOverrides, placements, readOnly = false, onMove, onReset }: TierListViewProps) {
   const [kind, setKind] = useState<TierKind>("killers");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [dropTier, setDropTier] = useState<TierPlacement | null>(null);
@@ -63,9 +64,14 @@ export function TierListView({ killers, survivors, perkTierList, descriptionOver
   return <main className={`tier-list-page${selected ? " has-selection" : ""}`} data-kind={kind}>
     <aside className="tier-list-sidebar" aria-label="Type de tier list">
       {TABS.map((tab) => <button key={tab.kind} className={kind === tab.kind ? "selected" : ""} aria-pressed={kind === tab.kind} onClick={() => { setKind(tab.kind); setSelectedId(null); setMessage(null); endDrag(); }} type="button">{tab.label}</button>)}
-      <p>Votre classement est privé. Placez les entrées à évaluer dans « Non classés ».</p>
       {kind !== "killers" && <details className="tier-list-method"><summary>Critères du classement</summary><p>Révision : {PERK_TIER_REVIEW.date}</p><p>{PERK_TIER_REVIEW.scope}</p>{PERK_TIER_REVIEW.sources.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.url}>{source.title}</a>)}</details>}
       {message && <p role="status">{message}</p>}
+      <button type="button" className="tier-list-reset" disabled={readOnly} onClick={() => {
+        try {
+          onReset(kind === "killers" ? "killers" : "perks", kind === "killers" ? killers.map(item => item.id) : ranked.map(item => item.perk.id));
+          setMessage("Toutes les entrées de cette liste sont dans Non classés.");
+        } catch (cause) { setMessage(cause instanceof Error ? cause.message : "Reset impossible."); }
+      }}>Reset</button>
     </aside>
     <section className="tier-list-board" aria-label={title}>
       {PLACEMENTS.map((tier) => {

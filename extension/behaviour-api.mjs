@@ -34,11 +34,13 @@ export async function mapBehaviourMatches(payload, now = new Date(), timeZone = 
     const match = raw.matchStat, player = playerDetails(raw.playerStat, match?.gameType?.id);
     if (!match?.map?.name || !Number.isFinite(match.matchStartTime) || !Array.isArray(raw.opponentStat)) throw new Error("Partie Behaviour invalide.");
     const date = new Date(match.matchStartTime * 1_000);
+    const sharedMatchId = await behaviourSharedMatchId(raw);
     if (!Number.isFinite(match.matchDuration || raw.playerStat.playerTimeInMatch)) throw new Error("Durée de partie Behaviour invalide.");
     // shortcut: IDs retain the original browser timezone; migrate stored dates before supporting timezone changes.
     const parts = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(date).map(part => [part.type, part.value]));
     const entry = {
       ...player, id: "", characterName: player.name, characterImageUrl: player.imageUrl,
+      ...(sharedMatchId ? { sharedMatchId } : {}),
       participants: raw.opponentStat.filter(opponent => opponent.playerRole === raw.playerStat.playerRole).concat(raw.opponentStat.filter(opponent => opponent.playerRole !== raw.playerStat.playerRole)).map(opponent => playerDetails(opponent, match.gameType?.id)),
       mapName: match.map.name, mapImageUrl: asset(match.map),
       playedAt: `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:00.000Z`,
@@ -51,6 +53,17 @@ export async function mapBehaviourMatches(payload, now = new Date(), timeZone = 
     entry.id = await hashText(matchHistoryIdentity(entry), "SHA-1");
     return entry;
   }));
+}
+
+export async function behaviourSharedMatchId(raw) {
+  const match = raw?.matchStat, players = [raw?.playerStat, ...(raw?.opponentStat ?? [])];
+  const killers = match?.gameType?.id === "Calamari" ? 2 : 1, survivors = killers * 4;
+  if (!Number.isFinite(match?.matchStartTime) || !Number.isFinite(match?.matchDuration) || match.matchDuration <= 0 || !match?.map?.name
+    || players.length !== killers + survivors || players.filter(player => player?.playerRole === "VE_Slasher").length !== killers
+    || players.filter(player => player?.playerRole === "VE_Camper").length !== survivors
+    || players.some(player => !player?.characterName?.name || !Number.isFinite(player.leaderboardScore))) return null;
+  const roster = players.map(player => JSON.stringify([player.playerRole, player.characterName.name, player.leaderboardScore])).sort();
+  return hashText(JSON.stringify([match.matchStartTime, match.matchDuration, match.map.name, match.gameType?.id, match.isCustomMatch === true, roster]));
 }
 
 export function mapBehaviourOverview(payload) {
@@ -101,5 +114,5 @@ export async function collectBehaviourStatistics(session, saveSession, request =
   const profile = await get("/players/me").catch(() => null);
   providers ??= await get("/players/me/game-accounts/dbd").catch(() => null);
   const nickname = readBehaviourNickname(profile, providers, session.provider);
-  return { statistics: overview === undefined ? null : { ...mapBehaviourOverview(overview), ...(nickname ? { nickname } : {}) }, matches: await mapBehaviourMatches(history, new Date(), timeZone) };
+  return { nickname, statistics: overview === undefined ? null : { ...mapBehaviourOverview(overview), ...(nickname ? { nickname } : {}) }, matches: await mapBehaviourMatches(history, new Date(), timeZone) };
 }

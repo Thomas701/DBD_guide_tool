@@ -37,6 +37,13 @@ export class LocalTierOverrideRepository {
     this.storage.setItem(TIER_OVERRIDES_STORAGE_KEY, JSON.stringify(next));
     return next;
   }
+  reset(kind: keyof TierOverrides, ids: readonly string[]): TierOverrides {
+    if (ids.some(id => !id.trim() || ["__proto__", "constructor", "prototype"].includes(id))) throw new Error("Entrée invalide.");
+    const current = this.list();
+    const next = { ...current, [kind]: { ...current[kind], ...Object.fromEntries(ids.map(id => [id, "unranked" as const])) } };
+    this.storage.setItem(TIER_OVERRIDES_STORAGE_KEY, JSON.stringify(next));
+    return next;
+  }
 }
 
 function readTiers(value: unknown): Record<string, TierPlacement> {

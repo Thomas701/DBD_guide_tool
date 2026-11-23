@@ -22,6 +22,7 @@ test("le serveur renouvelle et synchronise plusieurs joueurs sans navigateur, en
       if (name === "authorize_statistics_cron") return Response.json(true);
       if (name === "claim_remote_statistics") { assert.equal(body.target_user,null); return Response.json([job, { ...job, userId: other, lease: "other-lease" }]); }
       if (name === "save_remote_statistics_session") { saved.push(body); return Response.json(null); }
+      if (name === "save_remote_statistics_profile") { assert.equal(body.nickname, "Donoteet"); return Response.json(null); }
       if (name === "finish_remote_statistics") { finished.push(body); return Response.json(null); }
     }
     if (target.endsWith("/sso/token")) return Response.json({ access_token: behaviourToken("alice"), refresh_token: "rotated-private-refresh", expires_in: 3600, refresh_token_expire_date: new Date(Date.now()+86400_000).toISOString() });
@@ -60,10 +61,12 @@ test("aucun utilisateur ne peut lancer un autre compte ni usurper le cron", asyn
 
 test("le serveur importe les parties même si Behaviour n’a pas encore de statistiques générales", async () => {
   const finished = [];
+  const profiles = [];
   const handler = statisticsHandler({ url, serviceKey: "server-private-key", request: async (target, init) => {
     if (target.endsWith("authorize_statistics_cron")) return Response.json(true);
     if (target.endsWith("claim_remote_statistics")) return Response.json([{ ...job, credentials: { ...credentials, session: behaviourSession() } }]);
     if (target.endsWith("finish_remote_statistics")) { finished.push(JSON.parse(init.body)); return Response.json(null); }
+    if (target.endsWith("save_remote_statistics_profile")) { profiles.push(JSON.parse(init.body)); return Response.json(null); }
     if (target.includes("/player-stats/games/")) return Response.json({ code: "StatNotFound", message: "No stats found" }, { status: 404 });
     if (target.endsWith("/players/me")) return Response.json(behaviourProfile);
     if (target.endsWith("/players/me/game-accounts/dbd")) return Response.json(behaviourProviders);
@@ -77,6 +80,8 @@ test("le serveur importe les parties même si Behaviour n’a pas encore de stat
   assert.equal(finished[0].state, "success");
   assert.equal(finished[0].statistics, null);
   assert.equal(finished[0].matches.length, 1);
+  assert.equal(profiles[0].nickname, "Donoteet");
+  assert.equal(profiles[0].owner_id, owner);
   assert.ok(!JSON.stringify(finished).includes("private-refresh"));
 });
 
@@ -88,6 +93,7 @@ test("une session révoquée ne bloque pas les autres joueurs et ne divulgue pas
     if (target.endsWith("authorize_statistics_cron")) return Response.json(true);
     if (target.endsWith("claim_remote_statistics")) return Response.json([job,{...job,userId:other,credentials:good}]);
     if (target.endsWith("finish_remote_statistics")) { finished.push(body); return Response.json(null); }
+    if (target.endsWith("save_remote_statistics_profile")) return Response.json(null);
     if (target.endsWith("/sso/token")) return new Response("private-error-body",{status:400});
     return Response.json(target.includes("match-history") ? behaviourHistory : behaviourOverview);
   } });

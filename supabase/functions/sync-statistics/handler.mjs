@@ -21,6 +21,7 @@ export function statisticsHandler({ url, serviceKey, request = fetch }) {
           await rpc("save_remote_statistics_session", { owner_id: userId, lease, behaviour_session: next });
         }, request, timeZone);
         statistics = result.statistics; matches = result.matches;
+        if (result.nickname) await rpc("save_remote_statistics_profile", { owner_id: userId, lease, nickname: result.nickname });
       } catch (cause) {
         const loginRequired = cause instanceof Error && /Connexion Behaviour (expirée|révoquée)/.test(cause.message);
         state = loginRequired ? "waiting_for_login" : "error";

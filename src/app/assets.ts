@@ -3,12 +3,12 @@ import type { Perk } from "../domain/perk.js";
 import { findBlindTestAudioFile, killerBreathingFileNames } from "../services/blind-test.js";
 
 const perkModules = import.meta.glob(
-  "../../DBDImages-main/DBDImages-main/images/perks/{killer,survivor}/*.png",
+  "../../DBDImages-main/DBDImages-main/images/perks/{killer,survivor}/*.webp",
   { eager: true, query: "?url", import: "default" }
 ) as Record<string, string>;
 
 const portraitModules = import.meta.glob(
-  "../../DBDImages-main/DBDImages-main/images/characters/{killer,survivor}/*.png",
+  "../../DBDImages-main/DBDImages-main/images/characters/{killer,survivor}/*.webp",
   { eager: true, query: "?url", import: "default" }
 ) as Record<string, string>;
 
@@ -34,18 +34,18 @@ const logoModules = import.meta.glob(
 
 const killerThemeModules = import.meta.glob(
   "../../DBDImages-main/DBDImages-main/images/killer_theme/*.ogg",
-  { query: "?url", import: "default" }
-) as Record<string, () => Promise<string>>;
+  { eager: true, query: "?url", import: "default" }
+) as Record<string, string>;
 
 const terrorRadiusModules = import.meta.glob(
   "../../DBDImages-main/DBDImages-main/images/killer_terror_radius/*.ogg",
-  { query: "?url", import: "default" }
-) as Record<string, () => Promise<string>>;
+  { eager: true, query: "?url", import: "default" }
+) as Record<string, string>;
 
 const killerBreathingModules = import.meta.glob(
   "../../DBDImages-main/DBDImages-main/images/killer_breathing/*.{ogg,oga}",
-  { query: "?url", import: "default" }
-) as Record<string, () => Promise<string>>;
+  { eager: true, query: "?url", import: "default" }
+) as Record<string, string>;
 
 const perkImages = byFileName(perkModules);
 const portraitImages = byFileName(portraitModules);
@@ -131,17 +131,17 @@ export async function killerBreathingUrl(killerId: string): Promise<string | nul
 }
 
 export async function originalKillerThemeUrl(): Promise<string | null> {
-  return killerThemes.get("Original_Killer_Theme.ogg")?.() ?? null;
+  return killerThemes.get("Original_Killer_Theme.ogg") ?? null;
 }
 
 export async function survivorThemeUrl(): Promise<string | null> {
-  return killerThemes.get("Original_Survivor_Theme.ogg")?.() ?? null;
+  return killerThemes.get("Original_Survivor_Theme.ogg") ?? null;
 }
 
-async function matchingAudio(tracks: Map<string, () => Promise<string>>, expectedFileName: string): Promise<string | null> {
+async function matchingAudio(tracks: Map<string, string>, expectedFileName: string): Promise<string | null> {
   const fileName = findBlindTestAudioFile(tracks.keys(), expectedFileName);
   const loader = fileName ? tracks.get(fileName) : null;
-  return loader ? loader() : null;
+  return loader ?? null;
 }
 
 function terrorAudioId(killerId: string): string {
@@ -153,7 +153,7 @@ function themeAudioId(killerId: string): string {
 }
 
 function byFileName<T>(modules: Record<string, T>): Map<string, T> {
-  return new Map(Object.entries(modules).map(([path, url]) => [fileName(path), url]));
+  return new Map(Object.entries(modules).map(([path, url]) => [fileName(path).replace(/\.webp$/, ".png"), url]));
 }
 
 function resolveAsset(path: string | null, assets: Map<string, string>): string | null {

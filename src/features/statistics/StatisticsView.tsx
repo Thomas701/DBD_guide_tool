@@ -17,6 +17,8 @@ import {
 import { calculateMmrHistory, INITIAL_MMR, isMvpMatch, type MmrEvent, type MmrMode } from "../../services/statistics-mmr.js";
 import { StatisticsOverview } from "./StatisticsOverview.js";
 import { statisticsImage } from "./StatisticsRankings.js";
+import type { CommunityPlayer } from "../../services/community.js";
+import { PlayerStatisticsButton } from "../../components/PlayerStatisticsButton.js";
 
 type StatisticsTab = "overview" | "mmr" | "history";
 type QueueFilter = string;
@@ -28,8 +30,8 @@ const STATUS_REFRESH_INTERVAL_MS = 5_000;
 const ESCAPED_ICON_URL = "https://assets.live.bhvraccount.com/stats/VE_Escaped.png";
 const SACRIFICED_ICON_URL = "https://assets.live.bhvraccount.com/stats/VE_Sacrificed.png";
 
-export function StatisticsView({ serverUrl, nextSyncAt, canEdit, readOnly = false }: { serverUrl: string; nextSyncAt: number | null; canEdit: boolean; readOnly?: boolean }) {
-  const [snapshot, setSnapshot] = useState<StatisticsSnapshot | null>(null);
+export function StatisticsView({ serverUrl, nextSyncAt, canEdit, readOnly = false, publicSnapshot, onInspectPlayer }: { serverUrl: string; nextSyncAt: number | null; canEdit: boolean; readOnly?: boolean; publicSnapshot?: StatisticsSnapshot; onInspectPlayer?: ((player: CommunityPlayer) => void) | undefined }) {
+  const [snapshot, setSnapshot] = useState<StatisticsSnapshot | null>(publicSnapshot ?? null);
   const [status, setStatus] = useState<StatisticsStatus | null>(null);
   const [tab, setTab] = useState<StatisticsTab>("overview");
   const [error, setError] = useState<string | null>(null);
@@ -80,6 +82,7 @@ export function StatisticsView({ serverUrl, nextSyncAt, canEdit, readOnly = fals
 
   useEffect(() => {
     mounted.current = true;
+    if (publicSnapshot) { setSnapshot(publicSnapshot); return () => { mounted.current = false; }; }
     void (async () => {
       const cached = await readStatisticsSnapshot(serverUrl).catch(() => null);
       if (mounted.current && cached && hasSnapshotContent(cached)) setSnapshot(cached);
@@ -107,15 +110,16 @@ export function StatisticsView({ serverUrl, nextSyncAt, canEdit, readOnly = fals
       stopPolling();
       stopAutoRefresh();
     };
-  }, [serverUrl, readOnly]);
+  }, [serverUrl, readOnly, publicSnapshot]);
 
   useEffect(() => {
+    if (publicSnapshot) return;
     stopAutoRefresh();
     autoRefreshTimer.current = window.setInterval(() => {
       void pollStatus();
     }, STATUS_REFRESH_INTERVAL_MS);
     return stopAutoRefresh;
-  }, [serverUrl]);
+  }, [serverUrl, publicSnapshot]);
 
   useEffect(() => {
     setHistoryPage(1);
@@ -156,7 +160,7 @@ export function StatisticsView({ serverUrl, nextSyncAt, canEdit, readOnly = fals
       <div>
         <span className="eyebrow">Dead by Daylight</span>
         <h1>Statistique</h1>
-        <p>Statistiques récupérées depuis stats.deadbydaylight.com, {isHostedApp ? "enregistrées dans votre compte" : "archivées localement"} et mises à jour automatiquement.</p>
+        <p>{publicSnapshot ? "Statistiques de ce joueur, calculées à partir de son historique." : <>Statistiques récupérées depuis stats.deadbydaylight.com, {isHostedApp ? "enregistrées dans votre compte" : "archivées localement"} et mises à jour automatiquement.</>}</p>
       </div>
       {!readOnly && <div className="statistics-sync-actions">
         <StatisticsSyncCountdown nextSyncAt={nextSyncAt} syncing={syncing} />
@@ -221,6 +225,7 @@ export function StatisticsView({ serverUrl, nextSyncAt, canEdit, readOnly = fals
             onKillerFiltersChange={setKillerFilters}
             onSurvivorFiltersChange={setSurvivorFilters}
             onPageChange={setHistoryPage}
+            onInspectPlayer={onInspectPlayer}
             onEdit={canEdit && !readOnly ? setEditingMatch : undefined}
             onDelete={canEdit && !readOnly ? (match) => void removeMatch(match) : undefined}
           />}
@@ -343,6 +348,7 @@ function HistoryPanel({
   onPageChange,
   onEdit,
   onDelete,
+  onInspectPlayer,
 }: {
   matches: readonly MatchHistoryEntry[];
   mmrByMatchId: ReadonlyMap<string, MmrEvent>;
@@ -369,6 +375,7 @@ function HistoryPanel({
   onPageChange: (value: number) => void;
   onEdit: ((match: MatchHistoryEntry) => void) | undefined;
   onDelete: ((match: MatchHistoryEntry) => void) | undefined;
+  onInspectPlayer: ((player: CommunityPlayer) => void) | undefined;
 }) {
   return <section className="statistics-history-section" aria-label="Historique des parties">
     <div className="statistics-history-toolbar">
@@ -414,7 +421,7 @@ function HistoryPanel({
       : <>
           <PaginationControls page={page} pageCount={pageCount} onPageChange={onPageChange} />
           <div className="statistics-history-list">
-            {matches.map((match) => <MatchHistoryCard match={match} mmr={mmrByMatchId.get(match.id)} onEdit={onEdit} onDelete={onDelete} key={match.id} />)}
+            {matches.map((match) => <MatchHistoryCard match={match} mmr={mmrByMatchId.get(match.id)} onEdit={onEdit} onDelete={onDelete} onInspectPlayer={onInspectPlayer} key={match.id} />)}
           </div>
           <PaginationControls page={page} pageCount={pageCount} onPageChange={onPageChange} />
         </>}
@@ -430,7 +437,7 @@ function PaginationControls({ page, pageCount, onPageChange }: { page: number; p
   </div>;
 }
 
-function MatchHistoryCard({ match, mmr, onEdit, onDelete }: { match: MatchHistoryEntry; mmr: MmrEvent | undefined; onEdit: ((match: MatchHistoryEntry) => void) | undefined; onDelete: ((match: MatchHistoryEntry) => void) | undefined }) {
+function MatchHistoryCard({ match, mmr, onEdit, onDelete, onInspectPlayer }: { match: MatchHistoryEntry; mmr: MmrEvent | undefined; onEdit: ((match: MatchHistoryEntry) => void) | undefined; onDelete: ((match: MatchHistoryEntry) => void) | undefined; onInspectPlayer: ((player: CommunityPlayer) => void) | undefined }) {
   const [selected, setSelected] = useState<{ match: MatchHistoryEntry; available: boolean } | null>(null);
   const loadout = classifyLoadout(match);
   const survivorResultIconUrl = match.role === "survivor" ? survivorOutcomeIconUrl(match.resultLabel) : null;
@@ -443,7 +450,7 @@ function MatchHistoryCard({ match, mmr, onEdit, onDelete }: { match: MatchHistor
         {match.resultLabel && <span className={`statistics-match-result${survivorResultIconUrl ? " with-icon" : ""}`}>{survivorResultIconUrl ? <><img src={survivorResultIconUrl} alt={match.resultLabel} loading="lazy" /><span className="sr-only">{match.resultLabel}</span></> : match.resultLabel}</span>}
       </div>
       <div className="statistics-match-copy">
-        <div className="statistics-match-name-row"><strong>{match.characterName}</strong>{mvp && <span className="statistics-mvp-badge" title={match.role === "killer" ? "Tous les survivants ont été éliminés" : "Meilleur score survivant"}>★ MVP</span>}</div>
+        <div className="statistics-match-name-row"><strong>{match.role === "survivor" ? match.communityPlayer?.nickname ?? match.characterName : match.characterName}</strong>{mvp && <span className="statistics-mvp-badge" title={match.role === "killer" ? "Tous les survivants ont été éliminés" : "Meilleur score survivant"}>★ MVP</span>}</div>
         <span className="statistics-match-score-label">Score</span>
         <span className="statistics-match-score">{formatScore(match.score)}</span>
         <span className="statistics-match-role">{match.queueLabel ? `${match.queueLabel} · ` : ""}{roleLabel(match.role)}</span>
@@ -458,7 +465,7 @@ function MatchHistoryCard({ match, mmr, onEdit, onDelete }: { match: MatchHistor
     <div className="statistics-match-participants" aria-label="Participants adverses ou alliés">
       {match.participants.map((participant, index) => <ParticipantCard participant={participant} key={`${match.id}-participant-${index}`} onClick={() => setSelected({
         available: participant.perkIconUrls !== undefined && participant.equipmentIconUrls !== undefined,
-        match: { ...match, characterName: participant.name ?? "Participant", characterImageUrl: participant.imageUrl, role: participant.role, score: participant.score, resultLabel: participant.resultLabel, durationLabel: participant.survivalTimeLabel, perkIconUrls: participant.perkIconUrls ?? [], perkIconLabels: participant.perkIconLabels ?? [], equipmentIconUrls: participant.equipmentIconUrls ?? [], equipmentIconLabels: participant.equipmentIconLabels ?? [] },
+        match: { ...match, communityPlayer: participant.communityPlayer, characterName: participant.name ?? "Participant", characterImageUrl: participant.imageUrl, role: participant.role, score: participant.score, resultLabel: participant.resultLabel, durationLabel: participant.survivalTimeLabel, perkIconUrls: participant.perkIconUrls ?? [], perkIconLabels: participant.perkIconLabels ?? [], equipmentIconUrls: participant.equipmentIconUrls ?? [], equipmentIconLabels: participant.equipmentIconLabels ?? [] },
       })} />)}
     </div>
 
@@ -478,7 +485,7 @@ function MatchHistoryCard({ match, mmr, onEdit, onDelete }: { match: MatchHistor
         {onDelete && <button type="button" className="statistics-action delete" title="Supprimer la partie" onClick={() => onDelete(match)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v5M14 11v5" /></svg><span>Supprimer</span></button>}
       </div>
     </div>
-    {selected && <ParticipantDetails match={selected.match} available={selected.available} onClose={() => setSelected(null)} />}
+    {selected && <ParticipantDetails match={selected.match} available={selected.available} onClose={() => setSelected(null)} onInspectPlayer={onInspectPlayer} />}
   </article>;
 }
 
@@ -528,7 +535,7 @@ function MatchEditDialog({ match, saving, onClose, onSave }: { match: MatchHisto
   </dialog>;
 }
 
-function ParticipantDetails({ match, available, onClose }: { match: MatchHistoryEntry; available: boolean; onClose: () => void }) {
+function ParticipantDetails({ match, available, onClose, onInspectPlayer }: { match: MatchHistoryEntry; available: boolean; onClose: () => void; onInspectPlayer: ((player: CommunityPlayer) => void) | undefined }) {
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     dialog.current?.showModal();
@@ -538,7 +545,8 @@ function ParticipantDetails({ match, available, onClose }: { match: MatchHistory
     <div className="statistics-player-content">
       <header className="statistics-player-header">
         {match.characterImageUrl && <img className="statistics-player-portrait" src={match.characterImageUrl} alt="" />}
-        <div><span className="eyebrow">{roleLabel(match.role)}</span><h2 id="statistics-player-title">{match.characterName}</h2><p>{formatScore(match.score)} points {match.durationLabel && `· ${match.durationLabel}`}</p></div>
+        <div><span className="eyebrow">{roleLabel(match.role)}</span><h2 id="statistics-player-title">{match.communityPlayer?.nickname ?? match.characterName}</h2>{match.communityPlayer && <p>{match.characterName}</p>}<p>{formatScore(match.score)} points {match.durationLabel && `· ${match.durationLabel}`}</p></div>
+        {match.communityPlayer && <PlayerStatisticsButton player={match.communityPlayer} onInspect={onInspectPlayer ? player => { dialog.current?.close(); onInspectPlayer(player); } : undefined} />}
         {outcome && <img className="statistics-player-outcome" src={outcome} alt={match.resultLabel ?? "Résultat"} />}
         <button className="secondary-button" type="button" onClick={() => dialog.current?.close()} aria-label="Fermer les détails">✕</button>
       </header>
@@ -750,7 +758,7 @@ function ParticipantCard({ participant, onClick }: { participant: MatchHistoryPa
     <div className="statistics-participant-portrait">
       {participant.imageUrl ? <img src={statisticsImage(participant.imageUrl, participant.name ?? statusLabel) ?? undefined} alt={participant.name ?? statusLabel} loading="lazy" /> : <span>?</span>}
     </div>
-    {participant.name && <span className="statistics-participant-name">{participant.name}</span>}
+    {participant.name && <span className="statistics-participant-name">{participant.role === "survivor" ? participant.communityPlayer?.nickname ?? participant.name : participant.name}</span>}
     <span className="statistics-participant-score">{participant.valueLabel ?? formatScore(participant.score)}</span>
     {participant.survivalTimeLabel && participant.survivalTimeLabel !== participant.valueLabel && <span className="statistics-participant-time">{participant.survivalTimeLabel}</span>}
     <span className="statistics-participant-status">{statusIconUrl ? <><img src={statusIconUrl} alt={statusLabel} loading="lazy" /><span className="sr-only">{statusLabel}</span></> : statusLabel}</span>

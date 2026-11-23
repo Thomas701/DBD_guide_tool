@@ -20,8 +20,10 @@ const killerMatch = { ...match, id: "2".repeat(40), role: "killer", characterNam
 ] };
 const profiles = new Map(Object.values(users).map(user => [user.id, `Joueur ${user.id.slice(0, 8)}`]));
 const sharedDescriptions = new Map();
+const consultants = new Set();
+let previewRequests = 0;
 const leaderboardRequests = [];
-const rankedPlayers = Array.from({ length: 51 }, (_, index) => ({ rank: index + 1, user_id: `player-${index}`, nickname: `Joueur ${index + 1}`, mmr: 900 - index * 9, wins: 60 - index, losses: index }));
+const rankedPlayers = Array.from({ length: 51 }, (_, index) => ({ rank: index + 1, user_id: index === 0 ? users.bob.id : `player-${index}`, nickname: `Joueur ${index + 1}`, mmr: 900 - index * 9, wins: 60 - index, losses: index }));
 const updatedAt = new Date().toISOString();
 let refreshes = 0;
 let offline = false;
@@ -57,7 +59,16 @@ try {
     const userId = payload ? JSON.parse(Buffer.from(payload, "base64url")).sub : null;
     const reply = (data, status = 200) => route.fulfill({ status, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "*" }, body: JSON.stringify(data) });
     if (request.method() === "OPTIONS") return reply({});
-    if (url.pathname === "/rest/v1/rpc/is_admin") return reply(userId === users.alice.id);
+    if (url.pathname === "/rest/v1/rpc/is_admin") return reply(userId === users.alice.id || consultants.has(userId));
+    if (url.pathname === "/rest/v1/rpc/can_manage_accounts") return reply(userId === users.alice.id);
+    if (url.pathname === "/rest/v1/rpc/player_match_accounts") return reply([{ matchId: match.id, player: { user_id: users.bob.id, nickname: "Bob Behaviour" }, participants: [{ index: 0, player: { user_id: users.alice.id, nickname: "Alice Behaviour" } }] }]);
+    if (url.pathname === "/rest/v1/rpc/player_statistics_page") {
+      assert.ok(Object.values(users).some(user => user.id === body.target_user));
+      return reply({ nickname: body.target_user === users.bob.id ? "Bob Behaviour" : "Alice Behaviour", updatedAt, statistics: null, matchHistory: [match, killerMatch], nextCursor: null, importedCount: 2, fetchedCount: 2 });
+    }
+    if (url.pathname === "/rest/v1/rpc/admin_promote_consultant") {
+      assert.equal(userId, users.alice.id); consultants.add(body.target_user); return reply(null);
+    }
     if (url.pathname === "/rest/v1/player_profiles") {
       assert.equal(url.searchParams.get("user_id"), `eq.${userId}`);
       assert.equal(request.method(), "GET");
@@ -70,10 +81,11 @@ try {
       return reply(null);
     }
     if (url.pathname === "/rest/v1/rpc/admin_users") {
-      assert.equal(userId, users.alice.id);
-      return reply({ total: 2, users: Object.values(users).map(user => ({ ...user, created_at: updatedAt, last_sign_in_at: null, administrator: user.id === users.alice.id, behaviour_synced: user.id === users.bob.id })) });
+      assert.ok(userId === users.alice.id || consultants.has(userId));
+      return reply({ total: 2, users: Object.values(users).map(user => ({ ...user, created_at: updatedAt, last_sign_in_at: null, administrator: user.id === users.alice.id, consultant: consultants.has(user.id), behaviour_synced: user.id === users.bob.id })) });
     }
     if (url.pathname === "/rest/v1/rpc/admin_user_workspace") {
+      previewRequests++;
       assert.equal(userId, users.alice.id);
       return reply(Object.fromEntries(Object.entries(workspaces.get(body.target_user)?.data ?? {}).filter(([key]) => !key.includes("assistant"))));
     }
@@ -128,7 +140,7 @@ try {
       const administration = page.getByRole("main", { name: "Administration", exact: true });
       await administration.getByText(users.bob.email, { exact: true }).waitFor();
       assert.equal(await administration.locator("tbody tr").count(), 2);
-      assert.equal(await administration.getByRole("columnheader").count(), 6);
+      assert.equal(await administration.getByRole("columnheader").count(), 7);
     }
     await nav.getByRole("button", { name: "Perks", exact: true }).click();
     await page.locator('.perk-card[data-perk-id="agitation"] .perk-card-details').click();
@@ -220,6 +232,16 @@ try {
   assert.equal(await page.getByLabel("Mon personnage", { exact: true }).inputValue(), "all");
   assert.deepEqual(await page.getByLabel("Mon personnage", { exact: true }).locator("option").allTextContents(), ["Tous les personnages", "Jake Park"]);
   assert.deepEqual(await page.getByLabel("Adversaire", { exact: true }).locator("option").allTextContents(), ["Tous les adversaires", "The Trapper"]);
+  await page.getByRole("tab", { name: /^Historique/ }).click();
+  await page.locator(".statistics-participant-name").getByText("Alice Behaviour", { exact: true }).first().waitFor();
+  await page.getByRole("button", { name: "Voir l’équipement de Meg Thomas", exact: true }).first().click();
+  const participantDialog = page.locator(".statistics-player-content");
+  await participantDialog.getByRole("heading", { name: "Alice Behaviour", exact: true }).waitFor();
+  const privateBeforeParticipant = previewRequests;
+  await participantDialog.getByRole("button", { name: "Voir les statistiques de Alice Behaviour", exact: true }).click();
+  await page.locator(".public-player-dialog").getByRole("heading", { name: "Statistiques de Alice Behaviour", exact: true }).waitFor();
+  assert.equal(previewRequests, privateBeforeParticipant);
+  await page.getByRole("button", { name: "Fermer les statistiques du joueur", exact: true }).click();
 
   await nav.getByRole("button", { name: "Classement", exact: true }).click();
   await page.locator(".community-page tbody tr").nth(49).waitFor();
@@ -230,6 +252,7 @@ try {
   assert.equal(await page.locator(".community-page tbody tr").count(), 1);
   assert.equal(await page.getByRole("button", { name: "Suivant", exact: true }).isDisabled(), true);
   await page.getByLabel("Mode de jeu", { exact: true }).selectOption("1v4-killer");
+  await page.locator(".community-killer-required").waitFor();
   await page.getByLabel("Tueur", { exact: true }).selectOption("The Trapper");
   await page.locator(".community-page tbody tr").nth(49).waitFor();
   assert.equal(leaderboardRequests.at(-1).page_index, 0);
@@ -241,6 +264,22 @@ try {
   await page.locator(".community-page tbody tr").nth(49).waitFor();
   assert.equal(leaderboardRequests.at(-1).selected_killer, "");
   assert.equal(await page.getByLabel("Tueur", { exact: true }).count(), 0);
+  const requestsBeforeReturn = leaderboardRequests.length;
+  await nav.getByRole("button", { name: "Build", exact: true }).click();
+  await nav.getByRole("button", { name: "Classement", exact: true }).click();
+  await page.locator(".community-page tbody tr").nth(49).waitFor();
+  assert.equal(await page.getByLabel("Mode de jeu", { exact: true }).inputValue(), "2v8-survivor");
+  assert.equal(leaderboardRequests.length, requestsBeforeReturn, "Fresh rankings must reuse the cached page");
+  const privateRequestsBeforeProfile = previewRequests;
+  await page.getByRole("button", { name: "Voir les statistiques de Joueur 1", exact: true }).click();
+  const publicProfile = page.locator(".public-player-dialog");
+  await publicProfile.getByText("Statistiques de Bob Behaviour", { exact: true }).waitFor();
+  await publicProfile.getByRole("tab", { name: /^Historique/ }).click();
+  await publicProfile.locator(".statistics-match-card").first().waitFor();
+  assert.equal(await publicProfile.getByRole("button", { name: "Synchroniser", exact: true }).count(), 0);
+  assert.equal(await publicProfile.getByTitle("Modifier la partie", { exact: true }).count(), 0);
+  assert.equal(previewRequests, privateRequestsBeforeProfile, "Public profiles must never load private workspaces");
+  await publicProfile.getByRole("button", { name: "Fermer les statistiques du joueur", exact: true }).click();
   for (const width of [1366, 1024, 390]) {
     await page.setViewportSize({ width, height: 768 });
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `The leaderboard must fit at ${width}px`);
@@ -329,6 +368,17 @@ try {
   offline = false;
   await page.getByRole("button", { name: "Réessayer", exact: true }).click();
   await waitForSaved(users.alice.id, "Build hors ligne");
+  await nav.getByRole("button", { name: "Administration", exact: true }).click();
+  await page.getByRole("button", { name: "Promouvoir consultant", exact: true }).click();
+  await page.getByText("Consultant", { exact: true }).waitFor();
+  await page.getByRole("button", { name: "Se déconnecter", exact: true }).click();
+  await page.getByLabel("Email", { exact: true }).fill(users.bob.email);
+  await page.getByLabel("Mot de passe", { exact: true }).fill("Test-password-123");
+  await page.getByRole("button", { name: "Se connecter", exact: true }).click();
+  await nav.getByRole("button", { name: "Administration", exact: true }).click();
+  await page.getByText(users.bob.email, { exact: true }).last().waitFor();
+  assert.equal(await page.getByRole("button", { name: "Promouvoir consultant", exact: true }).count(), 0);
+  assert.equal(await page.getByRole("button", { name: "Supprimer le compte", exact: true }).count(), 0);
   assert.deepEqual(errors, []);
   console.log("Cloud browser checks passed: private tiers and unranked blocks, shared descriptions, public nickname, leaderboard pagination and filters, role filters, looping themes, admin read-only preview, account isolation, session refresh and network recovery.");
 } catch (error) {

@@ -48,6 +48,8 @@ jobs:
         run: npm run test:workspace
       - name: Vérifier les comptes web
         run: npm run test:cloud
+      - name: Vérifier les icônes et le préchargement audio
+        run: npm run test:media
       - name: Vérifier l’extension Statistiques
         run: npm run test:extension
       - name: Vérifier le paquet pour la boutique

@@ -9,8 +9,8 @@ import { createStatisticsParser, prioritizeMatchRetries } from "../shared/statis
 import { matchHistoryIdentity } from "../shared/match-history-identity.mjs";
 import { buildMatchHistoryEntryId } from "./match-history-id.mjs";
 import { readBehaviourIdentity } from "../extension/behaviour-session.mjs";
-import { collectBehaviourStatistics, mapBehaviourMatches, mapBehaviourOverview, readBehaviourNickname } from "../extension/behaviour-api.mjs";
-import { behaviourHistory, behaviourOverview, behaviourProfile, behaviourProviders, behaviourSession, behaviourToken } from "../tests/fixtures/behaviour-api.mjs";
+import { collectBehaviourStatistics, mapBehaviourMatches, mapBehaviourOverview, readBehaviourNickname, behaviourSharedMatchId } from "../extension/behaviour-api.mjs";
+import { behaviourHistory, behaviourOverview, behaviourProfile, behaviourProviders, behaviourSession, behaviourToken, behaviourPlayer } from "../tests/fixtures/behaviour-api.mjs";
 import { STATISTICS_EXTENSION_ID, statisticsBrowser, statisticsBrowsers, statisticsStoreUrl } from "../dist/src/services/statistics-extension.js";
 
 globalThis.crypto ??= webcrypto;
@@ -95,6 +95,22 @@ test("la session Behaviour expirée est renouvelée et persistée avant la lectu
   assert.ok(!JSON.stringify(result).includes("header."));
 });
 
+test("une partie commune garde la même empreinte depuis deux comptes et refuse les rapprochements incomplets", async () => {
+  const first = structuredClone(behaviourHistory[0]);
+  first.opponentStat.push(behaviourPlayer("VE_Camper", "Claudette Morel"), behaviourPlayer("VE_Camper", "Dwight Fairfield"));
+  const second = structuredClone(first);
+  [second.playerStat, second.opponentStat[1]] = [second.opponentStat[1], second.playerStat];
+  second.opponentStat.reverse();
+  const identity = await behaviourSharedMatchId(first);
+  assert.match(identity, /^[a-f0-9]{64}$/);
+  assert.equal(await behaviourSharedMatchId(second), identity);
+  assert.equal((await mapBehaviourMatches([first], new Date(), "Europe/Paris"))[0].sharedMatchId,
+    (await mapBehaviourMatches([second], new Date(), "America/New_York"))[0].sharedMatchId);
+  second.matchStat.matchStartTime += 1;
+  assert.notEqual(await behaviourSharedMatchId(second), identity);
+  assert.equal(await behaviourSharedMatchId(behaviourHistory[0]), null);
+});
+
 test("un refus 401 renouvelle une fois et une révocation ne provoque aucune ouverture de page", async () => {
   let requests = 0, refreshes = 0;
   const session = behaviourSession();
@@ -118,6 +134,7 @@ test("un aperçu Behaviour absent ne bloque pas l’historique et les autres err
   };
   const result = await collectBehaviourStatistics(behaviourSession(), async () => {}, request(404, "StatNotFound"));
   assert.equal(result.statistics, null);
+  assert.equal(result.nickname, "Donoteet");
   assert.equal(result.matches.length, 1);
   assert.equal(result.matches[0].characterName, "Jake Park");
   for (const [status, code] of [[404, "ProviderNotFound"], [503, "StatNotFound"]]) {

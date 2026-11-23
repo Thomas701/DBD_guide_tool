@@ -181,6 +181,9 @@ try {
   assert.equal(await tierPage.locator('.tier-list-row[data-tier="D"]').getByRole("button", { name: "Détails de agitation", exact: true }).count(), 1);
   await tierPage.getByRole("button", { name: "Perk survivor", exact: true }).click();
   assert.equal(await target.getByRole("button", { name: "Détails de État de flux", exact: true }).count(), 1);
+  await tierPage.getByRole("button", { name: "Reset", exact: true }).click();
+  assert.equal(await tierPage.locator('.tier-list-row[data-tier="unranked"] .tier-list-perk').count(), 176);
+  assert.equal(await tierPage.getByText("Votre classement est privé.", { exact: false }).count(), 0);
   await tierPage.getByRole("button", { name: "Détails de État de flux", exact: true }).click();
   const killerScenario = {
     activeView: "build", side: "killer", selectedKillerId: "trapper", buildName: "Vérification des reworks", soundEnabled: false,
@@ -202,12 +205,18 @@ try {
   await page.evaluate((session) => localStorage.setItem("dbd-build-tool.current-session", JSON.stringify(session)), survivorScenario);
   await page.reload();
   const speedRow = impact.locator(".stat-impact-row").filter({ has: page.getByText("Vitesse de course des survivants", { exact: true }) });
+  const closedHeights = await page.locator(".compact-perk-slot.filled").evaluateAll(slots => slots.map(slot => slot.getBoundingClientRect().height));
+  assert.equal(closedHeights.length, 4);
+  assert.ok(closedHeights.every(height => Math.abs(height - closedHeights[0]) < 1), `Closed slots must have equal heights: ${closedHeights}`);
   const healRow = impact.locator(".stat-impact-row").filter({ has: page.getByText("Soin d’un survivant", { exact: true }) });
   await speedRow.locator(".modified").getByText("6 m/s", { exact: true }).waitFor();
   assert.ok((await speedRow.getAttribute("class")).includes("positive"));
   assert.equal(await healRow.locator(".modified").innerText(), "10,667 s");
   assert.equal(await impact.getByText("Aucun effet structuré.", { exact: false }).count(), 0);
   await page.getByRole("button", { name: "Afficher les conditions de Souple", exact: true }).click();
+  await page.locator(".perk-condition-region.expanded").first().evaluate(async element => { await Promise.all(element.getAnimations().map(animation => animation.finished)); });
+  const lastConnector = await page.locator(".perk-condition-region.expanded .perk-condition-list li:last-child").first().evaluate(element => ({ bottom: parseFloat(getComputedStyle(element, "::after").bottom), height: element.getBoundingClientRect().height }));
+  assert.ok(Math.abs(lastConnector.bottom - lastConnector.height / 2) < 1, "The connector must stop at the last condition centre");
   await page.getByRole("checkbox", { name: "Survivant épuisé", exact: true }).check();
   await speedRow.locator(".modified").getByText("4 m/s", { exact: true }).waitFor();
   await page.getByRole("button", { name: "Afficher les conditions de Résistance", exact: true }).click();
