@@ -69,6 +69,10 @@ try {
   await context.close();
   onboardingProfile = await mkdtemp(join(root, ".tmp-extension-browser-"));
   context = await chromium.launchPersistentContext(onboardingProfile, { channel, headless: true, ignoreDefaultArgs: ["--disable-extensions"], args: ["--enable-unsafe-extension-debugging"] });
+  // Also exercise installation through the content script when the page has no external messaging API.
+  await context.addInitScript(() => {
+    Object.defineProperty(globalThis, "chrome", { value: undefined, configurable: true });
+  });
   const cdp = await context.browser().newBrowserCDPSession();
   const fixture = await build({
     stdin: { contents: `import React from 'react'; import {createRoot} from 'react-dom/client'; import {StatisticsConnection} from './src/features/statistics/StatisticsConnection.tsx'; import {statisticsExtensionMessage} from './src/services/statistics-extension.ts'; window.testExtensionMessage=statisticsExtensionMessage; createRoot(document.getElementById('root')).render(React.createElement(StatisticsConnection));`, resolveDir: root, loader: "tsx" },
@@ -82,6 +86,13 @@ try {
     } }],
   });
   const styles = await readFile(join(root, "src/features/account/account.css"), "utf8");
+  const guideSource = await readFile(join(root, "extension-installation.html"), "utf8");
+  const guideScript = guideSource.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
+  const guideBundle = await build({
+    stdin: { contents: guideScript, resolveDir: root, loader: "js" }, bundle: true, write: false, format: "iife",
+    define: { __APP_BUILD_ID__: JSON.stringify("test-build") },
+  });
+  const guideHtml = guideSource.replace(/<script type="module">[\s\S]*?<\/script>/, () => `<script>${guideBundle.outputFiles[0].text}</script>`);
   const html = `<!doctype html><html lang="fr"><meta charset="utf-8"><title>Build Analyzer — association</title><style>${styles}button{font:inherit;padding:.7rem 1rem;border-radius:.4rem;border:1px solid #626975;cursor:pointer}.primary-button{background:#e4b25b;color:#111}.secondary-button{background:transparent;color:#eee}a{color:#e4b25b}.error{color:#ef9a9a}</style><body style="background:#0b0c0e;color:#f3f4f6;font:18px/1.6 system-ui;padding:48px"><h1>DBD Build Analyzer</h1><input aria-label="Brouillon" value="Brouillon à conserver"><div id="root"></div><script>
     window.remote = false; window.createdCollectors = 0;
     window.testCloud = {auth:{getSession:async()=>({data:{session:{user:{id:${JSON.stringify(pairing.userId)}}}}})},rpc:async(name)=>{
@@ -93,7 +104,7 @@ try {
   </script><script>${fixture.outputFiles[0].text}</script></body></html>`;
   await context.route(`${APP_URL}extension-store.json`, route => route.fulfill({ json: { chromeWebStoreUrl: null } }));
   await context.route("https://stats.deadbydaylight.com/**", route => route.fulfill({ contentType: "text/html", body: "<!doctype html><title>Behaviour login test</title>" }));
-  await context.route(`${APP_URL}extension-installation.html*`, route => route.fulfill({ body: "<!doctype html><title>Installation test</title>" }));
+  await context.route(`${APP_URL}extension-installation.html*`, route => route.fulfill({ contentType: "text/html", body: guideHtml }));
   await context.route("https://account-backend.bhvr.com/**", route => route.fulfill({ body: "<!doctype html><title>Official login test</title>" }));
   await context.route(APP_URL, route => route.fulfill({ contentType: "text/html", body: html }));
   const app = await context.newPage(); await app.goto(APP_URL);
@@ -114,7 +125,18 @@ try {
   await app.getByLabel("Brouillon").fill("Changements conservés pendant l’installation");
   const guideOpened = context.waitForEvent("page");
   await install.click();
-  await (await guideOpened).waitForLoadState("domcontentloaded");
+  const guide = await guideOpened;
+  await guide.waitForLoadState("domcontentloaded");
+  await guide.goto(`${APP_URL}extension-installation.html?diagnostic=1`);
+  await guide.getByText(/Résultat : Extension non détectée/).waitFor();
+  const diagnostic = await guide.locator("#diagnostic-result").textContent();
+  assert.ok(diagnostic.includes("test-build") && diagnostic.includes("API de communication Chrome"));
+  assert.ok(!diagnostic.includes(pairing.collectorToken) && !diagnostic.includes(pairing.userId), "The diagnostic contains no account or collector credentials");
+  const pagesBeforeRetry = context.pages().length;
+  await app.getByRole("button", { name: "Vérifier l’extension installée", exact: true }).click();
+  await app.getByRole("alert").waitFor();
+  assert.ok((await app.getByRole("alert").textContent()).includes("API de communication Chrome"));
+  assert.equal(context.pages().length, pagesBeforeRetry, "Retrying detection must not reopen installation");
   assert.equal(await app.evaluate(() => window.createdCollectors), 0, "Installation must not create an unpaired collector");
   let navigations = 0; app.on("framenavigated", frame => { if (frame === app.mainFrame()) navigations++; });
   await app.evaluate(() => { window.holdAssociation = true; });

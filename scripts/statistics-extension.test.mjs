@@ -196,3 +196,14 @@ test("sans passerelle injectée, Chrome détecte l’extension du Store et peut 
   assert.deepEqual(calls.map(call => call.id), [storeId, storeId, storeId]);
   assert.deepEqual(calls.map(call => call.request.type), ["DBD_EXTENSION_STATUS", "DBD_EXTENSION_STATUS", "DBD_EXTENSION_LOGIN"]);
 });
+
+test("une détection impossible conserve le refus exact de Chrome pour le diagnostic", async () => {
+  const source = await readFile(new URL("../dist/src/services/statistics-extension.js", import.meta.url), "utf8");
+  const runtime = { lastError: { message: "Could not establish connection. Receiving end does not exist." }, sendMessage(_id, _request, reply) { reply(undefined); } };
+  const send = runInNewContext(source.replace(/^export /gm, "") + ";statisticsExtensionMessage", {
+    crypto, chrome: { runtime },
+    window: { location: { origin: new URL(APP_URL).origin }, addEventListener() {}, removeEventListener() {}, postMessage() {} },
+    setTimeout: (callback, duration) => setTimeout(callback, duration === 600 ? 0 : duration), clearTimeout,
+  });
+  await assert.rejects(send({ type: "DBD_EXTENSION_STATUS" }), /Receiving end does not exist/);
+});

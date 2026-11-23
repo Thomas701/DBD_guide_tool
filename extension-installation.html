@@ -13,6 +13,11 @@
 <li>Attendez la confirmation « Synchronisation distante activée ». Vous pourrez ensuite fermer votre navigateur et éteindre votre PC.</li>
 </ol>
 <p><a href="./">Revenir à Build Analyzer</a></p>
+<details id="diagnostic"><summary>L’extension est installée mais pas détectée</summary>
+<p>Vérifiez qu’elle est activée dans ce profil Chrome et autorisée sur ce site. Copiez le résultat ci-dessous pour identifier le blocage.</p>
+<button id="check-extension" type="button">Vérifier l’extension installée</button>
+<pre id="diagnostic-result" role="status" aria-live="polite" style="white-space:pre-wrap;overflow-wrap:anywhere"></pre>
+</details>
 <details id="manual"><summary>Installation manuelle provisoire</summary>
 <p>Cette méthode reste disponible si la fiche de la boutique n’est pas encore accessible.</p>
 <p><label for="browser">Guide pour :</label> <select id="browser"></select><br><small>Le navigateur est détecté automatiquement. Corrigez ce choix si nécessaire.</small></p>
@@ -32,11 +37,28 @@
 <p><a href="./privacy.html">Politique de confidentialité</a></p>
 </details>
 <script type="module">
-import { statisticsBrowser, statisticsBrowsers, statisticsStoreUrl } from "./src/services/statistics-extension.ts";
+import { STATISTICS_EXTENSION_ID, statisticsBrowser, statisticsBrowsers, statisticsStoreUrl, statisticsExtensionMessage } from "./src/services/statistics-extension.ts";
 
 const status = document.querySelector("#status"), store = document.querySelector("#store");
 const select = document.querySelector("#browser"), manual = document.querySelector("#manual");
 let browser = statisticsBrowser(navigator.userAgent), storeUrl = null, storeChecked = false, installed = false, chosen = false;
+const diagnosticButton = document.querySelector("#check-extension"), diagnosticResult = document.querySelector("#diagnostic-result");
+async function checkExtension() {
+  diagnosticButton.disabled = true;
+  const context = `Version du site : ${__APP_BUILD_ID__}\nAdresse : ${location.origin}${location.pathname}\nNavigateur : ${navigator.userAgent}\nExtension attendue : ${STATISTICS_EXTENSION_ID}\n`;
+  diagnosticResult.textContent = context + "Vérification en cours…";
+  try {
+    const reply = await statisticsExtensionMessage({ type: "DBD_EXTENSION_STATUS" });
+    installed = Boolean(reply.guidedSetupSupported); showGuide();
+    diagnosticResult.textContent = context + (installed ? "Résultat : extension détectée. Revenez dans Statistique pour connecter Behaviour." : "Résultat : extension joignable, mais sa version ne permet pas l’association guidée. Mettez-la à jour.");
+  } catch (cause) { diagnosticResult.textContent = context + `Résultat : ${cause instanceof Error ? cause.message : String(cause)}`; }
+  finally { diagnosticButton.disabled = false; }
+}
+diagnosticButton.addEventListener("click", () => { void checkExtension(); });
+if (new URLSearchParams(location.search).get("diagnostic") === "1") {
+  document.querySelector("#diagnostic").open = true;
+  void checkExtension();
+}
 for (const item of Object.values(statisticsBrowsers)) select.add(new Option(item.name, item.name));
 
 function showGuide() {

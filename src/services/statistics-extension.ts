@@ -56,13 +56,14 @@ function bridgeMessage(request: unknown, duration: number, extensionId?: string)
 
 function runtimeMessage(request: unknown): Promise<ExtensionReply> {
   const runtime = (globalThis as typeof globalThis & { chrome?: { runtime?: BrowserRuntime } }).chrome?.runtime;
-  if (!runtime?.sendMessage) return Promise.reject(new Error("Installez l’extension Statistiques pour connecter Behaviour."));
+  if (!runtime?.sendMessage) return Promise.reject(new Error("L’API de communication Chrome est indisponible dans cet onglet."));
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => reject(new Error("L’extension ne répond pas. Réessayez la connexion.")), 20_000);
     try {
       runtime.sendMessage(STATISTICS_EXTENSION_ID, request, (reply) => {
         clearTimeout(timeout);
-        if (runtime.lastError || !reply) reject(new Error("Extension Statistiques introuvable. Installez-la pour continuer."));
+        const failure = runtime.lastError;
+        if (failure || !reply) reject(new Error(failure?.message ?? "L’extension n’a renvoyé aucune réponse."));
         else if (!reply.ok) reject(new Error(reply.error ?? "L’extension a refusé la demande."));
         else resolve(reply);
       });
@@ -71,10 +72,14 @@ function runtimeMessage(request: unknown): Promise<ExtensionReply> {
 }
 
 export async function statisticsExtensionMessage(request: { type: string; [key: string]: unknown }): Promise<ExtensionReply> {
-  const direct = await runtimeMessage({ type: "DBD_EXTENSION_STATUS" }).catch(() => null);
+  let directError = "";
+  const direct = await runtimeMessage({ type: "DBD_EXTENSION_STATUS" }).catch((cause: unknown) => {
+    directError = cause instanceof Error ? cause.message : String(cause);
+    return null;
+  });
   if (direct) return request.type === "DBD_EXTENSION_STATUS" ? direct : runtimeMessage(request);
   const bridge = await bridgeMessage({ type: "DBD_EXTENSION_STATUS" }, 600).catch(() => null);
-  if (!bridge) throw new Error("Extension Statistiques introuvable. Installez-la pour continuer.");
+  if (!bridge) throw new Error(`Extension non détectée dans cet onglet. Connexion Chrome : ${directError} Passerelle du site : aucune réponse.`);
   const reply = request.type === "DBD_EXTENSION_STATUS" ? bridge : await bridgeMessage(request, 20_000, bridge.extensionId);
   if (!reply.ok) throw new Error(reply.error ?? "L’extension a refusé la demande.");
   return reply;

@@ -75,6 +75,7 @@ export function StatisticsConnection() {
     try {
       const extension = await statisticsExtensionMessage({ type: "DBD_EXTENSION_STATUS" });
       if (!extension.guidedSetupSupported) throw new Error("Installez la dernière version de l’extension pour continuer.");
+      setInstalled(true); attempted.current = true;
       const session = await supabase!.auth.getSession();
       const owner = session.data.session?.user.id;
       if (!owner) throw new Error("Reconnectez-vous à votre compte.");
@@ -100,11 +101,11 @@ export function StatisticsConnection() {
     if (!userId.current || busyRef.current) return;
     sessionStorage.setItem(SETUP_KEY, userId.current);
     setPending(true); setError(null);
-    if (!installed) {
+    if (!installed && !pending) {
       attempted.current = false;
       setNotice("Installez l’extension dans l’onglet ouvert. Cette page reprendra automatiquement, sans rechargement.");
       window.open(storeUrl ?? `${import.meta.env.BASE_URL}extension-installation.html?setup=1`, "_blank", "noopener,noreferrer");
-    } else { attempted.current = true; void connect(); }
+    } else { void connect(); }
   }
 
   async function disconnect(): Promise<void> {
@@ -131,8 +132,9 @@ export function StatisticsConnection() {
     </ol>}
     {!linked && (!browser.supported ? <p>Pour associer Behaviour, ouvrez ce site sur un ordinateur avec Chrome, Edge, Opera ou un navigateur Chromium compatible. Vos statistiques resteront ensuite consultables depuis vos autres appareils.</p> : <>
       <button className="primary-button" type="button" disabled={busy || !ready} onClick={start}>
-        {!ready ? "Vérification…" : busy ? "Connexion en cours…" : !installed ? "Installer l’extension et connecter Behaviour" : pending ? "Rouvrir la connexion Behaviour" : "Connecter Behaviour"}
+        {!ready ? "Vérification…" : busy ? "Connexion en cours…" : !installed ? pending ? "Vérifier l’extension installée" : "Installer l’extension et connecter Behaviour" : pending ? "Rouvrir la connexion Behaviour" : "Connecter Behaviour"}
       </button>
+      {!installed && pending && <a href={storeUrl ?? `${import.meta.env.BASE_URL}extension-installation.html`} target="_blank" rel="noreferrer">Ouvrir l’installation</a>}
       {!installed && !linked && <p>Une confirmation d’installation sera demandée par {browser.name}. Le site reprend ensuite automatiquement.</p>}
     </>)}
     {linked && <button className="secondary-button" type="button" disabled={busy} onClick={() => void disconnect()}>Désactiver la synchronisation</button>}
