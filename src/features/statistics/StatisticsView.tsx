@@ -544,7 +544,7 @@ function ParticipantDetails({ match, available, onClose, onInspectPlayer }: { ma
   return <dialog ref={dialog} className="statistics-player-dialog" aria-labelledby="statistics-player-title" onClose={onClose} onClick={event => { if (event.target === event.currentTarget) dialog.current?.close(); }}>
     <div className="statistics-player-content">
       <header className="statistics-player-header">
-        {match.characterImageUrl && <img className="statistics-player-portrait" src={match.characterImageUrl} alt="" />}
+        {match.characterImageUrl && <img className="statistics-player-portrait" src={statisticsImage(match.characterImageUrl, match.characterName) ?? match.characterImageUrl} alt="" />}
         <div><span className="eyebrow">{roleLabel(match.role)}</span><h2 id="statistics-player-title">{match.communityPlayer?.nickname ?? match.characterName}</h2>{match.communityPlayer && <p>{match.characterName}</p>}<p>{formatScore(match.score)} points {match.durationLabel && `· ${match.durationLabel}`}</p></div>
         {match.communityPlayer && <PlayerStatisticsButton player={match.communityPlayer} onInspect={onInspectPlayer ? player => { dialog.current?.close(); onInspectPlayer(player); } : undefined} />}
         {outcome && <img className="statistics-player-outcome" src={outcome} alt={match.resultLabel ?? "Résultat"} />}

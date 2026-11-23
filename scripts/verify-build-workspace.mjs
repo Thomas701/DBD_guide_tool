@@ -182,6 +182,8 @@ try {
   await tierPage.getByRole("button", { name: "Perk survivor", exact: true }).click();
   assert.equal(await target.getByRole("button", { name: "Détails de État de flux", exact: true }).count(), 1);
   await tierPage.getByRole("button", { name: "Reset", exact: true }).click();
+  const [sidebarBounds, resetBounds] = await Promise.all([tierPage.locator(".tier-list-sidebar").boundingBox(), tierPage.getByRole("button", { name: "Reset", exact: true }).boundingBox()]);
+  assert.ok(Math.abs(sidebarBounds.y + sidebarBounds.height - resetBounds.y - resetBounds.height) <= 12, "Reset must remain at the bottom of the sidebar");
   assert.equal(await tierPage.locator('.tier-list-row[data-tier="unranked"] .tier-list-perk').count(), 176);
   assert.equal(await tierPage.getByText("Votre classement est privé.", { exact: false }).count(), 0);
   await tierPage.getByRole("button", { name: "Détails de État de flux", exact: true }).click();
