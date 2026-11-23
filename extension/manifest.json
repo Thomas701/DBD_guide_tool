@@ -4,7 +4,7 @@
   "description": "Associe Behaviour à Build Analyzer pour synchroniser vos statistiques sur Supabase, même navigateur fermé et PC éteint.",
   "version": "0.4.1",
   "minimum_chrome_version": "120",
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAstz+cPgTIpr5uQl0ypVlORmrT+6k8bSZ4xwN4nw0UyRbco4IiQcRy1l26GH/bfuVCRAfICgcUowzIsQhTTPV0aFijFZ435KqJTUAPcIpU7Bau1jksXfDMN2egyi+SQsx/EBJS8hK99dk611R8NathaZYQat0F48HRxDAu+bvNYI5nyAdatXIoHhSdBT0tbxKC0DtWsgdRF+BHYBrYMP4D3h1Jt92KAa/JYOYogiBVcgz1L4lCo6lZZ2Q+YWoX3ZQy+UztQdLMVYoxLSyfz7e2V1UDy61qvHOB6i+1sl4xex15uJ666XQqgWgzPNLBI+05XbYnZIZ8FELqlu+rKz5eQIDAQAB",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmaRAO4fmfvzKMCnnOEf3YQfBhNSX0s0nMfc6280qHcwEXQbQyO/9iQPdM/lFwBj891LhyfUH5JtKFF4NAJ26p0Do0h8ibMkROJD5BdknPZNhJbDfx/rnF7obnL2vQm03mrmNxNzVUrumhtPXwg888il5Ovq/WcMHpw6s5qgUJ46vQU8rBs5eDLnk7FI2M0eUNN6I4XexrFa4luamdz8urg/HGQy47K39eOiAXWwTv+cUBbJTFmmAkz0Cmt05GLwcnpClXraV3uU7LPbcIGsDsj92bwBFWuX8awPEhHxRTmaHT4VXgj/vhMBCCHQ5SvAHKLQho1b2Ex5cXxYAtFMwBQIDAQAB",
   "permissions": ["storage", "alarms", "scripting"],
   "host_permissions": ["https://stats.deadbydaylight.com/*", "https://stlhqufxhcaqsllspmgr.supabase.co/*", "https://thomas701.github.io/DBD_guide_tool/*"],
   "background": { "service_worker": "background.mjs", "type": "module" },

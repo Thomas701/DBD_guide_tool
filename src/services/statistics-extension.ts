@@ -1,4 +1,4 @@
-export const STATISTICS_EXTENSION_ID = "kiefmoeclpffgabjgaadfnmnfnocpffm";
+export const STATISTICS_EXTENSION_ID = "cljdeckobhfikpiecnpjlhmlbaeoalgh";
 interface ExtensionReply { ok: boolean; error?: string; userId?: string | null; status?: string | null; loginRequired?: boolean; remoteSupported?: boolean; guidedSetupSupported?: boolean; cloudConnected?: boolean; extensionId?: string }
 type BrowserRuntime = {
   lastError?: { message?: string };
@@ -54,7 +54,7 @@ function bridgeMessage(request: unknown, duration: number, extensionId?: string)
   });
 }
 
-function legacyMessage(request: unknown): Promise<ExtensionReply> {
+function runtimeMessage(request: unknown): Promise<ExtensionReply> {
   const runtime = (globalThis as typeof globalThis & { chrome?: { runtime?: BrowserRuntime } }).chrome?.runtime;
   if (!runtime?.sendMessage) return Promise.reject(new Error("Installez l’extension Statistiques pour connecter Behaviour."));
   return new Promise((resolve, reject) => {
@@ -71,8 +71,11 @@ function legacyMessage(request: unknown): Promise<ExtensionReply> {
 }
 
 export async function statisticsExtensionMessage(request: { type: string; [key: string]: unknown }): Promise<ExtensionReply> {
+  const direct = await runtimeMessage({ type: "DBD_EXTENSION_STATUS" }).catch(() => null);
+  if (direct) return request.type === "DBD_EXTENSION_STATUS" ? direct : runtimeMessage(request);
   const bridge = await bridgeMessage({ type: "DBD_EXTENSION_STATUS" }, 600).catch(() => null);
-  const reply = bridge ? request.type === "DBD_EXTENSION_STATUS" ? bridge : await bridgeMessage(request, 20_000, bridge.extensionId) : await legacyMessage(request);
+  if (!bridge) throw new Error("Extension Statistiques introuvable. Installez-la pour continuer.");
+  const reply = request.type === "DBD_EXTENSION_STATUS" ? bridge : await bridgeMessage(request, 20_000, bridge.extensionId);
   if (!reply.ok) throw new Error(reply.error ?? "L’extension a refusé la demande.");
   return reply;
 }

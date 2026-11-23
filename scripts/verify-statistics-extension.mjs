@@ -8,7 +8,7 @@ import { APP_URL } from "../extension/config.mjs";
 import { behaviourSession } from "../tests/fixtures/behaviour-api.mjs";
 
 const root = process.cwd(), profile = await mkdtemp(join(root, ".tmp-extension-browser-"));
-const extension = resolve(".tmp-statistics-extension"), id = "kiefmoeclpffgabjgaadfnmnfnocpffm";
+const extension = resolve(".tmp-statistics-extension"), id = "cljdeckobhfikpiecnpjlhmlbaeoalgh";
 const channel = process.env.STATISTICS_BROWSER_CHANNEL ?? "chromium";
 const pairing = { userId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", supabaseUrl: "https://test-project.supabase.co", publishableKey: "sb_publishable_test_1234567890", collectorToken: "a".repeat(64) };
 let context, onboardingProfile;

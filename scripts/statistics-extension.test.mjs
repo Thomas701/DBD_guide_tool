@@ -11,7 +11,7 @@ import { buildMatchHistoryEntryId } from "./match-history-id.mjs";
 import { readBehaviourIdentity } from "../extension/behaviour-session.mjs";
 import { collectBehaviourStatistics, mapBehaviourMatches, mapBehaviourOverview, readBehaviourNickname } from "../extension/behaviour-api.mjs";
 import { behaviourHistory, behaviourOverview, behaviourProfile, behaviourProviders, behaviourSession, behaviourToken } from "../tests/fixtures/behaviour-api.mjs";
-import { statisticsBrowser, statisticsBrowsers, statisticsStoreUrl } from "../dist/src/services/statistics-extension.js";
+import { STATISTICS_EXTENSION_ID, statisticsBrowser, statisticsBrowsers, statisticsStoreUrl } from "../dist/src/services/statistics-extension.js";
 
 globalThis.crypto ??= webcrypto;
 
@@ -169,9 +169,30 @@ test("le navigateur et le collecteur local calculent les mêmes identifiants", a
   for (const entry of entries) assert.equal(await hashText(entry.id, "SHA-1"), buildMatchHistoryEntryId(entry));
 });
 
-test("l’identité publique de l’extension correspond à celle utilisée par le site", async () => {
+test("le site contacte l’extension réellement distribuée par le Chrome Web Store", async () => {
+  const store = JSON.parse(await readFile(new URL("../public/extension-store.json", import.meta.url), "utf8"));
+  assert.equal(STATISTICS_EXTENSION_ID, new URL(store.chromeWebStoreUrl).pathname.split("/").at(-1));
   const manifest = JSON.parse(await readFile(new URL("../extension/manifest.json", import.meta.url), "utf8"));
-  const source = await readFile(new URL("../src/services/statistics-extension.ts", import.meta.url), "utf8");
-  const extensionId = [...createHash("sha256").update(Buffer.from(manifest.key, "base64")).digest().subarray(0,16)].flatMap(byte=>[byte>>4,byte&15]).map(value=>String.fromCharCode(97+value)).join("");
-  assert.ok(source.includes(`"${extensionId}"`));
+  const developmentId = [...createHash("sha256").update(Buffer.from(manifest.key, "base64")).digest().subarray(0, 16)]
+    .flatMap(byte => [byte >> 4, byte & 15]).map(value => String.fromCharCode(97 + value)).join("");
+  assert.equal(developmentId, STATISTICS_EXTENSION_ID, "Les tests dans Chrome doivent utiliser la même identité que le Store.");
+});
+
+test("sans passerelle injectée, Chrome détecte l’extension du Store et peut lui demander la connexion", async () => {
+  const source = await readFile(new URL("../dist/src/services/statistics-extension.js", import.meta.url), "utf8");
+  const calls = [], storeId = "cljdeckobhfikpiecnpjlhmlbaeoalgh";
+  const runtime = { sendMessage(id, request, reply) {
+    calls.push({ id, request });
+    if (id === storeId) reply({ ok: true, guidedSetupSupported: true, loginRequired: request.type === "DBD_EXTENSION_LOGIN" });
+    else reply(undefined);
+  } };
+  const send = runInNewContext(source.replace(/^export /gm, "") + ";statisticsExtensionMessage", {
+    crypto, chrome: { runtime },
+    window: { location: { origin: new URL(APP_URL).origin }, addEventListener() {}, removeEventListener() {}, postMessage() { throw new Error("La connexion au Store doit fonctionner sans passerelle."); } },
+    setTimeout: (callback, duration) => setTimeout(callback, duration === 600 ? 0 : duration), clearTimeout,
+  });
+  assert.equal((await send({ type: "DBD_EXTENSION_STATUS" })).guidedSetupSupported, true);
+  assert.equal((await send({ type: "DBD_EXTENSION_LOGIN", userId: "current-user" })).loginRequired, true);
+  assert.deepEqual(calls.map(call => call.id), [storeId, storeId, storeId]);
+  assert.deepEqual(calls.map(call => call.request.type), ["DBD_EXTENSION_STATUS", "DBD_EXTENSION_STATUS", "DBD_EXTENSION_LOGIN"]);
 });
