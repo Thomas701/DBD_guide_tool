@@ -23,6 +23,7 @@ const sharedDescriptions = new Map();
 const consultants = new Set();
 let previewRequests = 0;
 const leaderboardRequests = [];
+let leaderboardUnavailable = false;
 const rankedPlayers = Array.from({ length: 51 }, (_, index) => ({ rank: index + 1, user_id: index === 0 ? users.bob.id : `player-${index}`, nickname: `Joueur ${index + 1}`, mmr: 900 - index * 9, wins: 60 - index, losses: index }));
 const updatedAt = new Date().toISOString();
 let refreshes = 0;
@@ -96,6 +97,7 @@ try {
     }
     if (url.pathname === "/rest/v1/rpc/player_leaderboard") {
       leaderboardRequests.push(body);
+      if (leaderboardUnavailable) return reply({ message: "Classement temporairement indisponible" }, 503);
       const players = body.selected_mode.endsWith("-killer") && !body.selected_killer ? [] : rankedPlayers;
       return reply({ total: players.length, players: players.slice(body.page_index * 50, (body.page_index + 1) * 50), killers: body.selected_mode.endsWith("-killer") ? ["The Trapper"] : [] });
     }
@@ -280,6 +282,13 @@ try {
   assert.equal(await publicProfile.getByTitle("Modifier la partie", { exact: true }).count(), 0);
   assert.equal(previewRequests, privateRequestsBeforeProfile, "Public profiles must never load private workspaces");
   await publicProfile.getByRole("button", { name: "Fermer les statistiques du joueur", exact: true }).click();
+  leaderboardUnavailable = true;
+  await page.getByLabel("Mode de jeu", { exact: true }).selectOption("lights-out-survivor");
+  await page.getByRole("alert").filter({ hasText: "Classement temporairement indisponible" }).waitFor();
+  assert.equal(await page.locator(".community-page tbody tr").count(), 0, "A failed uncached mode must not display players from another mode");
+  leaderboardUnavailable = false;
+  await page.getByLabel("Mode de jeu", { exact: true }).selectOption("2v8-survivor");
+  await page.locator(".community-page tbody tr").nth(49).waitFor();
   for (const width of [1366, 1024, 390]) {
     await page.setViewportSize({ width, height: 768 });
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `The leaderboard must fit at ${width}px`);

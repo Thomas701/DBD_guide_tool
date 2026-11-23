@@ -14,7 +14,7 @@ export function LeaderboardView({ onInspect }: { onInspect?: ((player: Community
     let active = true;
     saveLeaderboardFilters(filters);
     const cached = cachedLeaderboard(filters);
-    if (cached) setData(cached.data);
+    setData(cached?.data ?? { total: 0, players: [], killers: [] });
     setLoading(!cached); setError(null);
     void loadLeaderboard(filters)
       .then(result => { if (active) setData(result); }).catch(cause => { if (active) setError(cause.message); }).finally(() => { if (active) setLoading(false); });
