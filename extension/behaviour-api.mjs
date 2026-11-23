@@ -81,10 +81,11 @@ export async function collectBehaviourStatistics(session, saveSession, request =
     await saveSession(session);
   }
   if (!session.authToken?.token || session.authToken.expirationDate <= Date.now() + 60_000) await refresh();
-  async function get(path) {
+  async function get(path, missingCode) {
     const send = () => request(`${BEHAVIOUR_API}${path}`, { headers: { Authorization: `Bearer ${session.authToken.token}` }, signal: AbortSignal.timeout(20_000) });
     let response = await send();
     if (response.status === 401) { await refresh(); response = await send(); }
+    if (response.status === 404 && missingCode && (await response.json()).code === missingCode) return undefined;
     if (!response.ok) throw new Error(response.status === 401 ? "Connexion Behaviour expirée. Reconnectez Behaviour depuis le site." : "Behaviour ne peut pas fournir les statistiques pour le moment.");
     return response.json();
   }
@@ -95,10 +96,10 @@ export async function collectBehaviourStatistics(session, saveSession, request =
     if (!/^[a-z0-9_-]{1,30}$/.test(provider ?? "")) throw new Error("Aucune plateforme Dead by Daylight liée à Behaviour.");
     session = { ...session, provider }; await saveSession(session);
   }
-  const overview = await get(`/player-stats/games/dbd/providers/${session.provider}?lang=en`);
+  const overview = await get(`/player-stats/games/dbd/providers/${session.provider}?lang=en`, "StatNotFound");
   const history = await get(`/player-stats/match-history/games/dbd/providers/${session.provider}?lang=en&limit=30`);
   const profile = await get("/players/me").catch(() => null);
   providers ??= await get("/players/me/game-accounts/dbd").catch(() => null);
   const nickname = readBehaviourNickname(profile, providers, session.provider);
-  return { statistics: { ...mapBehaviourOverview(overview), ...(nickname ? { nickname } : {}) }, matches: await mapBehaviourMatches(history, new Date(), timeZone) };
+  return { statistics: overview === undefined ? null : { ...mapBehaviourOverview(overview), ...(nickname ? { nickname } : {}) }, matches: await mapBehaviourMatches(history, new Date(), timeZone) };
 }

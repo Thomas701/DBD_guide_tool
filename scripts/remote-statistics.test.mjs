@@ -58,6 +58,28 @@ test("aucun utilisateur ne peut lancer un autre compte ni usurper le cron", asyn
   assert.equal((await handler(req(null))).status,400);
 });
 
+test("le serveur importe les parties même si Behaviour n’a pas encore de statistiques générales", async () => {
+  const finished = [];
+  const handler = statisticsHandler({ url, serviceKey: "server-private-key", request: async (target, init) => {
+    if (target.endsWith("authorize_statistics_cron")) return Response.json(true);
+    if (target.endsWith("claim_remote_statistics")) return Response.json([{ ...job, credentials: { ...credentials, session: behaviourSession() } }]);
+    if (target.endsWith("finish_remote_statistics")) { finished.push(JSON.parse(init.body)); return Response.json(null); }
+    if (target.includes("/player-stats/games/")) return Response.json({ code: "StatNotFound", message: "No stats found" }, { status: 404 });
+    if (target.endsWith("/players/me")) return Response.json(behaviourProfile);
+    if (target.endsWith("/players/me/game-accounts/dbd")) return Response.json(behaviourProviders);
+    if (target.includes("match-history")) return Response.json(behaviourHistory);
+    throw new Error("Unexpected request");
+  } });
+  const response = await handler(req({ action: "cron" }, { "x-dbd-cron-token": "a".repeat(64) }));
+  assert.equal(response.status, 200);
+  assert.equal(finished.length, 1);
+  assert.equal(finished[0].owner_id, owner);
+  assert.equal(finished[0].state, "success");
+  assert.equal(finished[0].statistics, null);
+  assert.equal(finished[0].matches.length, 1);
+  assert.ok(!JSON.stringify(finished).includes("private-refresh"));
+});
+
 test("une session révoquée ne bloque pas les autres joueurs et ne divulgue pas d’identifiants", async () => {
   const finished = [];
   const good = { ...credentials, session: behaviourSession() };

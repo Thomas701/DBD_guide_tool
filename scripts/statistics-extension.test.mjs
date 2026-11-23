@@ -109,6 +109,24 @@ test("un refus 401 renouvelle une fois et une révocation ne provoque aucune ouv
   await assert.rejects(collectBehaviourStatistics(session, async () => {}, async () => new Response(null, { status: 400 })), /révoquée/);
 });
 
+test("un aperçu Behaviour absent ne bloque pas l’historique et les autres erreurs restent signalées", async () => {
+  const request = (status, code) => async url => {
+    if (url.includes("/player-stats/games/")) return Response.json({ code, message: "No stats found" }, { status });
+    if (url.endsWith("/players/me")) return Response.json(behaviourProfile);
+    if (url.endsWith("/players/me/game-accounts/dbd")) return Response.json(behaviourProviders);
+    return Response.json(behaviourHistory);
+  };
+  const result = await collectBehaviourStatistics(behaviourSession(), async () => {}, request(404, "StatNotFound"));
+  assert.equal(result.statistics, null);
+  assert.equal(result.matches.length, 1);
+  assert.equal(result.matches[0].characterName, "Jake Park");
+  for (const [status, code] of [[404, "ProviderNotFound"], [503, "StatNotFound"]]) {
+    await assert.rejects(collectBehaviourStatistics(behaviourSession(), async () => {}, request(status, code)), /ne peut pas fournir/);
+  }
+  await assert.rejects(collectBehaviourStatistics(behaviourSession(), async () => {}, async url => url.includes("/player-stats/games/")
+    ? Response.json(null) : request(404, "StatNotFound")(url)), /Statistiques Behaviour invalides/);
+});
+
 test("le pseudo correspond au bloc officiel, à la plateforme sélectionnée et à la progression partagée", async () => {
   const html = await readFile(new URL("../html_history_match_example.txt", import.meta.url), "utf8");
   const header = html.match(/<span\b[^>]*data-cy="nav-user-nickname"[^>]*>([^<]+)<\/span>/)?.[1];
