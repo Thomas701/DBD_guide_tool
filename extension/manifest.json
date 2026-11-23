@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "DBD Build Analyzer — Statistiques",
   "description": "Associe Behaviour à Build Analyzer pour synchroniser vos statistiques sur Supabase, même navigateur fermé et PC éteint.",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "minimum_chrome_version": "120",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmaRAO4fmfvzKMCnnOEf3YQfBhNSX0s0nMfc6280qHcwEXQbQyO/9iQPdM/lFwBj891LhyfUH5JtKFF4NAJ26p0Do0h8ibMkROJD5BdknPZNhJbDfx/rnF7obnL2vQm03mrmNxNzVUrumhtPXwg888il5Ovq/WcMHpw6s5qgUJ46vQU8rBs5eDLnk7FI2M0eUNN6I4XexrFa4luamdz8urg/HGQy47K39eOiAXWwTv+cUBbJTFmmAkz0Cmt05GLwcnpClXraV3uU7LPbcIGsDsj92bwBFWuX8awPEhHxRTmaHT4VXgj/vhMBCCHQ5SvAHKLQho1b2Ex5cXxYAtFMwBQIDAQAB",
   "permissions": ["storage", "alarms", "scripting"],

@@ -207,3 +207,27 @@ test("une détection impossible conserve le refus exact de Chrome pour le diagno
   });
   await assert.rejects(send({ type: "DBD_EXTENSION_STATUS" }), /Receiving end does not exist/);
 });
+
+test("Chrome 126 démarre et répond en utilisant le stockage de session privé", async () => {
+  const source = await readFile(new URL("../extension/background.mjs", import.meta.url), "utf8");
+  let external, internal, protectedAccess, reads = 0;
+  const session = {
+    async setAccessLevel(options) { protectedAccess = options.accessLevel; },
+    async get() { reads++; return {}; },
+  };
+  runInNewContext(source.replace(/^\uFEFF/, "").replace(/^import .*\r?\n/gm, ""), {
+    APP_URL, isAllowedSender,
+    chrome: {
+      storage: { local: {}, session },
+      runtime: { id: STATISTICS_EXTENSION_ID, onInstalled: { addListener() {} }, onStartup: { addListener() {} },
+        onMessageExternal: { addListener(listener) { external = listener; } }, onMessage: { addListener(listener) { internal = listener; } } },
+      alarms: { onAlarm: { addListener() {} } }, action: { onClicked: { addListener() {} } },
+    },
+  });
+  const direct = await new Promise(resolve => external({ type: "DBD_EXTENSION_STATUS" }, { url: APP_URL }, resolve));
+  const bridge = await new Promise(resolve => internal({ type: "DBD_EXTENSION_STATUS" }, { id: STATISTICS_EXTENSION_ID, tab: {}, frameId: 0, url: APP_URL }, resolve));
+  assert.equal(direct.guidedSetupSupported, true);
+  assert.equal(bridge.guidedSetupSupported, true);
+  assert.equal(protectedAccess, "TRUSTED_CONTEXTS");
+  assert.equal(reads, 2);
+});

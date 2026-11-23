@@ -1,5 +1,5 @@
 DBD Build Analyzer — Statistiques (Chrome, Edge, Opera et navigateurs Chromium compatibles)
-Version 0.4.1
+Version 0.4.2
 
 Installation depuis la boutique officielle :
 1. Dans le site, ouvrez Statistique et cliquez sur « Installer l’extension et connecter Behaviour ».
@@ -19,5 +19,7 @@ La synchronisation continue ensuite sur Supabase toutes les cinq minutes, naviga
 Pour arrêter la collecte et supprimer les jetons du serveur, utilisez « Désactiver la synchronisation ». Les parties enregistrées restent conservées. La déconnexion du site et la désinstallation de l’extension seules n’arrêtent pas la collecte distante.
 
 Behaviour peut expirer ou révoquer l’autorisation : une nouvelle connexion sera alors nécessaire. L’extension ne peut pas empêcher cette révocation.
+
+Sur les anciennes versions de Chrome, dont Chrome 126, l’autorisation temporaire utilise le stockage de session privé. Gardez Chrome ouvert jusqu’à l’activation distante ; une fermeture avant confirmation impose de reprendre la connexion. Après activation, la collecte continue sur le serveur.
 
 Les mises à jour de la boutique sont gérées par le navigateur. Pour une installation manuelle, remplacez les fichiers du dossier puis cliquez sur « Recharger » dans la page des extensions ; les onglets déjà ouverts sont activés automatiquement.

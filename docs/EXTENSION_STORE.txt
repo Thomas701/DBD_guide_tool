@@ -1,5 +1,5 @@
 DBD Build Analyzer — Statistiques
-Version 0.4.1
+Version 0.4.2
 Identifiant de la fiche : cljdeckobhfikpiecnpjlhmlbaeoalgh
 URL de la fiche : https://chromewebstore.google.com/detail/cljdeckobhfikpiecnpjlhmlbaeoalgh
 
