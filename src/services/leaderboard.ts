@@ -7,6 +7,10 @@ export interface LeaderboardResult { total: number; players: LeaderboardPlayer[]
 const FILTERS_KEY = "dbd-build-tool.leaderboard-filters", CACHE_KEY = "dbd-build-tool.leaderboard-cache";
 type CacheEntry = { at: number; data: LeaderboardResult };
 
+export function invalidateLeaderboard(): void {
+  try { appStorage.removeItem(CACHE_KEY); } catch { /* A cache entry expires on its own. */ }
+}
+
 export function readLeaderboardFilters(): LeaderboardFilters {
   try {
     const value = JSON.parse(appStorage.getItem(FILTERS_KEY) ?? "null");

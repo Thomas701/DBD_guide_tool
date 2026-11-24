@@ -34,6 +34,7 @@ jobs:
             -f supabase/migrations/202611220005_community_and_administration.sql \
             -f supabase/migrations/202611220006_behaviour_nickname.sql \
             -f supabase/migrations/202611230001_community_profiles_and_consultants.sql \
+            -f supabase/migrations/202611240001_admin_mmr.sql \
             -f tests/database/accounts.sql \
             -f tests/database/administrators.sql \
             -f tests/database/community.sql \

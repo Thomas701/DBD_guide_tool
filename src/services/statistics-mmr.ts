@@ -15,22 +15,44 @@ export interface MmrEvent {
   reason: string;
 }
 
-export function calculateMmrHistory(matches: readonly MatchHistoryEntry[]): MmrEvent[] {
+export type MmrAdjustments = Record<string, { matchId: string; at: string; rating: number }>;
+
+function mmrSeriesKey(mode: MmrMode, killerName: string | null): string {
+  return killerName ? `${mode}:${killerName.toLowerCase()}` : mode;
+}
+
+export function calculateMmrHistory(matches: readonly MatchHistoryEntry[], adjustments: MmrAdjustments = {}): MmrEvent[] {
   const ratings = new Map<string, number>();
-  return matches
-    .map((match, index) => ({ match, index, at: match.playedAt ?? match.importedAt }))
+  const offsets = new Map<string, number>();
+  const hasAdjustments = Object.keys(adjustments).length > 0;
+  const events = matches
+    .map(match => ({ match, at: match.playedAt ?? match.importedAt }))
     .filter(({ match }) => match.role !== "unknown" && mmrModeForMatch(match) !== null)
-    .sort((left, right) => left.at.localeCompare(right.at) || left.index - right.index)
+    .sort((left, right) => left.at.localeCompare(right.at) || (hasAdjustments ? compareMatchIds(left.match.id, right.match.id) : 0))
     .map(({ match, at }) => {
       const mode = mmrModeForMatch(match)!;
       const killerName = match.role === "killer" ? match.characterName : null;
-      const key = killerName ? `${mode}:${killerName.toLocaleLowerCase("fr")}` : mode;
+      const key = mmrSeriesKey(mode, killerName);
       const before = ratings.get(key) ?? INITIAL_MMR;
       const { delta, reason } = mmrChange(match);
       const after = before + delta;
       ratings.set(key, after);
+      const anchor = adjustments[key];
+      if (anchor) {
+        if (!offsets.has(key)) offsets.set(key, anchor.rating - INITIAL_MMR);
+        if (at < anchor.at || (at === anchor.at && match.id <= anchor.matchId)) offsets.set(key, anchor.rating - after);
+      }
       return { matchId: match.id, mode, killerName, at, delta, before, after, reason };
     });
+  if (!offsets.size) return events;
+  return events.map(event => {
+    const offset = offsets.get(mmrSeriesKey(event.mode, event.killerName)) ?? 0;
+    return { ...event, before: event.before + offset, after: event.after + offset };
+  });
+}
+
+function compareMatchIds(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
 }
 
 export function mmrModeForMatch(match: MatchHistoryEntry): MmrMode | null {

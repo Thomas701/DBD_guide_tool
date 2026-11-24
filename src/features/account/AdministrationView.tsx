@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { communityRpc, type AdministrationUser } from "../../services/community.js";
+import { PlayerStatisticsDialog } from "../statistics/PlayerStatisticsDialog.js";
 
 const date = (value: string | null) => value ? new Date(value).toLocaleString("fr-FR") : "Jamais";
 export function AdministrationView({ onInspect, canManageAccounts = false }: { onInspect?: ((user: AdministrationUser) => void) | undefined; canManageAccounts?: boolean }) {
@@ -8,6 +9,7 @@ export function AdministrationView({ onInspect, canManageAccounts = false }: { o
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [revision, setRevision] = useState(0), [busy, setBusy] = useState<string | null>(null);
+  const [mmrPlayer, setMmrPlayer] = useState<AdministrationUser | null>(null);
   async function manage(user: AdministrationUser, action: "admin_promote_consultant" | "admin_delete_account"): Promise<void> {
     if (!canManageAccounts || busy) return;
     if (action === "admin_delete_account" && !window.confirm(`Supprimer définitivement le compte ${user.email ?? user.id} et toutes ses données ?`)) return;
@@ -23,6 +25,7 @@ export function AdministrationView({ onInspect, canManageAccounts = false }: { o
     return () => { active = false; };
   }, [page, revision]);
   return <main className="community-page" aria-label="Administration">
+    {mmrPlayer && canManageAccounts && <PlayerStatisticsDialog player={{ user_id: mmrPlayer.id, nickname: mmrPlayer.email ?? "ce joueur" }} adjustMmr onClose={() => setMmrPlayer(null)} />}
     <h1>Administration</h1><p>Comptes de l’application. L’icône œil ouvre une consultation en lecture seule.</p>
     {error && <p role="alert">{error}</p>}{loading ? <p role="status">Chargement des utilisateurs…</p> : <>
       <div className="community-table-scroll"><table><thead><tr><th>Email</th><th>Création du compte</th><th>Rôle</th><th>Behaviour synchronisé</th><th>Dernière connexion</th><th>Consulter</th>{canManageAccounts && <th>Gestion du compte</th>}</tr></thead>
@@ -31,6 +34,7 @@ export function AdministrationView({ onInspect, canManageAccounts = false }: { o
           <td><button type="button" className="manager-icon-button" disabled={!onInspect} aria-label={`Visualiser ${user.email ?? user.id} en lecture seule`} onClick={() => onInspect?.(user)}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
           </button></td>{canManageAccounts && <td className="community-account-actions">
+            <button type="button" className="secondary-button" onClick={() => setMmrPlayer(user)}>Modifier le MMR</button>
             {!user.administrator && !user.consultant && <button type="button" className="secondary-button" disabled={busy !== null} onClick={() => void manage(user, "admin_promote_consultant")}>Promouvoir consultant</button>}
             <button type="button" className="secondary-button danger" disabled={busy !== null} onClick={() => void manage(user, "admin_delete_account")}>Supprimer le compte</button>
           </td>}</tr>)}</tbody></table></div>

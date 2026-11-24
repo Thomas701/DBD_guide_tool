@@ -21,6 +21,7 @@ const killerMatch = { ...match, id: "2".repeat(40), role: "killer", characterNam
 const profiles = new Map(Object.values(users).map(user => [user.id, `Joueur ${user.id.slice(0, 8)}`]));
 const sharedDescriptions = new Map();
 const consultants = new Set();
+const mmrAdjustments = new Map();
 let previewRequests = 0;
 const leaderboardRequests = [];
 let leaderboardUnavailable = false;
@@ -65,7 +66,14 @@ try {
     if (url.pathname === "/rest/v1/rpc/player_match_accounts") return reply([{ matchId: match.id, player: { user_id: users.bob.id, nickname: "Bob Behaviour" }, participants: [{ index: 0, player: { user_id: users.alice.id, nickname: "Alice Behaviour" } }] }]);
     if (url.pathname === "/rest/v1/rpc/player_statistics_page") {
       assert.ok(Object.values(users).some(user => user.id === body.target_user));
-      return reply({ nickname: body.target_user === users.bob.id ? "Bob Behaviour" : "Alice Behaviour", updatedAt, statistics: null, matchHistory: [match, killerMatch], nextCursor: null, importedCount: 2, fetchedCount: 2 });
+      return reply({ nickname: body.target_user === users.bob.id ? "Bob Behaviour" : "Alice Behaviour", updatedAt, statistics: null, matchHistory: [match, killerMatch], nextCursor: null, importedCount: 2, fetchedCount: 2, mmrAdjustments: mmrAdjustments.get(body.target_user) });
+    }
+    if (url.pathname === "/rest/v1/rpc/admin_set_player_mmr") {
+      assert.equal(userId, users.alice.id);
+      assert.deepEqual(body, { target_user: users.bob.id, selected_mode: "1v4-survivor", selected_killer: "", rating: 825 });
+      const adjustments = { "1v4-survivor": { matchId: match.id, at: match.playedAt, rating: body.rating } };
+      mmrAdjustments.set(body.target_user, adjustments);
+      return reply(adjustments);
     }
     if (url.pathname === "/rest/v1/rpc/admin_promote_consultant") {
       assert.equal(userId, users.alice.id); consultants.add(body.target_user); return reply(null);
@@ -123,7 +131,7 @@ try {
     if (url.pathname === "/rest/v1/rpc/statistics_collector_status") return reply({ connected: false, state: "waiting_for_login", message: "Connectez l’extension.", lastSeenAt: null });
     if (url.pathname === "/rest/v1/player_statistics" || url.pathname === "/rest/v1/player_matches") {
       assert.ok(url.searchParams.get("user_id") === `eq.${userId}` || userId === users.alice.id);
-      if (url.pathname.endsWith("player_statistics")) return reply([{ overview: null, updated_at: updatedAt, imported_count: 2, fetched_count: 2 }]);
+      if (url.pathname.endsWith("player_statistics")) return reply([{ overview: null, updated_at: updatedAt, imported_count: 2, fetched_count: 2, mmr_adjustments: mmrAdjustments.get(url.searchParams.get("user_id").slice(3)) }]);
       return reply([match, killerMatch].map(entry => ({ match_id: entry.id, entry, deleted: false })));
     }
     throw new Error(`Unexpected mocked endpoint: ${url.pathname}`);
@@ -143,6 +151,13 @@ try {
       await administration.getByText(users.bob.email, { exact: true }).waitFor();
       assert.equal(await administration.locator("tbody tr").count(), 2);
       assert.equal(await administration.getByRole("columnheader").count(), 7);
+      await administration.getByRole("row").filter({ hasText: users.bob.email }).getByRole("button", { name: "Modifier le MMR" }).click();
+      const mmrDialog = page.getByRole("dialog", { name: "Statistiques de Bob Behaviour" });
+      await mmrDialog.getByLabel("MMR après le dernier match").fill("825");
+      await mmrDialog.getByRole("button", { name: "Enregistrer le MMR" }).click();
+      await mmrDialog.getByRole("status").filter({ hasText: "MMR enregistré." }).waitFor();
+      await mmrDialog.locator(".statistics-mmr-current strong").filter({ hasText: /^825$/ }).waitFor();
+      await mmrDialog.getByRole("button", { name: "Fermer les statistiques du joueur" }).click();
     }
     await nav.getByRole("button", { name: "Perks", exact: true }).click();
     await page.locator('.perk-card[data-perk-id="agitation"] .perk-card-details').click();
@@ -155,6 +170,11 @@ try {
     await page.locator(".statistics-match-card").first().waitFor();
     assert.equal(await page.getByTitle("Modifier la partie", { exact: true }).count(), admin ? 2 : 0);
     assert.equal(await page.getByTitle("Supprimer la partie", { exact: true }).count(), admin ? 2 : 0);
+    if (!admin && mmrAdjustments.has(user.id)) {
+      await page.getByRole("tab", { name: "MMR", exact: true }).click();
+      await page.locator(".statistics-mmr-current strong").filter({ hasText: /^825$/ }).waitFor();
+      assert.equal(await page.getByRole("button", { name: "Enregistrer le MMR" }).count(), 0);
+    }
     await nav.getByRole("button", { name: "Build", exact: true }).click();
     await page.locator(".analyzer-workspace.view-build").waitFor();
     await page.getByRole("status").filter({ hasText: "Données synchronisées" }).waitFor();

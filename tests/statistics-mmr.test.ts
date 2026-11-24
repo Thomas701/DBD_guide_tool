@@ -27,6 +27,19 @@ test("identifie les MVP survivant et tueur", () => {
   assert.equal(isMvpMatch(match("killer-not-mvp", "2026-01-01T00:00:00.000Z", "killer", "The Nurse", [dead(), dead(), dead(), survivor(20)])), false);
 });
 
+test("le MMR réglé après un match recale le passé et les nouvelles parties prolongent la série", () => {
+  const win = match("a", "2026-01-01T00:00:00.000Z", "killer", "The Nurse", [dead(), dead(), dead()]);
+  const anchor = { ...win, id: "b" };
+  const next = { ...win, id: "c", participants: [dead()] };
+  const otherKiller = { ...win, id: "d", characterName: "The Trapper" };
+  const adjustments = { "1v4-killer:the nurse": { matchId: anchor.id, at: anchor.importedAt, rating: 800 } };
+  assert.deepEqual(calculateMmrHistory([next, otherKiller, anchor, win], adjustments)
+    .map(({ matchId, before, delta, after }) => [matchId, before, delta, after]), [
+    ["a", 782, 9, 791], ["b", 791, 9, 800], ["c", 800, -9, 791], ["d", 600, 9, 609],
+  ]);
+  assert.equal(calculateMmrHistory([next, win], adjustments)[0]?.before, 791);
+});
+
 test("sépare les modes survivant et applique une majorité stricte", () => {
   const oneVsFour = match("one", "2026-01-01T00:00:00.000Z", "survivor", "Meg Thomas", [survivor(20), survivor(30), survivor(40)], 10);
   const twoVsEight = { ...match("two", "2026-01-02T00:00:00.000Z", "survivor", "Jake Park", [survivor(10), survivor(20), survivor(30)], 20), queueLabel: "2v8" };

@@ -13,7 +13,7 @@ async function account() {
 
 export async function readCloudStatisticsSnapshot(): Promise<unknown> {
   const { client, userId } = await account();
-  const overview = await client.from("player_statistics").select("overview,updated_at,imported_count,fetched_count").eq("user_id", userId).maybeSingle();
+  const overview = await client.from("player_statistics").select("overview,updated_at,imported_count,fetched_count,mmr_adjustments").eq("user_id", userId).maybeSingle();
   if (overview.error) throw new Error(overview.error.message);
   const saved = historyCache.get(userId);
   const watermark: string | null = overview.data?.updated_at ?? null;
@@ -41,6 +41,7 @@ export async function readCloudStatisticsSnapshot(): Promise<unknown> {
     matchHistory: [...entries.values()],
     importedCount: overview.data?.imported_count ?? 0,
     fetchedCount: overview.data?.fetched_count ?? 0,
+    mmrAdjustments: overview.data?.mmr_adjustments,
   };
 }
 
