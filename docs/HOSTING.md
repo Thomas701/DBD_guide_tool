@@ -5,7 +5,7 @@ Le site utilise GitHub Pages pour l’interface, Supabase Auth pour la connexion
 ## Publication
 
 1. Créer un projet Supabase gratuit dans une organisation gratuite, en région Europe.
-2. Exécuter les fichiers de `supabase/migrations/` dans l’ordre de leur nom dans l’éditeur SQL du nouveau projet, jusqu’à `202611230001_community_profiles_and_consultants.sql`. Ne pas réexécuter les migrations déjà appliquées sur un projet existant. Appliquer les nouvelles migrations avant de publier cette version de l’interface et du collecteur.
+2. Exécuter les fichiers de `supabase/migrations/` dans l’ordre de leur nom dans l’éditeur SQL du nouveau projet, jusqu’à `202611240001_admin_mmr.sql`. Ne pas réexécuter les migrations déjà appliquées sur un projet existant. Appliquer les nouvelles migrations avant de publier cette version de l’interface et du collecteur.
 3. Dans Supabase, configurer **Authentication → URL Configuration** : Site URL et URL de redirection `https://thomas701.github.io/DBD_guide_tool/`. Les URL locales `http://127.0.0.1:5173/` et `http://localhost:5173/` peuvent être ajoutées pour le développement.
 4. Dans GitHub, ouvrir **Settings → Pages**, choisir **GitHub Actions**.
 5. Dans **Settings → Secrets and variables → Actions → Variables**, ajouter `VITE_SUPABASE_URL` et `VITE_SUPABASE_PUBLISHABLE_KEY`. La seconde valeur est la clé **Publishable**, jamais une clé `sb_secret_` ni `service_role`.

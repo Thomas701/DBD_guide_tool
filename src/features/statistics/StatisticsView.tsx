@@ -4,6 +4,7 @@ import { StatisticsConnection } from "./StatisticsConnection.js";
 
 import {
   deleteMatchHistoryEntry,
+  readMmrAdjustments,
   readStatisticsSnapshot,
   readStatisticsStatus,
   showStatisticsPage,
@@ -17,7 +18,9 @@ import {
 import { calculateMmrHistory, INITIAL_MMR, isMvpMatch, type MmrEvent, type MmrMode } from "../../services/statistics-mmr.js";
 import { StatisticsOverview } from "./StatisticsOverview.js";
 import { statisticsImage } from "./StatisticsRankings.js";
-import type { CommunityPlayer } from "../../services/community.js";
+import { communityRpc, type CommunityPlayer } from "../../services/community.js";
+import { invalidateLeaderboard } from "../../services/leaderboard.js";
+import { invalidatePublicStatistics } from "../../services/public-statistics.js";
 import { PlayerStatisticsButton } from "../../components/PlayerStatisticsButton.js";
 
 type StatisticsTab = "overview" | "mmr" | "history";
@@ -30,10 +33,10 @@ const STATUS_REFRESH_INTERVAL_MS = 5_000;
 const ESCAPED_ICON_URL = "https://assets.live.bhvraccount.com/stats/VE_Escaped.png";
 const SACRIFICED_ICON_URL = "https://assets.live.bhvraccount.com/stats/VE_Sacrificed.png";
 
-export function StatisticsView({ serverUrl, nextSyncAt, canEdit, readOnly = false, publicSnapshot, onInspectPlayer }: { serverUrl: string; nextSyncAt: number | null; canEdit: boolean; readOnly?: boolean; publicSnapshot?: StatisticsSnapshot; onInspectPlayer?: ((player: CommunityPlayer) => void) | undefined }) {
+export function StatisticsView({ serverUrl, nextSyncAt, canEdit, readOnly = false, publicSnapshot, mmrTargetUser, onInspectPlayer }: { serverUrl: string; nextSyncAt: number | null; canEdit: boolean; readOnly?: boolean; publicSnapshot?: StatisticsSnapshot; mmrTargetUser?: string | undefined; onInspectPlayer?: ((player: CommunityPlayer) => void) | undefined }) {
   const [snapshot, setSnapshot] = useState<StatisticsSnapshot | null>(publicSnapshot ?? null);
   const [status, setStatus] = useState<StatisticsStatus | null>(null);
-  const [tab, setTab] = useState<StatisticsTab>("overview");
+  const [tab, setTab] = useState<StatisticsTab>(mmrTargetUser ? "mmr" : "overview");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [queueFilter, setQueueFilter] = useState<QueueFilter>("all");
@@ -127,7 +130,8 @@ export function StatisticsView({ serverUrl, nextSyncAt, canEdit, readOnly = fals
 
   const statistics = snapshot?.statistics ?? null;
   const matchHistory = snapshot?.matchHistory ?? [];
-  const mmrEvents = useMemo(() => calculateMmrHistory(matchHistory), [matchHistory]);
+  const mmrAdjustments = snapshot?.mmrAdjustments;
+  const mmrEvents = useMemo(() => calculateMmrHistory(matchHistory, mmrAdjustments), [matchHistory, mmrAdjustments]);
   const mmrByMatchId = useMemo(() => new Map(mmrEvents.map((event) => [event.matchId, event])), [mmrEvents]);
   const sourceUrl = tab === "history" || tab === "mmr"
     ? matchHistory[0]?.sourceUrl ?? "https://stats.deadbydaylight.com/match-history/"
@@ -197,6 +201,14 @@ export function StatisticsView({ serverUrl, nextSyncAt, canEdit, readOnly = fals
         mode={mmrMode}
         range={mmrRange}
         killer={mmrKiller}
+        onSetRating={mmrTargetUser ? async (mode, killer, rating) => {
+          const adjustments = await communityRpc("admin_set_player_mmr", {
+            target_user: mmrTargetUser, selected_mode: mode, selected_killer: killer, rating,
+          });
+          invalidateLeaderboard();
+          invalidatePublicStatistics(mmrTargetUser);
+          setSnapshot(current => current && { ...current, mmrAdjustments: readMmrAdjustments(adjustments) });
+        } : undefined}
         onModeChange={setMmrMode}
         onRangeChange={setMmrRange}
         onKillerChange={setMmrKiller}
@@ -578,6 +590,7 @@ function MmrPanel({
   onModeChange,
   onRangeChange,
   onKillerChange,
+  onSetRating,
 }: {
   events: readonly MmrEvent[];
   mode: MmrMode;
@@ -586,11 +599,12 @@ function MmrPanel({
   onModeChange: (value: MmrMode) => void;
   onRangeChange: (value: MmrRange) => void;
   onKillerChange: (value: string) => void;
+  onSetRating: ((mode: MmrMode, killer: string, rating: number) => Promise<void>) | undefined;
 }) {
   const killerOptions = [...new Set(events.filter((event) => event.mode === mode && event.killerName).map((event) => event.killerName!))]
     .sort((left, right) => left.localeCompare(right, "fr"));
   const selectedKiller = mode.endsWith("killer") ? (killerOptions.includes(killer) ? killer : killerOptions[0] ?? "") : "";
-  const series = events.filter((event) => event.mode === mode && (!selectedKiller || event.killerName === selectedKiller));
+  const series = events.filter(event => event.mode === mode && (!selectedKiller || event.killerName?.toLowerCase() === selectedKiller.toLowerCase()));
   const points = buildMmrChartPoints(series, range);
   const currentMmr = series.at(-1)?.after ?? INITIAL_MMR;
 
@@ -628,15 +642,39 @@ function MmrPanel({
       <div className="statistics-mmr-current">
         <span>MMR actuel</span>
         <strong>{currentMmr}</strong>
-        <small>{selectedKiller || mmrModeLabel(mode)} · départ {INITIAL_MMR}</small>
+        <small>{selectedKiller || mmrModeLabel(mode)} · départ {series[0]?.before ?? INITIAL_MMR}</small>
       </div>
     </div>
+    {onSetRating && series.length > 0 && <MmrAdjustmentForm key={`${mode}:${selectedKiller}`} currentMmr={currentMmr} onSave={rating => onSetRating(mode, selectedKiller, rating)} />}
     {series.length === 0
       ? <p className="statistics-empty">Aucune partie enregistrée pour {mmrModeLabel(mode).toLowerCase()}.</p>
       : points.length < 2
         ? <p className="statistics-empty">Aucune partie sur cette période. Élargissez l’échelle de temps.</p>
         : <MmrChart points={points} />}
   </section>;
+}
+
+function MmrAdjustmentForm({ currentMmr, onSave }: { currentMmr: number; onSave: (rating: number) => Promise<void> }) {
+  const [rating, setRating] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
+  return <form className="statistics-mmr-filters statistics-mmr-adjustment" onSubmit={async event => {
+    event.preventDefault();
+    if (saving) return;
+    setSaving(true); setError(""); setSaved(false);
+    try { await onSave(Number(rating)); setRating(""); setSaved(true); }
+    catch (cause) { setError(cause instanceof Error ? cause.message : "Modification du MMR impossible."); }
+    finally { setSaving(false); }
+  }}>
+    <label className="statistics-filter-field">
+      <span>MMR après le dernier match</span>
+      <input type="number" step="1" min={-2147483648} max={2147483647} required placeholder={String(currentMmr)} value={rating} disabled={saving} onChange={event => { setRating(event.target.value); setSaved(false); }} />
+    </label>
+    <button className="secondary-button" type="submit" disabled={saving || !rating}>{saving ? "Enregistrement…" : "Enregistrer le MMR"}</button>
+    {saved && <span role="status">MMR enregistré.</span>}
+    {error && <span role="alert">{error}</span>}
+  </form>;
 }
 
 function CharacterFilter({ label, options, selected, onChange }: { label: string; options: readonly string[]; selected: readonly string[]; onChange: (value: string[]) => void }) {

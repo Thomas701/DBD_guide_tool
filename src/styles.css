@@ -2681,8 +2681,8 @@ button:disabled {
 .statistics-history-toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px 20px; align-items: end; }
 .statistics-filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; flex: 1 1 900px; }
 .statistics-filter-field { display: grid; gap: 7px; color: #c8cdd0; font-size: .74rem; font-weight: 800; }
-.statistics-filter-field select { min-height: 42px; padding: 0 12px; border: 1px solid #3b4248; border-radius: 6px; color: #f0f1f1; background: #111519; font: inherit; }
-.statistics-filter-field select:focus { border-color: #d95850; outline: 0; box-shadow: 0 0 0 2px rgb(217 88 80 / 18%); }
+.statistics-filter-field :is(select, input[type="number"]) { min-height: 42px; padding: 0 12px; border: 1px solid #3b4248; border-radius: 6px; color: #f0f1f1; background: #111519; font: inherit; }
+.statistics-filter-field :is(select, input[type="number"]):focus { border-color: #d95850; outline: 0; box-shadow: 0 0 0 2px rgb(217 88 80 / 18%); }
 .statistics-character-filter { position: relative; min-width: 0; }
 .statistics-character-filter details { position: relative; }
 .statistics-character-filter summary { display: flex; min-height: 42px; box-sizing: border-box; padding: 0 12px; border: 1px solid #3b4248; border-radius: 6px; align-items: center; justify-content: space-between; color: #f0f1f1; background: #111519; cursor: pointer; list-style: none; }
@@ -2698,6 +2698,7 @@ button:disabled {
 .statistics-mmr-section { display: grid; gap: 18px; }
 .statistics-mmr-toolbar { display: flex; justify-content: space-between; gap: 18px; align-items: end; }
 .statistics-mmr-filters { display: grid; grid-template-columns: repeat(3, minmax(180px, 240px)); gap: 12px; flex: 1; }
+.statistics-mmr-adjustment { align-items: end; }
 .statistics-mmr-current { display: grid; min-width: 160px; padding: 12px 16px; border: 1px solid #41494f; border-radius: 8px; background: #11171a; text-align: right; }
 .statistics-mmr-current span, .statistics-mmr-current small { color: #929ca1; font-size: .7rem; font-weight: 700; }
 .statistics-mmr-current strong { color: #f1f3f3; font-size: 2rem; font-variant-numeric: tabular-nums; line-height: 1.1; }

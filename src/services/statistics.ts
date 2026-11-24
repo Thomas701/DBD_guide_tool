@@ -2,6 +2,7 @@ import { normalizeServerUrl } from "./assistant-provider.js";
 import { getCloudClient, getViewedUserId } from "./cloud-client.js";
 import { attachMatchAccounts, type CommunityPlayer } from "./community.js";
 import { editCloudMatch, readCloudStatisticsSnapshot, readCloudStatisticsStatus, requestCloudStatisticsSync } from "./cloud-statistics.js";
+import type { MmrAdjustments } from "./statistics-mmr.js";
 
 export interface StatisticsOverview {
   hoursPlayed: string;
@@ -59,6 +60,7 @@ export interface StatisticsSnapshot {
   matchHistory: MatchHistoryEntry[];
   importedCount: number;
   fetchedCount: number;
+  mmrAdjustments?: MmrAdjustments;
 }
 
 export interface StatisticsStatusLog {
@@ -173,8 +175,21 @@ export function parseSnapshot(value: unknown): StatisticsSnapshot {
       })
       : [],
     importedCount: finiteNumber(value.importedCount, 0),
-    fetchedCount: finiteNumber(value.fetchedCount, 0)
+    fetchedCount: finiteNumber(value.fetchedCount, 0),
+    mmrAdjustments: readMmrAdjustments(value.mmrAdjustments),
   };
+}
+
+export function readMmrAdjustments(value: unknown): MmrAdjustments {
+  const adjustments: MmrAdjustments = Object.create(null);
+  if (isRecord(value)) {
+    for (const [key, anchor] of Object.entries(value)) {
+      if (!isRecord(anchor) || typeof anchor.matchId !== "string" || typeof anchor.rating !== "number" || !Number.isInteger(anchor.rating)) continue;
+      const at = isoOrNull(anchor.at);
+      if (at) adjustments[key] = { matchId: anchor.matchId, at, rating: anchor.rating };
+    }
+  }
+  return adjustments;
 }
 
 function parseStatus(value: unknown): StatisticsStatus {

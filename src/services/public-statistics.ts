@@ -1,9 +1,10 @@
 import { attachMatchAccounts, communityRpc } from "./community.js";
 import { parseSnapshot, type StatisticsSnapshot } from "./statistics.js";
 
-interface PublicPage { nickname: string; updatedAt: string | null; matchHistory: unknown[]; nextCursor: string | null; importedCount: number; fetchedCount: number }
+interface PublicPage { nickname: string; updatedAt: string | null; matchHistory: unknown[]; nextCursor: string | null; importedCount: number; fetchedCount: number; mmrAdjustments?: unknown }
 const profiles = new Map<string, { snapshot: StatisticsSnapshot; nickname: string; at: number }>();
 export const cachedPublicStatistics = (userId: string) => profiles.get(userId);
+export const invalidatePublicStatistics = (userId: string) => profiles.delete(userId);
 export async function readPublicStatistics(userId: string) {
   const cached = profiles.get(userId);
   if (cached && Date.now() - cached.at < 60_000) return cached;

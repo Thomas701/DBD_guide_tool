@@ -113,4 +113,34 @@ select set_config('request.jwt.claim.sub', '', true);
 do $$ begin
   begin perform public.player_leaderboard(); raise exception 'Authentication required'; exception when insufficient_privilege then null; end;
 end $$;
+reset role;
+update public.player_matches set entry = entry || '{"playedAt":"2026-11-22T12:00:00.000Z","importedAt":"2026-11-22T12:00:00.000Z"}'
+where user_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' and match_id in ('killer-win','killer-draw');
+set local role authenticated;
+select set_config('request.jwt.claim.sub', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', true);
+do $$ declare adjustments jsonb; begin
+  adjustments := public.admin_set_player_mmr(auth.uid(), '1v4-killer', 'The Trapper', 900);
+  assert adjustments->'1v4-killer:the trapper'->>'matchId' = 'killer-win', 'Match ID breaks timestamp ties';
+  assert public.player_statistics_page(auth.uid())->'mmrAdjustments' = adjustments;
+  assert (public.player_leaderboard('1v4-killer', 'The Trapper')->'players'->0->>'mmr')::int = 900;
+  assert (public.player_leaderboard('1v4-killer', 'The Nurse')->'players'->0->>'mmr')::int = 591;
+  perform public.admin_set_player_mmr(auth.uid(), '1v4-killer', 'The Trapper', 800);
+  assert (public.player_leaderboard('1v4-killer', 'The Trapper')->'players'->0->>'mmr')::int = 800;
+  assert not has_table_privilege('authenticated', 'public.player_statistics', 'UPDATE');
+  assert not has_function_privilege('anon', 'public.admin_set_player_mmr(uuid,text,text,integer)', 'EXECUTE');
+end $$;
+reset role;
+insert into public.player_matches(user_id, match_id, entry)
+select user_id, 'future', entry || '{"playedAt":"2026-11-22T12:01:00.000Z"}'
+from public.player_matches where user_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' and match_id = 'killer-win';
+insert into public.app_administrators(user_id, role) values ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', 'consultant');
+set local role authenticated;
+select set_config('request.jwt.claim.sub', 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', true);
+do $$ begin
+  assert (public.player_leaderboard('1v4-killer', 'The Trapper')->'players'->0->>'mmr')::int = 809;
+  begin
+    perform public.admin_set_player_mmr('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '1v4-killer', 'The Trapper', 0);
+    raise exception 'Consultants must not set MMR';
+  exception when insufficient_privilege then null; end;
+end $$;
 rollback;
