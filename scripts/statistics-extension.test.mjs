@@ -162,6 +162,44 @@ test("le pseudo correspond au bloc officiel, à la plateforme sélectionnée et 
   assert.equal(result.statistics.nickname, undefined, "A missing nickname must not block statistics or erase an existing profile");
 });
 
+test("la collecte essaie la progression partagée et récupère les 50 parties disponibles", async () => {
+  const saved = [];
+  const history = Array.from({ length: 50 }, (_, index) => ({
+    ...behaviourHistory[0],
+    matchStat: { ...behaviourHistory[0].matchStat, matchStartTime: behaviourHistory[0].matchStat.matchStartTime - index * 60 },
+  }));
+  const result = await collectBehaviourStatistics(behaviourSession(), async session => saved.push(session), async url => {
+    if (url.endsWith("/players/me")) return Response.json(behaviourProfile);
+    if (url.endsWith("/players/me/game-accounts/dbd")) return Response.json([{ provider: "egs", status: "synced" }]);
+    if (url.includes("/providers/egs?")) return Response.json({ code: "ProviderProfileNotFoundError" }, { status: 404 });
+    assert.match(url, /\/providers\/bhvr\?/);
+    if (url.includes("match-history")) {
+      assert.equal(new URL(url).searchParams.get("limit"), "50");
+      return Response.json(history);
+    }
+    return Response.json({ code: "StatNotFound" }, { status: 404 });
+  });
+  assert.equal(saved[0].provider, "bhvr");
+  assert.equal(result.nickname, "Compte Behaviour");
+  assert.equal(result.statistics, null);
+  assert.equal(new Set(result.matches.map(match => match.id)).size, 50);
+});
+
+test("une plateforme sans données reste en attente et peut être collectée avec la même session", async () => {
+  const session = behaviourSession();
+  let dataReady = false;
+  const request = async url => {
+    if (url.endsWith("/players/me")) return Response.json(behaviourProfile);
+    if (url.endsWith("/players/me/game-accounts/dbd")) return Response.json([{ provider: "egs", status: "owned" }]);
+    if (dataReady && url.includes("match-history")) return Response.json(behaviourHistory);
+    return Response.json({ code: "StatNotFound" }, { status: 404 });
+  };
+  const save = async () => assert.fail("The session does not need to be replaced");
+  await assert.rejects(collectBehaviourStatistics(session, save, request), /ne fournit pas encore/);
+  dataReady = true;
+  assert.equal((await collectBehaviourStatistics(session, save, request)).matches.length, 1);
+});
+
 test("des détails temporairement indisponibles ne bloquent pas l’import des autres parties", () => {
   const candidates = ["retry-newest", "unseen", "retry-oldest"].map(id => ({ entry: { id } }));
   assert.deepEqual(prioritizeMatchRetries(candidates, ["retry-oldest", "retry-newest"]).map(({ entry }) => entry.id), ["unseen", "retry-oldest", "retry-newest"]);

@@ -1,4 +1,4 @@
-import { collectBehaviourStatistics } from "../../../extension/behaviour-api.mjs";
+import { BehaviourStatisticsUnavailableError, collectBehaviourStatistics } from "../../../extension/behaviour-api.mjs";
 import { readBehaviourIdentity, validBehaviourSession } from "../../../extension/behaviour-session.mjs";
 import { hashText } from "../../../extension/policy.mjs";
 
@@ -26,6 +26,7 @@ export function statisticsHandler({ url, serviceKey, request = fetch }) {
         const loginRequired = cause instanceof Error && /Connexion Behaviour (expirée|révoquée)/.test(cause.message);
         state = loginRequired ? "waiting_for_login" : "error";
         detail = loginRequired ? "Behaviour demande une nouvelle connexion. Reconnectez Behaviour depuis votre compte." : "Synchronisation distante temporairement indisponible. Nouvelle tentative automatique.";
+        if (cause instanceof BehaviourStatisticsUnavailableError) detail = cause.message;
       }
       await rpc("finish_remote_statistics", { owner_id: userId, lease, statistics, matches, state, detail });
     }));

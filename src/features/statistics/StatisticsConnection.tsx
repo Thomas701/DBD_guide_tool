@@ -40,7 +40,7 @@ export function StatisticsConnection() {
         const waiting = Boolean(owner && sessionStorage.getItem(SETUP_KEY) === owner);
         setPending(waiting);
         if (!server.error) {
-          setLinked(Boolean(server.data?.remote && server.data.state !== "waiting_for_login"));
+          setLinked(Boolean(server.data?.remote && (server.data.state !== "waiting_for_login" || !server.data.lastSeenAt)));
           if (server.data?.remote && server.data.state === "success" && waiting) {
             sessionStorage.removeItem(SETUP_KEY); setPending(false); setError(null);
             setNotice("Synchronisation distante activée. Vous pouvez fermer le navigateur et éteindre votre PC.");
@@ -51,7 +51,13 @@ export function StatisticsConnection() {
             setError(server.data.message ?? "Behaviour demande une nouvelle connexion.");
             return;
           }
-          if (waiting && server.data?.remote && server.data.state === "error") setNotice(server.data.message);
+          if (server.data?.remote) {
+            if (waiting) {
+              sessionStorage.removeItem(SETUP_KEY); setPending(false);
+              setNotice("Compte Behaviour associé. La collecte se poursuit automatiquement, même navigateur fermé.");
+            }
+            return;
+          }
         }
         if (waiting && !server.data?.remote && extension?.userId === owner && extension.status?.includes("indisponible")) setNotice(extension.status);
         if (waiting && available && !attempted.current) { attempted.current = true; void connect(); }
@@ -125,7 +131,7 @@ export function StatisticsConnection() {
   return <section className="statistics-connection" aria-label="Connexion Behaviour">
     <h2>Vos statistiques Behaviour</h2>
     <p>Associez votre compte une fois. Vos statistiques seront ensuite synchronisées toutes les cinq minutes, même navigateur fermé et PC éteint.</p>
-    {linked && !pending ? <p role="status">✓ Synchronisation distante active.</p> : <ol className="statistics-setup-steps">
+    {linked && !pending ? <p role="status">✓ Compte Behaviour associé.</p> : <ol className="statistics-setup-steps">
       <li className={installed ? "complete" : ""}>{installed ? "✓ Extension installée" : "Installer l’extension"}</li>
       <li>Se connecter à Behaviour</li>
       <li>Synchronisation automatique</li>
@@ -139,7 +145,7 @@ export function StatisticsConnection() {
     </>)}
     {linked && <button className="secondary-button" type="button" disabled={busy} onClick={() => void disconnect()}>Désactiver la synchronisation</button>}
     {pending && !linked && <button className="secondary-button" type="button" disabled={busy} onClick={() => void disconnect()}>Annuler l’association</button>}
-    {pending && <p>Gardez le navigateur ouvert jusqu’à la confirmation de l’activation distante.</p>}
+    {pending && <p>Gardez le navigateur ouvert jusqu’à la confirmation de l’association.</p>}
     {notice && <p role="status" aria-live="polite">{notice}</p>}
     {error && <p className="error" role="alert">{error}</p>}
     <details><summary>Aide et confidentialité</summary>

@@ -2,7 +2,12 @@ import { matchHistoryIdentity } from "../shared/match-history-identity.mjs";
 import { hashText } from "./policy.mjs";
 
 export const BEHAVIOUR_API = "https://account-backend.bhvr.com";
+export class BehaviourStatisticsUnavailableError extends Error {}
+
 const ASSETS = "https://assets.live.bhvraccount.com/";
+const HISTORY_LIMIT = 50;
+const isProvider = value => typeof value === "string" && /^[a-z0-9_-]{1,30}$/.test(value);
+const hasStatistics = ({ overview, history }) => overview !== undefined || (Array.isArray(history) ? history.length > 0 : history !== undefined);
 const title = value => typeof value === "string" ? value.toLowerCase().replace(/\b\w/g, letter => letter.toUpperCase()) : null;
 const duration = value => { const seconds = Math.max(0, Math.trunc(value)); return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`; };
 const asset = item => typeof item?.image?.path === "string" && item.image.path ? new URL(item.image.path, ASSETS).href : null;
@@ -94,25 +99,51 @@ export async function collectBehaviourStatistics(session, saveSession, request =
     await saveSession(session);
   }
   if (!session.authToken?.token || session.authToken.expirationDate <= Date.now() + 60_000) await refresh();
-  async function get(path, missingCode) {
+  async function get(path, ...missingCodes) {
     const send = () => request(`${BEHAVIOUR_API}${path}`, { headers: { Authorization: `Bearer ${session.authToken.token}` }, signal: AbortSignal.timeout(20_000) });
     let response = await send();
     if (response.status === 401) { await refresh(); response = await send(); }
-    if (response.status === 404 && missingCode && (await response.json()).code === missingCode) return undefined;
+    if (response.status === 404 && missingCodes.length && missingCodes.includes((await response.json()).code)) return undefined;
     if (!response.ok) throw new Error(response.status === 401 ? "Connexion Behaviour expirée. Reconnectez Behaviour depuis le site." : "Behaviour ne peut pas fournir les statistiques pour le moment.");
     return response.json();
   }
   let providers;
-  if (!/^[a-z0-9_-]{1,30}$/.test(session.provider ?? "")) {
-    providers = await get("/players/me/game-accounts/dbd");
-    const provider = Array.isArray(providers) ? providers.find(item => item.status === "synced")?.provider ?? providers[0]?.provider : null;
-    if (!/^[a-z0-9_-]{1,30}$/.test(provider ?? "")) throw new Error("Aucune plateforme Dead by Daylight liée à Behaviour.");
-    session = { ...session, provider }; await saveSession(session);
+  async function availableProviders() {
+    providers ??= await get("/players/me/game-accounts/dbd");
+    if (!Array.isArray(providers) || providers.some(item => !isProvider(item?.provider))) throw new Error("Liste de plateformes Behaviour invalide.");
+    if (!providers.length) throw new BehaviourStatisticsUnavailableError("Behaviour ne trouve aucune plateforme Dead by Daylight pour ce compte. Associez votre compte de jeu dans les connexions de votre compte Behaviour. La synchronisation reprendra automatiquement.");
+    const platforms = providers.map(item => item.provider);
+    const preferred = providers.some(item => item.status === "synced") ? "bhvr"
+      : platforms.includes("steam") ? "steam"
+      : platforms.includes("grdk") && platforms.includes("xbox") ? "xbox" : platforms[0];
+    return [...new Set([preferred, ...platforms])];
   }
-  const overview = await get(`/player-stats/games/dbd/providers/${session.provider}?lang=en`, "StatNotFound");
-  const history = await get(`/player-stats/match-history/games/dbd/providers/${session.provider}?lang=en&limit=30`);
+  async function readProvider(provider) {
+    const overview = await get(`/player-stats/games/dbd/providers/${provider}?lang=en`, "StatNotFound", "ProviderProfileNotFoundError");
+    const history = await get(`/player-stats/match-history/games/dbd/providers/${provider}?lang=en&limit=${HISTORY_LIMIT}`, "StatNotFound", "ProviderProfileNotFoundError");
+    return { overview, history };
+  }
+  let provider = isProvider(session.provider) ? session.provider : (await availableProviders())[0];
+  let result = await readProvider(provider);
+  if (!hasStatistics(result)) {
+    for (const candidate of await availableProviders()) {
+      if (candidate === provider) continue;
+      const alternative = await readProvider(candidate);
+      if (!hasStatistics(alternative)) continue;
+      provider = candidate;
+      result = alternative;
+      break;
+    }
+    if (!hasStatistics(result)) {
+      throw new BehaviourStatisticsUnavailableError("Behaviour ne fournit pas encore de statistiques ni de parties pour ce compte. La collecte réessaiera automatiquement.");
+    }
+  }
+  const { overview, history } = result;
+  const matches = await mapBehaviourMatches(history === undefined ? [] : history, new Date(), timeZone);
+  const statistics = overview === undefined ? null : mapBehaviourOverview(overview);
+  if (provider !== session.provider) await saveSession({ ...session, provider });
   const profile = await get("/players/me").catch(() => null);
   providers ??= await get("/players/me/game-accounts/dbd").catch(() => null);
-  const nickname = readBehaviourNickname(profile, providers, session.provider);
-  return { nickname, statistics: overview === undefined ? null : { ...mapBehaviourOverview(overview), ...(nickname ? { nickname } : {}) }, matches: await mapBehaviourMatches(history, new Date(), timeZone) };
+  const nickname = readBehaviourNickname(profile, providers, provider);
+  return { nickname, statistics: statistics && { ...statistics, ...(nickname ? { nickname } : {}) }, matches };
 }

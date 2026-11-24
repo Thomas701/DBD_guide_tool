@@ -96,7 +96,7 @@ try {
   const html = `<!doctype html><html lang="fr"><meta charset="utf-8"><title>Build Analyzer — association</title><style>${styles}button{font:inherit;padding:.7rem 1rem;border-radius:.4rem;border:1px solid #626975;cursor:pointer}.primary-button{background:#e4b25b;color:#111}.secondary-button{background:transparent;color:#eee}a{color:#e4b25b}.error{color:#ef9a9a}</style><body style="background:#0b0c0e;color:#f3f4f6;font:18px/1.6 system-ui;padding:48px"><h1>DBD Build Analyzer</h1><input aria-label="Brouillon" value="Brouillon à conserver"><div id="root"></div><script>
     window.remote = false; window.createdCollectors = 0;
     window.testCloud = {auth:{getSession:async()=>({data:{session:{user:{id:${JSON.stringify(pairing.userId)}}}}})},rpc:async(name)=>{
-      if(name==='statistics_collector_status') return {data:{remote:window.remote,state:window.remote?'success':'waiting_for_login'},error:null};
+      if(name==='statistics_collector_status') return {data:{remote:window.remote,state:window.remote?(window.collectorState||'success'):'waiting_for_login'},error:null};
       if(name==='create_statistics_collector') {window.createdCollectors++;if(window.holdAssociation) await new Promise(resolve=>window.releaseAssociation=resolve);return {data:${JSON.stringify(pairing.collectorToken)},error:null};}
       if(name==='revoke_statistics_collector') {window.remote=false;return {data:null,error:null};}
       throw Error('Unexpected RPC');
@@ -201,9 +201,11 @@ try {
   assert.equal(context.pages().length, count, "Reopening sign-in must not duplicate its tabs");
   await statsPage.evaluate(session => { localStorage.setItem("auth-store", JSON.stringify({ state: session })); window.dispatchEvent(new StorageEvent("storage", { key: "auth-store" })); }, behaviourSession());
   await waitFor(async () => (await chrome.storage.local.get("pairing")).pairing?.cloudConnected === true);
-  assert.equal(await app.getByText("✓ Synchronisation distante active.").count(), 0, "The UI waits for the server confirmation");
-  await app.evaluate(() => { window.remote = true; });
-  await app.getByText("✓ Synchronisation distante active.").waitFor();
+  assert.equal(await app.getByText("✓ Compte Behaviour associé.").count(), 0, "The UI waits for the server confirmation");
+  await app.evaluate(() => { window.remote = true; window.collectorState = "error"; });
+  await app.getByText("✓ Compte Behaviour associé.").waitFor();
+  await app.getByText("Compte Behaviour associé. La collecte se poursuit automatiquement, même navigateur fermé.", { exact: true }).waitFor();
+  assert.equal(await app.evaluate(() => window.createdCollectors), 1, "A collection error must keep the existing association");
   await app.getByLabel("Brouillon").evaluate(input => { input.style.visibility = "hidden"; });
   await app.screenshot({ path: join(root, ".tmp-extension-store-connected.png") });
   if (!statsPage.isClosed()) await statsPage.waitForEvent("close", { timeout: 10_000 });

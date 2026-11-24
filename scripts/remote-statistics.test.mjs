@@ -85,6 +85,35 @@ test("le serveur importe les parties même si Behaviour n’a pas encore de stat
   assert.ok(!JSON.stringify(finished).includes("private-refresh"));
 });
 
+test("la collecte reprend avec la même session une fois la plateforme de jeu disponible", async () => {
+  const finished = [];
+  const current = { ...credentials, session: { ...behaviourSession(), provider: undefined } };
+  let providers = [];
+  const handler = statisticsHandler({ url, serviceKey: "server-private-key", request: async (target, init) => {
+    if (target.endsWith("authorize_statistics_cron")) return Response.json(true);
+    if (target.endsWith("claim_remote_statistics")) return Response.json([{ ...job, credentials: current }]);
+    if (target.endsWith("finish_remote_statistics")) { finished.push(JSON.parse(init.body)); return Response.json(null); }
+    if (target.endsWith("save_remote_statistics_session")) { current.session = JSON.parse(init.body).behaviour_session; return Response.json(null); }
+    if (target.endsWith("save_remote_statistics_profile")) return Response.json(null);
+    if (target.endsWith("/players/me/game-accounts/dbd")) return Response.json(providers);
+    if (target.endsWith("/players/me")) return Response.json(behaviourProfile);
+    if (target.includes("/games/dbd/providers/steam?")) return Response.json(target.includes("match-history") ? behaviourHistory : behaviourOverview);
+    assert.fail(`Unexpected request: ${target}`);
+  } });
+  const sync = () => handler(req({ action: "cron" }, { "x-dbd-cron-token": "a".repeat(64) }));
+  assert.equal((await sync()).status, 200);
+  assert.equal(finished[0].state, "error");
+  assert.match(finished[0].detail, /Associez votre compte de jeu/);
+  assert.equal(finished[0].statistics, null);
+  assert.deepEqual(finished[0].matches, []);
+
+  providers = behaviourProviders;
+  assert.equal((await sync()).status, 200);
+  assert.equal(current.session.provider, "steam");
+  assert.equal(finished[1].state, "success");
+  assert.equal(finished[1].matches.length, 1);
+});
+
 test("une session révoquée ne bloque pas les autres joueurs et ne divulgue pas d’identifiants", async () => {
   const finished = [];
   const good = { ...credentials, session: behaviourSession() };
