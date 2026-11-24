@@ -97,7 +97,7 @@ test("la collecte reprend avec la même session une fois la plateforme de jeu di
     if (target.endsWith("save_remote_statistics_profile")) return Response.json(null);
     if (target.endsWith("/players/me/game-accounts/dbd")) return Response.json(providers);
     if (target.endsWith("/players/me")) return Response.json(behaviourProfile);
-    if (target.includes("/games/dbd/providers/egs?")) return Response.json(target.includes("match-history") ? behaviourHistory : behaviourOverview);
+    if (target.includes("/games/dbd/providers/steam?")) return Response.json(target.includes("match-history") ? behaviourHistory : behaviourOverview);
     assert.fail(`Unexpected request: ${target}`);
   } });
   const sync = () => handler(req({ action: "cron" }, { "x-dbd-cron-token": "a".repeat(64) }));
@@ -109,7 +109,7 @@ test("la collecte reprend avec la même session une fois la plateforme de jeu di
 
   providers = behaviourProviders;
   assert.equal((await sync()).status, 200);
-  assert.equal(current.session.provider, "egs");
+  assert.equal(current.session.provider, "steam");
   assert.equal(finished[1].state, "success");
   assert.equal(finished[1].matches.length, 1);
 });
