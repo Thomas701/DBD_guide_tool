@@ -2,6 +2,8 @@ import { matchHistoryIdentity } from "../shared/match-history-identity.mjs";
 import { hashText } from "./policy.mjs";
 
 export const BEHAVIOUR_API = "https://account-backend.bhvr.com";
+export class BehaviourPlatformRequiredError extends Error {}
+
 const ASSETS = "https://assets.live.bhvraccount.com/";
 const title = value => typeof value === "string" ? value.toLowerCase().replace(/\b\w/g, letter => letter.toUpperCase()) : null;
 const duration = value => { const seconds = Math.max(0, Math.trunc(value)); return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`; };
@@ -105,8 +107,11 @@ export async function collectBehaviourStatistics(session, saveSession, request =
   let providers;
   if (!/^[a-z0-9_-]{1,30}$/.test(session.provider ?? "")) {
     providers = await get("/players/me/game-accounts/dbd");
+    if (Array.isArray(providers) && providers.length === 0) {
+      throw new BehaviourPlatformRequiredError("Behaviour ne trouve aucune plateforme Dead by Daylight pour ce compte. Associez votre compte de jeu dans les connexions de votre compte Behaviour. La synchronisation reprendra automatiquement.");
+    }
     const provider = Array.isArray(providers) ? providers.find(item => item.status === "synced")?.provider ?? providers[0]?.provider : null;
-    if (!/^[a-z0-9_-]{1,30}$/.test(provider ?? "")) throw new Error("Aucune plateforme Dead by Daylight liée à Behaviour.");
+    if (!/^[a-z0-9_-]{1,30}$/.test(provider ?? "")) throw new Error("Liste de plateformes Behaviour invalide.");
     session = { ...session, provider }; await saveSession(session);
   }
   const overview = await get(`/player-stats/games/dbd/providers/${session.provider}?lang=en`, "StatNotFound");
