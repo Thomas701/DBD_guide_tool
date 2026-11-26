@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { analyzeMatches, assetKey, dimensionAssets, encounterCounts, groupMatches, localDay, parisHour, ratio, summarizeMatches, summarizeObservedSurvival, validNumber, type AnalysisDimension, type AnalysisRow, type AnalysisSummary, type AnalyzedMatch } from "../../services/statistics-analysis.js";
+import { analyzeMatches, assetKey, dimensionAssets, encounterCounts, groupMatches, localDay, parisHour, ratio, summarizeMatches, validNumber, type AnalysisDimension, type AnalysisRow, type AnalysisSummary, type AnalyzedMatch } from "../../services/statistics-analysis.js";
 import type { MatchHistoryEntry } from "../../services/statistics.js";
 import { StatisticsAssets, StatisticsRankings, assetLabel } from "./StatisticsRankings.js";
 import "./statistics-overview.css";
@@ -69,6 +69,9 @@ export function StatisticsOverview({ matches, syncing }: { matches: readonly Mat
   }, [analyzed, range]);
   const filtered = useMemo(() => periodMatches.filter(m => (role === "all" || m.entry.role === role) && (queue === "all" || (m.entry.queueLabel ?? "1v4") === queue) && (map === "all" || m.entry.mapName === map) && (character === "all" || `${m.entry.role}:${m.entry.characterName}` === character) && (opponent === "all" || m.opponents.some(o => o.key === opponent)) && (perk === "all" || m.perks.some(p => p.key === perk))), [periodMatches, role, queue, map, character, opponent, perk]);
   const summary = useMemo(() => summarizeMatches(filtered), [filtered]);
+  const survivorSummary = useMemo(() => summarizeMatches(filtered.filter(match => match.entry.role === "survivor")), [filtered]);
+  const killerMatches = useMemo(() => filtered.filter(match => match.entry.role === "killer"), [filtered]);
+  const killerSummary = useMemo(() => summarizeMatches(killerMatches), [killerMatches]);
   const roleMatches = useMemo(() => analyzed.filter(match => role === "all" || match.entry.role === role), [analyzed, role]);
   const characters = useMemo(() => groupMatches(roleMatches, "character"), [roleMatches]);
   const maps = useMemo(() => groupMatches(analyzed, "map"), [analyzed]);
@@ -101,15 +104,44 @@ export function StatisticsOverview({ matches, syncing }: { matches: readonly Mat
 
       <SectionTitle id="sd-performance" title="Au-delà de la victoire." text="Des indicateurs distincts pour chaque camp, avec leur nombre de parties exploitables." />
       <div className={"sd-results-grid" + (summary.survivorCount && summary.killerCount ? "" : " single")}>
-        {summary.survivorCount > 0 && <Panel title="Survivant" subtitle={`${summary.survivorCount} parties`} tone="teal"><div className="sd-result-main"><Donut value={summary.escapeRate} label="d’évasion" tone="teal" /><div className="sd-result-stats"><Metric label="Évasions" value={format(summary.outcomes.escaped)} /><Metric label="Morts" value={format(summary.outcomes.dead)} /><Metric label="Déconnexions" value={format(summary.outcomes.disconnected)} /><Metric label="Issues inconnues" value={format(summary.outcomes.unknown)} /></div></div><Histogram labels={filtered.some(m => m.entry.queueLabel === "2v8") ? Array.from({ length: 9 }, (_, i) => `${i}E`) : ["0E", "1E", "2E", "3E", "4E"]} values={summary.escapeDistribution} tone="teal" /><p className="sd-footnote">Survivants échappés par partie · {filtered.filter(m => m.entry.role === "survivor" && m.complete).length} équipes complètes</p><div className="sd-stat-pair"><Metric label="Échappés / équipe" value={decimalValue(summary.teamEscapes)} /><Metric label="Seul à s’échapper" value={percent(summary.soleEscapeRate)} /></div></Panel>}
-        {summary.killerCount > 0 && <Panel title="Tueur" subtitle={`${summary.killerCount} parties`} tone="red"><div className="sd-result-main"><Donut value={summary.killRate} label="de kills" tone="red" /><div className="sd-result-stats"><Metric label="Kills / match" value={decimalValue(summary.averageKills)} /><Metric label="Sans évasion" value={percent(summary.perfectRate)} /><Metric label="Réussite 3K+ · 1v4" value={percent(summary.winRate)} /><Metric label="Matchs 1v4 exploitables" value={format(summary.winSamples)} /></div></div><Histogram labels={filtered.some(m => m.entry.queueLabel === "2v8") ? Array.from({ length: 9 }, (_, i) => `${i}K`) : ["0K", "1K", "2K", "3K", "4K"]} values={summary.killDistribution} tone="red" /><p className="sd-footnote">Kills par partie · {summary.perfectSamples} matchs complets · déconnexions exclues</p><div className="sd-stat-pair"><Metric label="Premier kill" value={time(summary.firstDeath)} /><Metric label="Intervalle entre kills" value={time(summary.deathInterval)} /></div></Panel>}
+        {summary.survivorCount > 0 && <Panel title="Survivant" subtitle={`${summary.survivorCount} parties`} tone="teal">
+          <div className="sd-result-main">
+            <Donut value={summary.escapeRate} label="d’évasion" tone="teal" />
+            <div className="sd-result-stats">
+              <Metric label="Évasions" value={format(summary.outcomes.escaped)} />
+              <Metric label="Morts" value={format(summary.outcomes.dead)} />
+              <Metric label="Déconnexions" value={format(summary.outcomes.disconnected)} />
+              <Metric label="Issues inconnues" value={format(summary.outcomes.unknown)} />
+              <Metric label="Échappés / équipe" value={decimalValue(summary.teamEscapes)} />
+              <Metric label="Seul à s’échapper" value={percent(summary.soleEscapeRate)} />
+            </div>
+          </div>
+          <Histogram labels={survivorSummary.queues["2v8"] ? Array.from({ length: 9 }, (_, i) => `${i}E`) : ["0E", "1E", "2E", "3E", "4E"]} values={summary.escapeDistribution} tone="teal" />
+          <p className="sd-footnote">Survivants échappés par partie · {filtered.filter(m => m.entry.role === "survivor" && m.complete).length} équipes complètes</p>
+        </Panel>}
+        {summary.killerCount > 0 && <Panel title="Tueur" subtitle={`${summary.killerCount} parties`} tone="red">
+          <div className="sd-result-main">
+            <Donut value={summary.killRate} label="de kills" tone="red" />
+            <div className="sd-result-stats">
+              <Metric label="Kills / match" value={decimalValue(summary.averageKills)} />
+              <Metric label="Sans évasion" value={percent(summary.perfectRate)} />
+              <Metric label="Réussite 3K+ · 1v4" value={percent(summary.winRate)} />
+              <Metric label="Matchs 1v4 exploitables" value={format(summary.winSamples)} />
+              <Metric label="Premier kill" value={time(summary.firstDeath)} />
+              <Metric label="Intervalle entre kills" value={time(summary.deathInterval)} />
+            </div>
+          </div>
+          <Histogram labels={killerSummary.queues["2v8"] ? Array.from({ length: 9 }, (_, i) => `${i}K`) : ["0K", "1K", "2K", "3K", "4K"]} values={summary.killDistribution} tone="red" />
+          <p className="sd-footnote">Kills par partie · {summary.perfectSamples} matchs complets · déconnexions exclues</p>
+        </Panel>}
       </div>
 
       <StreakPanel matches={periodMatches} role={role} />
 
-      <div className="sd-two-columns">
-        <ScorePanel summary={summary} />
-        <OutcomePanel matches={filtered} summary={summary} />
+      <div className="sd-camp-panels">
+        <ScorePanel survivor={survivorSummary} killer={killerSummary} />
+        {summary.survivorCount > 0 && <SurvivalPanel summary={survivorSummary} />}
+        {summary.killerCount > 0 && <KillPanel matches={killerMatches} summary={killerSummary} />}
       </div>
 
       <SectionTitle id="sd-world" title="Vos repères dans la brume." text="Vos favoris, vos meilleures confrontations et vos terrains les plus difficiles. Tous suivent les filtres du haut de page." />
@@ -251,22 +283,35 @@ function ResultLine({ label, value, description }: { label: string; value: strin
   return <div className="sd-result-line"><div><span>{label}</span>{description && <p>{description}</p>}</div><strong>{value}</strong></div>;
 }
 
-function ScorePanel({ summary }: { summary: AnalysisSummary }) {
-  return <Panel title="Comprendre vos scores" subtitle={summary.scoreSamples + " scores renseignés"}>
-    <p className="sd-panel-description">Un résultat par ligne. Les scores enregistrés ne comprennent pas les bonus de points de sang.</p>
-    <ResultLine label="Score moyen par partie" value={summary.score === null ? null : format(summary.score)} description="Somme des scores connus divisée par le nombre de parties avec un score." />
-    <ResultLine label="Score médian" value={summary.scoreMedian === null ? null : format(summary.scoreMedian)} description="La moitié de vos scores est au-dessus de cette valeur, l’autre moitié en dessous." />
-    <ResultLine label="Votre meilleur score" value={summary.scoreMax === null ? null : format(summary.scoreMax)} description="Le plus haut score enregistré dans cette sélection." />
-    <ResultLine label="Score par minute de partie" value={summary.scorePerMinute === null ? null : format(summary.scorePerMinute)} description="Scores cumulés divisés par la durée cumulée des parties renseignées." />
-    <ResultLine label="Score cumulé" value={summary.scoreSamples ? format(summary.scoreTotal) : null} description="Somme de tous les scores connus dans vos filtres actuels." />
-    <details className="sd-details"><summary>Régularité et classements entre survivants</summary>
-      <ResultLine label="Dispersion des scores" value={summary.scoreStd === null ? null : format(summary.scoreStd)} description="Écart-type : plus cette valeur est faible, plus vos scores se ressemblent." />
-      <ResultLine label="Premier au score" value={summary.topScoreRate === null ? null : percent(summary.topScoreRate)} description="Parties où votre score est le meilleur parmi les survivants, égalités incluses." />
-      <ResultLine label="Dans les deux premiers" value={summary.topTwoRate === null ? null : percent(summary.topTwoRate)} description="Votre score est classé premier ou deuxième dans l’équipe survivante." />
-      <ResultLine label="Dernier au score" value={summary.lastScoreRate === null ? null : percent(summary.lastScoreRate)} description="Votre score est le plus bas parmi les survivants, égalités incluses." />
-      <ResultLine label="Écart au score des équipiers" value={summary.scoreGap === null ? null : format(summary.scoreGap)} description="Votre score moins le score moyen des autres survivants ; un nombre positif est supérieur à leur moyenne." />
-      <ResultLine label="Premier au score malgré une mort" value={summary.rankSamples ? format(summary.topScoreDead) : null} description="Nombre de parties où vous avez obtenu le meilleur score survivant sans vous échapper." />
-    </details>
+function ScorePanel({ survivor, killer }: { survivor: AnalysisSummary; killer: AnalysisSummary }) {
+  const camps = [
+    { label: "Survivant", tone: "teal", summary: survivor },
+    { label: "Tueur", tone: "red", summary: killer },
+  ].filter(camp => camp.summary.count > 0);
+  const metrics = [
+    ["Score moyen par partie", "score"],
+    ["Score médian", "scoreMedian"],
+    ["Votre meilleur score", "scoreMax"],
+    ["Score par minute de partie", "scorePerMinute"],
+    ["Score cumulé", "scoreTotal"],
+    ["Dispersion des scores", "scoreStd"],
+  ] as const;
+  if (!camps.length) return null;
+  return <Panel title="Score" className="sd-score-panel">
+    <table className="sd-score-table" aria-label="Scores par camp">
+      <thead><tr><td />{camps.map(camp => <th className={`sd-tone-${camp.tone}`} key={camp.label} scope="col">{camp.label}</th>)}</tr></thead>
+      <tbody>{metrics.map(([label, key]) => <tr key={key}><th scope="row">{label}</th>
+        {camps.map(camp => <td key={camp.label}>{format(camp.summary.scoreSamples ? camp.summary[key] : null)}</td>)}
+      </tr>)}</tbody>
+    </table>
+    {survivor.count > 0 && <section className="sd-score-ranks">
+      <h4>Régularité et classements entre survivants</h4>
+      <ResultLine label="Premier au score" value={percent(survivor.topScoreRate)} description="Parties où votre score est le meilleur parmi les survivants, égalités incluses." />
+      <ResultLine label="Dans les deux premiers" value={percent(survivor.topTwoRate)} description="Votre score est classé premier ou deuxième dans l’équipe survivante." />
+      <ResultLine label="Dernier au score" value={percent(survivor.lastScoreRate)} description="Votre score est le plus bas parmi les survivants, égalités incluses." />
+      <ResultLine label="Écart au score des équipiers" value={format(survivor.scoreGap)} description="Votre score moins le score moyen des autres survivants." />
+      <ResultLine label="Premier au score malgré une mort" value={format(survivor.rankSamples ? survivor.topScoreDead : null)} description="Nombre de parties où vous avez obtenu le meilleur score survivant sans vous échapper." />
+    </section>}
   </Panel>;
 }
 
@@ -284,21 +329,8 @@ function StreakPanel({ matches, role }: { matches: readonly AnalyzedMatch[]; rol
     { label: "Défaites d’affilée", description: "Zéro ou un kill.", ...summary.streaks.killerLoss },
   ] });
   return <Panel className="sd-streak-panel" title="Vos records de séries" subtitle={matches.length + " parties dans la période"} tone="gold">
-    <p className="sd-panel-description">Tout l’historique par défaut. Seul le filtre de période limite ces records ; le filtre de camp choisit les séries affichées.</p>
     <div className={"sd-streak-camps" + (camps.length === 1 ? " single" : "")}>{camps.map(camp => <section className={"sd-streak-camp sd-tone-" + camp.tone} key={camp.title}><h4>{camp.title}<span>Record / en cours</span></h4>{camp.entries.map(entry => <div className="sd-streak-record" key={entry.label}><div><strong>{entry.label}</strong><p>{entry.description}</p></div><div><b>{entry.best}</b><span>{entry.current} en cours</span></div></div>)}</section>)}</div>
-    <p className="sd-footnote">Les issues inconnues interrompent une série. Pour les séries tueur à 0–4 kills, seules les parties 1v4 et Lights Out sont utilisées ; le 2v8 n’est pas comparable.</p>
   </Panel>;
-}
-
-function OutcomePanel({ matches, summary }: { matches: readonly AnalyzedMatch[]; summary: AnalysisSummary }) {
-  const [camp, setCamp] = useState("survivor");
-  const selected = summary.survivorCount && summary.killerCount ? camp : summary.killerCount ? "killer" : "survivor";
-  const scoped = useMemo(() => matches.filter(match => match.entry.role === selected), [matches, selected]);
-  const scopedSummary = useMemo(() => summarizeMatches(scoped), [scoped]);
-  return <div className="sd-outcome-panel">
-    {summary.killerCount > 0 && summary.survivorCount > 0 && <div className="sd-segments" role="group" aria-label="Camp des résultats détaillés"><button type="button" aria-pressed={selected === "survivor"} onClick={() => setCamp("survivor")}>Survivant · {summary.survivorCount} parties</button><button type="button" aria-pressed={selected === "killer"} onClick={() => setCamp("killer")}>Tueur · {summary.killerCount} parties</button></div>}
-    {selected === "killer" ? <KillPanel matches={scoped} summary={scopedSummary} /> : <SurvivalPanel matches={scoped} summary={scopedSummary} />}
-  </div>;
 }
 
 function KillPanel({ matches, summary }: { matches: readonly AnalyzedMatch[]; summary: AnalysisSummary }) {
@@ -331,27 +363,19 @@ function EncounterCharts({ matches }: { matches: readonly AnalyzedMatch[] }) {
   })}</div>;
 }
 
-function SurvivalPanel({ matches, summary }: { matches: readonly AnalyzedMatch[]; summary: AnalysisSummary }) {
-  const [scope, setScope] = useState<string | null>(null);
-  const observed = useMemo(() => summarizeObservedSurvival(matches), [matches]);
-  const personal = (scope ?? (summary.survivalSamples ? "personal" : "observed")) === "personal";
-  const count = personal ? summary.survivalSamples : observed.count;
-  const distribution = personal ? summary.survivalDistribution : observed.distribution;
-  return <Panel className="sd-survival-panel" title="Survivre, jusqu’à quand ?" subtitle={`${count} durées ${personal ? "personnelles" : "observées"}`} tone="teal">
-    <div className="sd-segments" role="group" aria-label="Survivants analysés"><button type="button" aria-pressed={personal} onClick={() => setScope("personal")}>Mon survivant ({summary.survivalSamples})</button><button type="button" aria-pressed={!personal} onClick={() => setScope("observed")}>Tous les survivants ({observed.count})</button></div>
-    {count ? <>
+function SurvivalPanel({ summary }: { summary: AnalysisSummary }) {
+  return <Panel className="sd-survival-panel" title="Survie" subtitle={`${summary.survivalSamples} durées personnelles`} tone="teal">
+    {summary.survivalSamples ? <>
       <div className="sd-survival-results">
-        <ResultLine label="Survie moyenne" value={time(personal ? summary.survival : observed.average)} description="Somme des durées individuelles connues divisée par leur nombre." />
-        <ResultLine label="Survie médiane" value={time(personal ? summary.survivalMedian : observed.median)} description="Durée dépassée par la moitié des survivants observés." />
-        <ResultLine label="Plus longue survie" value={time(personal ? summary.survivalMax : observed.maximum)} description="Durée individuelle la plus longue dans cette sélection." />
-        <ResultLine label="Mort avant cinq minutes" value={percent(personal ? summary.earlyDeathRate : observed.earlyDeathRate)} description="Part des morts renseignées survenues avant cinq minutes." />
-        <ResultLine label="Survie moyenne avec évasion" value={(personal ? summary.escapedSurvival : observed.escaped) === null ? null : time(personal ? summary.escapedSurvival : observed.escaped)} description="Uniquement les durées des survivants qui se sont échappés." />
-        <ResultLine label="Survie moyenne sans évasion" value={(personal ? summary.deadSurvival : observed.dead) === null ? null : time(personal ? summary.deadSurvival : observed.dead)} description="Uniquement les durées des survivants morts." />
+        <ResultLine label="Survie moyenne" value={time(summary.survival)} description="Moyenne de vos durées de survie enregistrées." />
+        <ResultLine label="Survie médiane" value={time(summary.survivalMedian)} description="Durée dépassée dans la moitié de vos parties avec une durée connue." />
+        <ResultLine label="Plus longue survie" value={time(summary.survivalMax)} description="Durée individuelle la plus longue dans cette sélection." />
+        <ResultLine label="Mort avant cinq minutes" value={percent(summary.earlyDeathRate)} description="Part de vos morts renseignées survenues avant cinq minutes." />
+        <ResultLine label="Survie moyenne avec évasion" value={summary.escapedSurvival === null ? null : time(summary.escapedSurvival)} />
+        <ResultLine label="Survie moyenne sans évasion" value={summary.deadSurvival === null ? null : time(summary.deadSurvival)} description="Durée moyenne dans vos parties où vous êtes mort." />
       </div>
-      <PieBreakdown title="Répartition des durées de survie" segments={["< 5 min", "5–10 min", "10–15 min", "15 min +"].map((label, index) => ({ label, count: distribution[index] ?? 0, color: ["#e07167", "#dcb777", "#6ac3ba", "#ad94dc"][index]! }))} />
-      {personal && <details className="sd-details"><summary>Ordre des morts et résultats de l’équipe</summary><div className="sd-stat-pair"><Metric label="Premier survivant mort" value={percent(summary.firstDeadRate)} /><Metric label="Dernier vivant · les autres morts" value={percent(summary.lastAliveRate)} /></div><Histogram labels={Array.from({ length: matches.some(match => match.entry.queueLabel === "2v8") ? 8 : 4 }, (_, index) => `${index + 1}${index === 0 ? "er" : "e"}`)} values={summary.deathOrder} tone="teal" /><div className="sd-stat-pair"><Metric label="Échappés quand je survis" value={decimalValue(summary.teamEscapesWhenAlive)} /><Metric label="Échappés quand je meurs" value={decimalValue(summary.teamEscapesWhenDead)} /></div></details>}
-    </> : <p className="sd-coverage-note">Aucune durée personnelle archivée pour cette sélection. La synchronisation complète les matchs encore accessibles. Le bouton « Tous les survivants » exploite les durées individuelles déjà disponibles.</p>}
-    <p className="sd-footnote">{personal ? "Votre survivant uniquement." : "Durées individuelles de tous les survivants renseignés dans les matchs sélectionnés, y compris alliés et adversaires."} La durée totale d’une partie n’est jamais utilisée pour remplacer une durée personnelle manquante.</p>
+      <PieBreakdown title="Répartition des durées de survie" segments={["< 5 min", "5–10 min", "10–15 min", "15 min +"].map((label, index) => ({ label, count: summary.survivalDistribution[index] ?? 0, color: ["#e07167", "#dcb777", "#6ac3ba", "#ad94dc"][index]! }))} />
+    </> : <p className="sd-coverage-note">Aucune durée personnelle archivée pour cette sélection.</p>}
   </Panel>;
 }
 

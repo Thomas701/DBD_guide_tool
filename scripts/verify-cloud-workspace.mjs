@@ -14,7 +14,7 @@ const users = {
 };
 const workspaces = new Map();
 const match = (await mapBehaviourMatches(behaviourHistory))[0];
-const killerMatch = { ...match, id: "2".repeat(40), role: "killer", characterName: "The Trapper", participants: [
+const killerMatch = { ...match, id: "2".repeat(40), role: "killer", characterName: "The Trapper", score: 17123, participants: [
   { name: "Jake Park", role: "survivor", score: 10000, resultLabel: "Escaped", imageUrl: null },
   { name: "Kate Denson", role: "survivor", score: 8000, resultLabel: null, imageUrl: null },
   ...match.participants.filter(player => player.role === "survivor"),
@@ -303,6 +303,24 @@ try {
       }, fraction);
       await scope.locator(".sd-filter-dock[data-hidden]").waitFor();
       assert.equal(await bar.evaluate(element => getComputedStyle(element).pointerEvents), "none");
+      if (fraction === 0.45) {
+        const point = await dock.evaluate(element => {
+          const bounds = element.getBoundingClientRect();
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "sd-click-probe";
+          button.textContent = "Vérifier le clic";
+          button.style.cssText = `position:fixed;z-index:1;left:${bounds.left + 30}px;top:${bounds.top + 18}px;`;
+          button.addEventListener("click", () => { button.dataset.clicked = "true"; });
+          element.after(button);
+          const rect = button.getBoundingClientRect();
+          return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+        });
+        await page.mouse.click(point.x, point.y);
+        const button = scope.locator(".sd-click-probe");
+        assert.equal(await button.getAttribute("data-clicked"), "true", "The hidden filter dock must let clicks reach the page below");
+        await button.evaluate(element => element.remove());
+      }
       await scroller.evaluate(element => { element.scrollTop -= 26; });
       await scope.locator(".sd-filter-dock:not([data-hidden])").waitFor();
       assert.ok(await bar.evaluate(element => {
@@ -319,11 +337,44 @@ try {
   await page.setViewportSize({ width: 390, height: 720 });
   await checkFilterDock(page, page.locator("html"));
   await page.setViewportSize({ width: 1280, height: 720 });
+  const results = page.locator(".sd-results-grid");
+  const streaks = page.locator(".sd-streak-camps");
+  const campPanels = page.locator(".sd-camp-panels");
+  const scores = campPanels.getByRole("table", { name: "Scores par camp" });
+  const scoreRow = scores.getByRole("row", { name: /^Score moyen par partie/ });
+  assert.deepEqual(await scoreRow.getByRole("cell").allTextContents(), [match.score, killerMatch.score].map(value => new Intl.NumberFormat("fr-FR").format(value)));
+  assert.ok(await campPanels.evaluate(row => {
+    const panels = [...row.children].map(child => child.getBoundingClientRect());
+    return panels.length === 3 && panels.every(panel => Math.abs(panel.top - panels[0].top) < 1);
+  }), "Score, survival and kills occupy the same row on desktop");
+  assert.equal(await results.locator(".sd-stat-pair").count(), 0);
+  assert.ok(await results.locator(".sd-result-stats .sd-metric").evaluateAll(rows => rows.length === 12 && rows.every(row => {
+    const [label, value] = row.children;
+    return label.getBoundingClientRect().right <= value.getBoundingClientRect().left
+      && Math.abs(label.getBoundingClientRect().top - value.getBoundingClientRect().top) < 5;
+  })), "Result labels and values share a line");
+  await results.getByText("Échappés / équipe", { exact: true }).waitFor();
+  await results.getByText("Premier kill", { exact: true }).waitFor();
   await overview.getByRole("button", { name: "Tueur", exact: true }).click();
+  for (const [grid, card] of [[results, ".sd-panel"], [streaks, ".sd-streak-camp"]]) {
+    assert.equal(await grid.locator(`${card}.sd-tone-teal`).count(), 0);
+    assert.ok(await grid.evaluate((element, selector) => Math.abs(element.clientWidth - element.querySelector(selector).getBoundingClientRect().width) < 2, `${card}.sd-tone-red`));
+  }
+  assert.equal(await campPanels.locator(".sd-survival-panel").count(), 0);
+  assert.deepEqual(await scores.getByRole("columnheader").allTextContents(), ["Tueur"]);
   assert.deepEqual(await page.getByLabel("Mon personnage", { exact: true }).locator("option").allTextContents(), ["Tous les personnages", "The Trapper"]);
   assert.ok(!(await page.getByLabel("Adversaire", { exact: true }).locator("option").allTextContents()).includes("The Trapper"));
   await page.getByLabel("Mon personnage", { exact: true }).selectOption("killer:The Trapper");
   await overview.getByRole("button", { name: "Survivant", exact: true }).click();
+  for (const [grid, card] of [[results, ".sd-panel"], [streaks, ".sd-streak-camp"]]) {
+    assert.equal(await grid.locator(`${card}.sd-tone-red`).count(), 0);
+    assert.ok(await grid.evaluate((element, selector) => Math.abs(element.clientWidth - element.querySelector(selector).getBoundingClientRect().width) < 2, `${card}.sd-tone-teal`));
+  }
+  assert.equal(await campPanels.locator(".sd-kill-panel").count(), 0);
+  assert.deepEqual(await scores.getByRole("columnheader").allTextContents(), ["Survivant"]);
+  await campPanels.getByRole("heading", { name: "Survie", exact: true }).waitFor();
+  await campPanels.getByRole("heading", { name: "Régularité et classements entre survivants", exact: true }).waitFor();
+  assert.equal(await campPanels.locator(".sd-survival-panel :is(.sd-segments, .sd-details, .sd-footnote)").count(), 0);
   assert.equal(await page.getByLabel("Mon personnage", { exact: true }).inputValue(), "all");
   assert.deepEqual(await page.getByLabel("Mon personnage", { exact: true }).locator("option").allTextContents(), ["Tous les personnages", "Jake Park"]);
   assert.deepEqual(await page.getByLabel("Adversaire", { exact: true }).locator("option").allTextContents(), ["Tous les adversaires", "The Trapper"]);
