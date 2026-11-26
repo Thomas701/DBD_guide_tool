@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { analyzeMatches, assetKey, dimensionAssets, encounterCounts, groupMatches, localDay, parisHour, ratio, summarizeMatches, summarizeObservedSurvival, validNumber, type AnalysisDimension, type AnalysisRow, type AnalysisSummary, type AnalyzedMatch } from "../../services/statistics-analysis.js";
 import type { MatchHistoryEntry } from "../../services/statistics.js";
 import { StatisticsAssets, StatisticsRankings, assetLabel } from "./StatisticsRankings.js";
@@ -24,6 +24,44 @@ export function StatisticsOverview({ matches, syncing }: { matches: readonly Mat
   const [opponent, setOpponent] = useState("all");
   const [perk, setPerk] = useState("all");
   const [dimension, setDimension] = useState<AnalysisDimension>("character");
+  const filterDock = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const dock = filterDock.current!;
+    const dialog = dock.closest("dialog");
+    const shell = dock.closest<HTMLElement>(".app-shell");
+    const topbar = dialog ? null : shell?.querySelector<HTMLElement>(".analyzer-topbar");
+    const desktop = window.matchMedia("(min-width: 901px)");
+    const scrollContainer = () => dialog ?? (desktop.matches ? shell : null);
+    const scrollTop = () => scrollContainer()?.scrollTop ?? window.scrollY;
+    let previousTop = scrollTop();
+    let dialogPadding = 0;
+    const resetDock = () => {
+      dialogPadding = dialog ? Number.parseFloat(getComputedStyle(dialog).paddingTop) : 0;
+      dock.style.setProperty("--sd-navigation-height", `${topbar?.offsetHeight ?? 0}px`);
+      previousTop = scrollTop();
+      dock.removeAttribute("data-hidden");
+    };
+    const observer = new ResizeObserver(resetDock);
+    if (topbar) observer.observe(topbar);
+    resetDock();
+    desktop.addEventListener("change", resetDock);
+    function onScroll(event: Event) {
+      const container = scrollContainer();
+      if (event.target !== (container ?? document)) return;
+      const top = scrollTop();
+      if (top === previousTop) return;
+      const viewportTop = container ? container.getBoundingClientRect().top + container.clientTop : 0;
+      const dockTop = viewportTop + dialogPadding + (topbar?.offsetHeight ?? 0);
+      dock.toggleAttribute("data-hidden", top > previousTop && dock.getBoundingClientRect().top <= dockTop + 1);
+      previousTop = top;
+    }
+    window.addEventListener("scroll", onScroll, { capture: true, passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll, true);
+      desktop.removeEventListener("change", resetDock);
+      observer.disconnect();
+    };
+  }, []);
   const analyzed = useMemo(() => analyzeMatches(matches), [matches]);
   const periodMatches = useMemo(() => {
     const cutoff = range === "all" ? null : Date.now() - Number(range) * 86_400_000;
@@ -40,30 +78,28 @@ export function StatisticsOverview({ matches, syncing }: { matches: readonly Mat
   const reset = () => { setRange("all"); setRole("all"); setQueue("all"); setMap("all"); setCharacter("all"); setOpponent("all"); setPerk("all"); };
 
   return <div className="stats-dashboard">
-    <section className="sd-filterbar" aria-label="Filtres de la vue d’ensemble"><div className="sd-filter-scope"><strong>Filtres globaux</strong><span>Ils s’appliquent à toutes les sections ci-dessous.</span></div>
-      <div className="sd-filter-top"><div className="sd-segments" role="group" aria-label="Camp analysé">{[["all", "Tous les camps"], ["killer", "Tueur"], ["survivor", "Survivant"]].map(([value, label]) => <button type="button" key={value} aria-pressed={role === value} onClick={() => { setRole(value!); setCharacter("all"); setOpponent("all"); setPerk("all"); }}>{label}</button>)}</div><div className="sd-range" role="group" aria-label="Période analysée">{[["7", "7 jours"], ["30", "30 jours"], ["90", "90 jours"], ["all", "Tout"]].map(([value, label]) => <button type="button" key={value} aria-pressed={range === value} onClick={() => setRange(value!)}>{label}</button>)}</div></div>
-      <div className="sd-filter-bottom"><Select label="Mode" value={queue} onChange={setQueue}><option value="all">Tous les modes</option><option value="1v4">1 contre 4</option><option value="2v8">2 contre 8</option>{[...new Set(analyzed.map(m => m.entry.queueLabel).filter((q): q is string => !!q && q !== "1v4" && q !== "2v8"))].map(q => <option key={q}>{q}</option>)}</Select><Select label="Carte" value={map} onChange={setMap}><option value="all">Toutes les cartes</option>{maps.map(m => <option key={m.key} value={m.key}>{m.label}</option>)}</Select><Select label="Mon personnage" value={character} onChange={setCharacter}><option value="all">Tous les personnages</option>{characters.map(c => <option key={c.key} value={c.key}>{c.label}</option>)}</Select><Select label="Adversaire" value={opponent} onChange={setOpponent}><option value="all">Tous les adversaires</option>{opponents.map(o => <option key={o.key} value={o.key}>{o.label}</option>)}</Select><Select label="Compétence jouée" value={perk} onChange={setPerk}><option value="all">Toutes les compétences</option>{perks.map(p => <option key={p.key} value={p.key}>{p.label}</option>)}</Select><button className="sd-reset" type="button" disabled={!active} onClick={reset}>Réinitialiser</button></div>
-      <div className="sd-filter-caption" aria-live="polite"><strong>{format(filtered.length)}</strong> parties analysées sur {format(matches.length)}{summary.firstAt !== null && <> <span>·</span> {day(summary.firstAt)} — {day(summary.lastAt!)}</>}</div>
-    </section>
+    <div className="sd-filter-dock" ref={filterDock}>
+      <section className="sd-filterbar" aria-label="Filtres de la vue d’ensemble">
+        <div className="sd-filter-top"><div className="sd-segments" role="group" aria-label="Camp analysé">{[["all", "Tous les camps"], ["killer", "Tueur"], ["survivor", "Survivant"]].map(([value, label]) => <button type="button" key={value} aria-pressed={role === value} onClick={() => { setRole(value!); setCharacter("all"); setOpponent("all"); setPerk("all"); }}>{label}</button>)}</div><div className="sd-range" role="group" aria-label="Période analysée">{[["7", "7 jours"], ["30", "30 jours"], ["90", "90 jours"], ["all", "Tout"]].map(([value, label]) => <button type="button" key={value} aria-pressed={range === value} onClick={() => setRange(value!)}>{label}</button>)}</div></div>
+        <div className="sd-filter-bottom"><Select label="Mode" value={queue} onChange={setQueue}><option value="all">Tous les modes</option><option value="1v4">1 contre 4</option><option value="2v8">2 contre 8</option>{[...new Set(analyzed.map(m => m.entry.queueLabel).filter((q): q is string => !!q && q !== "1v4" && q !== "2v8"))].map(q => <option key={q}>{q}</option>)}</Select><Select label="Carte" value={map} onChange={setMap}><option value="all">Toutes les cartes</option>{maps.map(m => <option key={m.key} value={m.key}>{m.label}</option>)}</Select><Select label="Mon personnage" value={character} onChange={setCharacter}><option value="all">Tous les personnages</option>{characters.map(c => <option key={c.key} value={c.key}>{c.label}</option>)}</Select><Select label="Adversaire" value={opponent} onChange={setOpponent}><option value="all">Tous les adversaires</option>{opponents.map(o => <option key={o.key} value={o.key}>{o.label}</option>)}</Select><Select label="Compétence jouée" value={perk} onChange={setPerk}><option value="all">Toutes les compétences</option>{perks.map(p => <option key={p.key} value={p.key}>{p.label}</option>)}</Select><button className="sd-reset" type="button" disabled={!active} onClick={reset}>Réinitialiser</button></div>
+      </section>
+    </div>
     <section className="sd-hero" aria-label="Votre historique en un regard">
-      <div className="sd-hero-copy"><span className="sd-kicker"><span className="sd-live-dot" /> VOTRE PARCOURS DANS LA BRUME</span><h2>Vos parties,<br /><em>en perspective.</em></h2><p>Explorez vos résultats, vos builds et votre progression à partir de votre historique.</p><div className="sd-hero-meta"><strong>{format(filtered.length)} parties sélectionnées</strong></div></div>
+      <div className="sd-hero-copy"><h2>Vos parties,<br /><em>en perspective</em></h2></div>
       <div className="sd-hero-mark" aria-hidden="true"><i /><i /><i /><i /><b /></div>
-      <div className="sd-lifetime"><span className="sd-kicker">VOTRE SÉLECTION · DONNÉES ARCHIVÉES</span><div><Lifetime label="Heures en match" value={summary.durationSamples ? `${decimal.format(summary.totalTime / 3600)} h` : "—"} /><Lifetime label="Parties jouées" value={format(summary.count)} /><Lifetime label="Score cumulé" value={summary.scoreSamples ? format(summary.scoreTotal) : "—"} /></div><small>Somme des durées et scores enregistrés dans les filtres actuels. Les bonus de points de sang ne sont pas inclus.</small></div>
+      <div className="sd-lifetime"><div><Lifetime label="Heures en match" value={summary.durationSamples ? `${decimal.format(summary.totalTime / 3600)} h` : "—"} /><Lifetime label="Parties jouées" value={format(summary.count)} /><Lifetime label="Score cumulé" value={summary.scoreSamples ? format(summary.scoreTotal) : "—"} /></div><small>Somme des durées et scores enregistrés dans les filtres actuels. Les bonus de points de sang ne sont pas inclus.</small></div>
+      {filtered.length > 0 && <div className="sd-kpis">
+        <Kpi label="Évasions" icon="M11 5H4v14h7M9 12h11m-4-4 4 4-4 4" value={percent(summary.escapeRate)} note={`${summary.escapeCount} évasions / ${summary.escapeSamples} issues connues`} tone="teal"><MiniBars matches={filtered.filter(m => m.entry.role === "survivor")} /></Kpi>
+        <Kpi label="Taux de kill" icon="M8 18v-2a7 7 0 1 1 8 0v2l-2 2h-4l-2-2Zm2-1v3m4-3v3M9 12h1m4 0h1" value={percent(summary.killRate)} note={`${summary.deaths} kills / ${summary.killSamples} survivants · matchs complets`} tone="red"><MiniBars matches={filtered.filter(m => m.entry.role === "killer")} /></Kpi>
+        <Kpi label="Score moyen" icon="M4 4v16h16M8 16l4-5 3 2 5-7m0 0v4m0-4h-4" value={format(summary.score)} note={`Médiane ${format(summary.scoreMedian)} · ${summary.scoreSamples} scores`} tone="gold"><MiniBars matches={filtered} score /></Kpi>
+        <Kpi label="Temps en match" icon="M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm0 3v5l3 2" value={summary.durationSamples ? `${decimal.format(summary.totalTime / 3600)} h` : "—"} note={`${time(summary.duration)} en moyenne · ${summary.durationSamples} durées`} tone="purple"><MiniBars matches={filtered} duration /></Kpi>
+      </div>}
     </section>
-
-
 
     {filtered.length === 0 ? <div className="sd-empty-state"><span aria-hidden="true">◌</span><h3>{syncing ? "La brume se dissipe…" : matches.length ? "Aucune partie sur cette sélection" : "Votre histoire commence ici"}</h3><p>{syncing ? "Le tableau de bord se remplira à mesure de la synchronisation." : matches.length ? "Élargissez la période ou réinitialisez les filtres pour retrouver vos parties." : "Synchronisez votre historique pour découvrir vos statistiques."}</p>{active && <button className="secondary-button" type="button" onClick={reset}>Afficher tout l’historique</button>}</div> : <>
-      <div className="sd-kpis">
-        <Kpi label="Évasions" value={percent(summary.escapeRate)} note={`${summary.escapeCount} évasions / ${summary.escapeSamples} issues connues`} tone="teal"><MiniBars matches={filtered.filter(m => m.entry.role === "survivor")} /></Kpi>
-        <Kpi label="Taux de kill" value={percent(summary.killRate)} note={`${summary.deaths} kills / ${summary.killSamples} survivants · matchs complets`} tone="red"><MiniBars matches={filtered.filter(m => m.entry.role === "killer")} /></Kpi>
-        <Kpi label="Score moyen" value={format(summary.score)} note={`Médiane ${format(summary.scoreMedian)} · ${summary.scoreSamples} scores`} tone="gold"><MiniBars matches={filtered} score /></Kpi>
-        <Kpi label="Temps en match" value={summary.durationSamples ? `${decimal.format(summary.totalTime / 3600)} h` : "—"} note={`${time(summary.duration)} en moyenne · ${summary.durationSamples} durées`} tone="purple"><MiniBars matches={filtered} duration /></Kpi>
-      </div>
-
       <nav className="sd-jumpnav" aria-label="Explorer les statistiques"><a href="#sd-performance">Performances</a><a href="#sd-world">Vos classements</a><a href="#sd-encounters">Rencontres</a><a href="#sd-explorer">Builds & comparaisons</a><a href="#sd-activity">Habitudes</a><a href="#sd-emblems">Emblèmes</a></nav>
 
-      <SectionTitle id="sd-performance" eyebrow="01 / VOS RÉSULTATS" title="Au-delà de la victoire." text="Des indicateurs distincts pour chaque camp, avec leur nombre de parties exploitables." />
+      <SectionTitle id="sd-performance" title="Au-delà de la victoire." text="Des indicateurs distincts pour chaque camp, avec leur nombre de parties exploitables." />
       <div className={"sd-results-grid" + (summary.survivorCount && summary.killerCount ? "" : " single")}>
         {summary.survivorCount > 0 && <Panel title="Survivant" subtitle={`${summary.survivorCount} parties`} tone="teal"><div className="sd-result-main"><Donut value={summary.escapeRate} label="d’évasion" tone="teal" /><div className="sd-result-stats"><Metric label="Évasions" value={format(summary.outcomes.escaped)} /><Metric label="Morts" value={format(summary.outcomes.dead)} /><Metric label="Déconnexions" value={format(summary.outcomes.disconnected)} /><Metric label="Issues inconnues" value={format(summary.outcomes.unknown)} /></div></div><Histogram labels={filtered.some(m => m.entry.queueLabel === "2v8") ? Array.from({ length: 9 }, (_, i) => `${i}E`) : ["0E", "1E", "2E", "3E", "4E"]} values={summary.escapeDistribution} tone="teal" /><p className="sd-footnote">Survivants échappés par partie · {filtered.filter(m => m.entry.role === "survivor" && m.complete).length} équipes complètes</p><div className="sd-stat-pair"><Metric label="Échappés / équipe" value={decimalValue(summary.teamEscapes)} /><Metric label="Seul à s’échapper" value={percent(summary.soleEscapeRate)} /></div></Panel>}
         {summary.killerCount > 0 && <Panel title="Tueur" subtitle={`${summary.killerCount} parties`} tone="red"><div className="sd-result-main"><Donut value={summary.killRate} label="de kills" tone="red" /><div className="sd-result-stats"><Metric label="Kills / match" value={decimalValue(summary.averageKills)} /><Metric label="Sans évasion" value={percent(summary.perfectRate)} /><Metric label="Réussite 3K+ · 1v4" value={percent(summary.winRate)} /><Metric label="Matchs 1v4 exploitables" value={format(summary.winSamples)} /></div></div><Histogram labels={filtered.some(m => m.entry.queueLabel === "2v8") ? Array.from({ length: 9 }, (_, i) => `${i}K`) : ["0K", "1K", "2K", "3K", "4K"]} values={summary.killDistribution} tone="red" /><p className="sd-footnote">Kills par partie · {summary.perfectSamples} matchs complets · déconnexions exclues</p><div className="sd-stat-pair"><Metric label="Premier kill" value={time(summary.firstDeath)} /><Metric label="Intervalle entre kills" value={time(summary.deathInterval)} /></div></Panel>}
@@ -76,18 +112,18 @@ export function StatisticsOverview({ matches, syncing }: { matches: readonly Mat
         <OutcomePanel matches={filtered} summary={summary} />
       </div>
 
-      <SectionTitle id="sd-world" eyebrow="02 / VOS CLASSEMENTS" title="Vos repères dans la brume." text="Vos favoris, vos meilleures confrontations et vos terrains les plus difficiles. Tous suivent les filtres du haut de page." />
+      <SectionTitle id="sd-world" title="Vos repères dans la brume." text="Vos favoris, vos meilleures confrontations et vos terrains les plus difficiles. Tous suivent les filtres du haut de page." />
       <StatisticsRankings matches={filtered} />
-      <SectionTitle id="sd-encounters" eyebrow="03 / VOS RENCONTRES" title="Qui croise votre chemin ?" text="Quatre répartitions pour lire les personnages, les terrains et les compétences rencontrés." />
+      <SectionTitle id="sd-encounters" title="Qui croise votre chemin ?" text="Quatre répartitions pour lire les personnages, les terrains et les compétences rencontrés." />
       <EncounterCharts matches={filtered} />
 
-      <SectionTitle id="sd-explorer" eyebrow="04 / L’EXPLORATEUR" title="Croisez. Comparez. Comprenez." text="Personnages, compétences, accessoires, confrontations : chaque ligne ouvre son analyse détaillée." />
+      <SectionTitle id="sd-explorer" title="Croisez. Comparez. Comprenez." text="Personnages, compétences, accessoires, confrontations : chaque ligne ouvre son analyse détaillée." />
       <Explorer matches={filtered} dimension={dimension} onDimensionChange={setDimension} />
 
-      <SectionTitle id="sd-activity" eyebrow="05 / VOS HABITUDES" title="Le temps passé dans la brume." text="Votre activité en heure de Paris, limitée à l’historique sélectionné." />
+      <SectionTitle id="sd-activity" title="Le temps passé dans la brume." text="Votre activité en heure de Paris, limitée à l’historique sélectionné." />
       <Activity matches={filtered} summary={summary} />
 
-      <SectionTitle id="sd-emblems" eyebrow="06 / EMBLÈMES" title="La manière compte aussi." text="Les qualités d’emblème donnent une autre lecture de vos performances." />
+      <SectionTitle id="sd-emblems" title="La manière compte aussi." text="Les qualités d’emblème donnent une autre lecture de vos performances." />
       <Emblems matches={filtered} />
       <details className="sd-method"><summary>Comprendre les chiffres et leur couverture <span>↗</span></summary><div><p>Chaque indicateur utilise uniquement les données nécessaires à son calcul. Un champ absent apparaît « — », jamais comme un zéro. Les déconnexions sont suivies séparément des morts. Les résultats tueur demandent les issues connues de tous les survivants ; les classements demandent tous les scores de l’équipe.</p><p>En 1v4 et Lights Out, une victoire tueur signifie trois ou quatre kills. En 2v8, les kills sont ceux de l’équipe des tueurs ; elles ne sont pas attribuables à un tueur individuel. L’ordre des morts et les délais sont déduits des durées individuelles disponibles, sans télémétrie de poursuite.</p><p>Les sessions sont estimées avec une pause maximale de 45 minutes entre la fin d’un match et le début estimé du suivant. Les horaires importés peuvent dépendre du fuseau de la source. Les groupes avec peu de parties portent une mention « petit échantillon ». Les comparaisons montrent des associations, pas l’effet causal d’une compétence.</p><p>Non mesurables avec cette source : poursuites, réparations, soins, décrochages, mises au crochet, activations des compétences, bonus réellement crédités, groupe d’amis et MMR officiel. Les comparaisons avant/après une mise à jour demandent ses dates ; aucune donnée n’est inventée.</p></div></details>
     </>}
@@ -96,10 +132,10 @@ export function StatisticsOverview({ matches, syncing }: { matches: readonly Mat
 
 function Select({ label, value, onChange, children }: { label: string; value: string; onChange: (value: string) => void; children: ReactNode }) { return <label className="sd-select"><span>{label}</span><select aria-label={label} value={value} onChange={e => onChange(e.target.value)}>{children}</select></label>; }
 function Lifetime({ label, value }: { label: string; value: string | undefined }) { return <div><strong>{value ?? "—"}</strong><span>{label}</span></div>; }
-function SectionTitle({ id, eyebrow, title, text }: { id: string; eyebrow: string; title: string; text: string }) { return <header id={id} className="sd-section-title"><span className="sd-kicker">{eyebrow}</span><h2>{title}</h2><p>{text}</p></header>; }
+function SectionTitle({ id, title, text }: { id: string; title: string; text: string }) { return <header id={id} className="sd-section-title"><h2>{title}</h2><p>{text}</p></header>; }
 function Panel({ title, subtitle, tone, className = "", children }: { title: string; subtitle?: string; tone?: string; className?: string; children: ReactNode }) { return <article className={`sd-panel${tone ? ` sd-tone-${tone}` : ""} ${className}`}><header className="sd-panel-header"><h3>{title}</h3>{subtitle && <span>{subtitle}</span>}</header>{children}</article>; }
 function Metric({ label, value }: { label: string; value: string }) { return <div className="sd-metric"><span>{label}</span><strong>{value}</strong></div>; }
-function Kpi({ label, value, note, tone, children }: { label: string; value: string; note: string; tone: string; children: ReactNode }) { return <article className={`sd-kpi sd-tone-${tone}`}><span className="sd-kpi-label"><i />{label}</span><strong>{value}</strong><p>{note}</p>{children}</article>; }
+function Kpi({ label, icon, value, note, tone, children }: { label: string; icon: string; value: string; note: string; tone: string; children: ReactNode }) { return <article className={`sd-kpi sd-tone-${tone}`}><span className="sd-kpi-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={icon} /></svg>{label}</span><strong>{value}</strong><p>{note}</p>{children}</article>; }
 function MiniBars({ matches, score, duration }: { matches: readonly AnalyzedMatch[]; score?: boolean; duration?: boolean }) { const values = matches.slice(-24).map(m => score ? m.entry.score : duration ? m.duration : m.entry.role === "survivor" ? m.outcome === "escaped" ? 1 : m.outcome === "dead" ? 0 : null : m.killRate); const max = Math.max(1, ...values.filter(validNumber)); return <div className="sd-minibars" aria-hidden="true">{values.map((value, i) => <i key={i} style={{ height: `${value === null ? 5 : Math.max(7, value / max * 100)}%`, opacity: value === null ? .2 : .45 + i / Math.max(1, values.length) * .55 }} />)}</div>; }
 function Donut({ value, label, tone }: { value: number | null; label: string; tone: string }) { return <div className={`sd-donut sd-tone-${tone}`}><svg viewBox="0 0 140 140" role="img" aria-label={`${value === null ? "Non disponible" : percent(value)} ${label}`}><circle cx="70" cy="70" r="57" className="sd-donut-track" /><circle cx="70" cy="70" r="57" className="sd-donut-value" pathLength="100" strokeDasharray={`${(value ?? 0) * 100} 100`} transform="rotate(-90 70 70)" /></svg><span><strong>{percent(value)}</strong><small>{label}</small></span></div>; }
 function Histogram({ labels, values, tone }: { labels: readonly string[]; values: readonly number[]; tone: string }) { const max = Math.max(1, ...values.slice(0, labels.length)); return <div className={`sd-histogram sd-tone-${tone}`} role="img" aria-label={labels.map((label, i) => `${label} : ${values[i] ?? 0}`).join(", ")}>{labels.map((label, i) => <div key={`${i}-${label}`}><strong>{values[i] ?? 0}</strong><div><i style={{ height: `${(values[i] ?? 0) / max * 100}%` }} /></div><span>{label}</span></div>)}</div>; }
@@ -150,7 +186,7 @@ function RowDetails({ row, rows, all, dimension }: { row: AnalysisRow; rows: rea
   const locations = groupMatches(row.matches, "map").slice(0, 3);
   const summary = row.summary;
   return <section className={"sd-row-details " + (killer ? "sd-tone-red" : "sd-tone-teal")} aria-label={"Analyse détaillée de " + assetLabel(row)}>
-    <header className="sd-detail-heading"><div><span className="sd-kicker">REGARD RAPPROCHÉ · {killer ? "TUEUR" : "SURVIVANT"}</span><h3>{assetLabel(row)}</h3><p>{summary.count} parties dans vos filtres actuels{summary.count < 5 ? " · petit échantillon" : ""}</p></div>{row.image && !row.assets && <img src={row.image} alt="" />}</header>
+    <header className="sd-detail-heading"><div><h3>{assetLabel(row)}</h3><p>{summary.count} parties dans vos filtres actuels{summary.count < 5 ? " · petit échantillon" : ""}</p></div>{row.image && !row.assets && <img src={row.image} alt="" />}</header>
     {row.assets && <StatisticsAssets asset={row} />}
     <div className="sd-detail-columns"><div><h4>Vos résultats</h4>
       {killer ? <><ResultLine label="Taux de kill" value={summary.killRate === null ? null : percent(summary.killRate)} description={summary.deaths + " kills sur " + summary.killSamples + " survivants, résultats complets."} /><ResultLine label="Kills par partie" value={summary.averageKills === null ? null : decimalValue(summary.averageKills)} description="Moyenne sur les parties aux résultats complets." /><ResultLine label="Parties sans évasion" value={summary.perfectRate === null ? null : percent(summary.perfectRate)} description="Toutes les issues des survivants sont des kills." /><ResultLine label="Victoires à 3–4 kills" value={summary.winRate === null ? null : percent(summary.winRate)} description="Parties 1v4 et Lights Out ; les parties 2v8 sont exclues." /></> : <><ResultLine label="Taux d’évasion" value={summary.escapeRate === null ? null : percent(summary.escapeRate)} description={summary.escapeCount + " évasions sur " + summary.escapeSamples + " issues connues."} /><ResultLine label="Survie moyenne" value={summary.survival === null ? null : time(summary.survival)} description={summary.survivalSamples + " durées personnelles renseignées."} /><ResultLine label="Premier au score" value={summary.topScoreRate === null ? null : percent(summary.topScoreRate)} description="Meilleur score parmi les survivants, égalités incluses." /></>}

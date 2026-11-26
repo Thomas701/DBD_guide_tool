@@ -280,6 +280,45 @@ try {
   assert.equal(await page.locator(".statistics-header .eyebrow, .statistics-chip").count(), 0);
   assert.equal(await page.locator(".statistics-tabs-row .impact-tabs").evaluate(tabs => getComputedStyle(tabs).borderTopWidth), "0px");
   const overview = page.locator(".sd-filter-top");
+  assert.equal(await page.locator(".sd-filter-scope, .sd-filter-caption, .sd-kicker, .sd-hero-meta").count(), 0);
+  await page.locator(".sd-hero-copy").getByRole("heading", { name: "Vos parties, en perspective", exact: true }).waitFor();
+  await page.waitForFunction(() => document.querySelectorAll(".sd-hero .sd-kpis .sd-kpi svg").length === 4);
+  assert.ok(await page.locator(".sd-hero .sd-kpis").evaluate(kpis => {
+    const [first, second] = kpis.children;
+    return kpis.getBoundingClientRect().top === kpis.previousElementSibling.getBoundingClientRect().bottom
+      && second.getBoundingClientRect().left - first.getBoundingClientRect().right === 12;
+  }), "KPI cards are flush with the summary and retain their horizontal gap");
+  assert.ok(await overview.evaluate(row => {
+    const camps = row.querySelector(".sd-segments").getBoundingClientRect();
+    const range = row.querySelector(".sd-range").getBoundingClientRect();
+    return range.left - camps.right === 12 && Math.abs(range.top - camps.top) < 1;
+  }), "The range is next to the camp filter");
+
+  async function checkFilterDock(scope, scroller) {
+    const dock = scope.locator(".sd-filter-dock");
+    const bar = dock.locator(".sd-filterbar");
+    for (const fraction of [0.45, 0.95]) {
+      await scroller.evaluate((element, position) => {
+        element.scrollTop = (element.scrollHeight - element.clientHeight) * position;
+      }, fraction);
+      await scope.locator(".sd-filter-dock[data-hidden]").waitFor();
+      assert.equal(await bar.evaluate(element => getComputedStyle(element).pointerEvents), "none");
+      await scroller.evaluate(element => { element.scrollTop -= 26; });
+      await scope.locator(".sd-filter-dock:not([data-hidden])").waitFor();
+      assert.ok(await bar.evaluate(element => {
+        const bounds = element.getBoundingClientRect();
+        const dialog = element.closest("dialog");
+        const top = dialog ? dialog.getBoundingClientRect().top + dialog.clientTop + parseFloat(getComputedStyle(dialog).paddingTop)
+          : element.closest(".app-shell").querySelector(".analyzer-topbar").getBoundingClientRect().bottom;
+        return bounds.top >= top - 9 && bounds.top <= top + 2 && bounds.bottom <= innerHeight;
+      }), "Scrolling up reveals filters at the top of the scrolling area");
+    }
+    await scroller.evaluate(element => { element.scrollTop = 0; });
+  }
+  await checkFilterDock(page, page.locator(".app-shell"));
+  await page.setViewportSize({ width: 390, height: 720 });
+  await checkFilterDock(page, page.locator("html"));
+  await page.setViewportSize({ width: 1280, height: 720 });
   await overview.getByRole("button", { name: "Tueur", exact: true }).click();
   assert.deepEqual(await page.getByLabel("Mon personnage", { exact: true }).locator("option").allTextContents(), ["Tous les personnages", "The Trapper"]);
   assert.ok(!(await page.getByLabel("Adversaire", { exact: true }).locator("option").allTextContents()).includes("The Trapper"));
@@ -330,6 +369,8 @@ try {
   await page.getByRole("button", { name: "Voir les statistiques de Joueur 1", exact: true }).click();
   const publicProfile = page.locator(".public-player-dialog");
   await publicProfile.getByText("Statistiques de Bob Behaviour", { exact: true }).waitFor();
+  await publicProfile.locator(".sd-filter-dock").waitFor();
+  await checkFilterDock(publicProfile, publicProfile);
   await publicProfile.getByRole("tab", { name: /^Historique/ }).click();
   await publicProfile.locator(".statistics-match-card").first().waitFor();
   assert.equal(await publicProfile.getByRole("button", { name: "Synchroniser", exact: true }).count(), 0);
