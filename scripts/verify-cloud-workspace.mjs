@@ -423,6 +423,7 @@ try {
   await page.getByText(users.bob.email, { exact: true }).last().waitFor();
   assert.equal(await page.getByRole("button", { name: "Promouvoir consultant", exact: true }).count(), 0);
   assert.equal(await page.getByRole("button", { name: "Supprimer le compte", exact: true }).count(), 0);
+  await page.getByRole("button", { name: "Passer au mode Tueur", exact: true }).click();
   await nav.getByRole("button", { name: "Perks", exact: true }).click();
   await page.locator('.perk-card[data-perk-id="agitation"] .perk-card-details').click();
   await inspector.getByRole("button", { name: "Modifier le nom", exact: true }).click();
