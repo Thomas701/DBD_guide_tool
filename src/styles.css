@@ -2803,6 +2803,7 @@ button:disabled {
 .statistics-login-panel input { min-height: 40px; padding: 0 11px; border: 1px solid #3b4248; border-radius: 5px; color: #f0f1f1; background: #111519; font: inherit; }
 .statistics-login-panel input:focus { border-color: #d95850; outline: 0; box-shadow: 0 0 0 2px rgb(217 88 80 / 18%); }
 .statistics-error { color: #f0837b !important; }
+.statistics-error a { color: inherit; text-decoration: underline; }
 @media (max-width: 1200px) {
   .statistics-filter-grid { grid-template-columns: 1fr; }
   .statistics-mmr-filters { grid-template-columns: repeat(2, minmax(180px, 1fr)); }

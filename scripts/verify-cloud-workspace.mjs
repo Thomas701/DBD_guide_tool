@@ -31,6 +31,7 @@ const rankedPlayers = Array.from({ length: 51 }, (_, index) => ({ rank: index + 
 const updatedAt = new Date().toISOString();
 let refreshes = 0;
 let offline = false;
+let bobNeedsPlatform = false;
 const server = await createServer({ server: { host: "127.0.0.1", port: 0, strictPort: false }, logLevel: "error" });
 let browser;
 let page;
@@ -138,7 +139,8 @@ try {
       return reply(current.revision + 1);
     }
     if (url.pathname === "/rest/v1/rpc/statistics_collector_status") return reply(userId === users.bob.id
-      ? { remote: true, state: "success", lastSeenAt: updatedAt }
+      ? { remote: true, state: bobNeedsPlatform ? "error" : "success", lastSeenAt: updatedAt,
+          message: bobNeedsPlatform ? "Behaviour ne trouve aucune plateforme Dead by Daylight pour ce compte." : null }
       : { remote: false, state: "waiting_for_login", lastSeenAt: null });
     if (url.pathname === "/rest/v1/player_statistics" || url.pathname === "/rest/v1/player_matches") {
       assert.ok(url.searchParams.get("user_id") === `eq.${userId}` || userId === users.alice.id);
@@ -269,6 +271,12 @@ try {
   await page.locator(".statistics-player-banner").getByText("Bob Behaviour", { exact: true }).waitFor();
   await page.locator(".statistics-player-banner img").waitFor();
   await page.locator(".statistics-connection-linked").getByRole("button", { name: "Désactiver la synchronisation", exact: true }).waitFor();
+  bobNeedsPlatform = true;
+  const behaviourLink = page.getByRole("link", { name: "Ouvrir mon compte Behaviour" });
+  await behaviourLink.waitFor();
+  assert.equal(await behaviourLink.getAttribute("href"), "https://account.bhvr.com/");
+  bobNeedsPlatform = false;
+  await behaviourLink.waitFor({ state: "hidden" });
   assert.equal(await page.locator(".statistics-header .eyebrow, .statistics-chip").count(), 0);
   assert.equal(await page.locator(".statistics-tabs-row .impact-tabs").evaluate(tabs => getComputedStyle(tabs).borderTopWidth), "0px");
   const overview = page.locator(".sd-filter-top");

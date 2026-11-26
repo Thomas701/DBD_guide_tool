@@ -54,7 +54,7 @@ export function StatisticsConnection() {
           if (server.data?.remote) {
             if (waiting) {
               sessionStorage.removeItem(SETUP_KEY); setPending(false);
-              setNotice("Compte Behaviour associé. La collecte se poursuit automatiquement, même navigateur fermé.");
+              setNotice(server.data.state === "error" ? null : "Compte Behaviour associé. La collecte se poursuit automatiquement, même navigateur fermé.");
             }
             return;
           }

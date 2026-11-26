@@ -153,6 +153,7 @@ export function StatisticsView({ serverUrl, nextSyncAt, canEdit, readOnly = fals
     ? matchHistory[0]?.sourceUrl ?? "https://stats.deadbydaylight.com/match-history/"
     : statistics?.sourceUrl ?? "https://stats.deadbydaylight.com/statistics/";
   const syncing = loading || status?.busy === true;
+  const displayedError = error ?? status?.error;
   const mapOptions = useMemo(
     () => [...new Set(matchHistory.map((match) => match.mapName).filter((value): value is string => Boolean(value)))].sort((left, right) => left.localeCompare(right, "fr")),
     [matchHistory],
@@ -200,7 +201,12 @@ export function StatisticsView({ serverUrl, nextSyncAt, canEdit, readOnly = fals
 
       {(status?.logs.length || syncing || status?.error) ? <SyncStatusPanel status={status} syncing={syncing} /> : null}
       {!isHostedApp && syncing && !hasSnapshotContent(snapshot) && <p className="statistics-sync-note">Connexion en cours dans le Chrome contrôlé par l’application. Sa session est distincte de votre Chrome habituel : terminez la connexion Behaviour dans la fenêtre ouverte.</p>}
-      {error && <p className="statistics-error" role="alert">{error}</p>}
+      {displayedError && <p className="statistics-error" role="alert">
+        {displayedError}
+        {!readOnly && status?.error?.startsWith("Behaviour ne trouve aucune plateforme Dead by Daylight") && <>
+          {" "}<a href="https://account.bhvr.com/" target="_blank" rel="noreferrer">Ouvrir mon compte Behaviour</a>
+        </>}
+      </p>}
       {hasSnapshotContent(snapshot) && <div className="statistics-source">Source : <a href={sourceUrl} onClick={(event) => {
         event.preventDefault();
         void showStatisticsPage(serverUrl, sourceUrl).catch((cause) => setError(cause instanceof Error ? cause.message : "Impossible d’ouvrir la page Statistiques."));
