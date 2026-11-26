@@ -156,13 +156,13 @@ try {
   await killerCard.dragTo(target);
   await page.waitForFunction(() => JSON.parse(localStorage.getItem("dbd-build-tool.tier-overrides"))?.killers.trapper === "S+");
   await tierPage.getByRole("button", { name: "Perk killer", exact: true }).click();
-  assert.equal(await tierPage.getByRole("listitem").count(), 145);
+  assert.equal(await tierPage.getByRole("listitem").count(), 148);
   await tierPage.getByRole("button", { name: "Détails de agitation", exact: true }).click();
   const perkDetails = page.getByRole("complementary", { name: "Détails de la perk" });
   await perkDetails.getByRole("heading", { name: "Catégories", exact: true }).waitFor();
   await perkDetails.getByLabel("Tier de la sélection").selectOption("D");
   await tierPage.getByRole("button", { name: "Perk survivor", exact: true }).click();
-  assert.equal(await tierPage.getByRole("listitem").count(), 176);
+  assert.equal(await tierPage.getByRole("listitem").count(), 179);
   await tierPage.getByRole("button", { name: "Détails de Souple", exact: true }).click();
   await perkDetails.getByRole("region", { name: "Définition des termes de la perk" }).getByText("Insaisissable", { exact: true }).waitFor();
   await page.setViewportSize({ width: 1680, height: 640 });
@@ -184,7 +184,7 @@ try {
   await tierPage.getByRole("button", { name: "Reset", exact: true }).click();
   const [sidebarBounds, resetBounds] = await Promise.all([tierPage.locator(".tier-list-sidebar").boundingBox(), tierPage.getByRole("button", { name: "Reset", exact: true }).boundingBox()]);
   assert.ok(Math.abs(sidebarBounds.y + sidebarBounds.height - resetBounds.y - resetBounds.height) <= 12, "Reset must remain at the bottom of the sidebar");
-  assert.equal(await tierPage.locator('.tier-list-row[data-tier="unranked"] .tier-list-perk').count(), 176);
+  assert.equal(await tierPage.locator('.tier-list-row[data-tier="unranked"] .tier-list-perk').count(), 179);
   assert.equal(await tierPage.getByText("Votre classement est privé.", { exact: false }).count(), 0);
   await tierPage.getByRole("button", { name: "Détails de État de flux", exact: true }).click();
   const killerScenario = {
