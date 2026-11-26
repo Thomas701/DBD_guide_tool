@@ -1798,3 +1798,15 @@ vous sont révélés à moins de 32 mètres .
 Chaque fois qu'un Survivant laisse tomber une Palette , Tactiques de Zanshin déclenche l'effet suivant :
 Leur aura vous est révélée pendant 3 / 4 / 5 secondes .
 « La force de ton ennemi réside dans sa faiblesse. » — Doctrine de Renjiro 12:5
+Risée	Risée	Les survivants à moins de 12 mètres d’un générateur terminé subissent Épuisement et Inconscient.
+Ces effets persistent pendant 3 / 4 / 5 secondes après leur sortie de la zone.
+Vous voyez les auras des générateurs terminés.	Terrifier
+Clownerie	Clownerie	Chaque fois que vous endommagez un générateur, vous obtenez 10 % de Rapidité pendant 10 secondes et déclenchez l’un des effets suivants au hasard :
+Votre bonus de Rapidité se prolonge de 5 secondes.
+Vous êtes étourdi pendant 2 secondes.
+L’Entité bloque le générateur endommagé pendant 30 secondes.
+Des confettis apparaissent sans effet de jeu.
+Un même effet ne peut pas se produire deux fois de suite.
+Temps de recharge de Clownerie : 60 / 50 / 40 secondes.	Terrifier
+Folie meurtrière	Folie meurtrière	Lorsque tous les générateurs sont terminés et que chaque survivant encore en vie a atteint deux phases de crochet, vous pouvez tuer les survivants à terre.
+L’Entité bloque les deux interrupteurs des portes de sortie pendant chaque exécution et pendant 12 / 16 / 20 secondes après celle-ci.	Terrifier

@@ -17,8 +17,21 @@ const hit = condition("after_basic_attack");
 const completed = condition("generator_completed");
 const endgame = condition("exit_gates_powered");
 
-/** Revue individuelle des 145 descriptions natives, rang III. Références : statistiques_fixe.txt, patchs BHVR 10.2 / 9.6. */
+/** Revue des descriptions natives au rang III, d’après statistiques_fixe.txt et les notes de patch BHVR. */
 export const PERK_EFFECT_OVERRIDES: Readonly<Record<string, readonly PerkEffect[]>> = {
+  "laughingstock": [
+    info("generator.aura", "Auras des générateurs terminés", "Visibles en permanence une fois le générateur terminé."),
+    status("survivor.status.exhausted", null, trigger, "Dans les 12 m d’un générateur terminé, puis 5 s après la sortie de la zone."),
+    status("survivor.status.oblivious", null, trigger, "Même portée et même durée que l’Épuisement.")
+  ],
+  "funny-business": [
+    note(mul("killer.speed", 1.1, kick, 10), "Rapidité garantie après le coup sur un générateur, avec 40 s de recharge."),
+    info("generator.lock", "Effet supplémentaire aléatoire", "5 s de Rapidité supplémentaires, 2 s d’étourdissement, blocage du générateur pendant 30 s ou confettis. Un résultat ne peut pas se répéter immédiatement.", kick)
+  ],
+  "kill-spree": [
+    status("survivor.kill_available", null, all(endgame, trigger), "Tous les survivants encore en vie doivent avoir atteint leur deuxième phase de crochet."),
+    block("exit_gate.open_time", 20, all(endgame, trigger), "Les deux interrupteurs sont bloqués pendant l’exécution, puis 20 s après sa fin.")
+  ],
   "agitation": [mul("killer.carry_speed", 1.18, carrying), add("killer.terror_radius", 12, "meters", carrying)],
   "brutal-strength": [mul("killer.pallet_break_time", 1.2), mul("killer.wall_break_time", 1.2), mul("generator.damage_time", 1.2)],
   "unnerving-presence": [add("generator.skill_check_chance", 10, "percentage_points", radius), add("healing.skill_check_chance", 10, "percentage_points", radius), mul("generator.skill_check_good_zone", .4, radius), mul("healing.skill_check_good_zone", .4, radius)],

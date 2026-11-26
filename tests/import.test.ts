@@ -7,6 +7,7 @@ import { descriptionText, parseDescriptionSource } from "../src/import/descripti
 import { parseLegacyEffects } from "../src/import/effect-parser.js";
 import { importData } from "../src/import/import-data.js";
 import { splitTopLevel } from "../src/import/normalize.js";
+import { perkCooldown } from "../src/services/perk-cooldown.js";
 
 test("survivant_transport devient hook puis est dédupliqué", () => {
   const bundle = importData({
@@ -249,8 +250,8 @@ test("l'import complet produit les métriques auditées sans perdre les lignes s
     portraitFileNames: portraitEntries.filter((entry) => entry.isFile()).map((entry) => entry.name)
   });
 
-  assert.deepEqual(bundle.report.sourceRows, { perkCandidates: 145, killerCandidates: 42 });
-  assert.deepEqual(bundle.report.imported, { perks: 145, killers: 42, descriptions: 151 });
+  assert.deepEqual(bundle.report.sourceRows, { perkCandidates: 148, killerCandidates: 43 });
+  assert.deepEqual(bundle.report.imported, { perks: 148, killers: 43, descriptions: 154 });
   assert.equal(bundle.report.errors.filter((entry) => entry.code === "perk_column_count").length, 0);
   assert.equal(bundle.report.errors.filter((entry) => entry.code === "killer_column_count").length, 0);
   assert.equal(bundle.perks.some((perk) => perk.categories.includes("survivant_transport" as never)), false);
@@ -259,13 +260,18 @@ test("l'import complet produit les métriques auditées sans perdre les lignes s
   assert.equal(bundle.killers.every((killer) =>
     bundle.perks.filter((perk) => perk.characterId === killer.id).length === 3
   ), true);
-  assert.equal(bundle.perks.filter((perk) => perk.icon !== null).length, 145);
-  assert.equal(bundle.perks.filter((perk) => perk.description.fr !== null).length, 136);
+  assert.equal(bundle.perks.filter((perk) => perk.icon !== null).length, 148);
+  assert.equal(bundle.perks.filter((perk) => perk.description.fr !== null).length, 139);
+  const terrifier = bundle.killers.find((killer) => killer.id === "terrifier");
+  assert.deepEqual([terrifier?.speed, terrifier?.terrorRadius, terrifier?.size, terrifier?.difficulty], [4.6, 32, "normal", "normal"]);
+  const funnyBusiness = bundle.perks.find((perk) => perk.id === "funny-business");
+  assert.equal(funnyBusiness?.characterId, "terrifier");
+  assert.equal(funnyBusiness && perkCooldown(funnyBusiness), 40);
   const franklin = bundle.perks.find((perk) => perk.id === "franklins-demise");
   assert.match(JSON.stringify(franklin?.description.fr), /32 \/ 48 \/ 64/);
   assert.equal(bundle.report.unresolvedDescriptions.perks.some((perk) => perk.perkId === "franklins-demise"), false);
   assert.deepEqual(bundle.perks.find((perk) => perk.id === "hex-ruin")?.effects[0]?.condition, { type: "hex_active" });
-  assert.equal(bundle.killers.filter((killer) => killer.portrait !== null).length, 42);
+  assert.equal(bundle.killers.filter((killer) => killer.portrait !== null).length, 43);
   assert.equal(bundle.report.unresolvedIcons.length, 0);
   assert.equal(bundle.report.unusedIcons.length, 0);
   assert.equal(bundle.report.unresolvedKillerPortraits.length, 0);

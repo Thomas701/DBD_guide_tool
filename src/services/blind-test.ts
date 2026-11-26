@@ -18,7 +18,6 @@ const breathingFileAliases: Record<string, readonly string[]> = {
   dredge: ["dragage_breathing.ogg"],
   "good-guy": ["good_guy_breathing.ogg"],
   ghoul: ["goule_breathing.ogg"],
-  hag: ["Hag_Breathing.oga"],
   houndmaster: ["houndmaster.ogg"],
   lich: ["the_lich_breathing.ogg"],
   "skull-merchant": ["Merchant_idle_breathing.ogg"],

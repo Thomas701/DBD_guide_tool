@@ -12483,5 +12483,290 @@
       "line": 238
     },
     "nativeDescriptionHtml": "<p>Dès que vous accrochez un survivant qui n'est pas l'<span style=\"color: rgb(241, 108, 101);\"><strong>obsession</strong></span>, vous gagnez <span class=\"description-value\">1 jeton.</span></p><p>Tant que l'<span style=\"color: rgb(241, 108, 101);\"><strong>obsession</strong></span> est en vie, pour chaque jeton:</p><ul><li>Les autres survivants soignent, réparent et sabotent 3% plus lentement</li></ul><p>L'<span style=\"color: rgb(241, 108, 101);\"><strong>obsession</strong></span>:</p><ul><li>soigne les autres survivants <span class=\"description-value\">33%</span> plus vite</li><li>décroche les autres survivants <span class=\"description-value\">33%</span> plus vite</li></ul>"
+  },
+  {
+    "id": "laughingstock",
+    "name": {
+      "fr": "Risée",
+      "en": "Laughingstock"
+    },
+    "side": "killer",
+    "categories": [
+      "generator",
+      "aura",
+      "exhausted"
+    ],
+    "characterId": "terrifier",
+    "characterResolution": "resolved",
+    "icon": "DBDImages-main/DBDImages-main/images/perks/killer/laughingstock.png",
+    "description": {
+      "fr": {
+        "version": 1,
+        "blocks": [
+          {
+            "type": "list",
+            "ordered": false,
+            "items": [
+              [
+                {
+                  "type": "text",
+                  "value": "Les survivants à moins de 12 mètres d’un générateur terminé subissent Épuisement et Inconscient."
+                }
+              ],
+              [
+                {
+                  "type": "text",
+                  "value": "Ces effets persistent pendant 3 / 4 / 5 secondes après leur sortie de la zone."
+                }
+              ],
+              [
+                {
+                  "type": "text",
+                  "value": "Vous voyez les auras des générateurs terminés."
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      "en": null
+    },
+    "effects": [
+      {
+        "stat": "generator.aura",
+        "label": "Auras des générateurs terminés",
+        "detail": "Visibles en permanence une fois le générateur terminé.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean"
+      },
+      {
+        "stat": "survivor.status.exhausted",
+        "operation": "apply_status",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "duration": null,
+        "condition": {
+          "type": "perk_triggered"
+        },
+        "detail": "Dans les 12 m d’un générateur terminé, puis 5 s après la sortie de la zone."
+      },
+      {
+        "stat": "survivor.status.oblivious",
+        "operation": "apply_status",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "duration": null,
+        "condition": {
+          "type": "perk_triggered"
+        },
+        "detail": "Même portée et même durée que l’Épuisement."
+      }
+    ],
+    "cooldown": null,
+    "effectImportStatus": "parsed",
+    "analysisReadiness": "ready",
+    "provenance": {
+      "file": "source.txt",
+      "line": 338
+    }
+  },
+  {
+    "id": "funny-business",
+    "name": {
+      "fr": "Clownerie",
+      "en": "Funny Business"
+    },
+    "side": "killer",
+    "categories": [
+      "speed",
+      "destruction",
+      "generator",
+      "recharge"
+    ],
+    "characterId": "terrifier",
+    "characterResolution": "resolved",
+    "icon": "DBDImages-main/DBDImages-main/images/perks/killer/funnybusiness.png",
+    "description": {
+      "fr": {
+        "version": 1,
+        "blocks": [
+          {
+            "type": "list",
+            "ordered": false,
+            "items": [
+              [
+                {
+                  "type": "text",
+                  "value": "Chaque fois que vous endommagez un générateur, vous obtenez 10 % de Rapidité pendant 10 secondes et déclenchez l’un des effets suivants au hasard:"
+                }
+              ],
+              [
+                {
+                  "type": "text",
+                  "value": "Votre bonus de Rapidité se prolonge de 5 secondes."
+                }
+              ],
+              [
+                {
+                  "type": "text",
+                  "value": "Vous êtes étourdi pendant 2 secondes."
+                }
+              ],
+              [
+                {
+                  "type": "text",
+                  "value": "L’Entité bloque le générateur endommagé pendant 30 secondes."
+                }
+              ],
+              [
+                {
+                  "type": "text",
+                  "value": "Des confettis apparaissent sans effet de jeu."
+                }
+              ],
+              [
+                {
+                  "type": "text",
+                  "value": "Un même effet ne peut pas se produire deux fois de suite."
+                }
+              ],
+              [
+                {
+                  "type": "text",
+                  "value": "Temps de recharge de Clownerie: 60 / 50 / 40 secondes."
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      "en": null
+    },
+    "effects": [
+      {
+        "stat": "killer.speed",
+        "operation": "multiply",
+        "interpretation": "verified",
+        "value": 1.1,
+        "unit": "multiplier",
+        "condition": {
+          "type": "generator_damaged"
+        },
+        "duration": 10,
+        "detail": "Rapidité garantie après le coup sur un générateur, avec 40 s de recharge."
+      },
+      {
+        "stat": "generator.lock",
+        "label": "Effet supplémentaire aléatoire",
+        "detail": "5 s de Rapidité supplémentaires, 2 s d’étourdissement, blocage du générateur pendant 30 s ou confettis. Un résultat ne peut pas se répéter immédiatement.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "generator_damaged"
+        }
+      }
+    ],
+    "cooldown": 40,
+    "effectImportStatus": "parsed",
+    "analysisReadiness": "ready",
+    "provenance": {
+      "file": "source.txt",
+      "line": 339
+    }
+  },
+  {
+    "id": "kill-spree",
+    "name": {
+      "fr": "Folie meurtrière",
+      "en": "Kill Spree"
+    },
+    "side": "killer",
+    "categories": [
+      "hook",
+      "exit_door"
+    ],
+    "characterId": "terrifier",
+    "characterResolution": "resolved",
+    "icon": "DBDImages-main/DBDImages-main/images/perks/killer/killspree.png",
+    "description": {
+      "fr": {
+        "version": 1,
+        "blocks": [
+          {
+            "type": "list",
+            "ordered": false,
+            "items": [
+              [
+                {
+                  "type": "text",
+                  "value": "Lorsque tous les générateurs sont terminés et que chaque survivant encore en vie a atteint deux phases de crochet, vous pouvez tuer les survivants à terre."
+                }
+              ],
+              [
+                {
+                  "type": "text",
+                  "value": "L’Entité bloque les deux interrupteurs des portes de sortie pendant chaque exécution et pendant 12 / 16 / 20 secondes après celle-ci."
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      "en": null
+    },
+    "effects": [
+      {
+        "stat": "survivor.kill_available",
+        "operation": "apply_status",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "duration": null,
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "exit_gates_powered"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
+        },
+        "detail": "Tous les survivants encore en vie doivent avoir atteint leur deuxième phase de crochet."
+      },
+      {
+        "stat": "exit_gate.open_time",
+        "operation": "block",
+        "interpretation": "verified",
+        "duration": 20,
+        "unit": "seconds",
+        "condition": {
+          "operator": "all",
+          "conditions": [
+            {
+              "type": "exit_gates_powered"
+            },
+            {
+              "type": "perk_triggered"
+            }
+          ]
+        },
+        "detail": "Les deux interrupteurs sont bloqués pendant l’exécution, puis 20 s après sa fin."
+      }
+    ],
+    "cooldown": null,
+    "effectImportStatus": "parsed",
+    "analysisReadiness": "ready",
+    "provenance": {
+      "file": "source.txt",
+      "line": 340
+    }
   }
 ]

@@ -5,7 +5,7 @@ import { authRedirectUrl, emailAuthEnabled, isHostedApp, supabase } from "../../
 import { createAccountStorage, setAccountStorage, readWorkspaceData } from "../../services/account-storage.js";
 import { setViewedUserId } from "../../services/cloud-client.js";
 import { type AdministrationUser, communityRpc } from "../../services/community.js";
-import { readSharedDescriptions, type SharedDescriptions } from "../../services/shared-perks.js";
+import { readSharedPerks, type SharedPerks } from "../../services/shared-perks.js";
 import { CloudWorkspace, workspaceRemote } from "../../services/cloud-workspace.js";
 import "./account.css";
 
@@ -106,7 +106,7 @@ function AccountWorkspace({ client, user }: { client: SupabaseClient; user: User
   const [isAdmin, setIsAdmin] = useState(false);
   const [canManageAccounts, setCanManageAccounts] = useState(false);
   const [nickname, setNickname] = useState("");
-  const [sharedDescriptions, setSharedDescriptions] = useState<SharedDescriptions>({});
+  const [sharedPerks, setSharedPerks] = useState<SharedPerks>({ descriptions: {}, names: {} });
   const [preview, setPreview] = useState<AdministrationUser | null>(null);
   const [version, setVersion] = useState(0);
   const [status, setStatus] = useState("Chargement de votre compte…");
@@ -143,14 +143,14 @@ function AccountWorkspace({ client, user }: { client: SupabaseClient; user: User
     setBusy(true); setError(null);
     try {
       const [, role, profile, shared, management] = await Promise.all([workspace.load(discardLocal), client.rpc("is_admin"),
-        readNickname(), readSharedDescriptions(), client.rpc("can_manage_accounts")]);
+        readNickname(), readSharedPerks(), client.rpc("can_manage_accounts")]);
       if (role.error) throw role.error;
       if (management.error) throw management.error;
       if (!active.current) return;
       setIsAdmin(role.data === true);
       setCanManageAccounts(management.data === true);
       setNickname(profile);
-      setSharedDescriptions(shared);
+      setSharedPerks(shared);
       setPreview(null); setViewedUserId(null);
       setAccountStorage(workspace.local.storage);
       setReady(true); setVersion(current => current + 1);
@@ -233,7 +233,7 @@ function AccountWorkspace({ client, user }: { client: SupabaseClient; user: User
       <button className="secondary-button" type="button" disabled={busy} onClick={() => { if (ready) void flush().catch(() => undefined); else void load(); }}>Réessayer</button>
       <button className="secondary-button" type="button" disabled={busy || (workspace.local.pending() && !exported)} onClick={() => void load(true)}>Recharger les données en ligne</button>
     </div>}
-    {ready ? <App key={preview?.id ?? version} isAdmin={!preview && isAdmin} canManageAccounts={!preview && canManageAccounts} readOnly={Boolean(preview)} sharedDescriptions={sharedDescriptions} onInspect={account => void inspect(account)} /> : !error && <AccountCard><p role="status">Chargement de vos données…</p></AccountCard>}
+    {ready ? <App key={preview?.id ?? version} isAdmin={!preview && isAdmin} canManageAccounts={!preview && canManageAccounts} readOnly={Boolean(preview)} sharedPerks={sharedPerks} onInspect={account => void inspect(account)} /> : !error && <AccountCard><p role="status">Chargement de vos données…</p></AccountCard>}
   </>;
 }
 

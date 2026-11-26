@@ -1884,6 +1884,8 @@ button:disabled {
 .perk-inspector-title p { overflow-wrap: normal; hyphens: none; word-break: normal; }
 .perk-inspector-title > p { margin: 0; color: var(--muted); font-size: 0.78rem; }
 .perk-inspector-title .perk-owner-chip { justify-content: center; }
+.perk-name-heading { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.perk-name-heading .manager-icon-button { flex-shrink: 0; }
 .inspector-owner-background {
   position: absolute;
   z-index: 0;

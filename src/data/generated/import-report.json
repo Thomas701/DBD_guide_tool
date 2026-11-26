@@ -1,17 +1,17 @@
 {
   "formatVersion": 1,
   "imported": {
-    "perks": 145,
-    "killers": 42,
-    "descriptions": 151
+    "perks": 148,
+    "killers": 43,
+    "descriptions": 154
   },
   "skipped": {
     "perks": 0,
     "killers": 0
   },
   "sourceRows": {
-    "perkCandidates": 145,
-    "killerCandidates": 42
+    "perkCandidates": 148,
+    "killerCandidates": 43
   },
   "warnings": [
     {
@@ -1049,11 +1049,35 @@
       "raw": "+x[sound]",
       "reason": "valeur d'effet inconnue",
       "token": "+x[sound]"
+    },
+    {
+      "perkId": "laughingstock",
+      "name": "Risée",
+      "line": 338,
+      "raw": "null",
+      "reason": "effet absent",
+      "token": "null"
+    },
+    {
+      "perkId": "funny-business",
+      "name": "Clownerie",
+      "line": 339,
+      "raw": "null",
+      "reason": "effet absent",
+      "token": "null"
+    },
+    {
+      "perkId": "kill-spree",
+      "name": "Folie meurtrière",
+      "line": 340,
+      "raw": "null",
+      "reason": "effet absent",
+      "token": "null"
     }
   ],
   "incompleteTranslations": {
     "perkNamesEn": 0,
     "killerNamesEn": 0,
-    "perkDescriptionsEn": 145
+    "perkDescriptionsEn": 148
   }
 }

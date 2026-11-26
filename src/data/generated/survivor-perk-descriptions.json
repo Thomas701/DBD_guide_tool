@@ -9500,5 +9500,107 @@
         ]
       }
     ]
+  },
+  "survivor-best-gift-ever": {
+    "version": 1,
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Au début de l’Épreuve, vous gagnez 4 / 5 / 6 jetons."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "La première fois que vous lâchez un objet de chaque type, vous dépensez un jeton et l’Entité consume l’objet. Vous obtenez un effet selon le type d’objet sacrifié :"
+          }
+        ]
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "items": [
+          [
+            {
+              "type": "text",
+              "value": "Lampe de poche : chaque fois que vous étourdissez le tueur, vous l’aveuglez aussi pendant 2 secondes."
+            }
+          ],
+          [
+            {
+              "type": "text",
+              "value": "Fiole de brouillard : pendant les 5 secondes qui suivent un saut rapide, vos marques de griffures disparaissent 50 % plus vite."
+            }
+          ],
+          [
+            {
+              "type": "text",
+              "value": "Clé : vous pouvez fouiller chaque coffre une fois de plus."
+            }
+          ],
+          [
+            {
+              "type": "text",
+              "value": "Carte : vos lectures d’aura temporisées durent 1 seconde de plus."
+            }
+          ],
+          [
+            {
+              "type": "text",
+              "value": "Trousse de secours : lorsque vous soignez un autre survivant, votre propre soin progresse à 25 % de la vitesse normale."
+            }
+          ],
+          [
+            {
+              "type": "text",
+              "value": "Boîte à outils : vous voyez les auras des 3 générateurs les plus proches les uns des autres."
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "survivor-shared-trauma": {
+    "version": 1,
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Lorsque vous encaissez un coup de protection, tous les survivants dans un rayon de 12 mètres peuvent récupérer de l’Épuisement en courant pendant 30 / 35 / 40 secondes."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Vous voyez les auras des survivants épuisés dans un rayon de 32 mètres."
+          }
+        ]
+      }
+    ]
+  },
+  "survivor-valkyries-rage": {
+    "version": 1,
+    "blocks": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "value": "Après avoir été poursuivi par le tueur pendant 40 / 35 / 30 secondes, le prochain étourdissement que vous lui infligez avec une palette dure 75 % plus longtemps."
+          }
+        ]
+      }
+    ]
   }
 }

@@ -20,7 +20,7 @@ import { calculateBuild, collectBuildConditions } from "../src/services/build-ca
 import { perkStatusDefinitions } from "../src/services/perk-status-definitions.js";
 import { SURVIVOR_PERK_EFFECTS } from "../src/data/survivor-perk-effects.js";
 
-test("les 176 perks survivants possèdent leurs effets revus, sérialisés et calculables", async () => {
+test("toutes les perks survivants possèdent leurs effets revus, sérialisés et calculables", async () => {
   const catalog = JSON.parse(await readFile("src/data/generated/survivor-perks.json", "utf8")) as Perk[];
   assert.deepEqual(Object.keys(SURVIVOR_PERK_EFFECTS).sort(), catalog.map(({ id }) => id).sort());
   const actor: Killer = { id: "jake", name: { fr: "Jake", en: null }, speed: 4, terrorRadius: 0, portrait: null, size: "normal", difficulty: "easy", tier: "D" };
@@ -126,7 +126,7 @@ test("attribue une ou plusieurs catégories survivant valides à chaque perk", a
   assert.equal(categorizedPerks.every((categories) => categories.length > 0 && categories.every((category) => survivorCategorySet.has(category))), true);
 });
 
-test("Aurora, Shane et Kwon ont leurs trois perks, leurs images et sont repris automatiquement dans le prompt", async () => {
+test("les nouveaux survivants ont leurs trois perks, leurs images et sont repris automatiquement dans le prompt", async () => {
   const [survivorsJson, perksJson, ownersJson, descriptionsJson] = await Promise.all([
     readFile("src/data/generated/survivors.json", "utf8"),
     readFile("src/data/generated/survivor-perks.json", "utf8"),
@@ -150,7 +150,8 @@ test("Aurora, Shane et Kwon ont leurs trois perks, leurs images et sont repris a
   const additions = [
     { id: "aurora", name: "Aurora Stardotter", perks: ["survivor-fruits-of-your-labor", "survivor-salvations-cry", "survivor-boon-steadfast"] },
     { id: "shane", name: "Shane Wiigwaas", perks: ["survivor-wide-open-throttle", "survivor-lend-a-hand", "survivor-cross-examination"] },
-    { id: "kwon", name: "Kwon Tae-young", perks: ["survivor-flow-state", "survivor-a-place-for-us", "survivor-five-moves-ahead"] }
+    { id: "kwon", name: "Kwon Tae-young", perks: ["survivor-flow-state", "survivor-a-place-for-us", "survivor-five-moves-ahead"] },
+    { id: "sienna", name: "Sienna Shaw", perks: ["survivor-best-gift-ever", "survivor-shared-trauma", "survivor-valkyries-rage"] }
   ];
   const currentBuild: CurrentBuildExport = {
     schemaVersion: 1,

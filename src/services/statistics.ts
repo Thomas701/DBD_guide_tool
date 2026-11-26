@@ -228,13 +228,14 @@ function readMatchHistoryEntry(value: unknown): MatchHistoryEntry | null {
   if (!isRecord(value)) return null;
   const id = textOrNull(value.id);
   const characterName = textOrNull(value.characterName);
+  const mapName = textOrNull(value.mapName);
   const sourceUrl = textOrNull(value.sourceUrl);
   const importedAt = isoOrNull(value.importedAt);
   if (!id || !characterName || !sourceUrl || !importedAt) return null;
   return {
     id,
     role: value.role === "killer" || value.role === "survivor" ? value.role : "unknown",
-    characterName,
+    characterName: terrifierName(characterName),
     survivalTimeLabel: textOrNull(value.survivalTimeLabel),
     emblemIconUrls: textArray(value.emblemIconUrls),
     emblemIconLabels: nullableTextArray(value.emblemIconLabels),
@@ -251,7 +252,7 @@ function readMatchHistoryEntry(value: unknown): MatchHistoryEntry | null {
         return normalized ? [normalized] : [];
       })
       : [],
-    mapName: textOrNull(value.mapName),
+    mapName: mapName && /^(?:lm_liminal|hartshorne mall)$/i.test(mapName) ? "Hartshorne Mall" : mapName,
     mapImageUrl: textOrNull(value.mapImageUrl),
     playedAt: isoOrNull(value.playedAt),
     playedAtLabel: textOrNull(value.playedAtLabel),
@@ -264,10 +265,11 @@ function readMatchHistoryEntry(value: unknown): MatchHistoryEntry | null {
 
 function readParticipant(value: unknown): MatchHistoryParticipant | null {
   if (!isRecord(value)) return null;
+  const name = textOrNull(value.name);
   return {
     emblemIconUrls: textArray(value.emblemIconUrls),
     emblemIconLabels: nullableTextArray(value.emblemIconLabels),
-    name: textOrNull(value.name),
+    name: name ? terrifierName(name) : null,
     role: value.role === "killer" || value.role === "survivor" ? value.role : "unknown",
     imageUrl: textOrNull(value.imageUrl),
     score: numericOrNull(value.score),
@@ -279,6 +281,10 @@ function readParticipant(value: unknown): MatchHistoryParticipant | null {
     equipmentIconLabels: Array.isArray(value.equipmentIconLabels) ? nullableTextArray(value.equipmentIconLabels) : undefined,
     resultLabel: textOrNull(value.resultLabel)
   };
+}
+
+function terrifierName(name: string): string {
+  return /^(?:k45|the terrifier)$/i.test(name) ? "The Terrifier" : name;
 }
 
 function textArray(value: unknown): string[] {

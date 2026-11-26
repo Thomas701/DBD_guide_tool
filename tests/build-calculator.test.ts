@@ -761,6 +761,7 @@ test("associe les fichiers de respiration aux noms atypiques", () => {
   assert.deepEqual(killerBreathingFileNames("animatronic", "animatronic"), ["animatronics_breathing.ogg", "Animatronic_breathing.ogg"]);
   assert.deepEqual(killerBreathingFileNames("dredge", "dredge"), ["dragage_breathing.ogg"]);
   assert.deepEqual(killerBreathingFileNames("ghoul", "ghoul"), ["goule_breathing.ogg"]);
+  assert.equal(findBlindTestAudioFile(["Hag_Breathing.ogg"], killerBreathingFileNames("hag", "hag")[0]!), "Hag_Breathing.ogg");
   assert.deepEqual(killerBreathingFileNames("skull-merchant", "skull-merchant"), ["Merchant_idle_breathing.ogg"]);
   assert.deepEqual(killerBreathingFileNames("xenomorph", "xenomorph"), ["xenomorphe_breathing.ogg"]);
   assert.deepEqual(killerBreathingFileNames("trapper", "trapper"), ["trapper_Breathing.ogg", "trapper_Breathing_2.ogg"]);

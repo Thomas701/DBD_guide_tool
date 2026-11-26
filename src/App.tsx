@@ -9,7 +9,7 @@ import { AdministrationView } from "./features/account/AdministrationView.js";
 import { LeaderboardView } from "./features/statistics/LeaderboardView.js";
 import type { AdministrationUser, CommunityPlayer } from "./services/community.js";
 import { PlayerStatisticsDialog } from "./features/statistics/PlayerStatisticsDialog.js";
-import { mergeDescriptions, readSharedDescriptions, saveSharedDescription, type SharedDescriptions } from "./services/shared-perks.js";
+import { mergeDescriptions, readSharedPerks, saveSharedDescription, saveSharedPerkName, type SharedPerks } from "./services/shared-perks.js";
 import { killers, perks, survivors } from "./app/catalog.js";
 import { MAX_BUILD_PERKS, type Build } from "./domain/build.js";
 import type { PerkCategory } from "./domain/category.js";
@@ -76,8 +76,8 @@ interface TerrorRadiusPlayback {
   volume: number;
 }
 
-export default function App({ isAdmin = !isHostedApp, canManageAccounts = !isHostedApp, readOnly = false, onInspect, sharedDescriptions: initialShared = {} }: {
-  isAdmin?: boolean; canManageAccounts?: boolean; readOnly?: boolean; onInspect?: ((user: AdministrationUser) => void) | undefined; sharedDescriptions?: SharedDescriptions;
+export default function App({ isAdmin = !isHostedApp, canManageAccounts = !isHostedApp, readOnly = false, onInspect, sharedPerks: initialShared = { descriptions: {}, names: {} } }: {
+  isAdmin?: boolean; canManageAccounts?: boolean; readOnly?: boolean; onInspect?: ((user: AdministrationUser) => void) | undefined; sharedPerks?: SharedPerks;
 }) {
   const [publicPlayer, setPublicPlayer] = useState<CommunityPlayer | null>(null);
   const [nextStatisticsSyncAt, setNextStatisticsSyncAt] = useState<number | null>(null);
@@ -107,8 +107,11 @@ export default function App({ isAdmin = !isHostedApp, canManageAccounts = !isHos
   const [savedBuilds, setSavedBuilds] = useState<Build[]>([]);
   const [descriptionRepositoryState] = useState(createDescriptionOverrideRepository);
   const [localDescriptions, setDescriptionOverrides] = useState<Record<string, string>>(descriptionRepositoryState.overrides);
-  const [sharedDescriptions, setSharedDescriptions] = useState<SharedDescriptions>(initialShared);
-  const descriptionOverrides = useMemo(() => mergeDescriptions(localDescriptions, sharedDescriptions), [localDescriptions, sharedDescriptions]);
+  const [sharedPerks, setSharedPerks] = useState(initialShared);
+  const descriptionOverrides = useMemo(() => mergeDescriptions(localDescriptions, sharedPerks.descriptions), [localDescriptions, sharedPerks.descriptions]);
+  const [nameRepository] = useState(() => createDescriptionOverrideRepository("dbd-build-tool.perk-name-overrides"));
+  const [localNames, setLocalNames] = useState(nameRepository.overrides);
+  const perkNames = isHostedApp ? sharedPerks.names : localNames;
   const [categoryRepositoryState] = useState(createCategoryOverrideRepository);
   const [categoryOverrides, setCategoryOverrides] = useState<Record<string, PerkCategory[]>>(categoryRepositoryState.overrides);
   const [tierRepositoryState] = useState(createTierOverrideRepository);
@@ -138,9 +141,10 @@ export default function App({ isAdmin = !isHostedApp, canManageAccounts = !isHos
   const categoryOverrideRepository = categoryRepositoryState.repository;
   const effectivePerks = useMemo(() => catalogPerks.map((perk) => ({
     ...perk,
+    name: { ...perk.name, fr: perkNames[perk.id] ?? perk.name.fr },
     cooldown: perkCooldown(perk, descriptionOverrides[perk.id]),
     categories: categoryOverrides[perk.id] ?? perk.categories
-  })), [catalogPerks, categoryOverrides, descriptionOverrides]);
+  })), [catalogPerks, categoryOverrides, descriptionOverrides, perkNames]);
   const effectiveKillers = useMemo(() => killers.map(killer => { const tier = tierOverrides.killers[killer.id]; return { ...killer, tier: !tier || tier === "unranked" ? killer.tier : tier }; }), [tierOverrides.killers]);
   const perkTierList = useMemo(() => rankPerks(effectivePerks, tierOverrides.perks), [effectivePerks, tierOverrides.perks]);
   const activeCharacters = side === "survivor" ? survivors : effectiveKillers;
@@ -221,7 +225,7 @@ export default function App({ isAdmin = !isHostedApp, canManageAccounts = !isHos
   useEffect(() => {
     if (!isHostedApp) return;
     let active = true;
-    const refresh = () => { void readSharedDescriptions().then(data => { if (active) setSharedDescriptions(data); }).catch(() => undefined); };
+    const refresh = () => { void readSharedPerks().then(data => { if (active) setSharedPerks(data); }).catch(() => undefined); };
     refresh();
     const timer = window.setInterval(refresh, 30_000);
     window.addEventListener("focus", refresh);
@@ -574,7 +578,7 @@ export default function App({ isAdmin = !isHostedApp, canManageAccounts = !isHos
     if (!hasMeaningfulDescriptionContent(sanitized)) throw new Error("Description vide après nettoyage.");
     if (isHostedApp) {
       await saveSharedDescription(perkId, sanitized);
-      setSharedDescriptions(current => ({ ...current, [perkId]: sanitized }));
+      setSharedPerks(current => ({ ...current, descriptions: { ...current.descriptions, [perkId]: sanitized } }));
     } else setDescriptionOverrides(descriptionOverrideRepository.update(perkId, sanitized));
   }
 
@@ -623,8 +627,25 @@ export default function App({ isAdmin = !isHostedApp, canManageAccounts = !isHos
     if (!isAdmin) return;
     if (isHostedApp) {
       await saveSharedDescription(perkId, null);
-      setSharedDescriptions(current => ({ ...current, [perkId]: null }));
+      setSharedPerks(current => ({ ...current, descriptions: { ...current.descriptions, [perkId]: null } }));
     } else setDescriptionOverrides(descriptionOverrideRepository.delete(perkId));
+  }
+
+  async function savePerkName(perkId: string, value: string | null): Promise<void> {
+    if (!isAdmin || readOnly) throw new Error("Droits de modification requis.");
+    const name = value?.trim() ?? null;
+    if (name !== null && (!name || name.length > 120 || /[\u0000-\u001f\u007f-\u009f]/.test(name))) throw new Error("Saisissez un nom de 1 à 120 caractères.");
+    if (!isHostedApp) {
+      setLocalNames(name === null ? nameRepository.repository.delete(perkId) : nameRepository.repository.update(perkId, name));
+      return;
+    }
+    await saveSharedPerkName(perkId, name);
+    setSharedPerks(current => {
+      const names = { ...current.names };
+      if (name === null) delete names[perkId];
+      else names[perkId] = name;
+      return { ...current, names };
+    });
   }
 
   function saveCategoryOverride(perkId: string, categories: readonly PerkCategory[]): void {
@@ -951,6 +972,8 @@ export default function App({ isAdmin = !isHostedApp, canManageAccounts = !isHos
               canEdit={isAdmin && !readOnly}
               perk={selectedPerk}
               owner={selectedPerkOwner}
+              hasNameOverride={Object.hasOwn(perkNames, selectedPerk.id)}
+              onSaveName={savePerkName}
               descriptionOverride={descriptionOverrides[selectedPerk.id] ?? null}
               categoryOverride={Object.hasOwn(categoryOverrides, selectedPerk.id) ? categoryOverrides[selectedPerk.id] ?? [] : null}
               nativeCategories={selectedNativePerk?.categories ?? selectedPerk.categories}
@@ -1445,14 +1468,14 @@ function createBuildRepository(): { repository: LocalBuildRepository; persistent
   }
 }
 
-function createDescriptionOverrideRepository(): { repository: LocalDescriptionOverrideRepository; overrides: Record<string, string> } {
+function createDescriptionOverrideRepository(storageKey?: string): { repository: LocalDescriptionOverrideRepository; overrides: Record<string, string> } {
   try {
     const storage = appStorage;
     storage.getItem(DESCRIPTION_OVERRIDES_STORAGE_KEY);
-    const repository = new LocalDescriptionOverrideRepository(storage);
+    const repository = new LocalDescriptionOverrideRepository(storage, storageKey);
     return { repository, overrides: repository.list() };
   } catch {
-    const repository = new LocalDescriptionOverrideRepository(createMemoryStorage());
+    const repository = new LocalDescriptionOverrideRepository(createMemoryStorage(), storageKey);
     return { repository, overrides: {} };
   }
 }

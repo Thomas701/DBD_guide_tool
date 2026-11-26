@@ -17,6 +17,8 @@ interface PerkInspectorPanelProps {
   canEdit: boolean;
   perk: Perk;
   owner: Killer | null;
+  hasNameOverride: boolean;
+  onSaveName: (perkId: string, name: string | null) => Promise<void>;
   descriptionOverride: string | null;
   categoryOverride: readonly PerkCategory[] | null;
   nativeCategories: readonly PerkCategory[];
@@ -38,6 +40,8 @@ export function PerkInspectorPanel({
   canEdit,
   perk,
   owner,
+  hasNameOverride,
+  onSaveName,
   descriptionOverride,
   categoryOverride,
   nativeCategories,
@@ -56,6 +60,9 @@ export function PerkInspectorPanel({
 }: PerkInspectorPanelProps) {
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [isEditingCategories, setIsEditingCategories] = useState(false);
+  const [draftName, setDraftName] = useState<string | null>(null);
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [isSavingName, setIsSavingName] = useState(false);
   const [editMode, setEditMode] = useState<EditMode>("local");
   const [draftCategories, setDraftCategories] = useState<PerkCategory[]>([]);
   const [categorySaveError, setCategorySaveError] = useState<string | null>(null);
@@ -66,10 +73,13 @@ export function PerkInspectorPanel({
   const selectedDescription = perk.description.fr ?? perk.description.en ?? null;
   const nativeDescriptionHtml = perk.nativeDescriptionHtml ?? null;
   const displayedDescriptionHtml = descriptionOverride ?? nativeDescriptionHtml;
+  const displayName = perk.name.fr ?? perk.name.en ?? perk.id;
 
   useEffect(() => {
     setIsEditingDescription(false);
     setIsEditingCategories(false);
+    setDraftName(null);
+    setNameError(null);
     setEditMode("local");
     setDescriptionResetError(null);
   }, [perk.id]);
@@ -119,6 +129,19 @@ export function PerkInspectorPanel({
     }
   }
 
+  async function saveName(name: string | null): Promise<void> {
+    setIsSavingName(true);
+    setNameError(null);
+    try {
+      await onSaveName(perk.id, name);
+      setDraftName(null);
+    } catch (error) {
+      setNameError(error instanceof Error ? error.message : "Enregistrement impossible.");
+    } finally {
+      setIsSavingName(false);
+    }
+  }
+
   return (
     <section className="analyzer-panel build-manager perk-inspector-panel" aria-label="Détails de la perk">
       <div className="details-identity perk-inspector-identity">
@@ -131,7 +154,13 @@ export function PerkInspectorPanel({
           {icon ? <img src={icon} alt="" /> : <span className="image-placeholder" aria-hidden="true">?</span>}
         </span>
         <div className="perk-inspector-title">
-          <h3>{perk.name.fr ?? perk.name.en ?? perk.id}</h3>
+          <div className="perk-name-heading">
+            <h3>{displayName}</h3>
+            {canEdit && <button className="manager-icon-button description-edit-button" type="button" aria-label="Modifier le nom" title="Modifier le nom" aria-expanded={draftName !== null} disabled={isSavingName} onClick={() => {
+              setNameError(null);
+              setDraftName(draftName === null ? displayName : null);
+            }}><PencilIcon /></button>}
+          </div>
           {perk.name.en && perk.name.en !== perk.name.fr && <p>{perk.name.en}</p>}
           <div className="perk-owner-chip">
             <span>{perkOwner(perk)}</span>
@@ -141,6 +170,16 @@ export function PerkInspectorPanel({
           <CloseIcon />
         </button>
       </div>
+
+      {canEdit && draftName !== null && <form className="category-editor" onSubmit={(event) => { event.preventDefault(); void saveName(draftName); }}>
+        <label className="field">Nom français<input value={draftName} onChange={(event) => setDraftName(event.target.value)} required maxLength={120} disabled={isSavingName} /></label>
+        {nameError && <p className="description-editor-error" role="alert">{nameError}</p>}
+        <div className="description-editor-actions">
+          {hasNameOverride && <button className="secondary-button compact-button" type="button" disabled={isSavingName} onClick={() => void saveName(null)}>Rétablir le nom natif</button>}
+          <button className="secondary-button compact-button" type="button" disabled={isSavingName} onClick={() => setDraftName(null)}>Annuler</button>
+          <button className="primary-button compact-button" type="submit" disabled={isSavingName || !draftName.trim()}>{isSavingName ? "Enregistrement…" : "Enregistrer"}</button>
+        </div>
+      </form>}
 
       <button
         className="primary-button details-build-button"

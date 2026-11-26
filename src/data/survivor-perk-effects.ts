@@ -21,6 +21,15 @@ const vaults = ["survivor.window_vault_time", "survivor.medium_vault_time", "sur
 
 /** Revue individuelle des descriptions natives au rang III, 7 novembre 2026. */
 const effects: Record<string, readonly PerkEffect[]> = {
+  "best-gift-ever": [
+    info("6 jetons au début de l’Épreuve", "Abandonner un objet d’un type inédit consomme un jeton et accorde son effet pour le reste de la partie."),
+    info("Un effet permanent par type d’objet", "Lampe : aveuglement de 2 s après étourdissement. Fiole : marques dissipées 50 % plus vite pendant 5 s après un saut rapide. Clé : une fouille supplémentaire par coffre. Carte : +1 s aux lectures d’aura temporisées. Trousse : progression de votre soin à 25 % pendant un soin altruiste. Boîte : auras des trois générateurs les plus proches les uns des autres.", trigger)
+  ],
+  "shared-trauma": [
+    aura("survivor", "Auras des survivants épuisés", "Lecture continue à portée.", undefined, undefined, 32),
+    info("Récupération de l’Épuisement en courant", "Après un coup de protection reçu, les survivants dans un rayon de 12 m peuvent continuer à récupérer pendant leur course.", trigger, 40)
+  ],
+  "valkyries-rage": [note(mul("killer.pallet_stun_duration", 1.75, trigger), "Après 30 s de poursuite, le prochain étourdissement à la palette dure 75 % de plus.")],
   "ace-in-the-hole": [info("Objets trouvés avec accessoires", "Premier accessoire garanti jusqu’à rareté très rare ; second jusqu’à insolite. Les accessoires sont conservés en cas de fuite. Aucun gain de charges automatique.", trigger)],
   "adrenaline": [heal("Soin instantané d’un état", "Après le dernier générateur, sous réserve des états qui empêchent le soin.", endgame), mul("survivor.run_speed", 1.5, endgame, 4), status("exhausted", "Épuisement", 40, endgame, "Ignore l’Épuisement préexistant lors du déclenchement, puis en applique 40 s.")],
   "aftercare": [aura("survivor", "Auras réciproques après entraide", "Jusqu’à 3 partenaires après soin complet ou décrochage réciproque ; liens perdus à votre accrochage.", trigger)],

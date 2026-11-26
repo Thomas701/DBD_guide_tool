@@ -14,6 +14,9 @@ export interface KillerAlias {
 }
 
 export const PERK_ALIASES = [
+  { sourceNameFr: "risée", id: "laughingstock", nameEn: "Laughingstock", descriptionNameFr: "Risée", iconFile: "laughingstock.png" },
+  { sourceNameFr: "clownerie", id: "funny-business", nameEn: "Funny Business", descriptionNameFr: "Clownerie", iconFile: "funnybusiness.png" },
+  { sourceNameFr: "folie meurtrière", id: "kill-spree", nameEn: "Kill Spree", descriptionNameFr: "Folie meurtrière", iconFile: "killspree.png" },
   { sourceNameFr: "réparateur", id: "tinkerer", nameEn: "Tinkerer", descriptionNameFr: "Bricoleur", iconFile: "tinkerer.png" },
   { sourceNameFr: "intensité ardente", id: "fire-up", nameEn: "Fire Up", descriptionNameFr: "Intensité ardente", iconFile: "fireup.png" },
   { sourceNameFr: "souviens-toi de moi", id: "remember-me", nameEn: "Remember Me", descriptionNameFr: "Souviens-toi de moi", iconFile: "rememberme.png" },
@@ -183,6 +186,7 @@ export const KILLER_ALIASES = [
   { sourceNameFr: "l'animatronique", id: "animatronic", nameEn: "The Animatronic", portraitFile: "animatronic.png" },
   { sourceNameFr: "le premier", id: "first", nameEn: "The First", portraitFile: "first.png" },
   { sourceNameFr: "le jugement", id: "judgment", nameEn: "The Judgment", portraitFile: "judgment.png" },
+  { sourceNameFr: "le terrifier", id: "terrifier", nameEn: "The Terrifier", portraitFile: "terrifier.png" },
   { sourceNameFr: "le slasher", id: "slasher", nameEn: "The Slasher", portraitFile: "jason.png" },
   { sourceNameFr: "le krasue", id: "krasue", nameEn: "The Krasue", portraitFile: "krasue.png" },
   { sourceNameFr: "la goule", id: "ghoul", nameEn: "The Ghoul", portraitFile: "ghoul.png" },

@@ -25,6 +25,13 @@ try {
   await page.route("**/api/statistics/**", route => route.fulfill({ json: { connected: false, nextSyncAt: null } }));
   await page.goto(server.resolvedUrls.local[0]);
   await page.locator(".blind-test-setup").waitFor();
+  const chapterTracks = await page.evaluate(async () => {
+    const { killerThemeUrl, killerTerrorRadiusUrl, killerBreathingUrl } = await import("/src/app/assets.ts");
+    return Promise.all([killerThemeUrl("terrifier"), killerTerrorRadiusUrl("terrifier"), killerBreathingUrl("hag")]);
+  });
+  assert.match(chapterTracks[0], /Terrifier_Theme_Music\.ogg/);
+  assert.match(chapterTracks[1], /TerrorRadius_Terrifier\.ogg/);
+  assert.match(chapterTracks[2], /killer_breathing\/Hag_Breathing\.ogg/);
   await page.locator(".blind-test-fields select").selectOption("theme");
   await page.waitForFunction(() => window.mediaTest.some(audio => /\.og[ga]$/.test(audio.src)));
   await page.locator(".blind-test-fields input[type=range]").fill("1");

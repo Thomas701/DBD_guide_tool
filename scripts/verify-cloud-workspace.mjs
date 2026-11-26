@@ -20,6 +20,7 @@ const killerMatch = { ...match, id: "2".repeat(40), role: "killer", characterNam
 ] };
 const profiles = new Map(Object.values(users).map(user => [user.id, `Joueur ${user.id.slice(0, 8)}`]));
 const sharedDescriptions = new Map();
+const sharedNames = new Map();
 const consultants = new Set();
 const mmrAdjustments = new Map();
 let previewRequests = 0;
@@ -84,6 +85,13 @@ try {
       return reply([{ nickname: profiles.get(userId) }]);
     }
     if (url.pathname === "/rest/v1/shared_perk_descriptions") return reply([...sharedDescriptions].map(([perk_id, description_html]) => ({ perk_id, description_html })));
+    if (url.pathname === "/rest/v1/shared_perk_names") return reply([...sharedNames].map(([perk_id, name_fr]) => ({ perk_id, name_fr })));
+    if (url.pathname === "/rest/v1/rpc/save_shared_perk_name") {
+      assert.ok(userId === users.alice.id || consultants.has(userId));
+      if (body.new_name === null) sharedNames.delete(body.target_perk);
+      else sharedNames.set(body.target_perk, body.new_name);
+      return reply(null);
+    }
     if (url.pathname === "/rest/v1/rpc/save_shared_perk_description") {
       assert.equal(userId, users.alice.id);
       sharedDescriptions.set(body.target_perk, body.html);
@@ -163,6 +171,7 @@ try {
     await page.locator('.perk-card[data-perk-id="agitation"] .perk-card-details').click();
     const inspector = page.getByRole("region", { name: "Détails de la perk", exact: true });
     await inspector.waitFor();
+    assert.equal(await inspector.getByRole("button", { name: "Modifier le nom", exact: true }).count(), admin ? 1 : 0);
     assert.equal(await inspector.getByRole("button", { name: "Modifier la description", exact: true }).count(), admin ? 1 : 0);
     assert.equal(await inspector.getByRole("button", { name: "Modifier les catégories", exact: true }).count(), admin ? 1 : 0);
     await nav.getByRole("button", { name: "Statistique", exact: true }).click();
@@ -214,6 +223,11 @@ try {
   await inspector.locator("[contenteditable=true]").waitFor({ state: "hidden" });
   await inspector.getByText("Description commune de test", { exact: true }).waitFor();
   assert.match(sharedDescriptions.get("agitation"), /Description commune de test/);
+  await inspector.getByRole("button", { name: "Modifier le nom", exact: true }).click();
+  await inspector.getByLabel("Nom français").fill("Agitation renommée");
+  await inspector.getByRole("button", { name: "Enregistrer", exact: true }).click();
+  await inspector.getByRole("heading", { name: "Agitation renommée", exact: true }).waitFor();
+  assert.equal(sharedNames.get("agitation"), "Agitation renommée");
 
   await nav.getByRole("button", { name: "Tiers List", exact: true }).click();
   await page.getByRole("button", { name: "Détails de le piégeur", exact: true }).click();
@@ -222,7 +236,7 @@ try {
   await page.reload();
   await page.locator('.tier-list-row[data-tier="unranked"] .tier-list-killer').waitFor();
   await page.getByRole("button", { name: "Perk killer", exact: true }).click();
-  await page.getByRole("button", { name: "Détails de agitation", exact: true }).click();
+  await page.getByRole("button", { name: "Détails de Agitation renommée", exact: true }).click();
   await page.getByLabel("Tier de la sélection", { exact: true }).selectOption("unranked");
   await page.locator('.tier-list-row[data-tier="unranked"] .tier-list-perk').waitFor();
   await page.getByRole("button", { name: "Perk survivor", exact: true }).click();
@@ -241,6 +255,7 @@ try {
   await nav.getByRole("button", { name: "Perks", exact: true }).click();
   await page.locator('.perk-card[data-perk-id="agitation"] .perk-card-details').click();
   await inspector.getByText("Description commune de test", { exact: true }).waitFor();
+  await inspector.getByRole("heading", { name: "Agitation renommée", exact: true }).waitFor();
   await nav.getByRole("button", { name: "Tiers List", exact: true }).click();
   assert.equal(await page.locator('.tier-list-row[data-tier="unranked"] .tier-list-killer').count(), 0, "Bob must keep his own tier list");
 
@@ -408,8 +423,14 @@ try {
   await page.getByText(users.bob.email, { exact: true }).last().waitFor();
   assert.equal(await page.getByRole("button", { name: "Promouvoir consultant", exact: true }).count(), 0);
   assert.equal(await page.getByRole("button", { name: "Supprimer le compte", exact: true }).count(), 0);
+  await nav.getByRole("button", { name: "Perks", exact: true }).click();
+  await page.locator('.perk-card[data-perk-id="agitation"] .perk-card-details').click();
+  await inspector.getByRole("button", { name: "Modifier le nom", exact: true }).click();
+  await inspector.getByRole("button", { name: "Rétablir le nom natif", exact: true }).click();
+  await inspector.getByLabel("Nom français").waitFor({ state: "hidden" });
+  assert.equal(sharedNames.has("agitation"), false);
   assert.deepEqual(errors, []);
-  console.log("Cloud browser checks passed: private tiers and unranked blocks, shared descriptions, public nickname, leaderboard pagination and filters, role filters, looping themes, admin read-only preview, account isolation, session refresh and network recovery.");
+  console.log("Cloud browser checks passed: shared perk names and descriptions, private tiers and unranked blocks, public nickname, leaderboard pagination and filters, role filters, looping themes, admin read-only preview, account isolation, session refresh and network recovery.");
 } catch (error) {
   await page?.screenshot({ path: ".tmp-community-browser-failure.png", fullPage: true }).catch(() => undefined);
   console.error((await page?.getByRole("main").innerText().catch(() => "Page indisponible"))?.slice(0, 1800));

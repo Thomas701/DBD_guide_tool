@@ -35,9 +35,11 @@ jobs:
             -f supabase/migrations/202611220006_behaviour_nickname.sql \
             -f supabase/migrations/202611230001_community_profiles_and_consultants.sql \
             -f supabase/migrations/202611240001_admin_mmr.sql \
+            -f supabase/migrations/202611260001_terrifier_perk_names.sql \
             -f tests/database/accounts.sql \
             -f tests/database/administrators.sql \
             -f tests/database/community.sql \
             -f tests/database/behaviour-nickname.sql \
             -f tests/database/community-profiles.sql \
+            -f tests/database/terrifier.sql \
             -f tests/database/remote-statistics.sql

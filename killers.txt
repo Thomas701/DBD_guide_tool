@@ -801,3 +801,21 @@ Les Survivants peuvent s'y repentir pour retirer leur Hérésie ou intervenir af
 Enfin, un Hérétique terrassé ayant déjà atteint deux états de crochet peut être directement exécuté.
 
 Le Jugement est donc particulièrement unique puisqu'il ajoute **une seconde dimension jouable à l'Épreuve**, tout en combinant attaque à distance, malédiction, pression sur les générateurs et exécution spéciale.
+
+## 45. Le Terrifier — The Terrifier
+
+Pouvoir : **Sac de jouets**
+
+Maintenez le bouton de capacité pour ouvrir le sac d’Art le Clown et choisir entre deux jouets tirés au hasard. Chaque jouet est à usage unique. Une fois le sac refermé, il faut attendre 10 secondes avant de pouvoir le rouvrir.
+
+- **Fouet** : frappe à 5 mètres et peut atteindre les survivants par-dessus une palette, une fenêtre ou un obstacle bas.
+- **Pistolet** : tire une seule balle à longue portée.
+- **Bouteille d’acide** : se brise à l’impact et laisse une flaque pendant 1,5 seconde. Si elle touche un mur à moins de 8 mètres de haut, la flaque se forme à son pied.
+- **Lance-flammes** : projette des flammes et peut embraser les générateurs, les fenêtres et les palettes renversées pendant 6 secondes. Les survivants sont immunisés aux flammes pendant 8 secondes après un décrochage ou après s’être échappés de votre prise.
+- **Klaxon de vélo** : signale les survivants dans un rayon de 6 mètres et dans son axe vers l’avant, sans limite de portée. S’il en détecte plusieurs, il applique Inconscient, révèle leur position grâce à l’Instinct de tueur et gagne un point de Létalité. Il renouvelle aussi la Torture des survivants détectés. À Létalité maximale, il interrompt les réparations et les soins en cours et leur retire 5 % de progression.
+
+Un jouet offensif blesse un survivant en bonne santé ou inflige **Torture** à un survivant déjà blessé. La Torture dure 40 secondes, sauf si le survivant se soigne complètement ou tombe à terre. Le même jouet renouvelle le délai. Un autre jouet peut le faire tomber à terre en lui infligeant **Terrifié**.
+
+Infliger Torture ajoute un point de **Létalité** au jouet utilisé. Un jouet offensif au maximum blesse et torture un survivant en bonne santé en un seul coup et terrasse directement un survivant blessé. Si celui-ci subissait déjà Torture, il devient Terrifié. Une fois un jouet au maximum, les autres nécessitent un point supplémentaire pour y parvenir.
+
+À moins de 6 mètres d’un survivant terrassé et Terrifié, appuyez sur le bouton de capacité pour le **narguer**. Le statut disparaît et tous les jouets gagnent un point de Létalité. L’accrochage déclenche également cette action. Un jouet à Létalité maximale permet d’exécuter un survivant à terre qui a atteint sa deuxième phase de crochet.

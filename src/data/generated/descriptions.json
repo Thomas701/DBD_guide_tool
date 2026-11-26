@@ -6908,5 +6908,143 @@
       "file": "description_categories.txt",
       "line": 1788
     }
+  },
+  {
+    "id": "description-source-1801",
+    "nameRaw": "Risée",
+    "alternateNameRaw": "Risée",
+    "characterRaw": "Terrifier",
+    "portraitRaw": null,
+    "description": {
+      "version": 1,
+      "blocks": [
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            [
+              {
+                "type": "text",
+                "value": "Les survivants à moins de 12 mètres d’un générateur terminé subissent Épuisement et Inconscient."
+              }
+            ],
+            [
+              {
+                "type": "text",
+                "value": "Ces effets persistent pendant 3 / 4 / 5 secondes après leur sortie de la zone."
+              }
+            ],
+            [
+              {
+                "type": "text",
+                "value": "Vous voyez les auras des générateurs terminés."
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    "provenance": {
+      "file": "description_categories.txt",
+      "line": 1801
+    }
+  },
+  {
+    "id": "description-source-1804",
+    "nameRaw": "Clownerie",
+    "alternateNameRaw": "Clownerie",
+    "characterRaw": "Terrifier",
+    "portraitRaw": null,
+    "description": {
+      "version": 1,
+      "blocks": [
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            [
+              {
+                "type": "text",
+                "value": "Chaque fois que vous endommagez un générateur, vous obtenez 10 % de Rapidité pendant 10 secondes et déclenchez l’un des effets suivants au hasard:"
+              }
+            ],
+            [
+              {
+                "type": "text",
+                "value": "Votre bonus de Rapidité se prolonge de 5 secondes."
+              }
+            ],
+            [
+              {
+                "type": "text",
+                "value": "Vous êtes étourdi pendant 2 secondes."
+              }
+            ],
+            [
+              {
+                "type": "text",
+                "value": "L’Entité bloque le générateur endommagé pendant 30 secondes."
+              }
+            ],
+            [
+              {
+                "type": "text",
+                "value": "Des confettis apparaissent sans effet de jeu."
+              }
+            ],
+            [
+              {
+                "type": "text",
+                "value": "Un même effet ne peut pas se produire deux fois de suite."
+              }
+            ],
+            [
+              {
+                "type": "text",
+                "value": "Temps de recharge de Clownerie: 60 / 50 / 40 secondes."
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    "provenance": {
+      "file": "description_categories.txt",
+      "line": 1804
+    }
+  },
+  {
+    "id": "description-source-1811",
+    "nameRaw": "Folie meurtrière",
+    "alternateNameRaw": "Folie meurtrière",
+    "characterRaw": "Terrifier",
+    "portraitRaw": null,
+    "description": {
+      "version": 1,
+      "blocks": [
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            [
+              {
+                "type": "text",
+                "value": "Lorsque tous les générateurs sont terminés et que chaque survivant encore en vie a atteint deux phases de crochet, vous pouvez tuer les survivants à terre."
+              }
+            ],
+            [
+              {
+                "type": "text",
+                "value": "L’Entité bloque les deux interrupteurs des portes de sortie pendant chaque exécution et pendant 12 / 16 / 20 secondes après celle-ci."
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    "provenance": {
+      "file": "description_categories.txt",
+      "line": 1811
+    }
   }
 ]

@@ -430,5 +430,13 @@
       "en": "Kwon Tae-young"
     },
     "portrait": "kwontaeyoung.png"
+  },
+  {
+    "id": "sienna",
+    "name": {
+      "fr": "Sienna Shaw",
+      "en": "Sienna Shaw"
+    },
+    "portrait": "siennashaw.png"
   }
 ]

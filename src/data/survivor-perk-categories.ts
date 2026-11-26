@@ -20,6 +20,9 @@ const C = {
 } as const;
 
 export const SURVIVOR_PERK_CATEGORIES_BY_ID: Readonly<Record<string, readonly SurvivorPerkCategory[]>> = {
+  "survivor-best-gift-ever": [C.items, C.chase, C.info, C.healing, C.stealth],
+  "survivor-shared-trauma": [C.exhaustion, C.altruism, C.info],
+  "survivor-valkyries-rage": [C.chase],
   "survivor-a-place-for-us": [C.healing, C.stealth, C.altruism, C.obsession],
   "survivor-boon-steadfast": [C.totem, C.repair, C.info],
   "survivor-cross-examination": [C.info, C.stealth],

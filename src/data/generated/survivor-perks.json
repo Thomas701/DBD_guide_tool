@@ -7114,7 +7114,7 @@
     "id": "survivor-wicked",
     "side": "survivor",
     "name": {
-      "fr": "Méchanceté",
+      "fr": "Malice",
       "en": "Wicked"
     },
     "description": {
@@ -7700,6 +7700,118 @@
     ],
     "effectImportStatus": "parsed",
     "nativeDescriptionHtml": "<p>Tant que vous êtes dans le <span class=\"description-term\">rayon de terreur</span> du Tueur ou qu’il vous poursuit :</p><ul><li>Vous voyez l’<span class=\"description-term\">aura</span> des <span class=\"description-value\">5</span> <span class=\"description-term\">palettes</span> les plus proches.</li><li>Après avoir renversé une <span class=\"description-term\">palette</span>, vous pouvez recommencer à vous déplacer <span class=\"description-value\">50 %</span> plus tôt.</li></ul><p>Renverser une <span class=\"description-term\">palette</span> lorsque cette compétence est active déclenche une recharge de <span class=\"description-value\">30 secondes</span>.</p>",
+    "analysisReadiness": "ready",
+    "cooldown": null
+  },
+  {
+    "id": "survivor-best-gift-ever",
+    "side": "survivor",
+    "name": {
+      "fr": "C'est le meilleur des cadeaux",
+      "en": "Best Gift Ever"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "bestgifever.png",
+    "categories": [],
+    "effects": [
+      {
+        "stat": "survivor.mechanic",
+        "label": "6 jetons au début de l’Épreuve",
+        "detail": "Abandonner un objet d’un type inédit consomme un jeton et accorde son effet pour le reste de la partie.",
+        "operation": "apply_status",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean"
+      },
+      {
+        "stat": "survivor.mechanic",
+        "label": "Un effet permanent par type d’objet",
+        "detail": "Lampe : aveuglement de 2 s après étourdissement. Fiole : marques dissipées 50 % plus vite pendant 5 s après un saut rapide. Clé : une fouille supplémentaire par coffre. Carte : +1 s aux lectures d’aura temporisées. Trousse : progression de votre soin à 25 % pendant un soin altruiste. Boîte : auras des trois générateurs les plus proches les uns des autres.",
+        "operation": "apply_status",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "perk_triggered"
+        }
+      }
+    ],
+    "effectImportStatus": "parsed",
+    "analysisReadiness": "ready",
+    "cooldown": null
+  },
+  {
+    "id": "survivor-shared-trauma",
+    "side": "survivor",
+    "name": {
+      "fr": "Traumatisme partagé",
+      "en": "Shared Trauma"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "sharedtrauma.png",
+    "categories": [],
+    "effects": [
+      {
+        "stat": "survivor.aura",
+        "label": "Auras des survivants épuisés",
+        "detail": "Lecture continue à portée.",
+        "operation": "reveal",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "range": 32
+      },
+      {
+        "stat": "survivor.mechanic",
+        "label": "Récupération de l’Épuisement en courant",
+        "detail": "Après un coup de protection reçu, les survivants dans un rayon de 12 m peuvent continuer à récupérer pendant leur course.",
+        "operation": "apply_status",
+        "interpretation": "verified",
+        "value": true,
+        "unit": "boolean",
+        "condition": {
+          "type": "perk_triggered"
+        },
+        "duration": 40
+      }
+    ],
+    "effectImportStatus": "parsed",
+    "analysisReadiness": "ready",
+    "cooldown": null
+  },
+  {
+    "id": "survivor-valkyries-rage",
+    "side": "survivor",
+    "name": {
+      "fr": "Rage de la valkyrie",
+      "en": "Valkyrie's Rage"
+    },
+    "description": {
+      "fr": "",
+      "en": ""
+    },
+    "icon": "valkyriesrage.png",
+    "categories": [],
+    "effects": [
+      {
+        "stat": "killer.pallet_stun_duration",
+        "operation": "multiply",
+        "interpretation": "verified",
+        "value": 1.75,
+        "unit": "multiplier",
+        "condition": {
+          "type": "perk_triggered"
+        },
+        "detail": "Après 30 s de poursuite, le prochain étourdissement à la palette dure 75 % de plus."
+      }
+    ],
+    "effectImportStatus": "parsed",
     "analysisReadiness": "ready",
     "cooldown": null
   }

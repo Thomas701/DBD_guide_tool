@@ -324,6 +324,7 @@ le bourreau;4.6;32;big;B+;nightmare
 le démogorgon;4.6;32;big;C-;difficult
 le cochon;4.6;24;normal;C-;difficult
 le cannibale;4.6;32;big;C-;normal
+le terrifier;4.6;32;normal;B+;normal
 
 
 
@@ -331,3 +332,9 @@ notification = aura
 endommager = destruction
 recharge =! null
 blessé = care
+
+PERK:
+TERRIFIER:
+Risée;1;generator,aura,exhausted;le terrifier;null;null;null;null
+Clownerie;1;speed,destruction,generator,recharge;le terrifier;null;null;null;40
+Folie meurtrière;1;hook,exit_door;le terrifier;null;null;null;null

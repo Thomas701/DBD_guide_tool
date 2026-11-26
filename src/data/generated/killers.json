@@ -712,5 +712,22 @@
       "file": "source.txt",
       "line": 326
     }
+  },
+  {
+    "id": "terrifier",
+    "name": {
+      "fr": "le terrifier",
+      "en": "The Terrifier"
+    },
+    "portrait": "DBDImages-main/DBDImages-main/images/characters/killer/terrifier.png",
+    "speed": 4.6,
+    "terrorRadius": 32,
+    "size": "normal",
+    "tier": "B+",
+    "difficulty": "normal",
+    "provenance": {
+      "file": "source.txt",
+      "line": 327
+    }
   }
 ]
