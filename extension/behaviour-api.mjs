@@ -11,6 +11,10 @@ const hasStatistics = ({ overview, history }) => overview !== undefined || (Arra
 const title = value => typeof value === "string" ? value.toLowerCase().replace(/\b\w/g, letter => letter.toUpperCase()) : null;
 const duration = value => { const seconds = Math.max(0, Math.trunc(value)); return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`; };
 const asset = item => typeof item?.image?.path === "string" && item.image.path ? new URL(item.image.path, ASSETS).href : null;
+const survivorStatusLabels = new Map([
+  ["VE_Escaped", "Escaped"], ["VE_Sacrificed", "Sacrificed"], ["VE_Killed", "Dead"],
+  ["VE_ManuallyLeftMatch", "Disconnected"], ["VE_SurrenderLoss", "Surrendered"],
+]);
 
 function playerDetails(player, gameType) {
   if (!player?.characterName?.name || !["VE_Camper", "VE_Slasher"].includes(player.playerRole) || !Number.isFinite(player.leaderboardScore)) throw new Error("Participant Behaviour invalide.");
@@ -25,7 +29,9 @@ function playerDetails(player, gameType) {
     imageUrl: asset(player.characterName), score: player.leaderboardScore,
     valueLabel: player.leaderboardScore.toLocaleString("en-US"),
     survivalTimeLabel: Number.isFinite(player.playerTimeInMatch) ? duration(player.playerTimeInMatch) : null,
-    resultLabel: title(player.playerRole === "VE_Camper" ? player.playerStatus?.name : player.killerMatchStatus?.name),
+    resultLabel: player.playerRole === "VE_Camper"
+      ? (survivorStatusLabels.get(player.playerStatus?.id) ?? title(player.playerStatus?.name)?.trim()) || null
+      : title(player.killerMatchStatus?.name),
     perkIconUrls: perks.filter(asset).map(asset), perkIconLabels: perks.filter(asset).map(item => item.name ?? null),
     equipmentIconUrls: equipment.map(asset), equipmentIconLabels: equipment.map(item => item.name ?? null),
     emblemIconUrls: emblems.map(item => `${ASSETS}emblems/${item.emblem_id}_${({ Iridescent: 4, Gold: 3, Silver: 2, Bronze: 1 })[item.emblem_quality] ?? 0}.png`),

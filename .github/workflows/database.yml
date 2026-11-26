@@ -36,6 +36,7 @@ jobs:
             -f supabase/migrations/202611230001_community_profiles_and_consultants.sql \
             -f supabase/migrations/202611240001_admin_mmr.sql \
             -f supabase/migrations/202611260001_terrifier_perk_names.sql \
+            -f supabase/migrations/202611260002_mmr_survivor_outcomes.sql \
             -f tests/database/accounts.sql \
             -f tests/database/administrators.sql \
             -f tests/database/community.sql \

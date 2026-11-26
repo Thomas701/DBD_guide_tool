@@ -53,10 +53,19 @@ export function statisticsHandler({ url, serviceKey, request = fetch }) {
       } else if (["connect", "sync"].includes(body.action)) {
         if (/^[a-f0-9]{64}$/.test(body.collector_token ?? "")) owner = await rpc("remote_statistics_owner", { collector_token: body.collector_token });
         else if (body.action === "sync" && /^Bearer \S+$/.test(req.headers.get("authorization") ?? "")) {
-          const verified = await request(`${url}/auth/v1/user`, { headers: { apikey: serviceKey, Authorization: req.headers.get("authorization") }, signal: AbortSignal.timeout(10_000) });
-          if (verified.ok) owner = (await verified.json()).id;
+          const userHeaders = { ...headers, Authorization: req.headers.get("authorization") };
+          const verified = await request(`${url}/auth/v1/user`, { headers: userHeaders, signal: AbortSignal.timeout(10_000) });
+          if (verified.ok) {
+            const staff = await request(`${url}/rest/v1/rpc/is_admin`, {
+              method: "POST", headers: userHeaders, body: "{}", signal: AbortSignal.timeout(10_000),
+            });
+            if (!staff.ok) throw new Error("Statistics role lookup failed");
+            if (await staff.json() !== true) return reply({ ok: false, error: "Synchronisation manuelle réservée au personnel." }, 403);
+            owner = (await verified.json()).id;
+          }
         }
         if (!owner) return reply({ ok: false, error: "Connexion au compte requise." }, 401);
+        if (body.action === "sync" && /^[a-f0-9]{64}$/.test(body.collector_token ?? "")) return reply({ ok: true, processed: 0 });
       } else return reply({ ok: false }, 400);
       if (body.action === "connect") {
         if (!validBehaviourSession(body.session) || typeof body.timeZone !== "string") return reply({ ok: false, error: "Session Behaviour invalide." }, 400);

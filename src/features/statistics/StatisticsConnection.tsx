@@ -129,9 +129,10 @@ export function StatisticsConnection() {
   }
 
   return <section className="statistics-connection" aria-label="Connexion Behaviour">
-    <h2>Vos statistiques Behaviour</h2>
-    <p>Associez votre compte une fois. Vos statistiques seront ensuite synchronisées toutes les cinq minutes, même navigateur fermé et PC éteint.</p>
-    {linked && !pending ? <p role="status">✓ Compte Behaviour associé.</p> : <ol className="statistics-setup-steps">
+    {linked ? <div className="statistics-connection-linked">
+      <p role="status">✓ Compte Behaviour associé.</p>
+      <button className="secondary-button statistics-disconnect" type="button" disabled={busy} onClick={() => void disconnect()}>Désactiver la synchronisation</button>
+    </div> : <ol className="statistics-setup-steps">
       <li className={installed ? "complete" : ""}>{installed ? "✓ Extension installée" : "Installer l’extension"}</li>
       <li>Se connecter à Behaviour</li>
       <li>Synchronisation automatique</li>
@@ -143,7 +144,6 @@ export function StatisticsConnection() {
       {!installed && pending && <a href={storeUrl ?? `${import.meta.env.BASE_URL}extension-installation.html`} target="_blank" rel="noreferrer">Ouvrir l’installation</a>}
       {!installed && !linked && <p>Une confirmation d’installation sera demandée par {browser.name}. Le site reprend ensuite automatiquement.</p>}
     </>)}
-    {linked && <button className="secondary-button" type="button" disabled={busy} onClick={() => void disconnect()}>Désactiver la synchronisation</button>}
     {pending && !linked && <button className="secondary-button" type="button" disabled={busy} onClick={() => void disconnect()}>Annuler l’association</button>}
     {pending && <p>Gardez le navigateur ouvert jusqu’à la confirmation de l’association.</p>}
     {notice && <p role="status" aria-live="polite">{notice}</p>}

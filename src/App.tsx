@@ -76,8 +76,8 @@ interface TerrorRadiusPlayback {
   volume: number;
 }
 
-export default function App({ isAdmin = !isHostedApp, canManageAccounts = !isHostedApp, readOnly = false, onInspect, sharedPerks: initialShared = { descriptions: {}, names: {} } }: {
-  isAdmin?: boolean; canManageAccounts?: boolean; readOnly?: boolean; onInspect?: ((user: AdministrationUser) => void) | undefined; sharedPerks?: SharedPerks;
+export default function App({ isAdmin = !isHostedApp, canManageAccounts = !isHostedApp, readOnly = false, nickname, onInspect, sharedPerks: initialShared = { descriptions: {}, names: {} } }: {
+  isAdmin?: boolean; canManageAccounts?: boolean; readOnly?: boolean; nickname?: string | undefined; onInspect?: ((user: AdministrationUser) => void) | undefined; sharedPerks?: SharedPerks;
 }) {
   const [publicPlayer, setPublicPlayer] = useState<CommunityPlayer | null>(null);
   const [nextStatisticsSyncAt, setNextStatisticsSyncAt] = useState<number | null>(null);
@@ -882,7 +882,7 @@ export default function App({ isAdmin = !isHostedApp, canManageAccounts = !isHos
 
   return (
     <div className="app-shell">
-      {!readOnly && <StatisticsAutoSync serverUrl={currentAssistantServerUrl()} onSchedule={setNextStatisticsSyncAt} />}
+      {!isHostedApp && !readOnly && <StatisticsAutoSync serverUrl={currentAssistantServerUrl()} onSchedule={setNextStatisticsSyncAt} />}
       <Topbar
         isAdmin={isAdmin}
         activeView={activeView}
@@ -906,7 +906,7 @@ export default function App({ isAdmin = !isHostedApp, canManageAccounts = !isHos
 
       <BlindTestView active={activeView === "blindtest"} killers={killers} soundEnabled={soundEnabled} onSessionStart={startBlindTestSession} onSessionStop={stopBlindTestSession} />
       {publicPlayer && <PlayerStatisticsDialog key={publicPlayer.user_id} player={publicPlayer} onClose={() => setPublicPlayer(null)} onInspect={setPublicPlayer} />}
-      {activeView === "blindtest" ? null : activeView === "administration" && isAdmin ? <AdministrationView onInspect={onInspect} canManageAccounts={canManageAccounts} /> : activeView === "constants" ? <ConstantsView scrollTop={catalogScrollPositionsRef.current.constants} onScroll={(scrollTop) => rememberCatalogScroll("constants", scrollTop)} /> : activeView === "tiers" ? <TierListView killers={effectiveKillers} survivors={survivors} perkTierList={perkTierList} descriptionOverrides={descriptionOverrides} placements={tierOverrides} readOnly={readOnly} onMove={moveTier} onReset={resetTiers} /> : activeView === "leaderboard" ? <LeaderboardView onInspect={setPublicPlayer} /> : activeView === "statistics" ? <StatisticsView serverUrl={currentAssistantServerUrl()} nextSyncAt={nextStatisticsSyncAt} canEdit={isAdmin} readOnly={readOnly} onInspectPlayer={setPublicPlayer} /> : <main className={`analyzer-workspace view-${activeView}`} ref={workspaceRef} style={workspaceStyle}>
+      {activeView === "blindtest" ? null : activeView === "administration" && isAdmin ? <AdministrationView onInspect={onInspect} canManageAccounts={canManageAccounts} /> : activeView === "constants" ? <ConstantsView scrollTop={catalogScrollPositionsRef.current.constants} onScroll={(scrollTop) => rememberCatalogScroll("constants", scrollTop)} /> : activeView === "tiers" ? <TierListView killers={effectiveKillers} survivors={survivors} perkTierList={perkTierList} descriptionOverrides={descriptionOverrides} placements={tierOverrides} readOnly={readOnly} onMove={moveTier} onReset={resetTiers} /> : activeView === "leaderboard" ? <LeaderboardView onInspect={setPublicPlayer} /> : activeView === "statistics" ? <StatisticsView serverUrl={currentAssistantServerUrl()} nextSyncAt={nextStatisticsSyncAt} canEdit={isAdmin} readOnly={readOnly} nickname={nickname} onInspectPlayer={setPublicPlayer} /> : <main className={`analyzer-workspace view-${activeView}`} ref={workspaceRef} style={workspaceStyle}>
         <aside className={`analyzer-sidebar left-sidebar${activeView === "perks" ? " perks-sidebar" : ""}`}>
           <section className={`analyzer-panel selected-loadout-panel${activeView === "perks" ? " perks-loadout-panel" : ""}`} aria-label="Personnage et perks sélectionnés">
             <SelectedKillerCard killer={selectedKiller} side={side} readOnly={readOnly} onChange={() => showView("killers")} onRemove={removeKiller} terrorPlayback={terrorRadiusPlayback} onTerrorRadiusToggle={() => selectedKiller && void toggleTerrorRadius(selectedKiller)} onTerrorRadiusSeek={seekTerrorRadius} onTerrorRadiusVolumeChange={setTerrorRadiusVolume} onShowInfo={setKillerInfo} />

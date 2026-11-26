@@ -18,9 +18,12 @@
 .account-sync-error button { margin: .25rem .75rem .25rem 0; }
 .account-card :focus-visible, .account-toolbar :focus-visible { outline: 2px solid #e4b25b; outline-offset: 3px; }
 .statistics-connection { margin: 1rem 0; padding: 1.25rem; border: 1px solid #343840; border-radius: .6rem; background: #15171b; }
-.statistics-connection h2 { margin: 0 0 .75rem; font-size: 1.2rem; }
 .statistics-connection p { line-height: 1.6; }
 .statistics-connection button, .statistics-connection a { margin: .25rem .75rem .25rem 0; }
+.statistics-connection-linked { display: flex; flex-wrap: wrap; gap: .75rem 1.25rem; align-items: center; }
+.statistics-connection-linked p { margin: 0; color: #8bd5a0; font-weight: 700; }
+.statistics-connection .statistics-disconnect { margin: 0; border-color: #a83c36; background: #7b2825; color: #fff; }
+.statistics-connection .statistics-disconnect:hover:not(:disabled) { background: #9c342e; }
 .statistics-setup-steps { display: flex; flex-wrap: wrap; gap: .75rem 2.5rem; padding-left: 1.25rem; margin: 1.25rem 0; color: #c1c5ce; }
 .statistics-setup-steps .complete { color: #8bd5a0; }
 .statistics-connection details { margin-top: 1rem; color: #c1c5ce; }

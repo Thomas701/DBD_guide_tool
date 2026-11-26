@@ -16,6 +16,7 @@ const workspaces = new Map();
 const match = (await mapBehaviourMatches(behaviourHistory))[0];
 const killerMatch = { ...match, id: "2".repeat(40), role: "killer", characterName: "The Trapper", participants: [
   { name: "Jake Park", role: "survivor", score: 10000, resultLabel: "Escaped", imageUrl: null },
+  { name: "Kate Denson", role: "survivor", score: 8000, resultLabel: null, imageUrl: null },
   ...match.participants.filter(player => player.role === "survivor"),
 ] };
 const profiles = new Map(Object.values(users).map(user => [user.id, `Joueur ${user.id.slice(0, 8)}`]));
@@ -136,7 +137,9 @@ try {
       workspaces.set(userId, { data: body.workspace_data, revision: current.revision + 1 });
       return reply(current.revision + 1);
     }
-    if (url.pathname === "/rest/v1/rpc/statistics_collector_status") return reply({ connected: false, state: "waiting_for_login", message: "Connectez l’extension.", lastSeenAt: null });
+    if (url.pathname === "/rest/v1/rpc/statistics_collector_status") return reply(userId === users.bob.id
+      ? { remote: true, state: "success", lastSeenAt: updatedAt }
+      : { remote: false, state: "waiting_for_login", lastSeenAt: null });
     if (url.pathname === "/rest/v1/player_statistics" || url.pathname === "/rest/v1/player_matches") {
       assert.ok(url.searchParams.get("user_id") === `eq.${userId}` || userId === users.alice.id);
       if (url.pathname.endsWith("player_statistics")) return reply([{ overview: null, updated_at: updatedAt, imported_count: 2, fetched_count: 2, mmr_adjustments: mmrAdjustments.get(url.searchParams.get("user_id").slice(3)) }]);
@@ -175,8 +178,11 @@ try {
     assert.equal(await inspector.getByRole("button", { name: "Modifier la description", exact: true }).count(), admin ? 1 : 0);
     assert.equal(await inspector.getByRole("button", { name: "Modifier les catégories", exact: true }).count(), admin ? 1 : 0);
     await nav.getByRole("button", { name: "Statistique", exact: true }).click();
+    await page.locator(".statistics-header h1").waitFor();
+    assert.equal(await page.getByRole("button", { name: "Synchroniser", exact: true }).count(), admin ? 1 : 0);
     await page.getByRole("tab", { name: /^Historique/ }).click();
     await page.locator(".statistics-match-card").first().waitFor();
+    await page.locator(".statistics-participant-status").getByText("Résultat inconnu", { exact: true }).waitFor();
     assert.equal(await page.getByTitle("Modifier la partie", { exact: true }).count(), admin ? 2 : 0);
     assert.equal(await page.getByTitle("Supprimer la partie", { exact: true }).count(), admin ? 2 : 0);
     if (!admin && mmrAdjustments.has(user.id)) {
@@ -260,6 +266,11 @@ try {
   assert.equal(await page.locator('.tier-list-row[data-tier="unranked"] .tier-list-killer').count(), 0, "Bob must keep his own tier list");
 
   await nav.getByRole("button", { name: "Statistique", exact: true }).click();
+  await page.locator(".statistics-player-banner").getByText("Bob Behaviour", { exact: true }).waitFor();
+  await page.locator(".statistics-player-banner img").waitFor();
+  await page.locator(".statistics-connection-linked").getByRole("button", { name: "Désactiver la synchronisation", exact: true }).waitFor();
+  assert.equal(await page.locator(".statistics-header .eyebrow, .statistics-chip").count(), 0);
+  assert.equal(await page.locator(".statistics-tabs-row .impact-tabs").evaluate(tabs => getComputedStyle(tabs).borderTopWidth), "0px");
   const overview = page.locator(".sd-filter-top");
   await overview.getByRole("button", { name: "Tueur", exact: true }).click();
   assert.deepEqual(await page.getByLabel("Mon personnage", { exact: true }).locator("option").allTextContents(), ["Tous les personnages", "The Trapper"]);

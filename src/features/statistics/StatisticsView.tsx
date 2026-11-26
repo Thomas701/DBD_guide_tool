@@ -17,7 +17,7 @@ import {
 } from "../../services/statistics.js";
 import { calculateMmrHistory, INITIAL_MMR, isMvpMatch, type MmrEvent, type MmrMode } from "../../services/statistics-mmr.js";
 import { StatisticsOverview } from "./StatisticsOverview.js";
-import { statisticsImage } from "./StatisticsRankings.js";
+import { statisticsCharacterPortrait, statisticsImage } from "./StatisticsRankings.js";
 import { communityRpc, type CommunityPlayer } from "../../services/community.js";
 import { invalidateLeaderboard } from "../../services/leaderboard.js";
 import { invalidatePublicStatistics } from "../../services/public-statistics.js";
@@ -29,11 +29,13 @@ type RoleFilter = "all" | "killer" | "survivor";
 type MmrRange = "7d" | "30d" | "90d" | "all";
 
 const HISTORY_PAGE_SIZE = 30;
+const EMPTY_HISTORY: readonly MatchHistoryEntry[] = [];
 const STATUS_REFRESH_INTERVAL_MS = 5_000;
 const ESCAPED_ICON_URL = "https://assets.live.bhvraccount.com/stats/VE_Escaped.png";
 const SACRIFICED_ICON_URL = "https://assets.live.bhvraccount.com/stats/VE_Sacrificed.png";
 
-export function StatisticsView({ serverUrl, nextSyncAt, canEdit, readOnly = false, publicSnapshot, mmrTargetUser, onInspectPlayer }: { serverUrl: string; nextSyncAt: number | null; canEdit: boolean; readOnly?: boolean; publicSnapshot?: StatisticsSnapshot; mmrTargetUser?: string | undefined; onInspectPlayer?: ((player: CommunityPlayer) => void) | undefined }) {
+export function StatisticsView({ serverUrl, nextSyncAt, canEdit, readOnly = false, nickname, publicSnapshot, mmrTargetUser, onInspectPlayer }: { serverUrl: string; nextSyncAt: number | null; canEdit: boolean; readOnly?: boolean; nickname?: string | undefined; publicSnapshot?: StatisticsSnapshot; mmrTargetUser?: string | undefined; onInspectPlayer?: ((player: CommunityPlayer) => void) | undefined }) {
+  const canSync = canEdit && !readOnly;
   const [snapshot, setSnapshot] = useState<StatisticsSnapshot | null>(publicSnapshot ?? null);
   const [status, setStatus] = useState<StatisticsStatus | null>(null);
   const [tab, setTab] = useState<StatisticsTab>(mmrTargetUser ? "mmr" : "overview");
@@ -57,7 +59,7 @@ export function StatisticsView({ serverUrl, nextSyncAt, canEdit, readOnly = fals
   snapshotUpdatedAt.current = snapshot?.updatedAt ?? null;
 
   async function refresh(): Promise<void> {
-    if (readOnly) return;
+    if (!canSync) return;
     setLoading(true);
     setError(null);
     await loadStatus().catch(() => undefined);
@@ -105,7 +107,7 @@ export function StatisticsView({ serverUrl, nextSyncAt, canEdit, readOnly = fals
         // Le statut distant reste optionnel à ce stade.
       }
 
-      if (!hasSnapshotContent(cached)) await refresh();
+      if (!isHostedApp && !hasSnapshotContent(cached)) await refresh();
     })();
 
     return () => {
@@ -113,7 +115,7 @@ export function StatisticsView({ serverUrl, nextSyncAt, canEdit, readOnly = fals
       stopPolling();
       stopAutoRefresh();
     };
-  }, [serverUrl, readOnly, publicSnapshot]);
+  }, [serverUrl, canSync, publicSnapshot]);
 
   useEffect(() => {
     if (publicSnapshot) return;
@@ -129,7 +131,21 @@ export function StatisticsView({ serverUrl, nextSyncAt, canEdit, readOnly = fals
   }, [queueFilter, roleFilter, mapFilter, killerFilters, survivorFilters]);
 
   const statistics = snapshot?.statistics ?? null;
-  const matchHistory = snapshot?.matchHistory ?? [];
+  const matchHistory = snapshot?.matchHistory ?? EMPTY_HISTORY;
+  const playerName = nickname || matchHistory.find(match => match.communityPlayer)?.communityPlayer?.nickname;
+  const favoritePortrait = useMemo(() => {
+    const characters = new Map<string, { name: string; image: string | null; count: number }>();
+    for (const match of matchHistory) {
+      if (match.role === "unknown") continue;
+      const key = `${match.role}:${match.characterName.toLowerCase()}`;
+      const character = characters.get(key) ?? { name: match.characterName, image: null, count: 0 };
+      character.count++;
+      character.image ??= match.characterImageUrl;
+      characters.set(key, character);
+    }
+    const favorite = [...characters.values()].sort((a, b) => b.count - a.count)[0];
+    return favorite ? statisticsCharacterPortrait(favorite.name, favorite.image) : null;
+  }, [matchHistory]);
   const mmrAdjustments = snapshot?.mmrAdjustments;
   const mmrEvents = useMemo(() => calculateMmrHistory(matchHistory, mmrAdjustments), [matchHistory, mmrAdjustments]);
   const mmrByMatchId = useMemo(() => new Map(mmrEvents.map((event) => [event.matchId, event])), [mmrEvents]);
@@ -161,14 +177,14 @@ export function StatisticsView({ serverUrl, nextSyncAt, canEdit, readOnly = fals
 
   return <main className="statistics-page">
     <header className="statistics-header">
-      <div>
-        <span className="eyebrow">Dead by Daylight</span>
-        <h1>Statistique</h1>
-        <p>{publicSnapshot ? "Statistiques de ce joueur, calculées à partir de son historique." : <>Statistiques récupérées depuis stats.deadbydaylight.com, {isHostedApp ? "enregistrées dans votre compte" : "archivées localement"} et mises à jour automatiquement.</>}</p>
-      </div>
-      {!readOnly && <div className="statistics-sync-actions">
-        <StatisticsSyncCountdown nextSyncAt={nextSyncAt} syncing={syncing} />
-        <button className="secondary-button" type="button" disabled={syncing} onClick={() => void refresh()}>{syncing ? "Synchronisation…" : "Synchroniser"}</button>
+      <h1>Statistique</h1>
+      {playerName && <div className="statistics-player-banner">
+        {favoritePortrait && <img src={favoritePortrait} alt="" />}
+        <strong>{playerName}</strong>
+      </div>}
+      {(canSync || (!isHostedApp && !readOnly)) && <div className="statistics-sync-actions">
+        {!isHostedApp && <StatisticsSyncCountdown nextSyncAt={nextSyncAt} syncing={syncing} />}
+        {canSync && <button className="secondary-button" type="button" disabled={syncing} onClick={() => void refresh()}>{syncing ? "Synchronisation…" : "Synchroniser"}</button>}
       </div>}
     </header>
 
@@ -179,11 +195,6 @@ export function StatisticsView({ serverUrl, nextSyncAt, canEdit, readOnly = fals
           <button type="button" role="tab" aria-selected={tab === "overview"} onClick={() => setTab("overview")}>Vue d’ensemble</button>
           <button type="button" role="tab" aria-selected={tab === "mmr"} onClick={() => setTab("mmr")}>MMR</button>
           <button type="button" role="tab" aria-selected={tab === "history"} onClick={() => setTab("history")}>Historique {matchHistory.length > 0 ? `(${matchHistory.length})` : ""}</button>
-        </div>
-        <div className="statistics-summary" aria-label="Résumé de synchronisation">
-          {snapshot?.updatedAt && <span className="statistics-chip">{isHostedApp ? "Compte" : "Base locale"} mis à jour le {formatTimestamp(snapshot.updatedAt)}</span>}
-          {matchHistory.length > 0 && <span className="statistics-chip">{matchHistory.length} partie{matchHistory.length > 1 ? "s" : ""} enregistrée{matchHistory.length > 1 ? "s" : ""}</span>}
-          {snapshot && snapshot.fetchedCount > 0 && <span className={`statistics-chip${snapshot.importedCount > 0 ? " accent" : ""}`}>{snapshot.importedCount > 0 ? `+${snapshot.importedCount} nouvelle${snapshot.importedCount > 1 ? "s" : ""} partie${snapshot.importedCount > 1 ? "s" : ""}` : "Aucune nouvelle partie"}</span>}
         </div>
       </div>
 
@@ -216,8 +227,6 @@ export function StatisticsView({ serverUrl, nextSyncAt, canEdit, readOnly = fals
       {tab === "history" && <HistoryPanel
             matches={pagedMatches}
             mmrByMatchId={mmrByMatchId}
-            totalMatches={filteredMatches.length}
-            allMatchCount={matchHistory.length}
             syncing={syncing}
             statusMessage={status?.message ?? null}
             queueFilter={queueFilter}
@@ -337,8 +346,6 @@ function StatisticsSyncCountdown({ nextSyncAt, syncing }: { nextSyncAt: number |
 function HistoryPanel({
   matches,
   mmrByMatchId,
-  totalMatches,
-  allMatchCount,
   syncing,
   statusMessage,
   queueFilter,
@@ -364,8 +371,6 @@ function HistoryPanel({
 }: {
   matches: readonly MatchHistoryEntry[];
   mmrByMatchId: ReadonlyMap<string, MmrEvent>;
-  totalMatches: number;
-  allMatchCount: number;
   syncing: boolean;
   statusMessage: string | null;
   queueFilter: QueueFilter;
@@ -418,11 +423,6 @@ function HistoryPanel({
         </label>
         <CharacterFilter label="Tueur présent" options={killers} selected={killerFilters} onChange={onKillerFiltersChange} />
         <CharacterFilter label="Survivant présent" options={survivors} selected={survivorFilters} onChange={onSurvivorFiltersChange} />
-      </div>
-      <div className="statistics-history-summary">
-        <span className="statistics-chip">{totalMatches} résultat{totalMatches > 1 ? "s" : ""} filtré{totalMatches > 1 ? "s" : ""}</span>
-        <span className="statistics-chip">Page {page} / {pageCount}</span>
-        {allMatchCount !== totalMatches && <span className="statistics-chip">{allMatchCount} au total</span>}
       </div>
     </div>
 
@@ -578,7 +578,7 @@ function MatchLoadout({ match, loadout }: { match: MatchHistoryEntry; loadout: M
     {loadout.item && <LoadoutGroup title="Objet" icons={[loadout.item]} />}
     {loadout.addons.length > 0 && <LoadoutGroup title="Accessoires" icons={loadout.addons} />}
     {loadout.offering && <LoadoutGroup title="Offrande" icons={[loadout.offering]} />}
-    {loadout.roles.length === 0 && loadout.perks.length === 0 && !hasEquipment && <span className="statistics-chip">Aucun équipement détecté</span>}
+    {loadout.roles.length === 0 && loadout.perks.length === 0 && !hasEquipment && <span>Aucun équipement détecté</span>}
   </div>;
 }
 
@@ -789,7 +789,7 @@ function LoadoutGroup({ title, icons, perk = false }: { title: string; icons: re
 }
 
 function ParticipantCard({ participant, onClick }: { participant: MatchHistoryParticipant; onClick: () => void }) {
-  const statusLabel = participant.resultLabel ?? (participant.role === "survivor" ? "Sacrificed" : "-");
+  const statusLabel = participant.resultLabel ?? (participant.role === "survivor" ? "Résultat inconnu" : "—");
   const statusIconUrl = participant.role === "survivor" ? survivorOutcomeIconUrl(statusLabel) : null;
 
   return <button type="button" className="statistics-participant-card" onClick={onClick} aria-label={`Voir l’équipement de ${participant.name ?? "ce participant"}`} data-tone={participantTone(statusLabel)} title={participant.name ?? undefined}>
@@ -900,7 +900,7 @@ function hasSnapshotContent(snapshot: StatisticsSnapshot | null): boolean {
 
 function participantTone(resultLabel: string | null): "escaped" | "dead" | "neutral" {
   if (!resultLabel) return "neutral";
-  return /escaped/i.test(resultLabel) ? "escaped" : /dead|killed|sacrificed|mori|disconnected/i.test(resultLabel) ? "dead" : "neutral";
+  return /escaped/i.test(resultLabel) ? "escaped" : /dead|killed|sacrificed|mori|disconnected|surrendered/i.test(resultLabel) ? "dead" : "neutral";
 }
 
 function roleLabel(role: MatchHistoryEntry["role"]): string {
@@ -909,7 +909,7 @@ function roleLabel(role: MatchHistoryEntry["role"]): string {
 
 function survivorOutcomeIconUrl(label: string | null): string | null {
   if (!label) return null;
-  return /escaped/i.test(label) ? ESCAPED_ICON_URL : /dead|killed|sacrificed|mori|disconnected/i.test(label) ? SACRIFICED_ICON_URL : null;
+  return /escaped/i.test(label) ? ESCAPED_ICON_URL : /dead|killed|sacrificed|mori/i.test(label) ? SACRIFICED_ICON_URL : null;
 }
 
 function isRoleIconUrl(url: string): boolean {

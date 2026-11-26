@@ -10,10 +10,14 @@ const localImages = import.meta.glob("../../../DBDImages-main/DBDImages-main/ima
 const imagesByName = new Map(Object.entries(localImages).map(([path, url]) => [normalize(path.split("/").at(-1)!.replace(/\.[^.]+$/, "")), url]));
 const perkFor = (label: string, url: string | null) => perkNames.get(normalize(label)) ?? perkNames.get(normalize(url?.split("/").at(-1)?.replace(/\.[^.]+$/, "") ?? ""));
 
+export function statisticsCharacterPortrait(label: string, url: string | null): string | null {
+  const character = characterNames.get(normalize(label));
+  return (character && killerPortraitUrl(character)) || url;
+}
+
 export function statisticsImage(url: string | null, label: string): string | null {
   if (/\/characters\//i.test(url ?? "")) {
-    const character = characterNames.get(normalize(label));
-    if (character) return killerPortraitUrl(character) ?? url;
+    return statisticsCharacterPortrait(label, url);
   }
   if (/\/perks\//i.test(url ?? "")) {
     const perk = perkFor(label, url);

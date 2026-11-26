@@ -10,6 +10,16 @@ import { matchHistoryIdentity } from "../shared/match-history-identity.mjs";
 import { buildMatchHistoryEntryId } from "./match-history-id.mjs";
 import { readBehaviourIdentity } from "../extension/behaviour-session.mjs";
 import { collectBehaviourStatistics, mapBehaviourMatches, mapBehaviourOverview, readBehaviourNickname, behaviourSharedMatchId } from "../extension/behaviour-api.mjs";
+
+test("lit les identifiants de résultat Behaviour même sans libellé", async () => {
+  const raw = structuredClone(behaviourHistory[0]);
+  raw.playerStat.playerStatus = { id: "VE_SurrenderLoss", image: { path: "stats/VE_SurrenderDraw.png" } };
+  raw.opponentStat[1].playerStatus = { id: "VE_ManuallyLeftMatch" };
+  raw.opponentStat.push({ ...raw.opponentStat[1], playerStatus: { id: "VE_Unrecognized" } });
+  const [match] = await mapBehaviourMatches([raw]);
+  assert.equal(match.resultLabel, "Surrendered");
+  assert.deepEqual(match.participants.filter(player => player.role === "survivor").map(player => player.resultLabel), ["Disconnected", null]);
+});
 import { behaviourHistory, behaviourOverview, behaviourProfile, behaviourProviders, behaviourSession, behaviourToken, behaviourPlayer } from "../tests/fixtures/behaviour-api.mjs";
 import { STATISTICS_EXTENSION_ID, statisticsBrowser, statisticsBrowsers, statisticsStoreUrl } from "../dist/src/services/statistics-extension.js";
 

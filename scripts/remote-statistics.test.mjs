@@ -46,15 +46,19 @@ test("aucun utilisateur ne peut lancer un autre compte ni usurper le cron", asyn
   const handler = statisticsHandler({ url, serviceKey: "server-private-key", request: async (target, init) => {
     if (target.endsWith("/auth/v1/user")) return Response.json({ id: owner });
     const body = JSON.parse(init.body);
+    if (target.endsWith("/rpc/is_admin")) return Response.json(init.headers.Authorization === "Bearer staff-jwt");
     if (target.endsWith("authorize_statistics_cron")) return Response.json(false);
     if (target.endsWith("claim_remote_statistics")) { targets.push(body.target_user); return Response.json([]); }
-    if (target.endsWith("remote_statistics_owner")) return Response.json(null);
+    if (target.endsWith("remote_statistics_owner")) return Response.json(body.collector_token === collector ? owner : null);
     throw new Error("Unexpected request");
   } });
   assert.equal((await handler(req({ action: "cron" }, { "x-dbd-cron-token": "a".repeat(64) }))).status,401);
-  assert.equal((await handler(req({ action: "sync", userId: other }, { Authorization: "Bearer valid-user-jwt" }))).status,200);
+  assert.equal((await handler(req({ action: "sync" }, { Authorization: "Bearer player-jwt" }))).status,403);
+  assert.deepEqual(await (await handler(req({ action: "sync", collector_token: collector }))).json(), { ok: true, processed: 0 });
+  assert.deepEqual(targets,[]);
+  assert.equal((await handler(req({ action: "sync", userId: other }, { Authorization: "Bearer staff-jwt" }))).status,200);
   assert.deepEqual(targets,[owner]);
-  assert.equal((await handler(req({ action: "connect", collector_token: collector, session: behaviourSession(), timeZone: "Europe/Paris" }))).status,401);
+  assert.equal((await handler(req({ action: "connect", collector_token: "d".repeat(64), session: behaviourSession(), timeZone: "Europe/Paris" }))).status,401);
   assert.equal((await handler(req({ action: "sync" }))).status,401);
   assert.equal((await handler(req(null))).status,400);
 });

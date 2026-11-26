@@ -18,7 +18,8 @@ insert into public.player_matches(user_id, match_id, entry)
     'participants', '[{"role":"survivor","score":10000},{"role":"survivor","score":15000},{"role":"survivor","score":25000}]'::jsonb)
   from auth.users;
 insert into public.player_matches(user_id, match_id, entry) values
-  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'killer-win', '{"role":"killer","characterName":"The Trapper","participants":[{"role":"survivor","resultLabel":"Sacrificed"},{"role":"survivor","resultLabel":"Killed"},{"role":"survivor","resultLabel":"Disconnected"},{"role":"survivor","resultLabel":"Escaped"}]}'),
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'killer-win', '{"role":"killer","characterName":"The Trapper","participants":[{"role":"survivor","resultLabel":"Sacrificed"},{"role":"survivor","resultLabel":"Surrendered"},{"role":"survivor","resultLabel":"Disconnected"},{"role":"survivor","resultLabel":"Escaped"}]}'),
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'killer-incomplete', '{"role":"killer","characterName":"The Trapper","participants":[{"role":"survivor","resultLabel":"Sacrificed"},{"role":"survivor","resultLabel":null},{"role":"survivor","resultLabel":null},{"role":"survivor","resultLabel":"Escaped"}]}'),
   ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'killer-draw', '{"role":"killer","characterName":"The Trapper","participants":[{"role":"survivor","resultLabel":"Sacrificed"},{"role":"survivor","resultLabel":"Killed"},{"role":"survivor","resultLabel":"Escaped"},{"role":"survivor","resultLabel":"Escaped"}]}'),
   ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'killer-loss', '{"role":"killer","characterName":"The Nurse","participants":[{"role":"survivor","resultLabel":"Escaped"}]}'),
   ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', '2v8', '{"role":"survivor","queueLabel":"2v8","resultLabel":"Escaped","score":null,"participants":[]}'),

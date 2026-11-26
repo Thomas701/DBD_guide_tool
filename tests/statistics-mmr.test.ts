@@ -27,6 +27,17 @@ test("identifie les MVP survivant et tueur", () => {
   assert.equal(isMvpMatch(match("killer-not-mvp", "2026-01-01T00:00:00.000Z", "killer", "The Nurse", [dead(), dead(), dead(), survivor(20)])), false);
 });
 
+test("le MMR tueur attend les résultats manquants quand ils peuvent changer le verdict", () => {
+  const unknown = { ...survivor(9000), resultLabel: null };
+  const nurse = match("nurse", "2026-11-26T15:30:00.000Z", "killer", "The Nurse", [dead(), dead(), unknown, unknown]);
+  const corrected = { ...nurse, participants: [
+    dead(), dead(), { ...unknown, resultLabel: "Surrendered" }, { ...unknown, resultLabel: "Disconnected" },
+  ] };
+  assert.equal(calculateMmrHistory([nurse])[0]?.reason, "Résultats survivants incomplets");
+  assert.equal(calculateMmrHistory([{ ...nurse, participants: [dead(), unknown, unknown, survivor(100)] }])[0]?.delta, 0);
+  assert.equal(calculateMmrHistory([corrected])[0]?.delta, 9);
+});
+
 test("le MMR réglé après un match recale le passé et les nouvelles parties prolongent la série", () => {
   const win = match("a", "2026-01-01T00:00:00.000Z", "killer", "The Nurse", [dead(), dead(), dead()]);
   const anchor = { ...win, id: "b" };

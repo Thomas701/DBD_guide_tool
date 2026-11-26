@@ -162,7 +162,7 @@ function zipParticipants(imageUrls, values) {
     score: parseDisplayNumber(values[index]),
     valueLabel: normalizeStringValue(values[index]),
     survivalTimeLabel: extractDurationLabel(values[index]),
-    resultLabel: defaultParticipantResultLabel(roleFromCharacterUrl(imageUrls[index]), null)
+    resultLabel: null
   }));
 }
 
@@ -221,12 +221,6 @@ function roleFromCharacterUrl(url) {
   if (/\/characters\/survivors\//i.test(url)) return "survivor";
   if (/\/characters\/killers\//i.test(url)) return "killer";
   return "unknown";
-}
-
-function defaultParticipantResultLabel(role, value) {
-  const normalized = normalizeStringValue(value);
-  if (normalized) return normalized;
-  return role === "survivor" ? "Sacrificed" : null;
 }
 
 function matchHistoryButtonsFromHtml(html) {
@@ -389,7 +383,7 @@ function extractParticipantsFromButtonHtml(buttonHtml) {
       score: parseDisplayNumber(valueLabel),
       valueLabel,
       survivalTimeLabel: survivalTimeLabel && survivalTimeLabel !== valueLabel ? survivalTimeLabel : null,
-      resultLabel: defaultParticipantResultLabel(role, statusLabel)
+      resultLabel: statusLabel
     };
   });
 }

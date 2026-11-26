@@ -64,9 +64,13 @@ export function mmrModeForMatch(match: MatchHistoryEntry): MmrMode | null {
 
 function mmrChange(match: MatchHistoryEntry): { delta: number; reason: string } {
   if (match.role === "killer") {
-    const deaths = match.participants.filter((participant) => participant.role === "survivor" && isDead(participant.resultLabel)).length;
-    const delta = deaths >= 3 ? 9 : deaths === 2 ? 0 : -9;
-    return { delta, reason: `${deaths} kill${deaths > 1 ? "s" : ""}` };
+    const survivors = match.participants.filter(participant => participant.role === "survivor");
+    const eliminations = survivors.filter(participant => countsAsElimination(participant.resultLabel)).length;
+    const escapes = survivors.filter(participant => /escaped|évasion|échapp/i.test(participant.resultLabel ?? "")).length;
+    const possibleEliminations = survivors.length - escapes;
+    const delta = eliminations >= 3 ? 9 : possibleEliminations < 2 ? -9 : 0;
+    const incomplete = eliminations < 3 && possibleEliminations >= 2 && possibleEliminations !== eliminations;
+    return { delta, reason: incomplete ? "Résultats survivants incomplets" : `${eliminations} élimination${eliminations === 1 ? "" : "s"}` };
   }
 
   const peers = match.participants.filter((participant) => participant.role === "survivor" && participant.score !== null);
@@ -81,7 +85,7 @@ function mmrChange(match: MatchHistoryEntry): { delta: number; reason: string } 
 export function isMvpMatch(match: MatchHistoryEntry): boolean {
   if (match.role === "killer") {
     const survivors = match.participants.filter((participant) => participant.role === "survivor");
-    return survivors.length >= 4 && survivors.every((participant) => isDead(participant.resultLabel));
+    return survivors.length >= 4 && survivors.every((participant) => countsAsElimination(participant.resultLabel));
   }
   if (match.role !== "survivor" || match.score === null) return false;
   const otherScores = match.participants
@@ -90,6 +94,6 @@ export function isMvpMatch(match: MatchHistoryEntry): boolean {
   return otherScores.length > 0 && otherScores.every((score) => match.score! >= score);
 }
 
-function isDead(label: string | null): boolean {
-  return Boolean(label && /dead|killed|sacrificed|mori|disconnected/i.test(label));
+function countsAsElimination(label: string | null): boolean {
+  return /dead|killed|sacrificed|mori|disconnected|surrendered/i.test(label ?? "");
 }

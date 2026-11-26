@@ -107,7 +107,7 @@ function AccountWorkspace({ client, user }: { client: SupabaseClient; user: User
   const [canManageAccounts, setCanManageAccounts] = useState(false);
   const [nickname, setNickname] = useState("");
   const [sharedPerks, setSharedPerks] = useState<SharedPerks>({ descriptions: {}, names: {} });
-  const [preview, setPreview] = useState<AdministrationUser | null>(null);
+  const [preview, setPreview] = useState<(AdministrationUser & { nickname?: string | undefined }) | null>(null);
   const [version, setVersion] = useState(0);
   const [status, setStatus] = useState("Chargement de votre compte…");
   const [error, setError] = useState<string | null>(null);
@@ -209,11 +209,15 @@ function AccountWorkspace({ client, user }: { client: SupabaseClient; user: User
     setBusy(true); setError(null);
     try {
       await flush();
-      const data = readWorkspaceData(await communityRpc("admin_user_workspace", { target_user: account.id }));
+      const [workspaceData, profile] = await Promise.all([
+        communityRpc("admin_user_workspace", { target_user: account.id }),
+        communityRpc<{ nickname: string }>("player_statistics_page", { target_user: account.id }).catch(() => null),
+      ]);
+      const data = readWorkspaceData(workspaceData);
       if (!active.current) return;
       setAccountStorage({ getItem: key => data[key] ?? null, setItem: () => {}, removeItem: () => {} });
       setViewedUserId(account.id);
-      setPreview(account);
+      setPreview({ ...account, nickname: profile?.nickname });
     } catch (cause) { setError(message(cause)); }
     finally { setBusy(false); }
   }
@@ -233,7 +237,7 @@ function AccountWorkspace({ client, user }: { client: SupabaseClient; user: User
       <button className="secondary-button" type="button" disabled={busy} onClick={() => { if (ready) void flush().catch(() => undefined); else void load(); }}>Réessayer</button>
       <button className="secondary-button" type="button" disabled={busy || (workspace.local.pending() && !exported)} onClick={() => void load(true)}>Recharger les données en ligne</button>
     </div>}
-    {ready ? <App key={preview?.id ?? version} isAdmin={!preview && isAdmin} canManageAccounts={!preview && canManageAccounts} readOnly={Boolean(preview)} sharedPerks={sharedPerks} onInspect={account => void inspect(account)} /> : !error && <AccountCard><p role="status">Chargement de vos données…</p></AccountCard>}
+    {ready ? <App key={preview?.id ?? version} isAdmin={!preview && isAdmin} canManageAccounts={!preview && canManageAccounts} readOnly={Boolean(preview)} nickname={preview ? preview.nickname : nickname} sharedPerks={sharedPerks} onInspect={account => void inspect(account)} /> : !error && <AccountCard><p role="status">Chargement de vos données…</p></AccountCard>}
   </>;
 }
 
