@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 
 import { AccountApp } from "./features/account/AccountApp.js";
 import "./styles.css";
+import "./mobile.css";
 
 const root = document.getElementById("root");
 if (!root) throw new Error("Élément #root introuvable");

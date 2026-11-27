@@ -2,6 +2,7 @@ import { useRef, useState, type DragEvent } from "react";
 import { killerPortraitUrl, perkIconUrl } from "../../app/assets.js";
 import { categoryLabels, difficultyLabels, sizeLabels } from "../../app/labels.js";
 import { RichDescription } from "../../components/RichDescription.js";
+import { ResponsiveInspector } from "../../components/ResponsiveInspector.js";
 import { PerkStatusDefinitions } from "../../components/PerkStatusDefinitions.js";
 import { PERK_TIER_REVIEW } from "../../data/perk-tiers.js";
 import type { Killer } from "../../domain/killer.js";
@@ -90,7 +91,7 @@ export function TierListView({ killers, survivors, perkTierList, descriptionOver
         </section>;
       })}
     </section>
-    {selected && <aside className="analyzer-panel tier-list-inspector" tabIndex={0} aria-label={killer ? "Détails du tueur" : "Détails de la perk"}>
+    {selected && <ResponsiveInspector label={killer ? "Détails du tueur" : "Détails de la perk"} onClose={() => setSelectedId(null)}><aside className="analyzer-panel tier-list-inspector" tabIndex={0} aria-label={killer ? "Détails du tueur" : "Détails de la perk"}>
       <header><h2>{selected.name.fr ?? selected.name.en ?? selected.id}</h2><button type="button" className="manager-icon-button" aria-label="Fermer les détails" onClick={() => setSelectedId(null)}>×</button></header>
       <img className={perk ? "tier-inspector-perk" : "tier-inspector-portrait"} src={(killer ? killerPortraitUrl(killer) : perk ? perkIconUrl(perk) : null) ?? undefined} alt="" />
       <label className="tier-list-choice">Tier<select aria-label="Tier de la sélection" value={selectedTier} disabled={readOnly} onChange={(event) => move(selected.id, event.target.value as TierPlacement)}>{PLACEMENTS.map(tier => <option value={tier} key={tier}>{tierLabel(tier)}</option>)}</select></label>
@@ -105,7 +106,7 @@ export function TierListView({ killers, survivors, perkTierList, descriptionOver
         <PerkStatusDefinitions perk={perk} descriptionHtml={descriptionOverrides[perk.id] ?? perk.nativeDescriptionHtml ?? null} />
         <h3>Évaluation</h3><p>{entry.customized ? `Votre classement : ${tierLabel(entry.tier)}. Proposition initiale : ${entry.baseTier ?? "à évaluer"}.` : `Tier proposé : ${entry.tier}.`}</p>{entry.reason && <p>{entry.reason}</p>}
       </>}
-    </aside>}
+    </aside></ResponsiveInspector>}
   </main>;
 }
 

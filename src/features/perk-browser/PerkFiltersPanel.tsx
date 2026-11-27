@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { categoryLabels } from "../../app/labels.js";
 import { perkCategoriesFor, type PerkCategory } from "../../domain/category.js";
@@ -16,6 +16,7 @@ interface PerkFiltersPanelProps {
 }
 
 export function PerkFiltersPanel({ characters, side, filters, detailsOpen, onChange, onDetailsOpenChange }: PerkFiltersPanelProps) {
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const sortedCharacters = useMemo(() => [...characters].sort((left, right) => (left.name.fr ?? left.id).localeCompare(right.name.fr ?? right.id, "fr")), [characters]);
   const characterLabel = side === "survivor" ? "Survivants" : "Tueurs";
   const update = (change: (current: PerkFilters) => PerkFilters): void => onChange(change(filters));
@@ -25,6 +26,8 @@ export function PerkFiltersPanel({ characters, side, filters, detailsOpen, onCha
   return <aside className="filter-panel sidebar-perk-filter-panel" aria-label="Filtres des perks">
     <div className="filter-title"><h3>Filtres</h3><button className="text-button" type="button" onClick={() => onChange({ ...DEFAULT_PERK_FILTERS, side, categories: [] })}>Réinitialiser</button></div>
     <label className="field"><span>Recherche</span><input type="search" value={filters.query} onChange={(event) => update((current) => ({ ...current, query: event.target.value }))} placeholder={`Perk ou ${side === "survivor" ? "survivant" : "tueur"}…`} /></label>
+    <button className="secondary-button mobile-filter-toggle" type="button" aria-expanded={advancedOpen} aria-controls="perk-advanced-filters" onClick={() => setAdvancedOpen(!advancedOpen)}>Filtres avancés{filters.categories.length + filters.characterIds.length + Number(filters.cooldown !== "any") > 0 ? ` (${filters.categories.length + filters.characterIds.length + Number(filters.cooldown !== "any")})` : ""}</button>
+    <div id="perk-advanced-filters" className={`perk-advanced-filters${advancedOpen ? " expanded" : ""}`}>
     <details className="character-filter" open={detailsOpen.characters} onToggle={(event) => onDetailsOpenChange("characters", event.currentTarget.open)}><summary>{characterLabel}{filters.characterIds.length > 0 ? ` (${filters.characterIds.length})` : ""}</summary><div className="character-options" role="group" aria-label={`${characterLabel} des perks`}>
       <label><input type="checkbox" checked={filters.characterIds.includes(null)} onChange={(event) => toggleCharacter(null, event.target.checked)} /><span>Perks générales</span></label>
       {sortedCharacters.map((character) => <label key={character.id}><input type="checkbox" checked={filters.characterIds.includes(character.id)} onChange={(event) => toggleCharacter(character.id, event.target.checked)} /><span>{character.name.fr ?? character.name.en}</span></label>)}
@@ -34,6 +37,7 @@ export function PerkFiltersPanel({ characters, side, filters, detailsOpen, onCha
     </div><span className="filter-help" tabIndex={0} aria-label="Aide sur la correspondance des catégories">?<span role="tooltip">Choisissez si une perk doit correspondre à une seule catégorie cochée ou à toutes.</span></span></div></fieldset>
     <div className="category-options" role="group" aria-label="Catégories de perks">{sortedCategories(side).map((category) => <label key={category}><input type="checkbox" checked={filters.categories.includes(category)} onChange={(event) => toggleCategory(category, event.target.checked)} /><span>{categoryLabels[category]}</span></label>)}</div></details>
     <label className="field"><span>Cooldown</span><select aria-label="Cooldown" value={filters.cooldown} onChange={(event) => update((current) => ({ ...current, cooldown: event.target.value as CooldownFilter }))}><option value="any">Tous</option><option value="with">Avec cooldown</option><option value="without">Sans cooldown</option></select></label>
+    </div>
   </aside>;
 }
 

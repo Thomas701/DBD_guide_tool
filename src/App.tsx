@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type Keyboard
 import howToPlayText from "../partie_dbd.txt?raw";
 import fixedStatisticsText from "../statistiques_fixe.txt?raw";
 import { isHostedApp } from "./app/cloud.js";
+import { ResponsiveInspector } from "./components/ResponsiveInspector.js";
 import { appStorage } from "./services/account-storage.js";
 
 import { appLogoUrl, killerPortraitUrl, killerTerrorRadiusUrl, killerThemeUrl, originalKillerThemeUrl, survivorThemeUrl, perkIconUrl } from "./app/assets.js";
@@ -379,7 +380,7 @@ export default function App({ isAdmin = !isHostedApp, canManageAccounts = !isHos
         if (!buildName) setBuildName(defaultBuildName(killer));
         setRepositoryMessage(null);
       }
-      setActiveView("killers");
+      setActiveView(window.matchMedia("(max-width: 900px)").matches ? "perks" : "killers");
       setTopbarMenu(null);
       stopTerrorRadius();
       if (side === "killer") void playKillerTheme(killer);
@@ -880,6 +881,10 @@ export default function App({ isAdmin = !isHostedApp, canManageAccounts = !isHos
     "--impact-pane": `${paneLayout.center}%`
   } as CSSProperties;
 
+  useEffect(() => {
+    if (window.matchMedia("(max-width: 900px)").matches) window.scrollTo({ top: 0, behavior: "instant" });
+  }, [activeView]);
+
   return (
     <div className="app-shell">
       {!isHostedApp && !readOnly && <StatisticsAutoSync serverUrl={currentAssistantServerUrl()} onSchedule={setNextStatisticsSyncAt} />}
@@ -913,6 +918,7 @@ export default function App({ isAdmin = !isHostedApp, canManageAccounts = !isHos
             <div className="build-editor-scroll-region">
               <BuildEditor perks={equippedPerks} selectedPerkId={selectedPerkId} readOnly={readOnly} compact={activeView === "perks"} onRemove={togglePerk} onBrowse={browsePerk} scenario={scenario} onConditionChange={setScenarioCondition} onPerkStateChange={setPerkRuntimeState} />
             </div>
+            {activeView === "perks" && <button className="secondary-button mobile-build-link" type="button" onClick={() => showView("build")}>Mon build · {equippedPerks.length}/{MAX_BUILD_PERKS} perks · Enregistrer</button>}
           </section>
           <PerkFiltersPanel characters={activeCharacters} side={side} filters={perkFilters} detailsOpen={perkFilterDetailsOpen} onChange={updatePerkFilters} onDetailsOpenChange={updatePerkFilterDetailsOpen} />
         </aside>
@@ -968,6 +974,7 @@ export default function App({ isAdmin = !isHostedApp, canManageAccounts = !isHos
 
         <aside className="analyzer-sidebar right-sidebar">
           {selectedPerk ? (
+            <ResponsiveInspector label="Détails de la perk" onClose={() => selectPerk(null)}>
             <PerkInspectorPanel
               canEdit={isAdmin && !readOnly}
               perk={selectedPerk}
@@ -990,6 +997,7 @@ export default function App({ isAdmin = !isHostedApp, canManageAccounts = !isHos
               onSaveNativeCategories={(perkId, categories) => saveNativePerkChanges(perkId, { categories })}
               onTogglePerk={togglePerk}
             />
+            </ResponsiveInspector>
           ) : (
             <section className="analyzer-panel build-manager build-summary sidebar-build-panel" aria-label="Gestion et résumé du build">
               <SavedBuilds
@@ -1192,6 +1200,13 @@ function Topbar({
   onHelp: () => void;
   onResetScenario: () => void;
 }) {
+  const navigation = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const active = navigation.current?.querySelector<HTMLElement>("[aria-current=page]");
+    if (active && window.matchMedia("(max-width: 900px)").matches) {
+      navigation.current?.scrollTo({ left: active.offsetLeft - (navigation.current.clientWidth - active.offsetWidth) / 2, behavior: "auto" });
+    }
+  }, [activeView]);
   const installButtonLabel = installState === "installed"
     ? "Application installée"
     : isInstallingApplication
@@ -1216,7 +1231,7 @@ function Topbar({
           <RoleIcon side={side} />
         </button>
       </div>
-      <nav className="main-navigation" aria-label="Navigation principale">
+      <nav className="main-navigation" aria-label="Navigation principale" ref={navigation}>
         {(["build", "killers", "perks", "tiers", "blindtest", "constants", "statistics", "leaderboard", ...(isAdmin ? ["administration"] : [])] as AppView[]).map((view) => (
           <button className={activeView === view ? "active" : ""} type="button" onClick={() => onViewChange(view)} aria-current={activeView === view ? "page" : undefined} key={view}>
             <span aria-hidden="true">{view === "build" ? "⌘" : view === "killers" ? side === "survivor" ? "◉" : "☠" : view === "perks" ? "◇" : view === "tiers" ? "♜" : view === "blindtest" ? "♪" : "≡"}</span>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { analyzeMatches, assetKey, dimensionAssets, encounterCounts, groupMatches, localDay, parisHour, ratio, summarizeMatches, validNumber, type AnalysisDimension, type AnalysisRow, type AnalysisSummary, type AnalyzedMatch } from "../../services/statistics-analysis.js";
 import type { MatchHistoryEntry } from "../../services/statistics.js";
 import { StatisticsAssets, StatisticsRankings, assetLabel } from "./StatisticsRankings.js";
@@ -16,6 +16,8 @@ const DAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 const DIMENSIONS: [AnalysisDimension, string][] = [["character", "Mes personnages"], ["map", "Cartes"], ["opponent", "Adversaires"], ["matchup", "Adversaire × carte"], ["build", "Builds complets"], ["perk", "Mes compétences"], ["pair", "Duos de compétences"], ["trio", "Trios de compétences"], ["item", "Objets et pouvoirs"], ["addon", "Accessoires"], ["addonPair", "Duos d’accessoires"], ["offering", "Offrandes"], ["class", "Classes et rôles"], ["enemyPerk", "Compétences adverses"], ["teamPerk", "Compétences des équipiers"], ["composition", "Objets de l’équipe"], ["duplicates", "Doublons dans l’équipe"], ["equipment", "Avec / sans objet"], ["disconnect", "Déconnexions"], ["weekday", "Jour de la semaine"], ["hour", "Heure de jeu"], ["session", "Position dans la session"], ["result", "Résultats détaillés"]];
 
 export function StatisticsOverview({ matches, syncing }: { matches: readonly MatchHistoryEntry[]; syncing: boolean }) {
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const filtersId = useId();
   const [range, setRange] = useState("all");
   const [role, setRole] = useState("all");
   const [queue, setQueue] = useState("all");
@@ -82,7 +84,8 @@ export function StatisticsOverview({ matches, syncing }: { matches: readonly Mat
 
   return <div className="stats-dashboard">
     <div className="sd-filter-dock" ref={filterDock}>
-      <section className="sd-filterbar" aria-label="Filtres de la vue d’ensemble">
+      <button className="secondary-button mobile-filter-toggle" type="button" aria-expanded={filtersOpen} aria-controls={filtersId} onClick={() => setFiltersOpen(!filtersOpen)}>Filtres des statistiques{active ? " · actifs" : ""}</button>
+      <section id={filtersId} className={`sd-filterbar${filtersOpen ? " expanded" : ""}`} aria-label="Filtres de la vue d’ensemble">
         <div className="sd-filter-top"><div className="sd-segments" role="group" aria-label="Camp analysé">{[["all", "Tous les camps"], ["killer", "Tueur"], ["survivor", "Survivant"]].map(([value, label]) => <button type="button" key={value} aria-pressed={role === value} onClick={() => { setRole(value!); setCharacter("all"); setOpponent("all"); setPerk("all"); }}>{label}</button>)}</div><div className="sd-range" role="group" aria-label="Période analysée">{[["7", "7 jours"], ["30", "30 jours"], ["90", "90 jours"], ["all", "Tout"]].map(([value, label]) => <button type="button" key={value} aria-pressed={range === value} onClick={() => setRange(value!)}>{label}</button>)}</div></div>
         <div className="sd-filter-bottom"><Select label="Mode" value={queue} onChange={setQueue}><option value="all">Tous les modes</option><option value="1v4">1 contre 4</option><option value="2v8">2 contre 8</option>{[...new Set(analyzed.map(m => m.entry.queueLabel).filter((q): q is string => !!q && q !== "1v4" && q !== "2v8"))].map(q => <option key={q}>{q}</option>)}</Select><Select label="Carte" value={map} onChange={setMap}><option value="all">Toutes les cartes</option>{maps.map(m => <option key={m.key} value={m.key}>{m.label}</option>)}</Select><Select label="Mon personnage" value={character} onChange={setCharacter}><option value="all">Tous les personnages</option>{characters.map(c => <option key={c.key} value={c.key}>{c.label}</option>)}</Select><Select label="Adversaire" value={opponent} onChange={setOpponent}><option value="all">Tous les adversaires</option>{opponents.map(o => <option key={o.key} value={o.key}>{o.label}</option>)}</Select><Select label="Compétence jouée" value={perk} onChange={setPerk}><option value="all">Toutes les compétences</option>{perks.map(p => <option key={p.key} value={p.key}>{p.label}</option>)}</Select><button className="sd-reset" type="button" disabled={!active} onClick={reset}>Réinitialiser</button></div>
       </section>

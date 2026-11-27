@@ -46,6 +46,8 @@ jobs:
         run: npm run check
       - name: Vérifier le parcours dans le navigateur
         run: npm run test:workspace
+      - name: Vérifier les parcours sur téléphone et la disposition PC
+        run: npm run test:mobile
       - name: Vérifier les comptes web
         run: npm run test:cloud
       - name: Vérifier les icônes et le préchargement audio
