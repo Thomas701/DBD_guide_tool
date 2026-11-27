@@ -6,7 +6,7 @@ const hourFormatter = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Paris
 const weekdayFormatter = new Intl.DateTimeFormat("fr", { weekday: "long", timeZone: "Europe/Paris" });
 
 export type Outcome = "escaped" | "dead" | "disconnected" | "unknown";
-export type AnalysisDimension = "character" | "map" | "opponent" | "matchup" | "build" | "perk" | "pair" | "trio" | "item" | "addon" | "addonPair" | "offering" | "class" | "enemyPerk" | "teamPerk" | "composition" | "duplicates" | "equipment" | "disconnect" | "weekday" | "hour" | "session" | "result";
+export type AnalysisDimension = "character" | "map" | "opponent" | "teammate" | "matchup" | "build" | "perk" | "pair" | "trio" | "item" | "addon" | "addonPair" | "offering" | "class" | "enemyPerk" | "teamPerk" | "composition" | "duplicates" | "equipment" | "disconnect" | "weekday" | "hour" | "session" | "result";
 export interface AnalysisAsset { key: string; label: string; image: string | null; assets?: readonly AnalysisAsset[] }
 export interface AnalyzedMatch {
   entry: MatchHistoryEntry;
@@ -298,6 +298,9 @@ export function dimensionAssets(m: AnalyzedMatch, dimension: AnalysisDimension):
     case "character": return [{ key: `${m.entry.role}:${m.entry.characterName}`, label: m.entry.characterName, image: m.entry.characterImageUrl }];
     case "map": return m.entry.mapName ? [{ key: m.entry.mapName, label: m.entry.mapName, image: m.entry.mapImageUrl }] : [];
     case "opponent": return m.opponents;
+    case "teammate": return m.entry.role !== "survivor" ? [] : participants(true).flatMap(({ communityPlayer: player, imageUrl }) =>
+      player && player.user_id !== m.entry.communityPlayer?.user_id
+        ? [{ key: player.user_id, label: player.nickname, image: imageUrl }] : []);
     case "matchup": return m.entry.mapName ? m.opponents.map(a => ({ ...a, key: `${a.key}|${m.entry.mapName}`, label: `${a.label} · ${m.entry.mapName}` })) : [];
     case "build": return m.build ? [m.build] : [];
     case "perk": return m.perks;

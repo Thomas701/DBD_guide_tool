@@ -14,7 +14,7 @@ const users = {
 };
 const workspaces = new Map();
 const match = (await mapBehaviourMatches(behaviourHistory))[0];
-const killerMatch = { ...match, id: "2".repeat(40), role: "killer", characterName: "The Trapper", score: 17123, participants: [
+const killerMatch = { ...match, id: "2".repeat(40), role: "killer", characterName: "The Trapper", score: 17123, mapName: "Disturbed Ward", participants: [
   { name: "Jake Park", role: "survivor", score: 10000, resultLabel: "Escaped", imageUrl: null },
   { name: "Kate Denson", role: "survivor", score: 8000, resultLabel: null, imageUrl: null },
   ...match.participants.filter(player => player.role === "survivor"),
@@ -166,6 +166,7 @@ try {
       assert.equal(await administration.getByRole("columnheader").count(), 7);
       await administration.getByRole("row").filter({ hasText: users.bob.email }).getByRole("button", { name: "Modifier le MMR" }).click();
       const mmrDialog = page.getByRole("dialog", { name: "Statistiques de Bob Behaviour" });
+      assert.equal(await mmrDialog.getByLabel("Échelle de temps").inputValue(), "all");
       await mmrDialog.getByLabel("MMR après le dernier match").fill("825");
       await mmrDialog.getByRole("button", { name: "Enregistrer le MMR" }).click();
       await mmrDialog.getByRole("status").filter({ hasText: "MMR enregistré." }).waitFor();
@@ -340,6 +341,24 @@ try {
   const results = page.locator(".sd-results-grid");
   const streaks = page.locator(".sd-streak-camps");
   const campPanels = page.locator(".sd-camp-panels");
+  const rankings = page.locator(".sd-rankings");
+  const mostPlayed = rankings.locator(".sd-ranking-panel").filter({ has: page.getByRole("heading", { name: "Cartes les plus jouées", exact: true }) });
+  const leastPlayed = rankings.locator(".sd-ranking-panel").filter({ has: page.getByRole("heading", { name: "Cartes les moins jouées", exact: true }) });
+  assert.deepEqual(await mostPlayed.locator(".sd-ranking-identity > strong").allTextContents(), [killerMatch.mapName, match.mapName].sort((a, b) => a.localeCompare(b, "fr")));
+  assert.deepEqual(await leastPlayed.locator(".sd-ranking-identity > strong").allTextContents(), (await mostPlayed.locator(".sd-ranking-identity > strong").allTextContents()).reverse());
+  for (const heading of ["Meilleurs amis", "Pires amis"]) {
+    const panel = rankings.locator(".sd-ranking-panel").filter({ has: page.getByRole("heading", { name: heading, exact: true }) });
+    await panel.getByText("Alice Behaviour", { exact: true }).waitFor();
+    await panel.getByText("1 partie", { exact: true }).waitFor();
+    await panel.getByText(/^0\s*%/).waitFor();
+  }
+  assert.ok(await rankings.locator(".sd-ranking-list > li").evaluateAll(rows => rows.length > 0 && rows.every(row => {
+    const cells = [...row.children].slice(0, 4).map(cell => cell.getBoundingClientRect());
+    return cells.every(cell => Math.abs((cell.top + cell.bottom) / 2 - (cells[0].top + cells[0].bottom) / 2) < 1);
+  })), "Rank, identity, number of games and rates share the same line");
+  await page.setViewportSize({ width: 390, height: 720 });
+  assert.ok(await rankings.locator(".sd-ranking-panel").evaluateAll(panels => panels.every(panel => panel.scrollWidth <= panel.clientWidth + 1)), "Ranking rows fit on mobile");
+  await page.setViewportSize({ width: 1280, height: 720 });
   const scores = campPanels.getByRole("table", { name: "Scores par camp" });
   const scoreRow = scores.getByRole("row", { name: /^Score moyen par partie/ });
   assert.deepEqual(await scoreRow.getByRole("cell").allTextContents(), [match.score, killerMatch.score].map(value => new Intl.NumberFormat("fr-FR").format(value)));
@@ -353,9 +372,17 @@ try {
     return label.getBoundingClientRect().right <= value.getBoundingClientRect().left
       && Math.abs(label.getBoundingClientRect().top - value.getBoundingClientRect().top) < 5;
   })), "Result labels and values share a line");
+  assert.ok(await results.locator(".sd-result-stats").evaluateAll(groups => groups.every(group => {
+    const values = [...group.querySelectorAll("strong")].map(value => value.getBoundingClientRect().left);
+    const labels = [...group.querySelectorAll("span")].map(label => label.getBoundingClientRect().right);
+    return values.every(value => Math.abs(value - values[0]) < 1) && Math.abs(values[0] - Math.max(...labels) - 12) < 1;
+  })), "Result values are aligned directly after the label column");
   await results.getByText("Échappés / équipe", { exact: true }).waitFor();
   await results.getByText("Premier kill", { exact: true }).waitFor();
   await overview.getByRole("button", { name: "Tueur", exact: true }).click();
+  assert.equal(await rankings.locator(".sd-ranking-panel.sd-tone-teal").count(), 0);
+  assert.equal(await rankings.locator(".sd-ranking-panel.sd-tone-red").count(), 4);
+  assert.deepEqual(await mostPlayed.locator(".sd-ranking-identity > strong").allTextContents(), [killerMatch.mapName]);
   for (const [grid, card] of [[results, ".sd-panel"], [streaks, ".sd-streak-camp"]]) {
     assert.equal(await grid.locator(`${card}.sd-tone-teal`).count(), 0);
     assert.ok(await grid.evaluate((element, selector) => Math.abs(element.clientWidth - element.querySelector(selector).getBoundingClientRect().width) < 2, `${card}.sd-tone-red`));
@@ -366,6 +393,9 @@ try {
   assert.ok(!(await page.getByLabel("Adversaire", { exact: true }).locator("option").allTextContents()).includes("The Trapper"));
   await page.getByLabel("Mon personnage", { exact: true }).selectOption("killer:The Trapper");
   await overview.getByRole("button", { name: "Survivant", exact: true }).click();
+  assert.equal(await rankings.locator(".sd-ranking-panel.sd-tone-red").count(), 0);
+  assert.equal(await rankings.locator(".sd-ranking-panel.sd-tone-teal").count(), 8);
+  assert.deepEqual(await mostPlayed.locator(".sd-ranking-identity > strong").allTextContents(), [match.mapName]);
   for (const [grid, card] of [[results, ".sd-panel"], [streaks, ".sd-streak-camp"]]) {
     assert.equal(await grid.locator(`${card}.sd-tone-red`).count(), 0);
     assert.ok(await grid.evaluate((element, selector) => Math.abs(element.clientWidth - element.querySelector(selector).getBoundingClientRect().width) < 2, `${card}.sd-tone-teal`));
@@ -378,6 +408,8 @@ try {
   assert.equal(await page.getByLabel("Mon personnage", { exact: true }).inputValue(), "all");
   assert.deepEqual(await page.getByLabel("Mon personnage", { exact: true }).locator("option").allTextContents(), ["Tous les personnages", "Jake Park"]);
   assert.deepEqual(await page.getByLabel("Adversaire", { exact: true }).locator("option").allTextContents(), ["Tous les adversaires", "The Trapper"]);
+  await page.getByRole("tab", { name: "MMR", exact: true }).click();
+  assert.equal(await page.getByLabel("Échelle de temps").inputValue(), "all");
   await page.getByRole("tab", { name: /^Historique/ }).click();
   await page.locator(".statistics-participant-name").getByText("Alice Behaviour", { exact: true }).first().waitFor();
   await page.getByRole("button", { name: "Voir l’équipement de Meg Thomas", exact: true }).first().click();

@@ -122,6 +122,24 @@ test("compte les personnages rencontrés par participant et conserve les icônes
   assert.ok(builds[0]?.assets?.every(asset => asset.image));
 });
 
+test("classe les coéquipiers par compte et compte chaque partie partagée une seule fois", () => {
+  const alice = { ...escaped("8:00"), communityPlayer: { user_id: "alice", nickname: "Même pseudo" } };
+  const bob = { ...dead("5:00"), communityPlayer: { user_id: "bob", nickname: "Même pseudo" } };
+  const opponent = { ...alice, role: "killer" as const, communityPlayer: { user_id: "opponent", nickname: "Adversaire" } };
+  const self = { ...alice, communityPlayer: { user_id: "self", nickname: "Moi" } };
+  const win = survivorMatch("win", "2026-11-01T19:00:00.000Z", "Escaped", null, [alice, alice, opponent, self]);
+  win.communityPlayer = self.communityPlayer;
+  const loss = survivorMatch("loss", "2026-11-02T19:00:00.000Z", "Sacrificed", null, [alice, bob, escaped("9:00")]);
+  const unknown = survivorMatch("unknown", "2026-11-03T19:00:00.000Z", "Unknown", null, [alice]);
+  const killer = killerMatch("killer", "2026-11-04T19:00:00.000Z", [alice]);
+
+  const rows = groupMatches(analyzeMatches([win, loss, unknown, killer]), "teammate");
+  assert.deepEqual(rows.map(({ key, summary }) => [key, summary.count, summary.escapeRate]), [
+    ["alice", 3, .5],
+    ["bob", 1, 0],
+  ]);
+});
+
 test("complète les anciens noms de compétences à partir des libellés déjà archivés", () => {
   const old = survivorMatch("old-label", "2026-11-01T19:00:00.000Z", "Escaped", null, [], ["S40P01"]);
   old.perkIconLabels = [null];

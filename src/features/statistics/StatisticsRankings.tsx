@@ -51,25 +51,62 @@ export function StatisticsRankings({ matches }: { matches: readonly AnalyzedMatc
       survivors: groupMatches(survivor, "character"), killers: groupMatches(killer, "character"),
       maps: groupMatches(matches, "map"), survivorBuilds: groupMatches(survivor, "build"), killerBuilds: groupMatches(killer, "build"),
       opponents: groupMatches(survivor, "opponent").filter(row => row.summary.escapeRate !== null),
+      teammates: groupMatches(survivor, "teammate").filter(row => row.summary.escapeRate !== null),
       survivorMaps: groupMatches(survivor, "map").filter(row => row.summary.escapeRate !== null),
       killerMaps: groupMatches(killer, "map").filter(row => row.summary.killRate !== null),
     };
   }, [matches]);
+  const mapMetrics: RankingMetric[] = [];
+  if (data.survivors.length) mapMetrics.push("escape");
+  if (data.killers.length) mapMetrics.push("kill");
   const rated = (rows: readonly AnalysisRow[], metric: "escapeRate" | "killRate", descending: boolean) => [...rows].sort((a, b) => (descending ? 1 : -1) * ((b.summary[metric] ?? 0) - (a.summary[metric] ?? 0)) || b.summary.count - a.summary.count);
   return <div className="sd-rankings">
     <div className="sd-two-columns">{data.survivors.length > 0 && <Ranking title="Survivants préférés" description="Vos trois survivants les plus joués." rows={data.survivors} metric="escape" />}{data.killers.length > 0 && <Ranking title="Tueurs préférés" description="Vos trois tueurs les plus joués." rows={data.killers} metric="kill" />}</div>
-    <section className="sd-favorite-maps"><header><h3>Cartes préférées</h3><p>Les trois cartes les plus jouées dans votre sélection.</p></header><div className="sd-map-grid">{data.maps.slice(0, 3).map(row => <article className="sd-map-card" key={row.key}>{row.image && <img src={statisticsImage(row.image, row.label) ?? undefined} alt="" loading="lazy" />}<div><h3>{row.label}</h3><div><span>Taux d’évasion <strong>{percent(row.summary.escapeRate)}</strong></span><span>Taux de kill <strong>{percent(row.summary.killRate)}</strong></span></div></div></article>)}</div>{!data.maps.length && <p className="sd-no-data">Aucune carte renseignée.</p>}</section>
+    <div className="sd-two-columns">
+      <Ranking title="Cartes les plus jouées" rows={data.maps} metrics={mapMetrics} map />
+      <Ranking title="Cartes les moins jouées" rows={data.maps.slice(-3).reverse()} metrics={mapMetrics} map />
+    </div>
     <div className="sd-two-columns">{data.survivors.length > 0 && <Ranking title="Builds survivant préférés" description="Vos trois combinaisons de quatre compétences les plus jouées." rows={data.survivorBuilds} metric="escape" build />}{data.killers.length > 0 && <Ranking title="Builds tueur préférés" description="Vos trois combinaisons de quatre compétences les plus jouées." rows={data.killerBuilds} metric="kill" build />}</div>
     <div className="sd-two-columns">{data.survivors.length > 0 && <Ranking title="Tueurs les plus craints" description="Les tueurs contre lesquels vous vous échappez le moins souvent." rows={rated(data.opponents, "escapeRate", false)} metric="escape" />}{data.survivors.length > 0 && <Ranking title="Tueurs les moins craints" description="Les tueurs contre lesquels vous vous échappez le plus souvent." rows={rated(data.opponents, "escapeRate", true)} metric="escape" />}</div>
+    {data.survivors.length > 0 && <div className="sd-two-columns">
+      <Ranking title="Meilleurs amis" description="Vos taux d’évasion les plus élevés avec des coéquipiers identifiés." rows={rated(data.teammates, "escapeRate", true)} metric="escape" />
+      <Ranking title="Pires amis" description="Vos taux d’évasion les plus faibles avec des coéquipiers identifiés." rows={rated(data.teammates, "escapeRate", false)} metric="escape" />
+    </div>}
     <div className="sd-two-columns">{data.survivors.length > 0 && <Ranking title="Survivant · cartes appréciées" description="Les cartes avec votre meilleur taux d’évasion." rows={rated(data.survivorMaps, "escapeRate", true)} metric="escape" map />}{data.survivors.length > 0 && <Ranking title="Survivant · cartes détestées" description="Les cartes avec votre plus faible taux d’évasion." rows={rated(data.survivorMaps, "escapeRate", false)} metric="escape" map />}</div>
     <div className="sd-two-columns">{data.killers.length > 0 && <Ranking title="Tueur · cartes appréciées" description="Les cartes avec votre meilleur taux de kill." rows={rated(data.killerMaps, "killRate", true)} metric="kill" map />}{data.killers.length > 0 && <Ranking title="Tueur · cartes détestées" description="Les cartes avec votre plus faible taux de kill." rows={rated(data.killerMaps, "killRate", false)} metric="kill" map />}</div>
     <p className="sd-footnote">Tous les classements suivent les filtres principaux. Les petits échantillons sont signalés ; les taux inconnus sont exclus des classements par résultat.</p>
   </div>;
 }
 
-function Ranking({ title, description, rows, metric, build = false, map = false }: { title: string; description: string; rows: readonly AnalysisRow[]; metric: "escape" | "kill"; build?: boolean; map?: boolean }) {
-  return <section className={`sd-panel sd-ranking-panel ${metric === "kill" ? "sd-tone-red" : "sd-tone-teal"}`}><header className="sd-panel-header"><div><h3>{title}</h3><p>{description}</p></div><span className="sd-ranking-badge">TOP 3</span></header>
-    <ol className="sd-ranking-list">{rows.slice(0, 3).map((row, index) => <li key={row.key}><span className="sd-ranking-number">{String(index + 1).padStart(2, "0")}</span><div className="sd-ranking-content">{build ? <StatisticsAssets asset={row} /> : <div className="sd-ranking-identity">{row.image && <img className={map ? "map" : ""} src={statisticsImage(row.image, row.label) ?? undefined} alt="" loading="lazy" />}<strong>{row.label}</strong></div>}<div className="sd-ranking-values"><span>{row.summary.count} partie{row.summary.count > 1 ? "s" : ""}</span><strong>{percent(metric === "escape" ? row.summary.escapeRate : row.summary.killRate)} <small>{metric === "escape" ? "d’évasion" : "de kills"}</small></strong></div>{map && metric === "escape" && observedKillRate(row.matches) !== null && <p className="sd-footnote">Kills du tueur adverse : {percent(observedKillRate(row.matches))} des survivants, équipes complètes uniquement.</p>}{row.summary.count < 5 && <span className="sd-small-sample">Petit échantillon</span>}</div></li>)}</ol>
+type RankingMetric = "escape" | "kill";
+
+function Ranking({ title, description, rows, metric, metrics = metric ? [metric] : [], build = false, map = false }: { title: string; description?: string; rows: readonly AnalysisRow[]; metric?: RankingMetric; metrics?: readonly RankingMetric[]; build?: boolean; map?: boolean }) {
+  const tone = metric === "kill" ? "red" : metric === "escape" ? "teal" : "gold";
+  return <section className={`sd-panel sd-ranking-panel sd-tone-${tone}`}>
+    <header className="sd-panel-header"><div><h3>{title}</h3>{description && <p>{description}</p>}</div><span className="sd-ranking-badge">TOP 3</span></header>
+    <ol className="sd-ranking-list">
+      {rows.slice(0, 3).map((row, index) => {
+        const image = build ? null : map ? statisticsImage(row.image, row.label) : statisticsCharacterPortrait(row.label, row.image);
+        const opponentKillRate = map && metric === "escape" ? observedKillRate(row.matches) : null;
+        return <li key={row.key}>
+          <span className="sd-ranking-number">{String(index + 1).padStart(2, "0")}</span>
+          <div className="sd-ranking-identity">
+            {build ? <StatisticsAssets asset={row} /> : <>
+              {image && <img className={map ? "map" : ""} src={image} alt="" loading="lazy" />}
+              <strong title={row.label}>{row.label}</strong>
+            </>}
+          </div>
+          <span className="sd-ranking-count">{row.summary.count} partie{row.summary.count > 1 ? "s" : ""}</span>
+          <div className="sd-ranking-rates">{metrics.map(rate => <strong key={rate} className={rate === "escape" ? "sd-tone-teal" : "sd-tone-red"}>
+            {percent(rate === "escape" ? row.summary.escapeRate : row.summary.killRate)} <small>{rate === "escape" ? "Évasion" : "Kills"}</small>
+          </strong>)}</div>
+          {(opponentKillRate !== null || row.summary.count < 5) && <div className="sd-ranking-notes">
+            {opponentKillRate !== null && <p className="sd-footnote">Kills du tueur adverse : {percent(opponentKillRate)} des survivants, équipes complètes uniquement.</p>}
+            {row.summary.count < 5 && <span className="sd-small-sample">Petit échantillon</span>}
+          </div>}
+        </li>;
+      })}
+    </ol>
     {!rows.length && <p className="sd-no-data">Pas assez de données renseignées dans cette sélection.</p>}
   </section>;
 }
