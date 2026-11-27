@@ -1548,6 +1548,8 @@ function detectInstallState(): InstallState {
 }
 
 function runUiTransition(update: () => void): void {
+  // Native mobile dialogs must enter and leave the top layer immediately.
+  if (window.matchMedia("(max-width: 900px), (prefers-reduced-motion: reduce)").matches) { update(); return; }
   const documentWithTransitions = document as Document & {
     startViewTransition?: (callback: () => void) => { finished: Promise<void> };
   };

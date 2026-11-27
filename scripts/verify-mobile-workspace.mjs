@@ -22,11 +22,9 @@ try {
     })),
   };
   browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: "reduce" });
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
   await context.addInitScript(() => {
     if (!localStorage.getItem("dbd-build-tool.current-session")) localStorage.setItem("dbd-build-tool.current-session", JSON.stringify({ activeView: "killers", side: "killer", soundEnabled: false }));
-    // Keep assertions independent of transition animation timing.
-    document.startViewTransition = undefined;
   });
   const page = await context.newPage();
   const errors = [];
@@ -34,7 +32,11 @@ try {
   await page.route("**/api/**", route => route.fulfill({ json: route.request().url().includes("/statistics/cache") ? snapshot : { connected: false, busy: false, nextSyncAt: null } }));
   await page.goto(base);
   const nav = page.getByRole("navigation", { name: "Navigation principale" });
-  const navigate = name => nav.getByRole("button", { name, exact: true }).click();
+  async function navigate(name) {
+    const button = nav.getByRole("button", { name, exact: true });
+    await button.click();
+    await button.and(nav.locator('[aria-current="page"]')).waitFor();
+  }
   async function noOverflow(label) {
     const size = await page.evaluate(() => ({ viewport: innerWidth, content: document.documentElement.scrollWidth }));
     assert.ok(size.content <= size.viewport + 1, `${label}: page overflows (${size.content}/${size.viewport})`);
@@ -58,6 +60,7 @@ try {
   await dialog.waitFor({ state: "detached" });
   assert.equal(await detailsButton.evaluate(element => element === document.activeElement), true);
   await detailsButton.click();
+  await dialog.waitFor();
   await page.keyboard.press("Escape");
   await dialog.waitFor({ state: "detached" });
   await card.getByRole("button", { name: "Ajouter au build", exact: true }).tap();

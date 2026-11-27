@@ -336,7 +336,13 @@ try {
   }
   await checkFilterDock(page, page.locator(".app-shell"));
   await page.setViewportSize({ width: 390, height: 720 });
-  await checkFilterDock(page, page.locator("html"));
+  const mobileStatisticsFilters = page.getByRole("button", { name: "Filtres des statistiques", exact: true });
+  assert.equal(await page.locator(".sd-filterbar").isVisible(), false);
+  await mobileStatisticsFilters.click();
+  assert.equal(await page.locator(".sd-filterbar").isVisible(), true);
+  assert.equal(await page.locator(".sd-filter-dock").evaluate(element => getComputedStyle(element).position), "static");
+  await mobileStatisticsFilters.click();
+  assert.equal(await page.locator(".sd-filterbar").isVisible(), false);
   await page.setViewportSize({ width: 1280, height: 720 });
   const results = page.locator(".sd-results-grid");
   const streaks = page.locator(".sd-streak-camps");

@@ -97,6 +97,7 @@ export function PerkInspectorPanel({
   }
 
   function runPanelTransition(update: () => void): void {
+    if (window.matchMedia("(max-width: 900px), (prefers-reduced-motion: reduce)").matches) { update(); return; }
     const documentWithTransitions = document as Document & {
       startViewTransition?: (callback: () => void) => { finished: Promise<void> };
     };
